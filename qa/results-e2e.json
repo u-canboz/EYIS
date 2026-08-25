@@ -1,0 +1,232 @@
+[
+  {
+    "name": "Checkout Validation ready",
+    "ok": true,
+    "detail": "total=5480"
+  },
+  {
+    "name": "Checkout Total = 49,90 + 4,90",
+    "ok": true,
+    "detail": "5480"
+  },
+  {
+    "name": "Inventory Reservation angelegt",
+    "ok": true,
+    "detail": "reservations=1"
+  },
+  {
+    "name": "reserved erhöht",
+    "ok": true,
+    "detail": "{\"onHand\":8,\"reserved\":1,\"damaged\":0}"
+  },
+  {
+    "name": "Payment Session erstellt",
+    "ok": true,
+    "detail": "mock/test 5480 EUR"
+  },
+  {
+    "name": "Order Finalization",
+    "ok": true,
+    "detail": "{\"created\":true,\"order_id\":\"5e21bcd8-3ae6-4060-a372-48eb0cf0cd8e\",\"order_number\":\"ORD-000003\",\"reservations_committed\":1}"
+  },
+  {
+    "name": "Genau eine Order für Checkout",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Ordernummer vorhanden/eindeutig",
+    "ok": true,
+    "detail": "ORD-000003"
+  },
+  {
+    "name": "Order Total = Snapshot",
+    "ok": true,
+    "detail": "5480 vs 5480"
+  },
+  {
+    "name": "Currency korrekt",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Order Lines = Snapshot",
+    "ok": true,
+    "detail": "1 vs 1"
+  },
+  {
+    "name": "Lieferadresse Snapshot",
+    "ok": true,
+    "detail": "{\"id\":\"b1013a4c-f0e1-47b9-bf6d-f6795654c320\",\"city\":\"Berlin\",\"phone\":null,\"state\":null,\"st"
+  },
+  {
+    "name": "Rechnungsadresse Snapshot",
+    "ok": true,
+    "detail": "vorhanden"
+  },
+  {
+    "name": "Payment Status = paid",
+    "ok": true,
+    "detail": "paid"
+  },
+  {
+    "name": "Order Status korrekt",
+    "ok": true,
+    "detail": "confirmed"
+  },
+  {
+    "name": "Fulfillment = unfulfilled",
+    "ok": true,
+    "detail": "unfulfilled"
+  },
+  {
+    "name": "Cart = completed",
+    "ok": true,
+    "detail": "completed"
+  },
+  {
+    "name": "Checkout = completed",
+    "ok": true,
+    "detail": "completed"
+  },
+  {
+    "name": "Payment Session final (paid)",
+    "ok": true,
+    "detail": "paid"
+  },
+  {
+    "name": "Reservation committed",
+    "ok": true,
+    "detail": "[{\"status\":\"committed\"}]"
+  },
+  {
+    "name": "on_hand -1",
+    "ok": true,
+    "detail": "{\"onHand\":7,\"reserved\":0,\"damaged\":0}"
+  },
+  {
+    "name": "reserved zurückgeführt",
+    "ok": true,
+    "detail": "{\"onHand\":7,\"reserved\":0,\"damaged\":0}"
+  },
+  {
+    "name": "Audit-Einträge",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Outbox Events",
+    "ok": true,
+    "detail": "events=3"
+  },
+  {
+    "name": "Payment Transaction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Duplicate Webhook: keine zweite Order",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Parallel Finalization: identische Antwort, eine Order",
+    "ok": true,
+    "detail": "parallel=5"
+  },
+  {
+    "name": "Genau eine sale_commit-Buchung",
+    "ok": true,
+    "detail": "movements=null"
+  },
+  {
+    "name": "Kein zweiter Inventory Commit",
+    "ok": true,
+    "detail": "{\"onHand\":7,\"reserved\":0,\"damaged\":0}"
+  },
+  {
+    "name": "Reservations weiterhin genau eine",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Failed Payment: Session = failed",
+    "ok": true,
+    "detail": "failed"
+  },
+  {
+    "name": "Failed Payment: keine Order",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Failed Payment: Checkout nicht completed",
+    "ok": true,
+    "detail": "awaiting_payment"
+  },
+  {
+    "name": "Failed Payment: Cart nicht completed",
+    "ok": true,
+    "detail": "checkout"
+  },
+  {
+    "name": "Failed Payment: Reservierung aktiv (Lifecycle)",
+    "ok": true,
+    "detail": "[{\"status\":\"active\"}]"
+  },
+  {
+    "name": "Payment Attempt vorhanden",
+    "ok": true,
+    "detail": "[{\"status\":\"started\"}]"
+  },
+  {
+    "name": "Retry-Zahlung möglich",
+    "ok": true,
+    "detail": "dacfebca-eef6-42ae-b603-dd0db0de0e6a"
+  },
+  {
+    "name": "Pending: Session status = pending",
+    "ok": true,
+    "detail": "pending"
+  },
+  {
+    "name": "Pending: keine voreilige Order",
+    "ok": true,
+    "detail": "pending"
+  },
+  {
+    "name": "Pending: kein Inventory Commit",
+    "ok": true,
+    "detail": "{\"onHand\":7,\"reserved\":1,\"damaged\":0}"
+  },
+  {
+    "name": "Pending -> später erfolgreich finalisiert",
+    "ok": true,
+    "detail": "{\"created\":true,\"order_id\":\"435b4193-5ac7-45d7-a596-380640f25291\",\"order_number\":\"ORD-000004\",\"reservations_committed\":1}"
+  },
+  {
+    "name": "Manipulation: Checkout 54,80 €",
+    "ok": true,
+    "detail": "5480"
+  },
+  {
+    "name": "Amount Mismatch blockiert",
+    "ok": true,
+    "detail": "Zahlbetrag weicht vom Checkout-Snapshot ab."
+  },
+  {
+    "name": "Currency Mismatch blockiert",
+    "ok": true,
+    "detail": "Währung der Zahlung weicht vom Checkout ab."
+  },
+  {
+    "name": "Manipulation: keine Order",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Manipulation nachvollziehbar (Session/Audit)",
+    "ok": true,
+    "detail": "status=pending err=-"
+  }
+]
