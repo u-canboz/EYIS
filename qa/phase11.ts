@@ -12,7 +12,7 @@ async function main() {
   await admin.from("automation_rules").delete().eq("organization_id", ORG).eq("name", "Große Bestellung prüfen");
   const { saveRule } = await import("../src/lib/commerce/automation/rules.server");
   const { findTemplate } = await import("../src/lib/commerce/automation/templates");
-  const t = findTemplate("large-order-review")!;
+  const t = findTemplate("high_value_review")!;
   const { data: owner } = await admin.from("memberships").select("user_id").eq("organization_id", ORG).limit(1);
   const actorId = (owner as { user_id: string }[])[0]!.user_id;
   await saveRule({
