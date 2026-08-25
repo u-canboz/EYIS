@@ -37,6 +37,8 @@ const NAV = [
   { to: "/app", label: "Übersicht" },
   { to: "/app/produkte", label: "Produkte" },
   { to: "/app/kategorien", label: "Kategorien" },
+  { to: "/app/preise", label: "Preise" },
+  { to: "/app/marketing/promotions", label: "Promotions" },
   { to: "/app/medien", label: "Medien" },
   { to: "/app/team", label: "Team" },
   { to: "/app/shops", label: "Shops" },

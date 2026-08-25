@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PricingTab } from "@/components/commerce/PricingTab";
 import {
   Select,
   SelectContent,
@@ -59,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/app/produkte/$productId")(
 function ProductEditor() {
   const { productId } = Route.useParams();
   const queryClient = useQueryClient();
-  const { organizationId, shopId, can } = useActiveWorkspace();
+  const { organizationId, shopId, shops, can } = useActiveWorkspace();
 
   const fetchProduct = useServerFn(getProduct);
   const fetchBlueprint = useServerFn(getBlueprintVersion);
