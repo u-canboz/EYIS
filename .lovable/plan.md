@@ -29,7 +29,7 @@ Validierung per DB-Constraints wo immutable (nicht-negative Beträge, `min_quant
 
 Ausgabe: `baseAmount`, `resolvedUnitAmount`, `subtotal`, `discounts[]`, `appliedPriceRules[]`, `appliedPromotions[]`, `compareAtAmount?`, `shippingDiscountEligible`, `currencyCode` — plus eine nachvollziehbare Erklärkette (jede Stufe mit Label, Betrag, Quelle) für die Preis-Transparenz im Admin.
 
-Deterministische Priorität:
+Fachliche Priorität der Preisregeln:
 
 ```text
 1. variant override
@@ -40,9 +40,19 @@ Deterministische Priorität:
 danach: promotions
 ```
 
+Kein zufälliger First-Match: Aus allen zum Zeitpunkt, zur Menge, zur Währung und zur Kundengruppe **gültigen** Preiszeilen wird nach fachlicher Priorität die höchste Stufe bestimmt; innerhalb derselben Stufe gewinnt deterministisch der günstigste gültige Preis (Tie-Break: höhere `priority`, dann jüngeres `updated_at`, dann `id`). Damit kann ein schlechterer Kundengruppenpreis keinen besseren Mengenpreis verdrängen — die Engine wählt bei gleichrangigen Kandidaten stets den für den Kunden besten Betrag. Die gewählte Stufe und alle verworfenen Kandidaten erscheinen in der Erklärkette.
+
+Prices bleiben erweiterbar: neben den V1-Spalten trägt jede Preiszeile eine `conditions`-jsonb-Struktur (gleiches Muster wie bei Promotions). Künftige Kriterien wie Markt, Region, Channel oder B2B-Vertrag kommen dort hinein, ohne dass für jedes Kriterium eine neue Spalte nötig wird; die Engine wertet unbekannte Bedingungen konservativ als „nicht anwendbar“ aus.
+
 Promotions werden nach `priority` sortiert ausgewertet; `stackable = false` beendet die Kombination (nur die höchstpriorisierte bzw. bei Gleichstand die für den Kunden günstigste greift, deterministisch per Tie-Break auf id). Rundung einmalig, kaufmännisch, auf Minor Units.
 
-Promotion-Conditions datengetrieben ausgewertet: product, variant, category, collection, minimum_quantity, minimum_subtotal, customer_group, date_range. Actions: percentage_discount, fixed_discount, set_price, free_item, free_shipping. `buy_x_get_y` wird auf dem Pricing-Context evaluiert; `free_shipping` setzt nur `shipping_discount_eligible = true`.
+Promotion-Conditions datengetrieben ausgewertet: product, variant, category, collection, minimum_quantity, minimum_subtotal, customer_group, date_range. Actions: percentage_discount, fixed_discount, set_price, free_item, free_shipping. `free_shipping` setzt nur `shipping_discount_eligible = true`.
+
+**Bewusst nur vorbereitet, nicht produktionsfähig in Phase 2:**
+
+- `buy_x_get_y` — braucht einen positionsübergreifenden Warenkorb-Kontext mit mehreren Zeilen. Phase 2 liefert Datenmodell, Regeldefinition und Validierung sowie einen Wizard-Pfad; die echte positionsübergreifende Auswertung kommt mit dem Cart. Die Engine gibt für solche Promotions ein klar gekennzeichnetes „noch nicht anwendbar“ zurück statt einer Behelfsrechnung, und die UI weist darauf hin.
+- `usage_limit` / `usage_limit_per_customer` — ohne Kunden- und Bestellsystem nicht zuverlässig durchsetzbar. Felder und Validierung jetzt, echte Verbrauchszählung mit Orders.
+
 
 Cross-Tenant: Promotion, Preis und Kundengruppe müssen zu Shop und Organisation des Kontexts gehören, sonst werden sie verworfen — zusätzlich zu RLS.
 
@@ -54,6 +64,8 @@ Cross-Tenant: Promotion, Preis und Kundengruppe müssen zu Shop und Organisation
 - `pricing.server.ts` (Engine), `money.ts` (nur Formatierung/Parsing für die UI, keine Preislogik).
 
 Bulk-Operationen (alle Varianten auf Betrag setzen, +10 %, −5 €) laufen serverseitig atomar über eine SECURITY-DEFINER-DB-Funktion, mit `idempotency_keys` gegen doppelte Ausführung bei Retry. Default atomar; Fehler in einer Zeile rollt alles zurück.
+
+Bulk-Basis ist eindeutig definiert: mutiert werden ausschließlich explizit ausgewählte, gespeicherte Preiszeilen eines bestimmten Typs (z. B. „alle `base`-Preise dieser Varianten in EUR“). Relative Änderungen rechnen immer vom gespeicherten `amount_minor` dieser Zeilen — niemals vom aufgelösten Endpreis. Damit verändert `+10 %` nie versehentlich Sale- oder Staffelergebnisse. Vor dem Ausführen zeigt die UI eine Vorschau alt → neu je betroffener Zeile.
 
 ## Permissions & RLS
 
@@ -93,6 +105,9 @@ Vitest wird eingerichtet; die Engine wird als reine Funktion über einem geladen
 - Prozent- und Festbetrag-Promotion
 - zwei nicht kombinierbare Promotions → deterministisches Ergebnis
 - Cross-Tenant: fremde Promotion/Kundengruppe wird ignoriert
+- Gleichrangige Kandidaten: günstigster gültiger Preis gewinnt, kein First-Match
+- Bulk relativ: rechnet nachweislich vom gespeicherten Basispreis, nicht vom Endpreis
+- `buy_x_get_y`: Engine liefert den Status „nur vorbereitet“ statt einer Behelfsrechnung
 
 Zusätzlich manuelle End-to-End-Prüfung im Browser: Preise setzen, Bulk-Aktion, Promotion anlegen, Preview-Ergebnis, Rechte mit einer Read-Only-Rolle.
 
