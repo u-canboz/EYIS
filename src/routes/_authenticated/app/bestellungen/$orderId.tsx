@@ -191,6 +191,93 @@ function OrderDetailPage() {
           </section>
 
           <section className="rounded-lg border p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="font-medium">Versand & Sendungsverfolgung</h2>
+              <Link to="/app/versand" className="text-muted-foreground text-xs hover:underline">
+                Fulfillment-Workspace →
+              </Link>
+            </div>
+            {fulfillments.isLoading ? (
+              <Skeleton className="h-20 w-full" />
+            ) : !fulfillments.data?.length ? (
+              <p className="text-muted-foreground text-sm">
+                Noch kein Fulfillment angelegt. Bezahlte Bestellungen lassen sich im Versand-Workspace
+                kommissionieren.
+              </p>
+            ) : (
+              <ul className="space-y-4">
+                {fulfillments.data.map((f) => (
+                  <li key={f.id} className="rounded-md border p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <Link
+                        to="/app/versand/$fulfillmentId"
+                        params={{ fulfillmentId: f.id }}
+                        className="text-sm font-medium hover:underline"
+                      >
+                        {f.reference ?? f.id.slice(0, 8)}
+                      </Link>
+                      <Badge variant="outline">{FULFILLMENT_STATE_LABELS[f.status]}</Badge>
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      {f.items.reduce((sum, i) => sum + i.quantity, 0)} Artikel ·{" "}
+                      {f.packages.length} Paket(e)
+                    </p>
+                    {f.shipments.map((s) => (
+                      <div key={s.id} className="mt-2 border-t pt-2 text-sm">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span>
+                            {s.carrierProvider}
+                            {s.trackingNumber && (
+                              <span className="text-muted-foreground font-mono text-xs"> · {s.trackingNumber}</span>
+                            )}
+                          </span>
+                          <Badge variant="secondary">{SHIPMENT_STATUS_LABELS[s.status]}</Badge>
+                        </div>
+                        {s.trackingUrl && (
+                          <a
+                            href={s.trackingUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary text-xs hover:underline"
+                          >
+                            Sendung beim Dienstleister verfolgen
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {!!tracking.data?.shipments.length && (
+              <>
+                <Separator className="my-3" />
+                <h3 className="mb-2 text-sm font-medium">Verlauf</h3>
+                <ul className="space-y-1 text-sm">
+                  {tracking.data.shipments.flatMap((s) =>
+                    s.events.map((e, idx) => (
+                      <li key={`${s.trackingNumber ?? s.carrierProvider}-${idx}`} className="flex justify-between gap-3">
+                        <span>
+                          {TRACKING_STATUS_LABELS[e.status]}
+                          {e.description && (
+                            <span className="text-muted-foreground"> · {e.description}</span>
+                          )}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {new Date(e.occurredAt).toLocaleString("de-DE")}
+                        </span>
+                      </li>
+                    )),
+                  )}
+                </ul>
+              </>
+            )}
+          </section>
+
+
+
+          <section className="rounded-lg border p-4">
             <h2 className="mb-3 font-medium">Zahlungsbuchungen</h2>
             {!o.transactions.length ? (
               <p className="text-muted-foreground text-sm">Keine Buchungen.</p>
