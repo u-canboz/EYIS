@@ -56,6 +56,7 @@ import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './route
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
+import { Route as AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/$templateId'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
 import { Route as ApiPublicWebhooksCommunicationsProviderRouteImport } from './routes/api/public/webhooks/communications/$provider'
 
@@ -327,6 +328,12 @@ const AuthenticatedAppKommunikationVorlagenIndexRoute =
     path: '/app/kommunikation/vorlagen/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppKommunikationVorlagenTemplateIdRoute =
+  AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport.update({
+    id: '/app/kommunikation/vorlagen/$templateId',
+    path: '/app/kommunikation/vorlagen/$templateId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksCarrierProviderRoute =
   ApiPublicWebhooksCarrierProviderRouteImport.update({
     id: '/api/public/webhooks/carrier/$provider',
@@ -386,6 +393,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
@@ -436,6 +444,7 @@ export interface FileRoutesByTo {
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand': typeof AuthenticatedAppVersandIndexRoute
+  '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/app/kommunikation/vorlagen': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
@@ -488,6 +497,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/_authenticated/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/_authenticated/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
@@ -540,6 +550,7 @@ export interface FileRouteTypes {
     | '/app/produkte/'
     | '/app/retouren/'
     | '/app/versand/'
+    | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
     | '/app/kommunikation/vorlagen/'
@@ -590,6 +601,7 @@ export interface FileRouteTypes {
     | '/app/produkte'
     | '/app/retouren'
     | '/app/versand'
+    | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
     | '/app/kommunikation/vorlagen'
@@ -641,6 +653,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/'
     | '/_authenticated/app/retouren/'
     | '/_authenticated/app/versand/'
+    | '/_authenticated/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
     | '/_authenticated/app/kommunikation/vorlagen/'
@@ -991,6 +1004,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppKommunikationVorlagenIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/kommunikation/vorlagen/$templateId': {
+      id: '/_authenticated/app/kommunikation/vorlagen/$templateId'
+      path: '/app/kommunikation/vorlagen/$templateId'
+      fullPath: '/app/kommunikation/vorlagen/$templateId'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/carrier/$provider': {
       id: '/api/public/webhooks/carrier/$provider'
       path: '/api/public/webhooks/carrier/$provider'
@@ -1046,6 +1066,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
   AuthenticatedAppRetourenIndexRoute: typeof AuthenticatedAppRetourenIndexRoute
   AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
+  AuthenticatedAppKommunikationVorlagenTemplateIdRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   AuthenticatedAppKommunikationVorlagenIndexRoute: typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 
@@ -1101,6 +1122,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
   AuthenticatedAppRetourenIndexRoute: AuthenticatedAppRetourenIndexRoute,
   AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
+  AuthenticatedAppKommunikationVorlagenTemplateIdRoute:
+    AuthenticatedAppKommunikationVorlagenTemplateIdRoute,
   AuthenticatedAppKommunikationVorlagenIndexRoute:
     AuthenticatedAppKommunikationVorlagenIndexRoute,
 }
