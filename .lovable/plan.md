@@ -41,7 +41,7 @@ Reservieren, Freigeben und Committen selbst nutzen unverändert die Phase-3-Funk
 
 - `repriceCart(cartId)` lädt Cart und Lines, ruft pro Line die bestehende Pricing Engine auf und wertet danach cartweite Promotions aus.
 - Die Pricing Engine wird um eine Cart-Ebene **erweitert**, nicht dupliziert: eine neue Funktion `resolveCartPricing(snapshot, cartContext)` in derselben Engine-Datei nutzt dieselbe Preisauflösung pro Line und ergänzt cartweite Auswertung für `minimum_subtotal`, mehrere Produkte/Kategorien, feste Cart-Rabatte, `free_shipping` und Buy X Get Y (Rabatt auf günstigste qualifizierende Positionen). Bisheriges Line-Verhalten und die 18 vorhandenen Tests bleiben unverändert.
-- Rabatte werden anteilig deterministisch auf Lines verteilt, Rundungsreste gehen an die erste Zeile — Summe der Lines ergibt exakt den Cart-Rabatt.
+- Rabatte werden anteilig deterministisch auf Lines verteilt. Rundungsreste werden einer eindeutig sortierten qualifizierten Line zugeordnet (stabile Sortierung nach aufgelöstem Betrag, dann `variant_id`, dann Line-ID) — niemals abhängig von zufälliger DB-Reihenfolge. Die Summe der Lines ergibt exakt den Cart-Rabatt.
 - Jede Neuberechnung schreibt eine neue Snapshot-Version; alte Snapshots bleiben unangetastet.
 - Änderungen zwischen zwei Berechnungen erzeugen Hinweise (`price_changed`, `promotion_removed`, `quantity_reduced`, `out_of_stock`), die die UI anzeigt.
 - Usage-Limits werden nur validiert, nicht verbraucht.
