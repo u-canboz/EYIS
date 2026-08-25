@@ -18,7 +18,7 @@ export type CartListRow = {
 
 export const listCarts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Base & { status?: string | null; search?: string | null }) => data)
+  .inputValidator((data: Base & { status?: CartStatus | null; search?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("./core.server");
     await assertPermission(context.supabase, context.userId, data.organizationId, "carts.read");
