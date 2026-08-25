@@ -14,7 +14,7 @@ Neue Tabellen, alle mit `organization_id` + `shop_id`, RLS an, GRANTs nur für `
 
 - `carts` — Status `active | checkout | completed | abandoned | expired`, `currency_code`, `customer_email`, `region_code`, `locale`, `anonymous_token_hash`, `expires_at`, `last_activity_at`, `abandoned_at`, `completed_at`, `metadata`.
 - `cart_items` — `product_id`, `variant_id`, `quantity`, Snapshot-Felder für Titel/Variantentitel/SKU/Bild. Unique auf `(cart_id, variant_id)`, damit dieselbe Variante Menge addiert statt Doppelzeilen zu erzeugen.
-- `cart_price_snapshots` — versioniert pro Cart, unveränderbar (Trigger blockt UPDATE/DELETE), enthält Totals in Minor Units plus `pricing_context` und `calculation_result`.
+- `cart_price_snapshots` — versioniert pro Cart, unveränderbar (Trigger blockt UPDATE/DELETE), enthält Totals in Minor Units plus `pricing_context`, `calculation_result` und `pricing_engine_version`, damit später nachvollziehbar bleibt, mit welcher Pricing-Logik ein alter Cart berechnet wurde.
 - `cart_item_price_snapshots` — pro Line eines Snapshots: Basis-, aufgelöster, Zeilen-, Rabatt- und Endbetrag, angewandte Preisregeln und Promotions.
 - `cart_promotion_codes` — angewandte Codes je Cart mit `code_snapshot`.
 - `checkout_sessions` — Status `open | validated | awaiting_payment | expired | cancelled`, `price_snapshot_id`, `expires_at` (Standard 20 Minuten), `validated_at`.
@@ -31,8 +31,8 @@ Neue Permissions in `role_permissions`: `carts.read`, `carts.manage`, `checkout.
 
 Wie in Phase 3 laufen kritische Operationen als `SECURITY DEFINER`-Postgres-Funktionen, damit sie atomar und idempotent sind:
 
-- `cart_start_checkout(...)` — Session anlegen, alle lagergeführten Positionen über die bestehende Reservierungslogik reservieren, Snapshot verknüpfen, Audit + Outbox + Idempotency in einer Transaktion. Schlägt eine Position fehl, rollt alles zurück. Keine Teilreservierung.
-- `cart_expire_checkout_sessions(...)` — abgelaufene Sessions auf `expired` setzen und zugehörige Reservierungen freigeben.
+- `cart_start_checkout(...)` — Session anlegen, alle lagergeführten Positionen über die bestehende Reservierungslogik reservieren, Snapshot verknüpfen, Cart-Status auf `checkout` setzen, Audit + Outbox + Idempotency in einer Transaktion. Schlägt eine Position fehl, rollt alles zurück. Keine Teilreservierung. Solange der Cart auf `checkout` steht, werden normale Cart-Mutationen (Add/Update/Remove/Clear/Promotion) abgelehnt; wer ändern will, bricht die Session kontrolliert ab — dann werden Reservierungen freigegeben und der Cart geht zurück auf `active`.
+- `cart_expire_checkout_sessions(...)` — abgelaufene Sessions auf `expired` setzen, zugehörige Reservierungen freigeben und den Cart zurück auf `active` setzen, sofern der Cart selbst noch nicht abgelaufen ist. Der Kunde kann den Checkout dann erneut starten statt einen toten Warenkorb vorzufinden.
 - `cart_expire_carts(...)` — alte Gast-Carts ablaufen lassen, nie mit offenen Reservierungen.
 
 Reservieren, Freigeben und Committen selbst nutzen unverändert die Phase-3-Funktionen.
@@ -41,7 +41,7 @@ Reservieren, Freigeben und Committen selbst nutzen unverändert die Phase-3-Funk
 
 - `repriceCart(cartId)` lädt Cart und Lines, ruft pro Line die bestehende Pricing Engine auf und wertet danach cartweite Promotions aus.
 - Die Pricing Engine wird um eine Cart-Ebene **erweitert**, nicht dupliziert: eine neue Funktion `resolveCartPricing(snapshot, cartContext)` in derselben Engine-Datei nutzt dieselbe Preisauflösung pro Line und ergänzt cartweite Auswertung für `minimum_subtotal`, mehrere Produkte/Kategorien, feste Cart-Rabatte, `free_shipping` und Buy X Get Y (Rabatt auf günstigste qualifizierende Positionen). Bisheriges Line-Verhalten und die 18 vorhandenen Tests bleiben unverändert.
-- Rabatte werden anteilig deterministisch auf Lines verteilt, Rundungsreste gehen an die erste Zeile — Summe der Lines ergibt exakt den Cart-Rabatt.
+- Rabatte werden anteilig deterministisch auf Lines verteilt. Rundungsreste werden einer eindeutig sortierten qualifizierten Line zugeordnet (stabile Sortierung nach aufgelöstem Betrag, dann `variant_id`, dann Line-ID) — niemals abhängig von zufälliger DB-Reihenfolge. Die Summe der Lines ergibt exakt den Cart-Rabatt.
 - Jede Neuberechnung schreibt eine neue Snapshot-Version; alte Snapshots bleiben unangetastet.
 - Änderungen zwischen zwei Berechnungen erzeugen Hinweise (`price_changed`, `promotion_removed`, `quantity_reduced`, `out_of_stock`), die die UI anzeigt.
 - Usage-Limits werden nur validiert, nicht verbraucht.
@@ -71,7 +71,7 @@ Jede Mutation: Kontext prüfen (Membership oder gültiger Cart-Token), Shop- und
 
 ## Sicherheit
 
-- Anonymer Token wird serverseitig erzeugt, nur der SHA-256-Hash gespeichert; der Roh-Token wird genau einmal zurückgegeben.
+- Anonymer Token wird serverseitig mit mindestens 256 Bit kryptografischer Entropie erzeugt (32 Zufallsbytes über `crypto.getRandomValues`, hex-kodiert) — keine UUIDs, keine kurzen Tokens. Gespeichert wird nur der SHA-256-Hash; der Roh-Token wird genau einmal zurückgegeben.
 - Token autorisiert exakt einen Cart, konstantzeitiger Vergleich, kein Cross-Cart-Zugriff.
 - Keine anonymen SELECT-Policies auf Cart-, Checkout- oder Adresstabellen.
 - Der Client sendet nur IDs, Mengen, Adresseingaben, Promotion-Code und Auswahlentscheidungen. Preis, Rabatt, Versandkosten, Steuer, Total, Titel und SKU erzeugt ausschließlich der Server.
