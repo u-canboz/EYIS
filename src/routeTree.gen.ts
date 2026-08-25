@@ -67,6 +67,7 @@ import { Route as AuthenticatedAppKommunikationVerlaufIndexRouteImport } from '.
 import { Route as AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/$communicationId'
 import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
 import { Route as AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/$templateId'
+import { Route as ApiPublicStoreV1SplatRouteImport } from './routes/api/public/store/v1/$'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
 import { Route as ApiPublicWebhooksCommunicationsProviderRouteImport } from './routes/api/public/webhooks/communications/$provider'
 
@@ -403,6 +404,11 @@ const AuthenticatedAppKommunikationVorlagenTemplateIdRoute =
     path: '/app/kommunikation/vorlagen/$templateId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicStoreV1SplatRoute = ApiPublicStoreV1SplatRouteImport.update({
+  id: '/api/public/store/v1/$',
+  path: '/api/public/store/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksCarrierProviderRoute =
   ApiPublicWebhooksCarrierProviderRouteImport.update({
     id: '/api/public/webhooks/carrier/$provider',
@@ -472,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/app/kommunikation/verlauf/': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
@@ -533,6 +540,7 @@ export interface FileRoutesByTo {
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/app/kommunikation/verlauf': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
@@ -596,6 +604,7 @@ export interface FileRoutesById {
   '/_authenticated/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/_authenticated/app/kommunikation/verlauf/': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
@@ -659,6 +668,7 @@ export interface FileRouteTypes {
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/store/v1/$'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
     | '/app/kommunikation/verlauf/'
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/store/v1/$'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
     | '/app/kommunikation/verlauf'
@@ -782,6 +793,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/automationen/regel/$ruleId'
     | '/_authenticated/app/kommunikation/verlauf/$communicationId'
     | '/_authenticated/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/store/v1/$'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
     | '/_authenticated/app/kommunikation/verlauf/'
@@ -799,6 +811,7 @@ export interface RootRouteChildren {
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
+  ApiPublicStoreV1SplatRoute: typeof ApiPublicStoreV1SplatRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
   ApiPublicWebhooksCommunicationsProviderRoute: typeof ApiPublicWebhooksCommunicationsProviderRoute
 }
@@ -1211,6 +1224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/store/v1/$': {
+      id: '/api/public/store/v1/$'
+      path: '/api/public/store/v1/$'
+      fullPath: '/api/public/store/v1/$'
+      preLoaderRoute: typeof ApiPublicStoreV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/carrier/$provider': {
       id: '/api/public/webhooks/carrier/$provider'
       path: '/api/public/webhooks/carrier/$provider'
@@ -1369,6 +1389,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
+  ApiPublicStoreV1SplatRoute: ApiPublicStoreV1SplatRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,
   ApiPublicWebhooksCommunicationsProviderRoute:
     ApiPublicWebhooksCommunicationsProviderRoute,

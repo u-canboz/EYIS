@@ -7028,6 +7028,242 @@ export type Database = {
           },
         ]
       }
+      store_api_keys: {
+        Row: {
+          allowed_origins: string[]
+          created_at: string
+          created_by: string | null
+          environment: Database["public"]["Enums"]["commerce_environment"]
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          organization_id: string
+          rate_limit_profile: string
+          revoked_at: string | null
+          shop_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          allowed_origins?: string[]
+          created_at?: string
+          created_by?: string | null
+          environment?: Database["public"]["Enums"]["commerce_environment"]
+          id?: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          organization_id: string
+          rate_limit_profile?: string
+          revoked_at?: string | null
+          shop_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          allowed_origins?: string[]
+          created_at?: string
+          created_by?: string | null
+          environment?: Database["public"]["Enums"]["commerce_environment"]
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          organization_id?: string
+          rate_limit_profile?: string
+          revoked_at?: string | null
+          shop_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_api_keys_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_api_keys_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_api_rate_counters: {
+        Row: {
+          bucket: string
+          hits: number
+          key_id: string
+          profile: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          key_id: string
+          profile: string
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          key_id?: string
+          profile?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      store_api_request_logs: {
+        Row: {
+          created_at: string
+          duration_ms: number
+          error_code: string | null
+          id: string
+          ip_hash: string | null
+          key_id: string | null
+          method: string
+          organization_id: string | null
+          request_id: string
+          route: string
+          shop_id: string | null
+          status_code: number
+          user_agent_summary: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number
+          error_code?: string | null
+          id?: string
+          ip_hash?: string | null
+          key_id?: string | null
+          method: string
+          organization_id?: string | null
+          request_id: string
+          route: string
+          shop_id?: string | null
+          status_code: number
+          user_agent_summary?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number
+          error_code?: string | null
+          id?: string
+          ip_hash?: string | null
+          key_id?: string | null
+          method?: string
+          organization_id?: string | null
+          request_id?: string
+          route?: string
+          shop_id?: string | null
+          status_code?: number
+          user_agent_summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_api_request_logs_key_id_fkey"
+            columns: ["key_id"]
+            isOneToOne: false
+            referencedRelation: "store_api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_api_request_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_api_request_logs_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_confirmation_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          order_id: string
+          organization_id: string
+          shop_id: string
+          token_hash: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          order_id: string
+          organization_id: string
+          shop_id: string
+          token_hash: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          order_id?: string
+          organization_id?: string
+          shop_id?: string
+          token_hash?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_confirmation_tokens_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_confirmation_tokens_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_confirmation_tokens_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_privacy_salts: {
+        Row: {
+          created_at: string
+          salt: string
+          salt_date: string
+        }
+        Insert: {
+          created_at?: string
+          salt: string
+          salt_date: string
+        }
+        Update: {
+          created_at?: string
+          salt?: string
+          salt_date?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -8218,6 +8454,17 @@ export type Database = {
       shop_in_org: {
         Args: { _org_id: string; _shop_id: string }
         Returns: boolean
+      }
+      store_current_ip_salt: { Args: never; Returns: string }
+      store_rate_hit: {
+        Args: {
+          p_bucket: string
+          p_key_id: string
+          p_limit: number
+          p_profile: string
+          p_window_seconds: number
+        }
+        Returns: Json
       }
       track_record_event: {
         Args: {
