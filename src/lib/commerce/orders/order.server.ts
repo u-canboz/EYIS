@@ -1,4 +1,5 @@
 /** Server-only order read/write helpers for the admin workspace. */
+import { safeSearchTerm } from "../search";
 import { getAdmin } from "../core.server";
 import type {
   JsonValue,
@@ -48,7 +49,7 @@ export async function listOrders(input: {
   if (input.from) query = query.gte("placed_at", input.from);
   if (input.to) query = query.lte("placed_at", input.to);
 
-  const term = (input.search ?? "").trim();
+  const term = safeSearchTerm(input.search);
   if (term) {
     const { data: hits } = await admin
       .from("order_items")

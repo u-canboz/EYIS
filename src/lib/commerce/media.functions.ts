@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { safeSearchTerm } from "./search";
 
 export type MediaItem = {
   id: string;
@@ -31,8 +32,9 @@ export const listMedia = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 100);
 
-    if (data.search?.trim()) {
-      const term = `%${data.search.trim()}%`;
+    const search = safeSearchTerm(data.search);
+    if (search) {
+      const term = `%${search}%`;
       query = query.or(`filename.ilike.${term},title.ilike.${term},alt_text.ilike.${term}`);
     }
 

@@ -143,6 +143,9 @@ export const cancelPortalReturnFn = createServerFn({ method: "POST" })
 export const requestGuestAccessFn = createServerFn({ method: "POST" })
   .inputValidator((data: { orderNumber: string; email: string }) => data)
   .handler(async ({ data }) => {
+    const { enforcePublicLimit } = await import("../security/limit.server");
+    await enforcePublicLimit("guest_access_request");
+    await enforcePublicLimit("guest_access_request", data.email.trim().toLowerCase().slice(0, 40));
     const { getAdmin } = await import("../core.server");
     const admin = await getAdmin();
     const { data: order } = await admin
