@@ -341,7 +341,7 @@ export type RuleRow = {
   templateName: string;
   enabled: boolean;
   delaySeconds: number;
-  conditions: Record<string, unknown>;
+  conditions: Record<string, string | number | boolean | null>;
 };
 
 export type ProviderConfigRow = {

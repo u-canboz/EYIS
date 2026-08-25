@@ -316,7 +316,7 @@ export async function listRules(organizationId: string, shopId: string): Promise
     templateName: names.get(r["template_key"] as string) ?? (r["template_key"] as string),
     enabled: Boolean(r["enabled"]),
     delaySeconds: Number(r["delay_seconds"] ?? 0),
-    conditions: (r["conditions"] as Record<string, unknown>) ?? {},
+    conditions: (r["conditions"] as Record<string, string | number | boolean | null>) ?? {},
   }));
 }
 
