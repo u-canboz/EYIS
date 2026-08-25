@@ -23,6 +23,7 @@ import { Route as AuthenticatedAppSteuernRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authenticated/app/warenkoerbe'
 import { Route as AuthenticatedAppZahlungenRouteImport } from './routes/_authenticated/app/zahlungen'
+import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/bestellungen/$orderId'
 import { Route as AuthenticatedAppBestellungenIndexRouteImport } from './routes/_authenticated/app/bestellungen/index'
 import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './routes/_authenticated/app/bestellungen/$orderId'
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
@@ -124,6 +125,12 @@ const AuthenticatedAppZahlungenRoute =
     id: '/app/zahlungen',
     path: '/app/zahlungen',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const PortalBestellungenOrderIdRoute =
+  PortalBestellungenOrderIdRouteImport.update({
+    id: '/portal/bestellungen/$orderId',
+    path: '/portal/bestellungen/$orderId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedAppBestellungenIndexRoute =
   AuthenticatedAppBestellungenIndexRouteImport.update({
@@ -312,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
+  '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
@@ -356,6 +364,7 @@ export interface FileRoutesByTo {
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
+  '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
@@ -402,6 +411,7 @@ export interface FileRoutesById {
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/_authenticated/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
+  '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
@@ -448,6 +458,7 @@ export interface FileRouteTypes {
     | '/app/team'
     | '/app/warenkoerbe'
     | '/app/zahlungen'
+    | '/portal/bestellungen/$orderId'
     | '/app/'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
@@ -492,6 +503,7 @@ export interface FileRouteTypes {
     | '/app/team'
     | '/app/warenkoerbe'
     | '/app/zahlungen'
+    | '/portal/bestellungen/$orderId'
     | '/app'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
@@ -537,6 +549,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/team'
     | '/_authenticated/app/warenkoerbe'
     | '/_authenticated/app/zahlungen'
+    | '/portal/bestellungen/$orderId'
     | '/_authenticated/app/'
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
@@ -575,6 +588,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   InviteRoute: typeof InviteRoute
   PortalIndexRoute: typeof PortalIndexRoute
+  PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
 }
@@ -678,6 +692,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/zahlungen'
       preLoaderRoute: typeof AuthenticatedAppZahlungenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/portal/bestellungen/$orderId': {
+      id: '/portal/bestellungen/$orderId'
+      path: '/portal/bestellungen/$orderId'
+      fullPath: '/portal/bestellungen/$orderId'
+      preLoaderRoute: typeof PortalBestellungenOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/bestellungen/': {
       id: '/_authenticated/app/bestellungen/'
@@ -985,6 +1006,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   InviteRoute: InviteRoute,
   PortalIndexRoute: PortalIndexRoute,
+  PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,
 }
