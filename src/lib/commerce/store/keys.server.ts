@@ -106,3 +106,106 @@ export async function createKey(input: {
   if (error) throw new Error(error.message);
   return { id: (data as { id: string }).id, key: raw, prefix };
 }
+
+export type StoreKeySummary = {
+  id: string;
+  name: string;
+  prefix: string;
+  environment: "test" | "live";
+  allowedOrigins: string[];
+  status: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+};
+
+export async function listKeys(organizationId: string, shopId: string): Promise<StoreKeySummary[]> {
+  const admin = await getAdmin();
+  const { data, error } = await admin
+    .from("store_api_keys")
+    .select("id, name, key_prefix, environment, allowed_origins, status, created_at, last_used_at")
+    .eq("organization_id", organizationId)
+    .eq("shop_id", shopId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    id: r["id"] as string,
+    name: r["name"] as string,
+    prefix: r["key_prefix"] as string,
+    environment: r["environment"] as "test" | "live",
+    allowedOrigins: (r["allowed_origins"] as string[] | null) ?? [],
+    status: r["status"] as string,
+    createdAt: r["created_at"] as string,
+    lastUsedAt: (r["last_used_at"] as string | null) ?? null,
+  }));
+}
+
+export async function updateKey(input: {
+  organizationId: string;
+  keyId: string;
+  name?: string;
+  allowedOrigins?: string[];
+  status?: "active" | "revoked";
+}) {
+  const admin = await getAdmin();
+  const patch: Record<string, unknown> = {};
+  if (input.name !== undefined) patch["name"] = input.name;
+  if (input.allowedOrigins !== undefined) patch["allowed_origins"] = input.allowedOrigins;
+  if (input.status !== undefined) {
+    patch["status"] = input.status;
+    patch["revoked_at"] = input.status === "revoked" ? new Date().toISOString() : null;
+  }
+  const { error } = await admin
+    .from("store_api_keys")
+    .update(patch as never)
+    .eq("organization_id", input.organizationId)
+    .eq("id", input.keyId);
+  if (error) throw new Error(error.message);
+  return { ok: true };
+}
+
+export type StoreRequestLog = {
+  id: string;
+  requestId: string;
+  method: string;
+  route: string;
+  statusCode: number;
+  durationMs: number;
+  errorCode: string | null;
+  userAgentSummary: string | null;
+  createdAt: string;
+  keyId: string | null;
+};
+
+/** Privacy-safe log view: ip_hash is never returned to the UI. */
+export async function listRequestLogs(input: {
+  organizationId: string;
+  shopId: string;
+  keyId?: string | null;
+  onlyErrors?: boolean;
+  limit?: number;
+}): Promise<StoreRequestLog[]> {
+  const admin = await getAdmin();
+  let query = admin
+    .from("store_api_request_logs")
+    .select("id, request_id, key_id, method, route, status_code, duration_ms, error_code, user_agent_summary, created_at")
+    .eq("organization_id", input.organizationId)
+    .eq("shop_id", input.shopId)
+    .order("created_at", { ascending: false })
+    .limit(Math.min(input.limit ?? 100, 200));
+  if (input.keyId) query = query.eq("key_id", input.keyId);
+  if (input.onlyErrors) query = query.gte("status_code", 400);
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    id: r["id"] as string,
+    requestId: r["request_id"] as string,
+    keyId: (r["key_id"] as string | null) ?? null,
+    method: r["method"] as string,
+    route: r["route"] as string,
+    statusCode: Number(r["status_code"] ?? 0),
+    durationMs: Number(r["duration_ms"] ?? 0),
+    errorCode: (r["error_code"] as string | null) ?? null,
+    userAgentSummary: (r["user_agent_summary"] as string | null) ?? null,
+    createdAt: r["created_at"] as string,
+  }));
+}
