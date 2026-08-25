@@ -64,8 +64,11 @@ function StoreProductPage() {
           <h1 className="font-display text-2xl font-semibold">{data.title}</h1>
           {data.subtitle ? <p className="text-muted-foreground">{data.subtitle}</p> : null}
           <p className="text-xl font-medium">
-            {selected?.price
-              ? money(selected.price.unitAmountMinor, selected.price.currencyCode)
+            {(selected?.price ?? data.price)
+              ? money(
+                  (selected?.price ?? data.price)!.unitAmountMinor,
+                  (selected?.price ?? data.price)!.currencyCode,
+                )
               : "Preis auf Anfrage"}
           </p>
           <Badge variant={selected?.availability === "out_of_stock" ? "destructive" : "secondary"}>
