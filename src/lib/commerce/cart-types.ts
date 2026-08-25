@@ -64,6 +64,8 @@ export type CartEngineInput = {
   } | null;
   promotions: import("./pricing-types").PromotionRow[];
   taxMinor: number;
+  /** True when line prices already contain tax (gross shops) — tax is not added on top. */
+  taxIncluded?: boolean;
   now: string;
 };
 

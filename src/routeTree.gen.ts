@@ -18,6 +18,7 @@ import { Route as AuthenticatedAppAuditRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppKategorienRouteImport } from './routes/_authenticated/app/kategorien'
 import { Route as AuthenticatedAppMedienRouteImport } from './routes/_authenticated/app/medien'
 import { Route as AuthenticatedAppShopsRouteImport } from './routes/_authenticated/app/shops'
+import { Route as AuthenticatedAppSteuernRouteImport } from './routes/_authenticated/app/steuern'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppVersandRouteImport } from './routes/_authenticated/app/versand'
 import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authenticated/app/warenkoerbe'
@@ -82,6 +83,11 @@ const AuthenticatedAppMedienRoute = AuthenticatedAppMedienRouteImport.update({
 const AuthenticatedAppShopsRoute = AuthenticatedAppShopsRouteImport.update({
   id: '/app/shops',
   path: '/app/shops',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppSteuernRoute = AuthenticatedAppSteuernRouteImport.update({
+  id: '/app/steuern',
+  path: '/app/steuern',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
   '/app/shops': typeof AuthenticatedAppShopsRoute
+  '/app/steuern': typeof AuthenticatedAppSteuernRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/versand': typeof AuthenticatedAppVersandRoute
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
   '/app/shops': typeof AuthenticatedAppShopsRoute
+  '/app/steuern': typeof AuthenticatedAppSteuernRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/versand': typeof AuthenticatedAppVersandRoute
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
@@ -272,6 +280,7 @@ export interface FileRoutesById {
   '/_authenticated/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/_authenticated/app/medien': typeof AuthenticatedAppMedienRoute
   '/_authenticated/app/shops': typeof AuthenticatedAppShopsRoute
+  '/_authenticated/app/steuern': typeof AuthenticatedAppSteuernRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/versand': typeof AuthenticatedAppVersandRoute
   '/_authenticated/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/app/kategorien'
     | '/app/medien'
     | '/app/shops'
+    | '/app/steuern'
     | '/app/team'
     | '/app/versand'
     | '/app/warenkoerbe'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/app/kategorien'
     | '/app/medien'
     | '/app/shops'
+    | '/app/steuern'
     | '/app/team'
     | '/app/versand'
     | '/app/warenkoerbe'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/kategorien'
     | '/_authenticated/app/medien'
     | '/_authenticated/app/shops'
+    | '/_authenticated/app/steuern'
     | '/_authenticated/app/team'
     | '/_authenticated/app/versand'
     | '/_authenticated/app/warenkoerbe'
@@ -459,6 +471,13 @@ declare module '@tanstack/react-router' {
       path: '/app/shops'
       fullPath: '/app/shops'
       preLoaderRoute: typeof AuthenticatedAppShopsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/steuern': {
+      id: '/_authenticated/app/steuern'
+      path: '/app/steuern'
+      fullPath: '/app/steuern'
+      preLoaderRoute: typeof AuthenticatedAppSteuernRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/team': {
@@ -609,6 +628,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppKategorienRoute: typeof AuthenticatedAppKategorienRoute
   AuthenticatedAppMedienRoute: typeof AuthenticatedAppMedienRoute
   AuthenticatedAppShopsRoute: typeof AuthenticatedAppShopsRoute
+  AuthenticatedAppSteuernRoute: typeof AuthenticatedAppSteuernRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
   AuthenticatedAppVersandRoute: typeof AuthenticatedAppVersandRoute
   AuthenticatedAppWarenkoerbeRoute: typeof AuthenticatedAppWarenkoerbeRoute
@@ -636,6 +656,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppKategorienRoute: AuthenticatedAppKategorienRoute,
   AuthenticatedAppMedienRoute: AuthenticatedAppMedienRoute,
   AuthenticatedAppShopsRoute: AuthenticatedAppShopsRoute,
+  AuthenticatedAppSteuernRoute: AuthenticatedAppSteuernRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
   AuthenticatedAppVersandRoute: AuthenticatedAppVersandRoute,
   AuthenticatedAppWarenkoerbeRoute: AuthenticatedAppWarenkoerbeRoute,

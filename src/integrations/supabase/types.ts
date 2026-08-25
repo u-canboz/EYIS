@@ -222,6 +222,8 @@ export type Database = {
           shipping_minor: number
           shop_id: string
           subtotal_minor: number
+          tax_breakdown: Json
+          tax_engine_version: string
           tax_minor: number
           total_minor: number
           version: number
@@ -239,6 +241,8 @@ export type Database = {
           shipping_minor?: number
           shop_id: string
           subtotal_minor?: number
+          tax_breakdown?: Json
+          tax_engine_version?: string
           tax_minor?: number
           total_minor?: number
           version: number
@@ -256,6 +260,8 @@ export type Database = {
           shipping_minor?: number
           shop_id?: string
           subtotal_minor?: number
+          tax_breakdown?: Json
+          tax_engine_version?: string
           tax_minor?: number
           total_minor?: number
           version?: number
@@ -644,9 +650,12 @@ export type Database = {
           billing_address_id: string | null
           billing_same_as_shipping: boolean
           cart_id: string
+          company_name: string | null
           completed_at: string | null
           created_at: string
           customer_id: string | null
+          customer_type: Database["public"]["Enums"]["tax_customer_type"]
+          customer_vat_id: string | null
           email: string | null
           expires_at: string
           id: string
@@ -659,14 +668,18 @@ export type Database = {
           status: Database["public"]["Enums"]["checkout_session_status"]
           updated_at: string
           validated_at: string | null
+          vat_validation_id: string | null
         }
         Insert: {
           billing_address_id?: string | null
           billing_same_as_shipping?: boolean
           cart_id: string
+          company_name?: string | null
           completed_at?: string | null
           created_at?: string
           customer_id?: string | null
+          customer_type?: Database["public"]["Enums"]["tax_customer_type"]
+          customer_vat_id?: string | null
           email?: string | null
           expires_at?: string
           id?: string
@@ -679,14 +692,18 @@ export type Database = {
           status?: Database["public"]["Enums"]["checkout_session_status"]
           updated_at?: string
           validated_at?: string | null
+          vat_validation_id?: string | null
         }
         Update: {
           billing_address_id?: string | null
           billing_same_as_shipping?: boolean
           cart_id?: string
+          company_name?: string | null
           completed_at?: string | null
           created_at?: string
           customer_id?: string | null
+          customer_type?: Database["public"]["Enums"]["tax_customer_type"]
+          customer_vat_id?: string | null
           email?: string | null
           expires_at?: string
           id?: string
@@ -699,6 +716,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["checkout_session_status"]
           updated_at?: string
           validated_at?: string | null
+          vat_validation_id?: string | null
         }
         Relationships: [
           {
@@ -750,6 +768,13 @@ export type Database = {
             referencedRelation: "shops"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "checkout_sessions_vat_validation_id_fkey"
+            columns: ["vat_validation_id"]
+            isOneToOne: false
+            referencedRelation: "vat_validations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       checkout_snapshots: {
@@ -767,6 +792,8 @@ export type Database = {
           shipping_address: Json
           shipping_method: Json
           shop_id: string
+          tax_breakdown: Json
+          tax_engine_version: string
           totals: Json
           version: number
         }
@@ -784,6 +811,8 @@ export type Database = {
           shipping_address?: Json
           shipping_method?: Json
           shop_id: string
+          tax_breakdown?: Json
+          tax_engine_version?: string
           totals?: Json
           version: number
         }
@@ -801,6 +830,8 @@ export type Database = {
           shipping_address?: Json
           shipping_method?: Json
           shop_id?: string
+          tax_breakdown?: Json
+          tax_engine_version?: string
           totals?: Json
           version?: number
         }
@@ -1652,15 +1683,22 @@ export type Database = {
           applied_promotions: Json
           applied_rules: Json
           created_at: string
+          gross_minor: number
           id: string
           line_discount_minor: number
           line_subtotal_minor: number
           line_total_minor: number
+          net_minor: number
           order_id: string
           organization_id: string
           product_id: string | null
           quantity: number
           sku_snapshot: string | null
+          tax_class_snapshot: Json
+          tax_country_code: string | null
+          tax_minor: number
+          tax_rate_basis_points: number
+          tax_reason_code: string
           title_snapshot: string
           unit_base_minor: number
           unit_resolved_minor: number
@@ -1671,15 +1709,22 @@ export type Database = {
           applied_promotions?: Json
           applied_rules?: Json
           created_at?: string
+          gross_minor?: number
           id?: string
           line_discount_minor: number
           line_subtotal_minor: number
           line_total_minor: number
+          net_minor?: number
           order_id: string
           organization_id: string
           product_id?: string | null
           quantity: number
           sku_snapshot?: string | null
+          tax_class_snapshot?: Json
+          tax_country_code?: string | null
+          tax_minor?: number
+          tax_rate_basis_points?: number
+          tax_reason_code?: string
           title_snapshot: string
           unit_base_minor: number
           unit_resolved_minor: number
@@ -1690,15 +1735,22 @@ export type Database = {
           applied_promotions?: Json
           applied_rules?: Json
           created_at?: string
+          gross_minor?: number
           id?: string
           line_discount_minor?: number
           line_subtotal_minor?: number
           line_total_minor?: number
+          net_minor?: number
           order_id?: string
           organization_id?: string
           product_id?: string | null
           quantity?: number
           sku_snapshot?: string | null
+          tax_class_snapshot?: Json
+          tax_country_code?: string | null
+          tax_minor?: number
+          tax_rate_basis_points?: number
+          tax_reason_code?: string
           title_snapshot?: string
           unit_base_minor?: number
           unit_resolved_minor?: number
@@ -1787,9 +1839,11 @@ export type Database = {
           email: string | null
           environment: Database["public"]["Enums"]["commerce_environment"]
           fulfillment_status: Database["public"]["Enums"]["order_fulfillment_status"]
+          gross_total_minor: number
           id: string
           internal_note: string | null
           metadata: Json
+          net_total_minor: number
           order_number: string
           order_status: Database["public"]["Enums"]["order_state"]
           organization_id: string
@@ -1800,7 +1854,11 @@ export type Database = {
           shipping_minor: number
           shop_id: string
           subtotal_minor: number
+          tax_breakdown: Json
+          tax_engine_version: string
           tax_minor: number
+          tax_snapshot_id: string | null
+          tax_total_minor: number
           total_minor: number
           updated_at: string
         }
@@ -1817,9 +1875,11 @@ export type Database = {
           email?: string | null
           environment?: Database["public"]["Enums"]["commerce_environment"]
           fulfillment_status?: Database["public"]["Enums"]["order_fulfillment_status"]
+          gross_total_minor?: number
           id?: string
           internal_note?: string | null
           metadata?: Json
+          net_total_minor?: number
           order_number: string
           order_status?: Database["public"]["Enums"]["order_state"]
           organization_id: string
@@ -1830,7 +1890,11 @@ export type Database = {
           shipping_minor?: number
           shop_id: string
           subtotal_minor?: number
+          tax_breakdown?: Json
+          tax_engine_version?: string
           tax_minor?: number
+          tax_snapshot_id?: string | null
+          tax_total_minor?: number
           total_minor?: number
           updated_at?: string
         }
@@ -1847,9 +1911,11 @@ export type Database = {
           email?: string | null
           environment?: Database["public"]["Enums"]["commerce_environment"]
           fulfillment_status?: Database["public"]["Enums"]["order_fulfillment_status"]
+          gross_total_minor?: number
           id?: string
           internal_note?: string | null
           metadata?: Json
+          net_total_minor?: number
           order_number?: string
           order_status?: Database["public"]["Enums"]["order_state"]
           organization_id?: string
@@ -1860,7 +1926,11 @@ export type Database = {
           shipping_minor?: number
           shop_id?: string
           subtotal_minor?: number
+          tax_breakdown?: Json
+          tax_engine_version?: string
           tax_minor?: number
+          tax_snapshot_id?: string | null
+          tax_total_minor?: number
           total_minor?: number
           updated_at?: string
         }
@@ -1898,6 +1968,13 @@ export type Database = {
             columns: ["shop_id"]
             isOneToOne: false
             referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_tax_snapshot_id_fkey"
+            columns: ["tax_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "tax_snapshots"
             referencedColumns: ["id"]
           },
         ]
@@ -2730,6 +2807,7 @@ export type Database = {
           product_id: string
           sku: string | null
           status: Database["public"]["Enums"]["entity_status"]
+          tax_class_id: string | null
           title: string
           updated_at: string
         }
@@ -2744,6 +2822,7 @@ export type Database = {
           product_id: string
           sku?: string | null
           status?: Database["public"]["Enums"]["entity_status"]
+          tax_class_id?: string | null
           title: string
           updated_at?: string
         }
@@ -2758,6 +2837,7 @@ export type Database = {
           product_id?: string
           sku?: string | null
           status?: Database["public"]["Enums"]["entity_status"]
+          tax_class_id?: string | null
           title?: string
           updated_at?: string
         }
@@ -2774,6 +2854,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_variants_tax_class_id_fkey"
+            columns: ["tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
             referencedColumns: ["id"]
           },
         ]
@@ -2800,6 +2887,7 @@ export type Database = {
           shop_id: string
           status: Database["public"]["Enums"]["product_status"]
           subtitle: string | null
+          tax_class_id: string | null
           updated_at: string
           updated_by: string | null
           vendor: string | null
@@ -2825,6 +2913,7 @@ export type Database = {
           shop_id: string
           status?: Database["public"]["Enums"]["product_status"]
           subtitle?: string | null
+          tax_class_id?: string | null
           updated_at?: string
           updated_by?: string | null
           vendor?: string | null
@@ -2850,6 +2939,7 @@ export type Database = {
           shop_id?: string
           status?: Database["public"]["Enums"]["product_status"]
           subtitle?: string | null
+          tax_class_id?: string | null
           updated_at?: string
           updated_by?: string | null
           vendor?: string | null
@@ -2874,6 +2964,13 @@ export type Database = {
             columns: ["shop_id"]
             isOneToOne: false
             referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_tax_class_id_fkey"
+            columns: ["tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
             referencedColumns: ["id"]
           },
         ]
@@ -3341,6 +3438,318 @@ export type Database = {
           },
         ]
       }
+      tax_classes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_system: boolean
+          metadata: Json
+          name: string
+          organization_id: string | null
+          shop_id: string | null
+          status: Database["public"]["Enums"]["entity_status"]
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          metadata?: Json
+          name: string
+          organization_id?: string | null
+          shop_id?: string | null
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          metadata?: Json
+          name?: string
+          organization_id?: string | null
+          shop_id?: string | null
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_classes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_classes_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_rates: {
+        Row: {
+          country_code: string
+          created_at: string
+          customer_type: Database["public"]["Enums"]["tax_customer_type"]
+          id: string
+          metadata: Json
+          organization_id: string | null
+          priority: number
+          rate_basis_points: number
+          region_code: string | null
+          shop_id: string | null
+          source: string
+          status: Database["public"]["Enums"]["entity_status"]
+          tax_class_id: string
+          transaction_type: string
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          customer_type?: Database["public"]["Enums"]["tax_customer_type"]
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          priority?: number
+          rate_basis_points: number
+          region_code?: string | null
+          shop_id?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          tax_class_id: string
+          transaction_type?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          customer_type?: Database["public"]["Enums"]["tax_customer_type"]
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          priority?: number
+          rate_basis_points?: number
+          region_code?: string | null
+          shop_id?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          tax_class_id?: string
+          transaction_type?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_rates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rates_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rates_tax_class_id_fkey"
+            columns: ["tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_settings: {
+        Row: {
+          b2b_enabled: boolean
+          calculation_mode: Database["public"]["Enums"]["tax_calculation_mode"]
+          created_at: string
+          default_tax_class_id: string | null
+          display_prices_including_tax: boolean
+          eu_oss_enabled: boolean
+          home_country_code: string
+          id: string
+          metadata: Json
+          organization_id: string
+          prices_include_tax: boolean
+          shipping_tax_class_id: string | null
+          shipping_tax_strategy: Database["public"]["Enums"]["shipping_tax_strategy"]
+          shop_id: string
+          small_business_exemption_enabled: boolean
+          tax_number: string | null
+          updated_at: string
+          vat_id: string | null
+        }
+        Insert: {
+          b2b_enabled?: boolean
+          calculation_mode?: Database["public"]["Enums"]["tax_calculation_mode"]
+          created_at?: string
+          default_tax_class_id?: string | null
+          display_prices_including_tax?: boolean
+          eu_oss_enabled?: boolean
+          home_country_code?: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          prices_include_tax?: boolean
+          shipping_tax_class_id?: string | null
+          shipping_tax_strategy?: Database["public"]["Enums"]["shipping_tax_strategy"]
+          shop_id: string
+          small_business_exemption_enabled?: boolean
+          tax_number?: string | null
+          updated_at?: string
+          vat_id?: string | null
+        }
+        Update: {
+          b2b_enabled?: boolean
+          calculation_mode?: Database["public"]["Enums"]["tax_calculation_mode"]
+          created_at?: string
+          default_tax_class_id?: string | null
+          display_prices_including_tax?: boolean
+          eu_oss_enabled?: boolean
+          home_country_code?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          prices_include_tax?: boolean
+          shipping_tax_class_id?: string | null
+          shipping_tax_strategy?: Database["public"]["Enums"]["shipping_tax_strategy"]
+          shop_id?: string
+          small_business_exemption_enabled?: boolean
+          tax_number?: string | null
+          updated_at?: string
+          vat_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_settings_default_tax_class_id_fkey"
+            columns: ["default_tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_settings_shipping_tax_class_id_fkey"
+            columns: ["shipping_tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_settings_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_snapshots: {
+        Row: {
+          calculation_mode: Database["public"]["Enums"]["tax_calculation_mode"]
+          cart_id: string | null
+          checkout_session_id: string | null
+          created_at: string
+          customer_type: Database["public"]["Enums"]["tax_customer_type"]
+          engine_version: string
+          id: string
+          jurisdiction: string
+          order_id: string | null
+          organization_id: string
+          result: Json
+          shop_id: string
+        }
+        Insert: {
+          calculation_mode: Database["public"]["Enums"]["tax_calculation_mode"]
+          cart_id?: string | null
+          checkout_session_id?: string | null
+          created_at?: string
+          customer_type?: Database["public"]["Enums"]["tax_customer_type"]
+          engine_version: string
+          id?: string
+          jurisdiction: string
+          order_id?: string | null
+          organization_id: string
+          result: Json
+          shop_id: string
+        }
+        Update: {
+          calculation_mode?: Database["public"]["Enums"]["tax_calculation_mode"]
+          cart_id?: string | null
+          checkout_session_id?: string | null
+          created_at?: string
+          customer_type?: Database["public"]["Enums"]["tax_customer_type"]
+          engine_version?: string
+          id?: string
+          jurisdiction?: string
+          order_id?: string | null
+          organization_id?: string
+          result?: Json
+          shop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_snapshots_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_snapshots_checkout_session_id_fkey"
+            columns: ["checkout_session_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_snapshots_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_snapshots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_snapshots_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       variant_option_values: {
         Row: {
           option_id: string
@@ -3377,6 +3786,62 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vat_validations: {
+        Row: {
+          checked_at: string | null
+          country_code: string
+          created_at: string
+          customer_id: string | null
+          expires_at: string | null
+          id: string
+          normalized_vat_id: string
+          organization_id: string
+          provider: string
+          provider_reference: string | null
+          response_snapshot: Json
+          status: Database["public"]["Enums"]["vat_validation_status"]
+          vat_id: string
+        }
+        Insert: {
+          checked_at?: string | null
+          country_code: string
+          created_at?: string
+          customer_id?: string | null
+          expires_at?: string | null
+          id?: string
+          normalized_vat_id: string
+          organization_id: string
+          provider?: string
+          provider_reference?: string | null
+          response_snapshot?: Json
+          status?: Database["public"]["Enums"]["vat_validation_status"]
+          vat_id: string
+        }
+        Update: {
+          checked_at?: string | null
+          country_code?: string
+          created_at?: string
+          customer_id?: string | null
+          expires_at?: string | null
+          id?: string
+          normalized_vat_id?: string
+          organization_id?: string
+          provider?: string
+          provider_reference?: string | null
+          response_snapshot?: Json
+          status?: Database["public"]["Enums"]["vat_validation_status"]
+          vat_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vat_validations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -3786,7 +4251,16 @@ export type Database = {
         | "cancelled"
       reservation_status: "active" | "released" | "committed" | "expired"
       shipping_pricing_type: "fixed" | "free"
+      shipping_tax_strategy: "fixed_class" | "proportional" | "highest_rate"
+      tax_calculation_mode: "gross" | "net"
+      tax_customer_type: "consumer" | "business" | "any"
       transfer_status: "draft" | "in_transit" | "completed" | "cancelled"
+      vat_validation_status:
+        | "pending"
+        | "valid"
+        | "invalid"
+        | "unavailable"
+        | "manual_review"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4016,7 +4490,17 @@ export const Constants = {
       ],
       reservation_status: ["active", "released", "committed", "expired"],
       shipping_pricing_type: ["fixed", "free"],
+      shipping_tax_strategy: ["fixed_class", "proportional", "highest_rate"],
+      tax_calculation_mode: ["gross", "net"],
+      tax_customer_type: ["consumer", "business", "any"],
       transfer_status: ["draft", "in_transit", "completed", "cancelled"],
+      vat_validation_status: [
+        "pending",
+        "valid",
+        "invalid",
+        "unavailable",
+        "manual_review",
+      ],
     },
   },
 } as const

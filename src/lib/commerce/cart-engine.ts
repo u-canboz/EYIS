@@ -343,7 +343,8 @@ export function calculateCart(input: CartEngineInput): CartCalculation {
   });
 
   const tax = Math.max(0, input.taxMinor || 0);
-  const total = Math.max(0, netSubtotal + shipping + tax);
+  // Gross shops: prices already contain tax, so it is reported but not added again.
+  const total = Math.max(0, netSubtotal + shipping + (input.taxIncluded ? 0 : tax));
 
   return {
     currencyCode: currency,

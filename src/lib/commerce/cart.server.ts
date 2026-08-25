@@ -6,7 +6,8 @@
  * read/write goes through these checked helpers using the service client.
  */
 import { calculateCart } from "./cart-engine";
-import { getTaxProvider } from "./tax";
+import { computeCartTax } from "./tax/tax.server";
+import { TAX_ENGINE_VERSION, type TaxResult } from "./tax/tax.types";
 import { resolvePricing } from "./pricing-engine";
 import { loadSnapshot } from "./pricing.server";
 import { generateToken, hashToken, getAdmin, writeAudit, emitEvent } from "./core.server";
@@ -251,6 +252,8 @@ export type RepriceOptions = {
   shippingMethodId?: string | null;
   countryCode?: string | null;
   persist?: boolean;
+  customerType?: "consumer" | "business";
+  vatIdValid?: boolean;
 };
 
 /**
@@ -347,19 +350,23 @@ export async function repriceCart(cart: CartRow, options: RepriceOptions = {}) {
     now: nowIso,
   });
 
-  const tax = await getTaxProvider().calculate({
+  const byLineRefs = new Map(items.map((i) => [i.id, i]));
+  const { result: tax, settings: taxSettings } = await computeCartTax({
     organizationId: cart.organization_id,
     shopId: cart.shop_id,
     currencyCode: cart.currency_code,
-    countryCode: options.countryCode ?? null,
-    regionCode: cart.region_code,
+    destinationCountryCode: options.countryCode ?? null,
+    destinationRegionCode: cart.region_code,
+    customerType: options.customerType ?? "consumer",
+    vatIdValid: options.vatIdValid ?? false,
+    shippingMinor: preliminary.totals.shippingMinor,
     lines: preliminary.lines.map((l) => ({
       lineId: l.lineId,
+      productId: byLineRefs.get(l.lineId)?.product_id ?? "",
       variantId: l.variantId,
       quantity: l.quantity,
       lineTotalMinor: l.lineTotalMinor,
     })),
-    shippingMinor: preliminary.totals.shippingMinor,
   });
 
   const calculation: CartCalculation =
@@ -375,18 +382,37 @@ export async function repriceCart(cart: CartRow, options: RepriceOptions = {}) {
           shipping,
           promotions,
           taxMinor: tax.taxMinor,
+          taxIncluded: taxSettings.calculationMode === "gross",
           now: nowIso,
         });
 
   let version = 0;
   let snapshotId: string | null = null;
   if (options.persist !== false) {
-    const written = await writeSnapshot(cart, calculation, codes, options.shippingMethodId ?? null);
+    const written = await writeSnapshot(cart, calculation, codes, options.shippingMethodId ?? null, tax);
     version = written.version;
     snapshotId = written.id;
   }
 
-  return { calculation, items, codes, warnings, version, snapshotId };
+  return { calculation, items, codes, warnings, version, snapshotId, tax, taxSettings };
+}
+
+/** Merges the tax result into snapshot line JSON so orders can copy it 1:1. */
+export function mergeTaxIntoLines(calculation: CartCalculation, tax: TaxResult) {
+  const byLine = new Map(tax.lines.map((l) => [l.lineId, l]));
+  return calculation.lines.map((l) => {
+    const t = byLine.get(l.lineId);
+    return {
+      ...l,
+      netMinor: t?.netMinor ?? l.lineTotalMinor,
+      taxMinor: t?.taxMinor ?? 0,
+      grossMinor: t?.grossMinor ?? l.lineTotalMinor,
+      taxRateBasisPoints: t?.rateBasisPoints ?? 0,
+      taxClass: t?.taxClass ?? null,
+      taxReasonCode: t?.reasonCode ?? "unknown",
+      taxCountryCode: t?.countryCode ?? null,
+    };
+  });
 }
 
 /** Immutable, versioned price snapshot including the pricing engine version. */
@@ -395,6 +421,7 @@ export async function writeSnapshot(
   calculation: CartCalculation,
   codes: string[],
   shippingMethodId: string | null,
+  tax?: TaxResult,
 ) {
   const admin = await getAdmin();
   const { data: last } = await admin
@@ -419,6 +446,8 @@ export async function writeSnapshot(
       tax_minor: calculation.totals.taxMinor,
       total_minor: calculation.totals.totalMinor,
       pricing_engine_version: calculation.pricingEngineVersion,
+      tax_breakdown: (tax?.breakdown ?? []) as never,
+      tax_engine_version: tax?.engineVersion ?? TAX_ENGINE_VERSION,
       pricing_context: {
         promotion_codes: codes,
         shipping_method_id: shippingMethodId,
