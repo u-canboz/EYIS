@@ -25,6 +25,10 @@ import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authenticated/app/warenkoerbe'
 import { Route as AuthenticatedAppZahlungenRouteImport } from './routes/_authenticated/app/zahlungen'
 import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/bestellungen/$orderId'
+import { Route as AuthenticatedAppAutomationenIndexRouteImport } from './routes/_authenticated/app/automationen/index'
+import { Route as AuthenticatedAppAutomationenAufgabenRouteImport } from './routes/_authenticated/app/automationen/aufgaben'
+import { Route as AuthenticatedAppAutomationenVerlaufRouteImport } from './routes/_authenticated/app/automationen/verlauf'
+import { Route as AuthenticatedAppAutomationenWebhooksRouteImport } from './routes/_authenticated/app/automationen/webhooks'
 import { Route as AuthenticatedAppBestellungenIndexRouteImport } from './routes/_authenticated/app/bestellungen/index'
 import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './routes/_authenticated/app/bestellungen/$orderId'
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
@@ -55,8 +59,10 @@ import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
 import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './routes/_authenticated/app/versand/dienstleister'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
+import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as AuthenticatedAppAutomationenRegelRuleIdRouteImport } from './routes/_authenticated/app/automationen/regel.$ruleId'
 import { Route as AuthenticatedAppKommunikationVerlaufIndexRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/index'
 import { Route as AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/$communicationId'
 import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
@@ -146,6 +152,30 @@ const PortalBestellungenOrderIdRoute =
     id: '/portal/bestellungen/$orderId',
     path: '/portal/bestellungen/$orderId',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedAppAutomationenIndexRoute =
+  AuthenticatedAppAutomationenIndexRouteImport.update({
+    id: '/app/automationen/',
+    path: '/app/automationen/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppAutomationenAufgabenRoute =
+  AuthenticatedAppAutomationenAufgabenRouteImport.update({
+    id: '/app/automationen/aufgaben',
+    path: '/app/automationen/aufgaben',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppAutomationenVerlaufRoute =
+  AuthenticatedAppAutomationenVerlaufRouteImport.update({
+    id: '/app/automationen/verlauf',
+    path: '/app/automationen/verlauf',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppAutomationenWebhooksRoute =
+  AuthenticatedAppAutomationenWebhooksRouteImport.update({
+    id: '/app/automationen/webhooks',
+    path: '/app/automationen/webhooks',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppBestellungenIndexRoute =
   AuthenticatedAppBestellungenIndexRouteImport.update({
@@ -327,6 +357,11 @@ const AuthenticatedAppVersandVersandartenRoute =
     path: '/app/versand/versandarten',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicJobsAutomationRoute = ApiPublicJobsAutomationRouteImport.update({
+  id: '/api/public/jobs/automation',
+  path: '/api/public/jobs/automation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicJobsCommunicationsRoute =
   ApiPublicJobsCommunicationsRouteImport.update({
     id: '/api/public/jobs/communications',
@@ -338,6 +373,12 @@ const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   path: '/api/public/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppAutomationenRegelRuleIdRoute =
+  AuthenticatedAppAutomationenRegelRuleIdRouteImport.update({
+    id: '/app/automationen/regel/$ruleId',
+    path: '/app/automationen/regel/$ruleId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppKommunikationVerlaufIndexRoute =
   AuthenticatedAppKommunikationVerlaufIndexRouteImport.update({
     id: '/app/kommunikation/verlauf/',
@@ -391,6 +432,9 @@ export interface FileRoutesByFullPath {
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
+  '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
+  '/app/automationen/webhooks': typeof AuthenticatedAppAutomationenWebhooksRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -412,8 +456,10 @@ export interface FileRoutesByFullPath {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
   '/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
@@ -423,6 +469,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -446,6 +493,9 @@ export interface FileRoutesByTo {
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
+  '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
+  '/app/automationen/webhooks': typeof AuthenticatedAppAutomationenWebhooksRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -467,8 +517,10 @@ export interface FileRoutesByTo {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/app/automationen': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente': typeof AuthenticatedAppDokumenteIndexRoute
   '/app/kommunikation': typeof AuthenticatedAppKommunikationIndexRoute
@@ -478,6 +530,7 @@ export interface FileRoutesByTo {
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand': typeof AuthenticatedAppVersandIndexRoute
+  '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -503,6 +556,9 @@ export interface FileRoutesById {
   '/_authenticated/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
+  '/_authenticated/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
+  '/_authenticated/app/automationen/webhooks': typeof AuthenticatedAppAutomationenWebhooksRoute
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -524,8 +580,10 @@ export interface FileRoutesById {
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/_authenticated/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/_authenticated/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
   '/_authenticated/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
@@ -535,6 +593,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/_authenticated/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/_authenticated/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -560,6 +619,9 @@ export interface FileRouteTypes {
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
     | '/app/'
+    | '/app/automationen/aufgaben'
+    | '/app/automationen/verlauf'
+    | '/app/automationen/webhooks'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
@@ -581,8 +643,10 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
+    | '/app/automationen/'
     | '/app/bestellungen/'
     | '/app/dokumente/'
     | '/app/kommunikation/'
@@ -592,6 +656,7 @@ export interface FileRouteTypes {
     | '/app/produkte/'
     | '/app/retouren/'
     | '/app/versand/'
+    | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
@@ -615,6 +680,9 @@ export interface FileRouteTypes {
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
     | '/app'
+    | '/app/automationen/aufgaben'
+    | '/app/automationen/verlauf'
+    | '/app/automationen/webhooks'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
@@ -636,8 +704,10 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
+    | '/app/automationen'
     | '/app/bestellungen'
     | '/app/dokumente'
     | '/app/kommunikation'
@@ -647,6 +717,7 @@ export interface FileRouteTypes {
     | '/app/produkte'
     | '/app/retouren'
     | '/app/versand'
+    | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
@@ -671,6 +742,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/zahlungen'
     | '/portal/bestellungen/$orderId'
     | '/_authenticated/app/'
+    | '/_authenticated/app/automationen/aufgaben'
+    | '/_authenticated/app/automationen/verlauf'
+    | '/_authenticated/app/automationen/webhooks'
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
@@ -692,8 +766,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
     | '/_authenticated/app/versand/versandarten'
+    | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
+    | '/_authenticated/app/automationen/'
     | '/_authenticated/app/bestellungen/'
     | '/_authenticated/app/dokumente/'
     | '/_authenticated/app/kommunikation/'
@@ -703,6 +779,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/'
     | '/_authenticated/app/retouren/'
     | '/_authenticated/app/versand/'
+    | '/_authenticated/app/automationen/regel/$ruleId'
     | '/_authenticated/app/kommunikation/verlauf/$communicationId'
     | '/_authenticated/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
@@ -719,6 +796,7 @@ export interface RootRouteChildren {
   PortalGastRoute: typeof PortalGastRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
+  ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
@@ -838,6 +916,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/portal/bestellungen/$orderId'
       preLoaderRoute: typeof PortalBestellungenOrderIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/app/automationen/': {
+      id: '/_authenticated/app/automationen/'
+      path: '/app/automationen'
+      fullPath: '/app/automationen/'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/automationen/aufgaben': {
+      id: '/_authenticated/app/automationen/aufgaben'
+      path: '/app/automationen/aufgaben'
+      fullPath: '/app/automationen/aufgaben'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenAufgabenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/automationen/verlauf': {
+      id: '/_authenticated/app/automationen/verlauf'
+      path: '/app/automationen/verlauf'
+      fullPath: '/app/automationen/verlauf'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenVerlaufRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/automationen/webhooks': {
+      id: '/_authenticated/app/automationen/webhooks'
+      path: '/app/automationen/webhooks'
+      fullPath: '/app/automationen/webhooks'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenWebhooksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/bestellungen/': {
       id: '/_authenticated/app/bestellungen/'
@@ -1049,6 +1155,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppVersandVersandartenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/jobs/automation': {
+      id: '/api/public/jobs/automation'
+      path: '/api/public/jobs/automation'
+      fullPath: '/api/public/jobs/automation'
+      preLoaderRoute: typeof ApiPublicJobsAutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/communications': {
       id: '/api/public/jobs/communications'
       path: '/api/public/jobs/communications'
@@ -1062,6 +1175,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/webhooks/stripe'
       preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/app/automationen/regel/$ruleId': {
+      id: '/_authenticated/app/automationen/regel/$ruleId'
+      path: '/app/automationen/regel/$ruleId'
+      fullPath: '/app/automationen/regel/$ruleId'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenRegelRuleIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/kommunikation/verlauf/': {
       id: '/_authenticated/app/kommunikation/verlauf/'
@@ -1118,6 +1238,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppWarenkoerbeRoute: typeof AuthenticatedAppWarenkoerbeRoute
   AuthenticatedAppZahlungenRoute: typeof AuthenticatedAppZahlungenRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppAutomationenAufgabenRoute: typeof AuthenticatedAppAutomationenAufgabenRoute
+  AuthenticatedAppAutomationenVerlaufRoute: typeof AuthenticatedAppAutomationenVerlaufRoute
+  AuthenticatedAppAutomationenWebhooksRoute: typeof AuthenticatedAppAutomationenWebhooksRoute
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -1139,6 +1262,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
+  AuthenticatedAppAutomationenIndexRoute: typeof AuthenticatedAppAutomationenIndexRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppDokumenteIndexRoute: typeof AuthenticatedAppDokumenteIndexRoute
   AuthenticatedAppKommunikationIndexRoute: typeof AuthenticatedAppKommunikationIndexRoute
@@ -1148,6 +1272,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
   AuthenticatedAppRetourenIndexRoute: typeof AuthenticatedAppRetourenIndexRoute
   AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
+  AuthenticatedAppAutomationenRegelRuleIdRoute: typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   AuthenticatedAppKommunikationVerlaufCommunicationIdRoute: typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   AuthenticatedAppKommunikationVorlagenTemplateIdRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   AuthenticatedAppKommunikationVerlaufIndexRoute: typeof AuthenticatedAppKommunikationVerlaufIndexRoute
@@ -1164,6 +1289,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppWarenkoerbeRoute: AuthenticatedAppWarenkoerbeRoute,
   AuthenticatedAppZahlungenRoute: AuthenticatedAppZahlungenRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppAutomationenAufgabenRoute:
+    AuthenticatedAppAutomationenAufgabenRoute,
+  AuthenticatedAppAutomationenVerlaufRoute:
+    AuthenticatedAppAutomationenVerlaufRoute,
+  AuthenticatedAppAutomationenWebhooksRoute:
+    AuthenticatedAppAutomationenWebhooksRoute,
   AuthenticatedAppBestellungenOrderIdRoute:
     AuthenticatedAppBestellungenOrderIdRoute,
   AuthenticatedAppDokumenteInvoiceIdRoute:
@@ -1199,6 +1330,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppVersandDienstleisterRoute,
   AuthenticatedAppVersandVersandartenRoute:
     AuthenticatedAppVersandVersandartenRoute,
+  AuthenticatedAppAutomationenIndexRoute:
+    AuthenticatedAppAutomationenIndexRoute,
   AuthenticatedAppBestellungenIndexRoute:
     AuthenticatedAppBestellungenIndexRoute,
   AuthenticatedAppDokumenteIndexRoute: AuthenticatedAppDokumenteIndexRoute,
@@ -1210,6 +1343,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
   AuthenticatedAppRetourenIndexRoute: AuthenticatedAppRetourenIndexRoute,
   AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
+  AuthenticatedAppAutomationenRegelRuleIdRoute:
+    AuthenticatedAppAutomationenRegelRuleIdRoute,
   AuthenticatedAppKommunikationVerlaufCommunicationIdRoute:
     AuthenticatedAppKommunikationVerlaufCommunicationIdRoute,
   AuthenticatedAppKommunikationVorlagenTemplateIdRoute:
@@ -1231,6 +1366,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalGastRoute: PortalGastRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
+  ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,

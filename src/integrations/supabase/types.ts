@@ -58,6 +58,535 @@ export type Database = {
           },
         ]
       }
+      automation_action_executions: {
+        Row: {
+          action_type: string
+          attempt: number
+          created_at: string
+          error_code: string | null
+          error_message: string | null
+          execution_id: string
+          finished_at: string | null
+          id: string
+          input_snapshot: Json
+          organization_id: string
+          output_snapshot: Json
+          position: number
+          skipped_reason: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["automation_action_status"]
+          updated_at: string
+        }
+        Insert: {
+          action_type: string
+          attempt?: number
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          execution_id: string
+          finished_at?: string | null
+          id?: string
+          input_snapshot?: Json
+          organization_id: string
+          output_snapshot?: Json
+          position: number
+          skipped_reason?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["automation_action_status"]
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string
+          attempt?: number
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          execution_id?: string
+          finished_at?: string | null
+          id?: string
+          input_snapshot?: Json
+          organization_id?: string
+          output_snapshot?: Json
+          position?: number
+          skipped_reason?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["automation_action_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_action_executions_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "automation_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_action_executions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_actions: {
+        Row: {
+          action_type: string
+          config: Json
+          continue_on_failure: boolean
+          created_at: string
+          delay_seconds: number
+          id: string
+          organization_id: string
+          position: number
+          rule_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_type: string
+          config?: Json
+          continue_on_failure?: boolean
+          created_at?: string
+          delay_seconds?: number
+          id?: string
+          organization_id: string
+          position: number
+          rule_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string
+          config?: Json
+          continue_on_failure?: boolean
+          created_at?: string
+          delay_seconds?: number
+          id?: string
+          organization_id?: string
+          position?: number
+          rule_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_actions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_actions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_executions: {
+        Row: {
+          causation_id: string | null
+          chain_depth: number
+          context_snapshot: Json
+          correlation_id: string
+          created_at: string
+          current_action_position: number
+          duration_ms: number | null
+          error: string | null
+          error_code: string | null
+          finished_at: string | null
+          id: string
+          idempotency_key: string | null
+          organization_id: string
+          retry_of_execution_id: string | null
+          rule_id: string
+          rule_version: number
+          rule_version_id: string | null
+          shop_id: string
+          source_event_id: string | null
+          source_event_type: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["automation_execution_status"]
+          trigger_type: Database["public"]["Enums"]["automation_trigger_type"]
+          triggered_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          causation_id?: string | null
+          chain_depth?: number
+          context_snapshot?: Json
+          correlation_id?: string
+          created_at?: string
+          current_action_position?: number
+          duration_ms?: number | null
+          error?: string | null
+          error_code?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key?: string | null
+          organization_id: string
+          retry_of_execution_id?: string | null
+          rule_id: string
+          rule_version?: number
+          rule_version_id?: string | null
+          shop_id: string
+          source_event_id?: string | null
+          source_event_type?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["automation_execution_status"]
+          trigger_type: Database["public"]["Enums"]["automation_trigger_type"]
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          causation_id?: string | null
+          chain_depth?: number
+          context_snapshot?: Json
+          correlation_id?: string
+          created_at?: string
+          current_action_position?: number
+          duration_ms?: number | null
+          error?: string | null
+          error_code?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key?: string | null
+          organization_id?: string
+          retry_of_execution_id?: string | null
+          rule_id?: string
+          rule_version?: number
+          rule_version_id?: string | null
+          shop_id?: string
+          source_event_id?: string | null
+          source_event_type?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["automation_execution_status"]
+          trigger_type?: Database["public"]["Enums"]["automation_trigger_type"]
+          triggered_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_executions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_retry_of_execution_id_fkey"
+            columns: ["retry_of_execution_id"]
+            isOneToOne: false
+            referencedRelation: "automation_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rule_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_jobs: {
+        Row: {
+          attempts: number
+          available_at: string
+          created_at: string
+          dedupe_key: string | null
+          execution_id: string | null
+          id: string
+          job_type: string
+          last_error: string | null
+          last_error_code: string | null
+          locked_at: string | null
+          locked_by: string | null
+          max_attempts: number
+          organization_id: string
+          payload: Json
+          rule_id: string | null
+          shop_id: string
+          status: Database["public"]["Enums"]["automation_job_status"]
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          available_at?: string
+          created_at?: string
+          dedupe_key?: string | null
+          execution_id?: string | null
+          id?: string
+          job_type: string
+          last_error?: string | null
+          last_error_code?: string | null
+          locked_at?: string | null
+          locked_by?: string | null
+          max_attempts?: number
+          organization_id: string
+          payload?: Json
+          rule_id?: string | null
+          shop_id: string
+          status?: Database["public"]["Enums"]["automation_job_status"]
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          available_at?: string
+          created_at?: string
+          dedupe_key?: string | null
+          execution_id?: string | null
+          id?: string
+          job_type?: string
+          last_error?: string | null
+          last_error_code?: string | null
+          locked_at?: string | null
+          locked_by?: string | null
+          max_attempts?: number
+          organization_id?: string
+          payload?: Json
+          rule_id?: string | null
+          shop_id?: string
+          status?: Database["public"]["Enums"]["automation_job_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_jobs_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "automation_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_jobs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_jobs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_jobs_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_rule_counters: {
+        Row: {
+          bucket_key: string
+          bucket_kind: string
+          count: number
+          rule_id: string
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          bucket_key: string
+          bucket_kind: string
+          count?: number
+          rule_id: string
+          updated_at?: string
+          window_start: string
+        }
+        Update: {
+          bucket_key?: string
+          bucket_kind?: string
+          count?: number
+          rule_id?: string
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_rule_counters_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_rule_versions: {
+        Row: {
+          actions_snapshot: Json
+          conditions_snapshot: Json
+          created_at: string
+          id: string
+          organization_id: string
+          published_at: string | null
+          published_by: string | null
+          rule_id: string
+          trigger_snapshot: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          actions_snapshot?: Json
+          conditions_snapshot?: Json
+          created_at?: string
+          id?: string
+          organization_id: string
+          published_at?: string | null
+          published_by?: string | null
+          rule_id: string
+          trigger_snapshot?: Json
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          actions_snapshot?: Json
+          conditions_snapshot?: Json
+          created_at?: string
+          id?: string
+          organization_id?: string
+          published_at?: string | null
+          published_by?: string | null
+          rule_id?: string
+          trigger_snapshot?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_rule_versions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_rule_versions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_rules: {
+        Row: {
+          active_version: number | null
+          auto_pause_reason: string | null
+          auto_paused_at: string | null
+          conditions: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          draft_version: number
+          error_threshold: number
+          error_window_minutes: number
+          id: string
+          last_executed_at: string | null
+          max_executions_per_event: number
+          max_per_entity: number | null
+          max_per_hour: number | null
+          name: string
+          organization_id: string
+          priority: number
+          shop_id: string
+          status: Database["public"]["Enums"]["automation_status"]
+          stop_on_error: boolean
+          template_key: string | null
+          trigger_config: Json
+          trigger_type: Database["public"]["Enums"]["automation_trigger_type"]
+          updated_at: string
+        }
+        Insert: {
+          active_version?: number | null
+          auto_pause_reason?: string | null
+          auto_paused_at?: string | null
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          draft_version?: number
+          error_threshold?: number
+          error_window_minutes?: number
+          id?: string
+          last_executed_at?: string | null
+          max_executions_per_event?: number
+          max_per_entity?: number | null
+          max_per_hour?: number | null
+          name: string
+          organization_id: string
+          priority?: number
+          shop_id: string
+          status?: Database["public"]["Enums"]["automation_status"]
+          stop_on_error?: boolean
+          template_key?: string | null
+          trigger_config?: Json
+          trigger_type?: Database["public"]["Enums"]["automation_trigger_type"]
+          updated_at?: string
+        }
+        Update: {
+          active_version?: number | null
+          auto_pause_reason?: string | null
+          auto_paused_at?: string | null
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          draft_version?: number
+          error_threshold?: number
+          error_window_minutes?: number
+          id?: string
+          last_executed_at?: string | null
+          max_executions_per_event?: number
+          max_per_entity?: number | null
+          max_per_hour?: number | null
+          name?: string
+          organization_id?: string
+          priority?: number
+          shop_id?: string
+          status?: Database["public"]["Enums"]["automation_status"]
+          stop_on_error?: boolean
+          template_key?: string | null
+          trigger_config?: Json
+          trigger_type?: Database["public"]["Enums"]["automation_trigger_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_rules_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_item_price_snapshots: {
         Row: {
           applied_promotions: Json
@@ -4099,6 +4628,9 @@ export type Database = {
         Row: {
           attempts: number
           available_at: string
+          causation_id: string | null
+          chain_depth: number
+          correlation_id: string | null
           created_at: string
           event_type: string
           id: string
@@ -4106,11 +4638,15 @@ export type Database = {
           organization_id: string | null
           payload: Json
           processed_at: string | null
+          shop_id: string | null
           status: string
         }
         Insert: {
           attempts?: number
           available_at?: string
+          causation_id?: string | null
+          chain_depth?: number
+          correlation_id?: string | null
           created_at?: string
           event_type: string
           id?: string
@@ -4118,11 +4654,15 @@ export type Database = {
           organization_id?: string | null
           payload?: Json
           processed_at?: string | null
+          shop_id?: string | null
           status?: string
         }
         Update: {
           attempts?: number
           available_at?: string
+          causation_id?: string | null
+          chain_depth?: number
+          correlation_id?: string | null
           created_at?: string
           event_type?: string
           id?: string
@@ -4130,6 +4670,7 @@ export type Database = {
           organization_id?: string | null
           payload?: Json
           processed_at?: string | null
+          shop_id?: string | null
           status?: string
         }
         Relationships: [
@@ -4138,6 +4679,73 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outbox_events_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outgoing_webhook_endpoints: {
+        Row: {
+          created_at: string
+          id: string
+          last_called_at: string | null
+          last_error: string | null
+          last_status_code: number | null
+          name: string
+          organization_id: string
+          secret_reference: string | null
+          shop_id: string
+          status: Database["public"]["Enums"]["entity_status"]
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_called_at?: string | null
+          last_error?: string | null
+          last_status_code?: number | null
+          name: string
+          organization_id: string
+          secret_reference?: string | null
+          shop_id: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_called_at?: string | null
+          last_error?: string | null
+          last_status_code?: number | null
+          name?: string
+          organization_id?: string
+          secret_reference?: string | null
+          shop_id?: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outgoing_webhook_endpoints_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outgoing_webhook_endpoints_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
         ]
@@ -6420,6 +7028,94 @@ export type Database = {
           },
         ]
       }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          dedupe_key: string | null
+          description: string | null
+          due_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          organization_id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          shop_id: string
+          source: Database["public"]["Enums"]["task_source"]
+          source_automation_execution_id: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          description?: string | null
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          organization_id: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          shop_id: string
+          source?: Database["public"]["Enums"]["task_source"]
+          source_automation_execution_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          description?: string | null
+          due_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          organization_id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          shop_id?: string
+          source?: Database["public"]["Enums"]["task_source"]
+          source_automation_execution_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_source_automation_execution_id_fkey"
+            columns: ["source_automation_execution_id"]
+            isOneToOne: false
+            referencedRelation: "automation_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tax_classes: {
         Row: {
           code: string
@@ -6906,6 +7602,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      automation_check_limits: {
+        Args: { _entity_key?: string; _rule_id: string }
+        Returns: string
+      }
+      automation_claim_jobs: {
+        Args: { _limit: number; _worker: string }
+        Returns: {
+          attempts: number
+          available_at: string
+          created_at: string
+          dedupe_key: string | null
+          execution_id: string | null
+          id: string
+          job_type: string
+          last_error: string | null
+          last_error_code: string | null
+          locked_at: string | null
+          locked_by: string | null
+          max_attempts: number
+          organization_id: string
+          payload: Json
+          rule_id: string | null
+          shop_id: string
+          status: Database["public"]["Enums"]["automation_job_status"]
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "automation_jobs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      automation_record_error: { Args: { _rule_id: string }; Returns: string }
       bulk_update_prices: {
         Args: {
           _amount_minor: number
@@ -7521,6 +8251,27 @@ export type Database = {
         | "marketing"
         | "developer"
         | "read_only"
+      automation_action_status:
+        | "pending"
+        | "running"
+        | "succeeded"
+        | "failed"
+        | "skipped"
+      automation_execution_status:
+        | "queued"
+        | "running"
+        | "completed"
+        | "partially_completed"
+        | "failed"
+        | "cancelled"
+      automation_job_status:
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed"
+        | "cancelled"
+      automation_status: "draft" | "active" | "paused" | "archived"
+      automation_trigger_type: "domain_event" | "schedule" | "manual"
       blueprint_status: "draft" | "active" | "deprecated"
       cart_status: "active" | "checkout" | "completed" | "abandoned" | "expired"
       checkout_address_type: "shipping" | "billing"
@@ -7719,6 +8470,9 @@ export type Database = {
       shipping_pricing_type: "fixed" | "free"
       shipping_refund_mode: "none" | "full" | "partial" | "manual"
       shipping_tax_strategy: "fixed_class" | "proportional" | "highest_rate"
+      task_priority: "low" | "normal" | "high" | "urgent"
+      task_source: "manual" | "automation" | "system"
+      task_status: "open" | "in_progress" | "completed" | "cancelled"
       tax_calculation_mode: "gross" | "net"
       tax_customer_type: "consumer" | "business" | "any"
       tracking_status:
@@ -7876,6 +8630,30 @@ export const Constants = {
         "developer",
         "read_only",
       ],
+      automation_action_status: [
+        "pending",
+        "running",
+        "succeeded",
+        "failed",
+        "skipped",
+      ],
+      automation_execution_status: [
+        "queued",
+        "running",
+        "completed",
+        "partially_completed",
+        "failed",
+        "cancelled",
+      ],
+      automation_job_status: [
+        "pending",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+      automation_status: ["draft", "active", "paused", "archived"],
+      automation_trigger_type: ["domain_event", "schedule", "manual"],
       blueprint_status: ["draft", "active", "deprecated"],
       cart_status: ["active", "checkout", "completed", "abandoned", "expired"],
       checkout_address_type: ["shipping", "billing"],
@@ -8101,6 +8879,9 @@ export const Constants = {
       shipping_pricing_type: ["fixed", "free"],
       shipping_refund_mode: ["none", "full", "partial", "manual"],
       shipping_tax_strategy: ["fixed_class", "proportional", "highest_rate"],
+      task_priority: ["low", "normal", "high", "urgent"],
+      task_source: ["manual", "automation", "system"],
+      task_status: ["open", "in_progress", "completed", "cancelled"],
       tax_calculation_mode: ["gross", "net"],
       tax_customer_type: ["consumer", "business", "any"],
       tracking_status: [
