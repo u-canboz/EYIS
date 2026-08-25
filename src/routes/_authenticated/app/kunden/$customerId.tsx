@@ -59,7 +59,7 @@ const EMPTY_ADDRESS = {
 function CustomerDetailPage() {
   const { customerId } = Route.useParams();
   const queryClient = useQueryClient();
-  const { organizationId, can } = useActiveWorkspace();
+  const { organizationId, shopId, can } = useActiveWorkspace();
   const [note, setNote] = useState("");
   const [addressOpen, setAddressOpen] = useState(false);
   const [address, setAddress] = useState({ ...EMPTY_ADDRESS });
@@ -80,8 +80,8 @@ function CustomerDetailPage() {
 
   const groups = useQuery({
     queryKey: ["customer-groups", organizationId],
-    enabled: !!organizationId,
-    queryFn: () => fetchGroups({ data: { organizationId } }),
+    enabled: !!organizationId && !!shopId,
+    queryFn: () => fetchGroups({ data: { organizationId, shopId } }),
   });
 
   const returns = useQuery({
@@ -229,10 +229,10 @@ function CustomerDetailPage() {
           <CardTitle className="text-base">Kundengruppen</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
-          {!groups.data?.length ? (
+          {!groups.data?.groups.length ? (
             <p className="text-sm text-muted-foreground">Keine Kundengruppen angelegt.</p>
           ) : (
-            groups.data.map((g) => {
+            groups.data.groups.map((g) => {
               const checked = c.groupIds.includes(g.id);
               return (
                 <label key={g.id} className="flex items-center gap-2 text-sm">

@@ -62,7 +62,7 @@ type InspectDraft = Record<string, { qty: number; condition: ReturnItemCondition
 function ReturnDetailPage() {
   const { returnId } = Route.useParams();
   const queryClient = useQueryClient();
-  const { organizationId, can } = useActiveWorkspace();
+  const { organizationId, shopId, can } = useActiveWorkspace();
   const [rejectReason, setRejectReason] = useState("");
   const [receive, setReceive] = useState<ReceiveDraft>({});
   const [inspect, setInspect] = useState<InspectDraft>({});
@@ -89,9 +89,9 @@ function ReturnDetailPage() {
   });
 
   const locations = useQuery({
-    queryKey: ["inventory-locations", organizationId],
-    enabled: !!organizationId,
-    queryFn: () => fetchLocations({ data: { organizationId } }),
+    queryKey: ["inventory-locations", organizationId, shopId],
+    enabled: !!organizationId && !!shopId,
+    queryFn: () => fetchLocations({ data: { organizationId, shopId } }),
   });
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["return", organizationId, returnId] });

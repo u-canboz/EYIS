@@ -51,7 +51,7 @@ export type PortalOrderDetail = PortalOrderSummary & {
     quantity: number;
     lineTotalMinor: number;
   }[];
-  addresses: { type: string; address: Record<string, unknown> }[];
+  addresses: { type: string; address: Record<string, string | null> }[];
   subtotalMinor: number;
   shippingMinor: number;
   taxMinor: number;
@@ -216,7 +216,7 @@ export async function loadPortalOrder(orderId: string): Promise<PortalOrderDetai
     })),
     addresses: ((addresses.data ?? []) as Row[]).map((a) => ({
       type: a['type'] as string,
-      address: (a['address'] as Record<string, unknown>) ?? {},
+      address: (a['address'] as Record<string, string | null>) ?? {},
     })),
     documents,
     tracking,
