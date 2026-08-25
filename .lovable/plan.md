@@ -14,7 +14,7 @@ Internal Engine (Phase 0–11)
 ## 1. Datenmodell (Migration)
 
 - `store_api_keys`: organization_id, shop_id, name, key_prefix, key_hash (SHA-256), status, environment (test/live), allowed_origins[], rate_limit_profile, created_by, created_at, revoked_at, last_used_at. Voller Key `pk_test_…`/`pk_live_…` wird nur einmal beim Erstellen zurückgegeben.
-- `store_api_request_logs`: request_id, key_id, shop_id, method, route, status_code, duration_ms, ip_hash, user_agent_summary, error_code, created_at. Keine Payloads.
+- `store_api_request_logs`: request_id, key_id, shop_id, method, route, status_code, duration_ms, ip_hash, user_agent_summary, error_code, created_at. Keine Payloads. `ip_hash` wird nur mit einem **rotierenden Salt** (täglich, im Secret-Store) gebildet, ist also nicht dauerhaft reversibel oder über Zeiträume hinweg verkettbar; nach Ablauf der Aufbewahrung wird das Feld geleert.
 - `store_api_rate_counters`: atomarer Zähler (key_id, profile, window_start) + SQL-Funktion `store_rate_hit(...)`, die serverseitig zählt und entscheidet — analog zu `automation_check_limits`.
 - Jede Tabelle mit GRANTs, RLS und org-scoped Policies (nur Admin-UI liest; die API läuft über den Service-Client).
 
