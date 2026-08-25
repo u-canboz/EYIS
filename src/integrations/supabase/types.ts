@@ -920,6 +920,721 @@ export type Database = {
           },
         ]
       }
+      communication_attempts: {
+        Row: {
+          attempt_number: number
+          communication_id: string
+          completed_at: string | null
+          error_code: string | null
+          error_message: string | null
+          id: string
+          metadata: Json
+          organization_id: string
+          provider: string
+          provider_message_id: string | null
+          started_at: string
+          status: Database["public"]["Enums"]["communication_delivery_status"]
+        }
+        Insert: {
+          attempt_number: number
+          communication_id: string
+          completed_at?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          organization_id: string
+          provider: string
+          provider_message_id?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["communication_delivery_status"]
+        }
+        Update: {
+          attempt_number?: number
+          communication_id?: string
+          completed_at?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          provider?: string
+          provider_message_id?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["communication_delivery_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_attempts_communication_id_fkey"
+            columns: ["communication_id"]
+            isOneToOne: false
+            referencedRelation: "communications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_attempts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_branding: {
+        Row: {
+          background_color: string
+          border_radius: number
+          button_style: string
+          content_background_color: string
+          created_at: string
+          font_family: string
+          footer_text: string
+          id: string
+          logo_media_id: string | null
+          metadata: Json
+          muted_text_color: string
+          organization_id: string
+          primary_color: string
+          shop_id: string
+          social_links: Json
+          support_email: string | null
+          text_color: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          background_color?: string
+          border_radius?: number
+          button_style?: string
+          content_background_color?: string
+          created_at?: string
+          font_family?: string
+          footer_text?: string
+          id?: string
+          logo_media_id?: string | null
+          metadata?: Json
+          muted_text_color?: string
+          organization_id: string
+          primary_color?: string
+          shop_id: string
+          social_links?: Json
+          support_email?: string | null
+          text_color?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          background_color?: string
+          border_radius?: number
+          button_style?: string
+          content_background_color?: string
+          created_at?: string
+          font_family?: string
+          footer_text?: string
+          id?: string
+          logo_media_id?: string | null
+          metadata?: Json
+          muted_text_color?: string
+          organization_id?: string
+          primary_color?: string
+          shop_id?: string
+          social_links?: Json
+          support_email?: string | null
+          text_color?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_branding_logo_media_id_fkey"
+            columns: ["logo_media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_branding_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_branding_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_provider_configs: {
+        Row: {
+          capabilities: Json
+          channel: Database["public"]["Enums"]["communication_channel"]
+          configuration_reference: string | null
+          created_at: string
+          display_name: string
+          id: string
+          metadata: Json
+          organization_id: string
+          priority: number
+          provider: string
+          shop_id: string | null
+          status: Database["public"]["Enums"]["communication_provider_status"]
+          test_mode: boolean
+          updated_at: string
+        }
+        Insert: {
+          capabilities?: Json
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          configuration_reference?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          priority?: number
+          provider: string
+          shop_id?: string | null
+          status?: Database["public"]["Enums"]["communication_provider_status"]
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Update: {
+          capabilities?: Json
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          configuration_reference?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          priority?: number
+          provider?: string
+          shop_id?: string | null
+          status?: Database["public"]["Enums"]["communication_provider_status"]
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_provider_configs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_provider_configs_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_provider_events: {
+        Row: {
+          event_type: string
+          id: string
+          organization_id: string | null
+          payload: Json
+          processed_at: string | null
+          processing_error: string | null
+          processing_status: string
+          provider: string
+          provider_event_id: string
+          provider_message_id: string | null
+          received_at: string
+          shop_id: string | null
+          signature_verified: boolean
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          organization_id?: string | null
+          payload?: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
+          provider: string
+          provider_event_id: string
+          provider_message_id?: string | null
+          received_at?: string
+          shop_id?: string | null
+          signature_verified?: boolean
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          organization_id?: string | null
+          payload?: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
+          provider?: string
+          provider_event_id?: string
+          provider_message_id?: string | null
+          received_at?: string
+          shop_id?: string | null
+          signature_verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_provider_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_provider_events_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_rules: {
+        Row: {
+          channel: Database["public"]["Enums"]["communication_channel"]
+          conditions: Json
+          created_at: string
+          delay_seconds: number
+          enabled: boolean
+          event_type: string
+          id: string
+          metadata: Json
+          organization_id: string
+          priority: number
+          shop_id: string
+          template_id: string | null
+          template_key: string
+          updated_at: string
+        }
+        Insert: {
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          conditions?: Json
+          created_at?: string
+          delay_seconds?: number
+          enabled?: boolean
+          event_type: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          priority?: number
+          shop_id: string
+          template_id?: string | null
+          template_key: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          conditions?: Json
+          created_at?: string
+          delay_seconds?: number
+          enabled?: boolean
+          event_type?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          priority?: number
+          shop_id?: string
+          template_id?: string | null
+          template_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_rules_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_rules_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "communication_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_suppressions: {
+        Row: {
+          address: string
+          channel: Database["public"]["Enums"]["communication_channel"]
+          created_at: string
+          expires_at: string | null
+          id: string
+          note: string | null
+          organization_id: string
+          reason: Database["public"]["Enums"]["communication_suppression_reason"]
+          shop_id: string | null
+          source: string
+        }
+        Insert: {
+          address: string
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          note?: string | null
+          organization_id: string
+          reason: Database["public"]["Enums"]["communication_suppression_reason"]
+          shop_id?: string | null
+          source?: string
+        }
+        Update: {
+          address?: string
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          note?: string | null
+          organization_id?: string
+          reason?: Database["public"]["Enums"]["communication_suppression_reason"]
+          shop_id?: string | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_suppressions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_suppressions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_template_versions: {
+        Row: {
+          body_schema: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          locale: string
+          preheader: string | null
+          published_at: string | null
+          subject: string
+          template_id: string
+          text_body_template: string
+          version: number
+        }
+        Insert: {
+          body_schema?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          locale?: string
+          preheader?: string | null
+          published_at?: string | null
+          subject: string
+          template_id: string
+          text_body_template?: string
+          version: number
+        }
+        Update: {
+          body_schema?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          locale?: string
+          preheader?: string | null
+          published_at?: string | null
+          subject?: string
+          template_id?: string
+          text_body_template?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "communication_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_templates: {
+        Row: {
+          category: string
+          channel: Database["public"]["Enums"]["communication_channel"]
+          content_schema: Json
+          created_at: string
+          default_locale: string
+          description: string | null
+          id: string
+          is_system: boolean
+          key: string
+          name: string
+          organization_id: string | null
+          shop_id: string | null
+          status: Database["public"]["Enums"]["communication_template_status"]
+          subject_template: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          category?: string
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          content_schema?: Json
+          created_at?: string
+          default_locale?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          key: string
+          name: string
+          organization_id?: string | null
+          shop_id?: string | null
+          status?: Database["public"]["Enums"]["communication_template_status"]
+          subject_template?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          category?: string
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          content_schema?: Json
+          created_at?: string
+          default_locale?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          key?: string
+          name?: string
+          organization_id?: string | null
+          shop_id?: string | null
+          status?: Database["public"]["Enums"]["communication_template_status"]
+          subject_template?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_templates_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communications: {
+        Row: {
+          attempts: number
+          channel: Database["public"]["Enums"]["communication_channel"]
+          communication_rule_id: string | null
+          created_at: string
+          customer_id: string | null
+          delivered_at: string | null
+          delivery_status:
+            | Database["public"]["Enums"]["communication_delivery_status"]
+            | null
+          failed_at: string | null
+          html_snapshot: string
+          id: string
+          is_test_send: boolean
+          last_error: string | null
+          locale: string
+          metadata: Json
+          next_attempt_at: string | null
+          order_id: string | null
+          organization_id: string
+          provider: string | null
+          provider_status_raw: string | null
+          queued_at: string | null
+          recipient_address: string
+          recipient_reference_id: string | null
+          recipient_type: Database["public"]["Enums"]["communication_recipient_type"]
+          resend_of_communication_id: string | null
+          scheduled_at: string | null
+          sender_address: string | null
+          sender_identity_id: string | null
+          sender_name: string | null
+          sent_at: string | null
+          shop_id: string
+          source_event_id: string | null
+          source_event_type: string | null
+          status: Database["public"]["Enums"]["communication_status"]
+          subject_snapshot: string
+          template_key: string
+          template_version_id: string | null
+          test_mode: boolean
+          text_snapshot: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          communication_rule_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          delivered_at?: string | null
+          delivery_status?:
+            | Database["public"]["Enums"]["communication_delivery_status"]
+            | null
+          failed_at?: string | null
+          html_snapshot: string
+          id?: string
+          is_test_send?: boolean
+          last_error?: string | null
+          locale?: string
+          metadata?: Json
+          next_attempt_at?: string | null
+          order_id?: string | null
+          organization_id: string
+          provider?: string | null
+          provider_status_raw?: string | null
+          queued_at?: string | null
+          recipient_address: string
+          recipient_reference_id?: string | null
+          recipient_type?: Database["public"]["Enums"]["communication_recipient_type"]
+          resend_of_communication_id?: string | null
+          scheduled_at?: string | null
+          sender_address?: string | null
+          sender_identity_id?: string | null
+          sender_name?: string | null
+          sent_at?: string | null
+          shop_id: string
+          source_event_id?: string | null
+          source_event_type?: string | null
+          status?: Database["public"]["Enums"]["communication_status"]
+          subject_snapshot: string
+          template_key: string
+          template_version_id?: string | null
+          test_mode?: boolean
+          text_snapshot: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          communication_rule_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          delivered_at?: string | null
+          delivery_status?:
+            | Database["public"]["Enums"]["communication_delivery_status"]
+            | null
+          failed_at?: string | null
+          html_snapshot?: string
+          id?: string
+          is_test_send?: boolean
+          last_error?: string | null
+          locale?: string
+          metadata?: Json
+          next_attempt_at?: string | null
+          order_id?: string | null
+          organization_id?: string
+          provider?: string | null
+          provider_status_raw?: string | null
+          queued_at?: string | null
+          recipient_address?: string
+          recipient_reference_id?: string | null
+          recipient_type?: Database["public"]["Enums"]["communication_recipient_type"]
+          resend_of_communication_id?: string | null
+          scheduled_at?: string | null
+          sender_address?: string | null
+          sender_identity_id?: string | null
+          sender_name?: string | null
+          sent_at?: string | null
+          shop_id?: string
+          source_event_id?: string | null
+          source_event_type?: string | null
+          status?: Database["public"]["Enums"]["communication_status"]
+          subject_snapshot?: string
+          template_key?: string
+          template_version_id?: string | null
+          test_mode?: boolean
+          text_snapshot?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communications_communication_rule_id_fkey"
+            columns: ["communication_rule_id"]
+            isOneToOne: false
+            referencedRelation: "communication_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_resend_of_communication_id_fkey"
+            columns: ["resend_of_communication_id"]
+            isOneToOne: false
+            referencedRelation: "communications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_sender_identity_id_fkey"
+            columns: ["sender_identity_id"]
+            isOneToOne: false
+            referencedRelation: "sender_identities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_template_version_id_fkey"
+            columns: ["template_version_id"]
+            isOneToOne: false
+            referencedRelation: "communication_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_note_items: {
         Row: {
           created_at: string
@@ -5131,6 +5846,75 @@ export type Database = {
         }
         Relationships: []
       }
+      sender_identities: {
+        Row: {
+          channel: Database["public"]["Enums"]["communication_channel"]
+          created_at: string
+          display_name: string
+          id: string
+          is_default: boolean
+          metadata: Json
+          organization_id: string
+          provider_reference: string | null
+          reply_to: string | null
+          sender_address: string
+          sender_name: string
+          shop_id: string
+          status: Database["public"]["Enums"]["entity_status"]
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["sender_verification_status"]
+        }
+        Insert: {
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          created_at?: string
+          display_name: string
+          id?: string
+          is_default?: boolean
+          metadata?: Json
+          organization_id: string
+          provider_reference?: string | null
+          reply_to?: string | null
+          sender_address: string
+          sender_name: string
+          shop_id: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["sender_verification_status"]
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["communication_channel"]
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_default?: boolean
+          metadata?: Json
+          organization_id?: string
+          provider_reference?: string | null
+          reply_to?: string | null
+          sender_address?: string
+          sender_name?: string
+          shop_id?: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["sender_verification_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sender_identities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sender_identities_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipments: {
         Row: {
           cancelled_at: string | null
@@ -6168,6 +6952,10 @@ export type Database = {
         }
         Returns: Json
       }
+      comm_ensure_shop_defaults: {
+        Args: { _org: string; _shop: string }
+        Returns: undefined
+      }
       credit_note_create: {
         Args: {
           _actor: string
@@ -6744,6 +7532,33 @@ export type Database = {
         | "expired"
         | "cancelled"
       commerce_environment: "test" | "live"
+      communication_channel: "email" | "sms" | "push" | "whatsapp"
+      communication_delivery_status:
+        | "accepted"
+        | "sent"
+        | "delivered"
+        | "soft_bounce"
+        | "hard_bounce"
+        | "complained"
+        | "rejected"
+        | "unknown"
+      communication_provider_status: "inactive" | "active" | "error"
+      communication_recipient_type: "customer" | "guest" | "admin" | "test"
+      communication_status:
+        | "draft"
+        | "queued"
+        | "sending"
+        | "sent"
+        | "delivered"
+        | "failed"
+        | "cancelled"
+        | "suppressed"
+      communication_suppression_reason:
+        | "hard_bounce"
+        | "complaint"
+        | "manual"
+        | "invalid_recipient"
+      communication_template_status: "draft" | "active" | "disabled"
       credit_note_status: "draft" | "issued" | "voided"
       customer_address_type: "shipping" | "billing" | "both"
       customer_kind: "b2c" | "b2b"
@@ -6886,6 +7701,11 @@ export type Database = {
         | "completed"
         | "cancelled"
       return_window_start: "order_date" | "shipping_date" | "delivery_date"
+      sender_verification_status:
+        | "unverified"
+        | "pending"
+        | "verified"
+        | "failed"
       sequence_reset_policy: "never" | "yearly" | "monthly"
       shipment_direction: "outbound" | "return"
       shipment_status:
@@ -7068,6 +7888,36 @@ export const Constants = {
         "cancelled",
       ],
       commerce_environment: ["test", "live"],
+      communication_channel: ["email", "sms", "push", "whatsapp"],
+      communication_delivery_status: [
+        "accepted",
+        "sent",
+        "delivered",
+        "soft_bounce",
+        "hard_bounce",
+        "complained",
+        "rejected",
+        "unknown",
+      ],
+      communication_provider_status: ["inactive", "active", "error"],
+      communication_recipient_type: ["customer", "guest", "admin", "test"],
+      communication_status: [
+        "draft",
+        "queued",
+        "sending",
+        "sent",
+        "delivered",
+        "failed",
+        "cancelled",
+        "suppressed",
+      ],
+      communication_suppression_reason: [
+        "hard_bounce",
+        "complaint",
+        "manual",
+        "invalid_recipient",
+      ],
+      communication_template_status: ["draft", "active", "disabled"],
       credit_note_status: ["draft", "issued", "voided"],
       customer_address_type: ["shipping", "billing", "both"],
       customer_kind: ["b2c", "b2b"],
@@ -7231,6 +8081,12 @@ export const Constants = {
         "cancelled",
       ],
       return_window_start: ["order_date", "shipping_date", "delivery_date"],
+      sender_verification_status: [
+        "unverified",
+        "pending",
+        "verified",
+        "failed",
+      ],
       sequence_reset_policy: ["never", "yearly", "monthly"],
       shipment_direction: ["outbound", "return"],
       shipment_status: [

@@ -30,6 +30,9 @@ import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './route
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
 import { Route as AuthenticatedAppDokumenteInvoiceIdRouteImport } from './routes/_authenticated/app/dokumente/$invoiceId'
 import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './routes/_authenticated/app/dokumente/einstellungen'
+import { Route as AuthenticatedAppKommunikationIndexRouteImport } from './routes/_authenticated/app/kommunikation/index'
+import { Route as AuthenticatedAppKommunikationBrandingRouteImport } from './routes/_authenticated/app/kommunikation/branding'
+import { Route as AuthenticatedAppKommunikationRegelnRouteImport } from './routes/_authenticated/app/kommunikation/regeln'
 import { Route as AuthenticatedAppKundenIndexRouteImport } from './routes/_authenticated/app/kunden/index'
 import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app/kunden/$customerId'
 import { Route as AuthenticatedAppLagerIndexRouteImport } from './routes/_authenticated/app/lager/index'
@@ -52,8 +55,14 @@ import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
 import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './routes/_authenticated/app/versand/dienstleister'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
+import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as AuthenticatedAppKommunikationVerlaufIndexRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/index'
+import { Route as AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/$communicationId'
+import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
+import { Route as AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/$templateId'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
+import { Route as ApiPublicWebhooksCommunicationsProviderRouteImport } from './routes/api/public/webhooks/communications/$provider'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -166,6 +175,24 @@ const AuthenticatedAppDokumenteEinstellungenRoute =
   AuthenticatedAppDokumenteEinstellungenRouteImport.update({
     id: '/app/dokumente/einstellungen',
     path: '/app/dokumente/einstellungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKommunikationIndexRoute =
+  AuthenticatedAppKommunikationIndexRouteImport.update({
+    id: '/app/kommunikation/',
+    path: '/app/kommunikation/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKommunikationBrandingRoute =
+  AuthenticatedAppKommunikationBrandingRouteImport.update({
+    id: '/app/kommunikation/branding',
+    path: '/app/kommunikation/branding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKommunikationRegelnRoute =
+  AuthenticatedAppKommunikationRegelnRouteImport.update({
+    id: '/app/kommunikation/regeln',
+    path: '/app/kommunikation/regeln',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppKundenIndexRoute =
@@ -300,15 +327,51 @@ const AuthenticatedAppVersandVersandartenRoute =
     path: '/app/versand/versandarten',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicJobsCommunicationsRoute =
+  ApiPublicJobsCommunicationsRouteImport.update({
+    id: '/api/public/jobs/communications',
+    path: '/api/public/jobs/communications',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppKommunikationVerlaufIndexRoute =
+  AuthenticatedAppKommunikationVerlaufIndexRouteImport.update({
+    id: '/app/kommunikation/verlauf/',
+    path: '/app/kommunikation/verlauf/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKommunikationVerlaufCommunicationIdRoute =
+  AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport.update({
+    id: '/app/kommunikation/verlauf/$communicationId',
+    path: '/app/kommunikation/verlauf/$communicationId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKommunikationVorlagenIndexRoute =
+  AuthenticatedAppKommunikationVorlagenIndexRouteImport.update({
+    id: '/app/kommunikation/vorlagen/',
+    path: '/app/kommunikation/vorlagen/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKommunikationVorlagenTemplateIdRoute =
+  AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport.update({
+    id: '/app/kommunikation/vorlagen/$templateId',
+    path: '/app/kommunikation/vorlagen/$templateId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksCarrierProviderRoute =
   ApiPublicWebhooksCarrierProviderRouteImport.update({
     id: '/api/public/webhooks/carrier/$provider',
     path: '/api/public/webhooks/carrier/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWebhooksCommunicationsProviderRoute =
+  ApiPublicWebhooksCommunicationsProviderRouteImport.update({
+    id: '/api/public/webhooks/communications/$provider',
+    path: '/api/public/webhooks/communications/$provider',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -331,6 +394,8 @@ export interface FileRoutesByFullPath {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
@@ -347,16 +412,23 @@ export interface FileRoutesByFullPath {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
   '/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
+  '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
+  '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
+  '/app/kommunikation/verlauf/': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
+  '/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -377,6 +449,8 @@ export interface FileRoutesByTo {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
@@ -393,16 +467,23 @@ export interface FileRoutesByTo {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/kommunikation': typeof AuthenticatedAppKommunikationIndexRoute
   '/app/kunden': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand': typeof AuthenticatedAppVersandIndexRoute
+  '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
+  '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
+  '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
+  '/app/kommunikation/verlauf': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
+  '/app/kommunikation/vorlagen': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -425,6 +506,8 @@ export interface FileRoutesById {
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/_authenticated/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/_authenticated/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/_authenticated/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/_authenticated/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
@@ -441,16 +524,23 @@ export interface FileRoutesById {
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/_authenticated/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/_authenticated/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
   '/_authenticated/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/_authenticated/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/_authenticated/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
+  '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
+  '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
+  '/_authenticated/app/kommunikation/verlauf/': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
+  '/_authenticated/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -473,6 +563,8 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/kommunikation/branding'
+    | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
@@ -489,16 +581,23 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen/'
     | '/app/dokumente/'
+    | '/app/kommunikation/'
     | '/app/kunden/'
     | '/app/lager/'
     | '/app/preise/'
     | '/app/produkte/'
     | '/app/retouren/'
     | '/app/versand/'
+    | '/app/kommunikation/verlauf/$communicationId'
+    | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
+    | '/api/public/webhooks/communications/$provider'
+    | '/app/kommunikation/verlauf/'
+    | '/app/kommunikation/vorlagen/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -519,6 +618,8 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/kommunikation/branding'
+    | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
@@ -535,16 +636,23 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen'
     | '/app/dokumente'
+    | '/app/kommunikation'
     | '/app/kunden'
     | '/app/lager'
     | '/app/preise'
     | '/app/produkte'
     | '/app/retouren'
     | '/app/versand'
+    | '/app/kommunikation/verlauf/$communicationId'
+    | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
+    | '/api/public/webhooks/communications/$provider'
+    | '/app/kommunikation/verlauf'
+    | '/app/kommunikation/vorlagen'
   id:
     | '__root__'
     | '/'
@@ -566,6 +674,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
+    | '/_authenticated/app/kommunikation/branding'
+    | '/_authenticated/app/kommunikation/regeln'
     | '/_authenticated/app/kunden/$customerId'
     | '/_authenticated/app/lager/bewegungen'
     | '/_authenticated/app/lager/lagerorte'
@@ -582,16 +692,23 @@ export interface FileRouteTypes {
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
     | '/_authenticated/app/versand/versandarten'
+    | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
     | '/_authenticated/app/bestellungen/'
     | '/_authenticated/app/dokumente/'
+    | '/_authenticated/app/kommunikation/'
     | '/_authenticated/app/kunden/'
     | '/_authenticated/app/lager/'
     | '/_authenticated/app/preise/'
     | '/_authenticated/app/produkte/'
     | '/_authenticated/app/retouren/'
     | '/_authenticated/app/versand/'
+    | '/_authenticated/app/kommunikation/verlauf/$communicationId'
+    | '/_authenticated/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
+    | '/api/public/webhooks/communications/$provider'
+    | '/_authenticated/app/kommunikation/verlauf/'
+    | '/_authenticated/app/kommunikation/vorlagen/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -602,8 +719,10 @@ export interface RootRouteChildren {
   PortalGastRoute: typeof PortalGastRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
+  ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
+  ApiPublicWebhooksCommunicationsProviderRoute: typeof ApiPublicWebhooksCommunicationsProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -753,6 +872,27 @@ declare module '@tanstack/react-router' {
       path: '/app/dokumente/einstellungen'
       fullPath: '/app/dokumente/einstellungen'
       preLoaderRoute: typeof AuthenticatedAppDokumenteEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kommunikation/': {
+      id: '/_authenticated/app/kommunikation/'
+      path: '/app/kommunikation'
+      fullPath: '/app/kommunikation/'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kommunikation/branding': {
+      id: '/_authenticated/app/kommunikation/branding'
+      path: '/app/kommunikation/branding'
+      fullPath: '/app/kommunikation/branding'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationBrandingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kommunikation/regeln': {
+      id: '/_authenticated/app/kommunikation/regeln'
+      path: '/app/kommunikation/regeln'
+      fullPath: '/app/kommunikation/regeln'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationRegelnRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/kunden/': {
@@ -909,6 +1049,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppVersandVersandartenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/jobs/communications': {
+      id: '/api/public/jobs/communications'
+      path: '/api/public/jobs/communications'
+      fullPath: '/api/public/jobs/communications'
+      preLoaderRoute: typeof ApiPublicJobsCommunicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -916,11 +1063,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/app/kommunikation/verlauf/': {
+      id: '/_authenticated/app/kommunikation/verlauf/'
+      path: '/app/kommunikation/verlauf'
+      fullPath: '/app/kommunikation/verlauf/'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationVerlaufIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kommunikation/verlauf/$communicationId': {
+      id: '/_authenticated/app/kommunikation/verlauf/$communicationId'
+      path: '/app/kommunikation/verlauf/$communicationId'
+      fullPath: '/app/kommunikation/verlauf/$communicationId'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kommunikation/vorlagen/': {
+      id: '/_authenticated/app/kommunikation/vorlagen/'
+      path: '/app/kommunikation/vorlagen'
+      fullPath: '/app/kommunikation/vorlagen/'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationVorlagenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kommunikation/vorlagen/$templateId': {
+      id: '/_authenticated/app/kommunikation/vorlagen/$templateId'
+      path: '/app/kommunikation/vorlagen/$templateId'
+      fullPath: '/app/kommunikation/vorlagen/$templateId'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/carrier/$provider': {
       id: '/api/public/webhooks/carrier/$provider'
       path: '/api/public/webhooks/carrier/$provider'
       fullPath: '/api/public/webhooks/carrier/$provider'
       preLoaderRoute: typeof ApiPublicWebhooksCarrierProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/communications/$provider': {
+      id: '/api/public/webhooks/communications/$provider'
+      path: '/api/public/webhooks/communications/$provider'
+      fullPath: '/api/public/webhooks/communications/$provider'
+      preLoaderRoute: typeof ApiPublicWebhooksCommunicationsProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -939,6 +1121,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
+  AuthenticatedAppKommunikationBrandingRoute: typeof AuthenticatedAppKommunikationBrandingRoute
+  AuthenticatedAppKommunikationRegelnRoute: typeof AuthenticatedAppKommunikationRegelnRoute
   AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
   AuthenticatedAppLagerBewegungenRoute: typeof AuthenticatedAppLagerBewegungenRoute
   AuthenticatedAppLagerLagerorteRoute: typeof AuthenticatedAppLagerLagerorteRoute
@@ -957,12 +1141,17 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppDokumenteIndexRoute: typeof AuthenticatedAppDokumenteIndexRoute
+  AuthenticatedAppKommunikationIndexRoute: typeof AuthenticatedAppKommunikationIndexRoute
   AuthenticatedAppKundenIndexRoute: typeof AuthenticatedAppKundenIndexRoute
   AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
   AuthenticatedAppPreiseIndexRoute: typeof AuthenticatedAppPreiseIndexRoute
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
   AuthenticatedAppRetourenIndexRoute: typeof AuthenticatedAppRetourenIndexRoute
   AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
+  AuthenticatedAppKommunikationVerlaufCommunicationIdRoute: typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
+  AuthenticatedAppKommunikationVorlagenTemplateIdRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  AuthenticatedAppKommunikationVerlaufIndexRoute: typeof AuthenticatedAppKommunikationVerlaufIndexRoute
+  AuthenticatedAppKommunikationVorlagenIndexRoute: typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -981,6 +1170,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppDokumenteInvoiceIdRoute,
   AuthenticatedAppDokumenteEinstellungenRoute:
     AuthenticatedAppDokumenteEinstellungenRoute,
+  AuthenticatedAppKommunikationBrandingRoute:
+    AuthenticatedAppKommunikationBrandingRoute,
+  AuthenticatedAppKommunikationRegelnRoute:
+    AuthenticatedAppKommunikationRegelnRoute,
   AuthenticatedAppKundenCustomerIdRoute: AuthenticatedAppKundenCustomerIdRoute,
   AuthenticatedAppLagerBewegungenRoute: AuthenticatedAppLagerBewegungenRoute,
   AuthenticatedAppLagerLagerorteRoute: AuthenticatedAppLagerLagerorteRoute,
@@ -1009,12 +1202,22 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppBestellungenIndexRoute:
     AuthenticatedAppBestellungenIndexRoute,
   AuthenticatedAppDokumenteIndexRoute: AuthenticatedAppDokumenteIndexRoute,
+  AuthenticatedAppKommunikationIndexRoute:
+    AuthenticatedAppKommunikationIndexRoute,
   AuthenticatedAppKundenIndexRoute: AuthenticatedAppKundenIndexRoute,
   AuthenticatedAppLagerIndexRoute: AuthenticatedAppLagerIndexRoute,
   AuthenticatedAppPreiseIndexRoute: AuthenticatedAppPreiseIndexRoute,
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
   AuthenticatedAppRetourenIndexRoute: AuthenticatedAppRetourenIndexRoute,
   AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
+  AuthenticatedAppKommunikationVerlaufCommunicationIdRoute:
+    AuthenticatedAppKommunikationVerlaufCommunicationIdRoute,
+  AuthenticatedAppKommunikationVorlagenTemplateIdRoute:
+    AuthenticatedAppKommunikationVorlagenTemplateIdRoute,
+  AuthenticatedAppKommunikationVerlaufIndexRoute:
+    AuthenticatedAppKommunikationVerlaufIndexRoute,
+  AuthenticatedAppKommunikationVorlagenIndexRoute:
+    AuthenticatedAppKommunikationVorlagenIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1028,8 +1231,11 @@ const rootRouteChildren: RootRouteChildren = {
   PortalGastRoute: PortalGastRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
+  ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,
+  ApiPublicWebhooksCommunicationsProviderRoute:
+    ApiPublicWebhooksCommunicationsProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
