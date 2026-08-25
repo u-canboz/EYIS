@@ -55,6 +55,7 @@ import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './rout
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
 import { Route as ApiPublicWebhooksCommunicationsProviderRouteImport } from './routes/api/public/webhooks/communications/$provider'
 
@@ -320,6 +321,12 @@ const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   path: '/api/public/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppKommunikationVorlagenIndexRoute =
+  AuthenticatedAppKommunikationVorlagenIndexRouteImport.update({
+    id: '/app/kommunikation/vorlagen/',
+    path: '/app/kommunikation/vorlagen/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksCarrierProviderRoute =
   ApiPublicWebhooksCarrierProviderRouteImport.update({
     id: '/api/public/webhooks/carrier/$provider',
@@ -381,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
+  '/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -430,6 +438,7 @@ export interface FileRoutesByTo {
   '/app/versand': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
+  '/app/kommunikation/vorlagen': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -481,6 +490,7 @@ export interface FileRoutesById {
   '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
+  '/_authenticated/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -532,6 +542,7 @@ export interface FileRouteTypes {
     | '/app/versand/'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
+    | '/app/kommunikation/vorlagen/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -581,6 +592,7 @@ export interface FileRouteTypes {
     | '/app/versand'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
+    | '/app/kommunikation/vorlagen'
   id:
     | '__root__'
     | '/'
@@ -631,6 +643,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/versand/'
     | '/api/public/webhooks/carrier/$provider'
     | '/api/public/webhooks/communications/$provider'
+    | '/_authenticated/app/kommunikation/vorlagen/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -971,6 +984,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/app/kommunikation/vorlagen/': {
+      id: '/_authenticated/app/kommunikation/vorlagen/'
+      path: '/app/kommunikation/vorlagen'
+      fullPath: '/app/kommunikation/vorlagen/'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationVorlagenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/carrier/$provider': {
       id: '/api/public/webhooks/carrier/$provider'
       path: '/api/public/webhooks/carrier/$provider'
@@ -1026,6 +1046,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
   AuthenticatedAppRetourenIndexRoute: typeof AuthenticatedAppRetourenIndexRoute
   AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
+  AuthenticatedAppKommunikationVorlagenIndexRoute: typeof AuthenticatedAppKommunikationVorlagenIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1080,6 +1101,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
   AuthenticatedAppRetourenIndexRoute: AuthenticatedAppRetourenIndexRoute,
   AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
+  AuthenticatedAppKommunikationVorlagenIndexRoute:
+    AuthenticatedAppKommunikationVorlagenIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
