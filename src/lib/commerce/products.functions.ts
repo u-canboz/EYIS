@@ -343,7 +343,7 @@ export const updateProduct = createServerFn({ method: "POST" })
       );
     }
 
-    const { error } = await supabase.from("products").update(patch).eq("id", data.productId);
+    const { error } = await supabase.from("products").update(patch as never).eq("id", data.productId);
     if (error) throw new Error(error.message);
 
     if (data.categoryIds) {

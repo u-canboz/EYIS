@@ -207,7 +207,7 @@ export const updateVariant = createServerFn({ method: "POST" })
 
     const { error } = await supabase
       .from("product_variants")
-      .update(patch)
+      .update(patch as never)
       .eq("id", data.variantId)
       .eq("organization_id", data.organizationId);
     if (error) {

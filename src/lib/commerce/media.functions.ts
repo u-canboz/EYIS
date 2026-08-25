@@ -136,7 +136,7 @@ export const updateMedia = createServerFn({ method: "POST" })
 
     const { error } = await supabase
       .from("media_assets")
-      .update(patch)
+      .update(patch as never)
       .eq("id", data.mediaId)
       .eq("organization_id", data.organizationId);
     if (error) throw new Error(error.message);
