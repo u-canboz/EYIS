@@ -17,6 +17,7 @@ import { Route as StoreRouteRouteImport } from './routes/store/route'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
 import { Route as PortalGastRouteImport } from './routes/portal/gast'
 import { Route as StoreIndexRouteImport } from './routes/store/index'
+import { Route as StoreCheckoutRouteImport } from './routes/store/checkout'
 import { Route as StoreWarenkorbRouteImport } from './routes/store/warenkorb'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppAuditRouteImport } from './routes/_authenticated/app/audit'
@@ -114,6 +115,11 @@ const PortalGastRoute = PortalGastRouteImport.update({
 const StoreIndexRoute = StoreIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
+const StoreCheckoutRoute = StoreCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => StoreRouteRoute,
 } as any)
 const StoreWarenkorbRoute = StoreWarenkorbRouteImport.update({
@@ -466,6 +472,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
+  '/store/checkout': typeof StoreCheckoutRoute
   '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal/': typeof PortalIndexRoute
   '/store/': typeof StoreIndexRoute
@@ -533,6 +540,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
+  '/store/checkout': typeof StoreCheckoutRoute
   '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal': typeof PortalIndexRoute
   '/store': typeof StoreIndexRoute
@@ -603,6 +611,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
+  '/store/checkout': typeof StoreCheckoutRoute
   '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal/': typeof PortalIndexRoute
   '/store/': typeof StoreIndexRoute
@@ -673,6 +682,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/portal/gast'
+    | '/store/checkout'
     | '/store/warenkorb'
     | '/portal/'
     | '/store/'
@@ -740,6 +750,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/portal/gast'
+    | '/store/checkout'
     | '/store/warenkorb'
     | '/portal'
     | '/store'
@@ -809,6 +820,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/portal/gast'
+    | '/store/checkout'
     | '/store/warenkorb'
     | '/portal/'
     | '/store/'
@@ -945,6 +957,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/store/'
       preLoaderRoute: typeof StoreIndexRouteImport
+      parentRoute: typeof StoreRouteRoute
+    }
+    '/store/checkout': {
+      id: '/store/checkout'
+      path: '/checkout'
+      fullPath: '/store/checkout'
+      preLoaderRoute: typeof StoreCheckoutRouteImport
       parentRoute: typeof StoreRouteRoute
     }
     '/store/warenkorb': {
@@ -1499,12 +1518,14 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface StoreRouteRouteChildren {
+  StoreCheckoutRoute: typeof StoreCheckoutRoute
   StoreWarenkorbRoute: typeof StoreWarenkorbRoute
   StoreIndexRoute: typeof StoreIndexRoute
   StoreProduktHandleRoute: typeof StoreProduktHandleRoute
 }
 
 const StoreRouteRouteChildren: StoreRouteRouteChildren = {
+  StoreCheckoutRoute: StoreCheckoutRoute,
   StoreWarenkorbRoute: StoreWarenkorbRoute,
   StoreIndexRoute: StoreIndexRoute,
   StoreProduktHandleRoute: StoreProduktHandleRoute,
