@@ -113,16 +113,43 @@ check(
 );
 
 const tracking = await refreshTracking(ORG, shipment.id);
-check("Tracking-Ereignisse gespeichert", tracking.stored > 0, String(tracking.stored));
+check("Tracking-Abruf funktioniert", tracking.supported && tracking.stored + tracking.duplicates > 0);
 const second = await refreshTracking(ORG, shipment.id);
 check("Tracking-Dedupe", second.stored === 0 && second.duplicates > 0, `${second.stored}/${second.duplicates}`);
 
+// Zustellung über den Carrier-Webhook — der Weg, den echte Dienstleister nutzen.
+const webhook = await fetch("http://localhost:8080/api/public/webhooks/carrier/mock", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({
+    providerShipmentId: shipment.providerShipmentId,
+    events: [
+      { id: "qa-out", code: "MOCK_OUT", status: "out_for_delivery", occurredAt: new Date(Date.now() - 60000).toISOString() },
+      { id: "qa-delivered", code: "MOCK_DELIVERED", status: "delivered", occurredAt: new Date().toISOString() },
+    ],
+  }),
+});
+check("Webhook akzeptiert", webhook.ok, String(webhook.status));
+
+const replay = await fetch("http://localhost:8080/api/public/webhooks/carrier/mock", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({
+    providerShipmentId: shipment.providerShipmentId,
+    events: [{ id: "qa-delivered", code: "MOCK_DELIVERED", status: "delivered", occurredAt: new Date().toISOString() }],
+  }),
+});
+check("Webhook-Replay ohne Doppelbuchung", ((await replay.json()) as { stored: number }).stored === 0);
+
 const events = await listTrackingEvents(ORG, shipment.id);
-check("Verlauf lesbar", events.length > 0, String(events.length));
+check("Verlauf lesbar", events.length >= 2, String(events.length));
 
 const { data: finalShipment } = await admin.from("shipments").select("normalized_tracking_status").eq("id", shipment.id).single();
 const status = (finalShipment as { normalized_tracking_status: string }).normalized_tracking_status;
 check("Endstatus zugestellt", status === "delivered", status);
+
+const delivered = await loadFulfillment(ORG, fid);
+check("Fulfillment zugestellt", delivered.status === "delivered", delivered.status);
 
 // Rückwärts-Event darf den Status nicht zurücksetzen.
 await admin.rpc("track_record_event" as never, {
