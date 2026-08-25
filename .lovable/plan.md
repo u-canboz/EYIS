@@ -30,7 +30,7 @@ Idempotenz: Unique auf `(shop_id, source_event_id, communication_rule_id, recipi
 
 `CommunicationProvider`-Interface analog zum bestehenden `CarrierProvider` (`send`, optional `parseWebhook`, `capabilities`) mit Registry per dynamischem Import.
 
-- `test` — vollständig funktionsfähiger interner Provider: rendert, protokolliert, simuliert Zustellung/Bounce, versendet nichts nach außen. Damit ist die gesamte Engine ohne externe Credentials nutzbar und testbar.
+- `test` — vollständig funktionsfähiger interner Provider: rendert, protokolliert, simuliert Zustellung/Bounce, versendet nichts nach außen. Der Provider besitzt keinerlei Netzwerkpfad — er ruft keine externe API und keinen Mailversand auf, unabhängig davon, welche Empfängeradresse eingetragen ist; eine echte Adresse kann technisch nicht erreicht werden. Jede so erzeugte Communication wird als Testsendung markiert. Damit ist die gesamte Engine ohne externe Credentials nutzbar und testbar.
 - `lovable` — der produktive E-Mail-Versand über die verwaltete E-Mail-Infrastruktur des Projekts. Aktiv erst, wenn eine eigene Absenderdomain eingerichtet und verifiziert ist; bis dahin bleibt der Test-Provider aktiv und die Oberfläche sagt das klar.
 
 Es werden keine Fake-SMS-/WhatsApp-Funktionen gebaut; die Kanäle existieren nur im Datenmodell.
