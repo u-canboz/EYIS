@@ -5,7 +5,7 @@
  * `@/components/ui/**` and React/Router. No `@/lib/commerce/**`, no Supabase.
  * The ESLint boundary rule in eslint.config.js fails the build on violations.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { CommerceProvider } from "@/lib/store-sdk/react/provider";
 import type { CommerceClientConfig } from "@/lib/store-sdk";
@@ -29,7 +29,14 @@ function resolvePublishableKey(): string {
 }
 
 function StoreLayout() {
-  const [publishableKey, setPublishableKey] = useState<string>(() => resolvePublishableKey());
+  const [publishableKey, setPublishableKey] = useState<string>(
+    () => (import.meta.env["VITE_COMMERCE_PUBLISHABLE_KEY"] as string | undefined) ?? "",
+  );
+
+  // URL/localStorage are only readable after hydration.
+  useEffect(() => {
+    setPublishableKey(resolvePublishableKey());
+  }, []);
   const config = useMemo<CommerceClientConfig>(
     () => ({
       baseUrl:
