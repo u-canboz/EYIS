@@ -14,20 +14,23 @@ Internal Engine (Phase 0–11)
 ## 1. Datenmodell (Migration)
 
 - `store_api_keys`: organization_id, shop_id, name, key_prefix, key_hash (SHA-256), status, environment (test/live), allowed_origins[], rate_limit_profile, created_by, created_at, revoked_at, last_used_at. Voller Key `pk_test_…`/`pk_live_…` wird nur einmal beim Erstellen zurückgegeben.
-- `store_api_request_logs`: request_id, key_id, shop_id, method, route, status_code, duration_ms, ip_hash, user_agent_summary, error_code, created_at. Keine Payloads.
+- `store_api_request_logs`: request_id, key_id, shop_id, method, route, status_code, duration_ms, ip_hash, user_agent_summary, error_code, created_at. Keine Payloads. `ip_hash` wird nur mit einem **rotierenden Salt** (täglich, im Secret-Store) gebildet, ist also nicht dauerhaft reversibel oder über Zeiträume hinweg verkettbar; nach Ablauf der Aufbewahrung wird das Feld geleert.
 - `store_api_rate_counters`: atomarer Zähler (key_id, profile, window_start) + SQL-Funktion `store_rate_hit(...)`, die serverseitig zählt und entscheidet — analog zu `automation_check_limits`.
 - Jede Tabelle mit GRANTs, RLS und org-scoped Policies (nur Admin-UI liest; die API läuft über den Service-Client).
 
 ## 2. API-Boundary
 
+Grundsatz: **Der Publishable Key ist kein Sicherheitsmerkmal.** Er identifiziert nur Shop, Environment und Capabilities. Jeder Zugriff auf Cart-, Customer-, Order-, Dokument- oder Return-Daten erfordert zusätzlich ein echtes Zugriffsmerkmal: Cart-Token, Customer-Session oder scoped Guest-Access-Token. Ebenso ist der **Origin-Check nur Zusatzschutz, kein Auth-Ersatz** — auch bei korrektem Origin prüft der Server immer Shop-Kontext, Token-Gültigkeit und Ownership der angefragten Ressource.
+
 - Alle Routen unter `src/routes/api/store/v1/...`. Diese liegen bewusst **nicht** unter `/api/public/*` für Admin-Zwecke, sondern bekommen eine eigene Gate-Middleware.
 - Ein einziger Request-Handler-Wrapper (`store/gateway.server.ts`) macht für jeden Request:
   1. `request_id` erzeugen → `X-Request-ID`, als correlation_id an Domain-Events weitergereicht.
-  2. Publishable Key aus `X-Commerce-Key` lesen, hashen, Key laden, Status/Environment prüfen.
+  2. Publishable Key aus `X-Commerce-Key` lesen, hashen, Key laden, Status/Environment prüfen (nur Shop-Identifikation).
   3. Origin serverseitig gegen `allowed_origins` prüfen (Dev-Origins nur bei environment=test), CORS-Header + OPTIONS.
-  4. Rate Limit nach Profil (catalog_read, search, cart_write, checkout, customer_auth, guest_lookup).
-  5. Body-/Payload-Limits, Zod-Validierung, `Idempotency-Key` an bestehende `idempotency_keys`-Infrastruktur.
-  6. Einheitliche Fehler + Logging in `store_api_request_logs`, Security-Header, keine Stack Traces.
+  4. Ressourcen-Autorisierung: Cart-Token / Customer-Session / Guest-Token prüfen und gegen den Shop des Keys sowie den Owner der Ressource abgleichen.
+  5. Rate Limit nach Profil: catalog_read, search, cart_write, checkout, customer_auth, guest_lookup — plus eigene, strengere Buckets für `payment_session`, `return_create` und `customer_login`.
+  6. Body-/Payload-Limits, Zod-Validierung, `Idempotency-Key` an bestehende `idempotency_keys`-Infrastruktur.
+  7. Einheitliche Fehler + Logging in `store_api_request_logs`, Security-Header, keine Stack Traces.
 
 ## 3. Public DTOs
 
@@ -44,7 +47,7 @@ Inventar wird nur als `in_stock | low_stock | out_of_stock | backorder` plus opt
 - Cart: create/get/items CRUD/promotions. Auth via Key + Cart-ID + `X-Cart-Token` (nie Query). Missbrauchslimits: max. Zeilen, Menge/Zeile, Promo-Codes, Mutationen pro Minute.
 - Checkout: `start`, `contact`, `shipping-address`, `billing-address`, `shipping-options`, `shipping-option`, `validate`; Status open/validated/awaiting_payment/completed/expired/cancelled.
 - Payment: `POST /checkout/:id/payment-session`, `GET /checkout/:id/payment-status`; generischer Contract (`type: "redirect" | "embedded"`), keine Secrets.
-- Orders: `GET /orders/confirmation/:accessToken` (keine ratbaren IDs), `POST /orders/guest-access` (order_number + email, uniform response, strenges Rate Limit, scoped Token auf einen Shop/eine Order — nutzt Phase-9-`guest_order_access_tokens`).
+- Orders: `GET /orders/confirmation/:accessToken` — der Token ist **kurzlebig (Minuten), einmal einlösbar und auf genau eine Order + einen Shop gescoped**, wird beim Checkout-Abschluss ausgestellt und tauscht sich gegen eine kurzlebige Session bzw. einen scoped Guest-Token; kein langlebiger, teilbarer Order-Link. `POST /orders/guest-access` (order_number + email, uniform response, strenges Rate Limit, scoped Token auf einen Shop/eine Order mit Ablauf — nutzt Phase-9-`guest_order_access_tokens`).
 - Customer: Session über bestehende Auth; `GET/PATCH /customer`, `/customer/orders`, `/customer/addresses` CRUD, `/customer/orders/:id/documents` + Download als kurzlebige signierte URL, `/customer/orders/:id/tracking`, Returns (`return-eligibility`, `returns` create/list/detail) über die Phase-9-Engine.
 
 ## 5. SDK
@@ -58,7 +61,11 @@ Inventar wird nur als `in_stock | low_stock | out_of_stock | backorder` plus opt
 
 ## 6. Reference Storefront
 
-Neutraler Referenz-Shop unter `/store/*` (Home, Shop, Category, Collection, Product, Search, Cart, Checkout, Account, Orders, Returns) mit Komponenten (ProductCard, ProductGrid, ProductGallery, VariantSelector, Price, AddToCart, CartDrawer, CheckoutForm, AccountLayout, OrderCard, TrackingTimeline, ReturnWizard). Diese Routen importieren ausschließlich das SDK — ein ESLint-Boundary-Regel-Eintrag verbietet `@/lib/commerce/*` und Supabase-Clients dort. Der bestehende Test-Storefront bleibt als internes Werkzeug bestehen. `commerce.config.ts` im Projektroot als neutrale Beispielkonfiguration.
+Neutraler Referenz-Shop unter `/store/*` (Home, Shop, Category, Collection, Product, Search, Cart, Checkout, Account, Orders, Returns) mit Komponenten (ProductCard, ProductGrid, ProductGallery, VariantSelector, Price, AddToCart, CartDrawer, CheckoutForm, AccountLayout, OrderCard, TrackingTimeline, ReturnWizard).
+
+Diese Routen und Komponenten importieren **ausschließlich** das SDK. Durchgesetzt wird das hart: eine ESLint-`no-restricted-imports`-Boundary für `src/routes/store/**` und `src/components/storefront/**` verbietet `@/lib/commerce/*`, `@/integrations/supabase/*`, alle `*.server`/`*.functions`-Module und `@supabase/*` — als **error**, und Lint läuft als Build-/CI-Gate, sodass ein interner Import den Build scheitern lässt. Zusätzlich ein Test, der die Importgraphen dieser Verzeichnisse prüft.
+
+Der bestehende Test-Storefront bleibt als internes Werkzeug bestehen. `commerce.config.ts` im Projektroot als neutrale Beispielkonfiguration.
 
 ## 7. Developer-Bereich (Backoffice)
 
