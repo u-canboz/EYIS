@@ -71,7 +71,7 @@ Jede Mutation: Kontext prüfen (Membership oder gültiger Cart-Token), Shop- und
 
 ## Sicherheit
 
-- Anonymer Token wird serverseitig erzeugt, nur der SHA-256-Hash gespeichert; der Roh-Token wird genau einmal zurückgegeben.
+- Anonymer Token wird serverseitig mit mindestens 256 Bit kryptografischer Entropie erzeugt (32 Zufallsbytes über `crypto.getRandomValues`, hex-kodiert) — keine UUIDs, keine kurzen Tokens. Gespeichert wird nur der SHA-256-Hash; der Roh-Token wird genau einmal zurückgegeben.
 - Token autorisiert exakt einen Cart, konstantzeitiger Vergleich, kein Cross-Cart-Zugriff.
 - Keine anonymen SELECT-Policies auf Cart-, Checkout- oder Adresstabellen.
 - Der Client sendet nur IDs, Mengen, Adresseingaben, Promotion-Code und Auswahlentscheidungen. Preis, Rabatt, Versandkosten, Steuer, Total, Titel und SKU erzeugt ausschließlich der Server.
