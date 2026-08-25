@@ -18,7 +18,7 @@ Order-Snapshot → Return Request → Approval → Wareneingang → Prüfung →
 `customer_addresses` (shipping/billing/both, `is_default`) — reine Stammdaten, historische Order-Adressen bleiben unberührt.
 `customer_group_members` (customer_id, customer_group_id) — verbindet Phase-2-Gruppen real.
 `customer_notes` (intern, nie im Portal sichtbar).
-`guest_order_access_tokens` (order_id, `token_hash`, expires_at, used_at, revoked_at) — nur SHA-256-Hash, Rohtoken nur einmal zurückgegeben.
+`guest_order_access_tokens` (order_id, `token_hash`, expires_at, used_at, revoked_at) — Rohtoken aus 32 zufälligen Bytes (256 Bit, CSPRNG, base64url), niemals UUID; gespeichert wird nur der SHA-256-Hash, der Rohtoken wird genau einmal zurückgegeben.
 `returns` (return_number, status, reason_category, customer_note/internal_note, Zeitstempel je Statuswechsel, `refund_id`, `credit_note_id`, `return_shipment_id`).
 `return_items` (order_item_id, quantity_requested/received/approved, reason_code, condition, resolution, restock_decision, refund_amount_minor, metadata).
 `return_settings` (returns_enabled, default_return_window_days, approval_strategy, customer_pays_return_shipping, auto_refund_on_approval, auto_restock, instructions).
