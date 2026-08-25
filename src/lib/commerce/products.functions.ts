@@ -288,6 +288,7 @@ export type UpdateProductInput = {
   seoTitle?: string | null;
   seoDescription?: string | null;
   blueprintData?: BlueprintData;
+  taxClassId?: string | null;
   categoryIds?: string[];
   collectionIds?: string[];
 };
@@ -320,6 +321,7 @@ export const updateProduct = createServerFn({ method: "POST" })
     if (data.featured !== undefined) patch['featured'] = data.featured;
     if (data.seoTitle !== undefined) patch['seo_title'] = data.seoTitle;
     if (data.seoDescription !== undefined) patch['seo_description'] = data.seoDescription;
+    if (data.taxClassId !== undefined) patch['tax_class_id'] = data.taxClassId;
 
     if (data.handle !== undefined && data.handle !== existing.handle) {
       patch['handle'] = await uniqueHandle(
