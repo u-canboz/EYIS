@@ -59,7 +59,7 @@ Ziel dieser Phase: das Mandanten- und Rechte-Fundament aus dem Konzeptpaket, lau
 
 - Abweichung vom Konzept, bewusst: statt Supabase Edge Functions + Monorepo-SDK werden TanStack Server Functions und ein interner SDK-Modulpfad genutzt. Die verbindlichen Regeln (keine Commerce-Logik im Client, RLS überall, Idempotency bei kritischen Mutationen, Audit) bleiben erhalten.
 - Rollen liegen ausschließlich in `memberships`/`role_permissions`, niemals auf einem Profil.
-- Outbox/Queue-Mechanik wird in Phase 0 nur als Tabellenstruktur vorbereitet, nicht verarbeitet.
+- `outbox_events` und `idempotency_keys` existieren ab Phase 0 als Tabellen und werden bei Mutationen befüllt; ein Worker/Queue-Prozessor kommt später.
 - Die Konzeptdateien werden als Referenz unter `docs/concept/` im Projekt abgelegt.
 
 ## Nicht in dieser Phase
