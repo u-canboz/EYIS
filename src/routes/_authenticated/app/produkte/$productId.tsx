@@ -270,6 +270,16 @@ function ProductEditor() {
           />
         </TabsContent>
 
+        <TabsContent value="preise" className="pt-4">
+          <PricingTab
+            productId={productId}
+            organizationId={organizationId}
+            shopId={shopId}
+            currency={shops[0]?.currency ?? "EUR"}
+            canEdit={can("pricing.manage")}
+          />
+        </TabsContent>
+
         <TabsContent value="medien" className="pt-4">
           <MediaTab
             productId={productId}
