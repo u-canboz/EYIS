@@ -1,7 +1,7 @@
 /** Automation Engine API. Thin wrappers; every call is permission-checked. */
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { ConditionGroup } from "./automation.types";
+import type { ConditionGroup, JsonObject, JsonValue } from "./automation.types";
 import type {
   ExecutionDetail,
   ExecutionSummary,
@@ -13,24 +13,43 @@ import type { TaskRow, TaskStatus } from "./tasks.server";
 
 type Scope = { organizationId: string; shopId: string };
 
+/** Client-facing mirrors: JSON columns are typed as serializable JSON. */
+export type RuleSummaryView = Omit<RuleSummary, "triggerConfig"> & { triggerConfig: JsonObject };
+export type RuleDetailView = Omit<RuleDetail, "triggerConfig" | "actions"> & {
+  triggerConfig: JsonObject;
+  actions: (Omit<RuleActionInput, "config"> & { config: JsonObject })[];
+};
+export type ExecutionDetailView = Omit<ExecutionDetail, "context" | "actions"> & {
+  context: JsonObject;
+  actions: (Omit<ExecutionDetail["actions"][number], "input" | "output"> & {
+    input: JsonObject;
+    output: JsonObject;
+  })[];
+};
+export type DryRunView = {
+  matched: boolean;
+  trace: { field: string; operator: string; expected: JsonValue; actual: JsonValue; passed: boolean }[];
+  actions: { position: number; actionType: string; config: JsonObject; delaySeconds: number; wouldRun: boolean }[];
+};
+
 export const listAutomationsFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: Scope) => data)
-  .handler(async ({ data, context }): Promise<RuleSummary[]> => {
+  .handler(async ({ data, context }): Promise<RuleSummaryView[]> => {
     const { assertPermission } = await import("../core.server");
     await assertPermission(context.supabase, context.userId, data.organizationId, "automations.read");
     const { listRules } = await import("./rules.server");
-    return await listRules(data.organizationId, data.shopId);
+    return (await listRules(data.organizationId, data.shopId)) as unknown as RuleSummaryView[];
   });
 
 export const getAutomationFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { organizationId: string; ruleId: string }) => data)
-  .handler(async ({ data, context }): Promise<RuleDetail> => {
+  .handler(async ({ data, context }): Promise<RuleDetailView> => {
     const { assertPermission } = await import("../core.server");
     await assertPermission(context.supabase, context.userId, data.organizationId, "automations.read");
     const { loadRule } = await import("./rules.server");
-    return await loadRule(data.organizationId, data.ruleId);
+    return (await loadRule(data.organizationId, data.ruleId)) as unknown as RuleDetailView;
   });
 
 export const saveAutomationFn = createServerFn({ method: "POST" })
@@ -93,11 +112,11 @@ export const resetCircuitFn = createServerFn({ method: "POST" })
 export const dryRunAutomationFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { organizationId: string; ruleId: string; payload: Record<string, unknown> }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }): Promise<DryRunView> => {
     const { assertPermission } = await import("../core.server");
     await assertPermission(context.supabase, context.userId, data.organizationId, "automations.run");
     const { dryRunRule } = await import("./engine.server");
-    return await dryRunRule(data);
+    return (await dryRunRule(data)) as unknown as DryRunView;
   });
 
 export const listExecutionsFn = createServerFn({ method: "POST" })
@@ -113,11 +132,11 @@ export const listExecutionsFn = createServerFn({ method: "POST" })
 export const getExecutionFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { organizationId: string; executionId: string }) => data)
-  .handler(async ({ data, context }): Promise<ExecutionDetail> => {
+  .handler(async ({ data, context }): Promise<ExecutionDetailView> => {
     const { assertPermission } = await import("../core.server");
     await assertPermission(context.supabase, context.userId, data.organizationId, "automations.debug");
     const { loadExecution } = await import("./rules.server");
-    return await loadExecution(data.organizationId, data.executionId);
+    return (await loadExecution(data.organizationId, data.executionId)) as unknown as ExecutionDetailView;
   });
 
 export const retryExecutionFn = createServerFn({ method: "POST" })
@@ -232,7 +251,7 @@ export const automationInboxFn = createServerFn({ method: "POST" })
     return {
       failures,
       tasks,
-      pausedRules: rules.filter((r) => r.autoPausedAt),
+      pausedRules: rules.filter((r) => r.autoPausedAt) as unknown as RuleSummaryView[],
       activeCount: rules.filter((r) => r.status === "active").length,
       runs24h: rules.reduce((sum, r) => sum + r.runs24h, 0),
     };
