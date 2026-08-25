@@ -306,7 +306,7 @@ function RulesPage() {
             {suppressions.data.map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-3 p-4 text-sm">
                 <span>
-                  {s.recipient} · {s.reason}
+                  {s.address} · {s.reason}
                 </span>
                 <Button
                   size="sm"
