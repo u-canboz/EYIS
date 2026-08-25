@@ -44,6 +44,7 @@ Alle Übergänge über `SECURITY DEFINER`-RPCs mit Row-Lock und Idempotenzschlü
 
 **Mengenregel (atomar):** je `order_item` gilt `Σ wirksame Retourenmengen ≤ bestellte Menge`. Prüfung unter `FOR UPDATE`-Lock auf Order-Item-Ebene innerhalb der Transaktion → zwei parallele Anträge auf dieselbe Restmenge: genau einer gewinnt. Teilretouren (3× Hoodie → 1, später 2, dritte Rückgabe abgelehnt) folgen daraus.
 **Nummernkreis:** `RMA-YYYY-000001` über die vorhandene Sequenzmechanik, concurrency-sicher, nie DB-ID.
+**Doppelte Anträge technisch ausgeschlossen:** `returns.idempotency_key NOT NULL` mit Unique `(organization_id, idempotency_key)` — ein wiederholter Submit liefert dieselbe RMA zurück statt einer zweiten. Zusätzlich ein partieller Unique-Index, der pro Order nur eine offene Retoure je Client-Request-Key zulässt; die Datenbank, nicht die Anwendungslogik, ist die Absicherung.
 
 ## Eligibility
 
