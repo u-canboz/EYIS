@@ -461,6 +461,8 @@ export async function receiveReturn(input: {
     })),
     _idem: input.idempotencyKey ?? null,
   });
+  await publishReturnEvent(input.returnId, "return.received");
+  return received;
 }
 
 export async function startInspection(input: { organizationId: string; returnId: string; actorId: string }) {

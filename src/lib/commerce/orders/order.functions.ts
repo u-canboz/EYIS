@@ -72,7 +72,12 @@ export const cancelOrderFn = createServerFn({ method: "POST" })
       _idem: null,
     } as never);
     if (error) throw new Error(error.message);
-    return result as unknown as { order_id: string; status: string; changed: boolean };
+    const cancelled = result as unknown as { order_id: string; status: string; changed: boolean };
+    if (cancelled.changed) {
+      const { publishOrderEvent } = await import("../event-payloads.server");
+      await publishOrderEvent(data.orderId, "order.cancelled", { reason: data.reason });
+    }
+    return cancelled;
   });
 
 export const createRefundFn = createServerFn({ method: "POST" })
@@ -145,6 +150,14 @@ export const createRefundFn = createServerFn({ method: "POST" })
       _error: errorMessage,
     } as never);
     if (settleError) throw new Error(settleError.message);
+    if (status === "completed") {
+      const { publishOrderEvent } = await import("../event-payloads.server");
+      await publishOrderEvent(data.orderId, "refund.completed", {
+        refund_id: refund.refund_id,
+        amount_minor: Number(refund.amount_minor),
+        reason: data.reason,
+      });
+    }
     if (errorMessage) throw new Error(errorMessage);
 
     return { refundId: refund.refund_id, status };
