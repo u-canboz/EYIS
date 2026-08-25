@@ -38,6 +38,7 @@ const NAV = [
   { to: "/app/produkte", label: "Produkte" },
   { to: "/app/kategorien", label: "Kategorien" },
   { to: "/app/preise", label: "Preise" },
+  { to: "/app/lager", label: "Lager" },
   { to: "/app/marketing/promotions", label: "Promotions" },
   { to: "/app/medien", label: "Medien" },
   { to: "/app/team", label: "Team" },

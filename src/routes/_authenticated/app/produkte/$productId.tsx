@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PricingTab } from "@/components/commerce/PricingTab";
+import { InventoryTab } from "@/components/commerce/InventoryTab";
 import {
   Select,
   SelectContent,
@@ -194,6 +195,7 @@ function ProductEditor() {
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="varianten">Varianten</TabsTrigger>
           <TabsTrigger value="preise">Preise</TabsTrigger>
+          <TabsTrigger value="bestand">Bestand</TabsTrigger>
           <TabsTrigger value="medien">Medien</TabsTrigger>
           <TabsTrigger value="organisation">Organisation</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
@@ -278,6 +280,15 @@ function ProductEditor() {
             shopId={shopId}
             currency={shops[0]?.currency ?? "EUR"}
             canEdit={can("pricing.manage")}
+          />
+        </TabsContent>
+
+        <TabsContent value="bestand" className="pt-4">
+          <InventoryTab
+            productId={productId}
+            organizationId={organizationId}
+            shopId={shopId}
+            canEdit={can("inventory.adjust")}
           />
         </TabsContent>
 

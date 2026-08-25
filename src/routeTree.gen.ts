@@ -19,6 +19,12 @@ import { Route as AuthenticatedAppKategorienRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppMedienRouteImport } from './routes/_authenticated/app/medien'
 import { Route as AuthenticatedAppShopsRouteImport } from './routes/_authenticated/app/shops'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
+import { Route as AuthenticatedAppLagerIndexRouteImport } from './routes/_authenticated/app/lager/index'
+import { Route as AuthenticatedAppLagerBewegungenRouteImport } from './routes/_authenticated/app/lager/bewegungen'
+import { Route as AuthenticatedAppLagerLagerorteRouteImport } from './routes/_authenticated/app/lager/lagerorte'
+import { Route as AuthenticatedAppLagerReservierungenRouteImport } from './routes/_authenticated/app/lager/reservierungen'
+import { Route as AuthenticatedAppLagerTransfersRouteImport } from './routes/_authenticated/app/lager/transfers'
+import { Route as AuthenticatedAppLagerWareneingangRouteImport } from './routes/_authenticated/app/lager/wareneingang'
 import { Route as AuthenticatedAppMarketingPromotionsRouteImport } from './routes/_authenticated/app/marketing/promotions'
 import { Route as AuthenticatedAppPreiseIndexRouteImport } from './routes/_authenticated/app/preise/index'
 import { Route as AuthenticatedAppPreiseTestenRouteImport } from './routes/_authenticated/app/preise/testen'
@@ -76,6 +82,42 @@ const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
   path: '/app/team',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppLagerIndexRoute =
+  AuthenticatedAppLagerIndexRouteImport.update({
+    id: '/app/lager/',
+    path: '/app/lager/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppLagerBewegungenRoute =
+  AuthenticatedAppLagerBewegungenRouteImport.update({
+    id: '/app/lager/bewegungen',
+    path: '/app/lager/bewegungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppLagerLagerorteRoute =
+  AuthenticatedAppLagerLagerorteRouteImport.update({
+    id: '/app/lager/lagerorte',
+    path: '/app/lager/lagerorte',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppLagerReservierungenRoute =
+  AuthenticatedAppLagerReservierungenRouteImport.update({
+    id: '/app/lager/reservierungen',
+    path: '/app/lager/reservierungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppLagerTransfersRoute =
+  AuthenticatedAppLagerTransfersRouteImport.update({
+    id: '/app/lager/transfers',
+    path: '/app/lager/transfers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppLagerWareneingangRoute =
+  AuthenticatedAppLagerWareneingangRouteImport.update({
+    id: '/app/lager/wareneingang',
+    path: '/app/lager/wareneingang',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppMarketingPromotionsRoute =
   AuthenticatedAppMarketingPromotionsRouteImport.update({
     id: '/app/marketing/promotions',
@@ -123,10 +165,16 @@ export interface FileRoutesByFullPath {
   '/app/shops': typeof AuthenticatedAppShopsRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
+  '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
+  '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
+  '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
+  '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
 }
@@ -140,10 +188,16 @@ export interface FileRoutesByTo {
   '/app/shops': typeof AuthenticatedAppShopsRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
+  '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
+  '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
+  '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
+  '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/app/lager': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
 }
@@ -159,10 +213,16 @@ export interface FileRoutesById {
   '/_authenticated/app/shops': typeof AuthenticatedAppShopsRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
+  '/_authenticated/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
+  '/_authenticated/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
+  '/_authenticated/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
+  '/_authenticated/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/_authenticated/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/_authenticated/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/_authenticated/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
 }
@@ -178,10 +238,16 @@ export interface FileRouteTypes {
     | '/app/shops'
     | '/app/team'
     | '/app/'
+    | '/app/lager/bewegungen'
+    | '/app/lager/lagerorte'
+    | '/app/lager/reservierungen'
+    | '/app/lager/transfers'
+    | '/app/lager/wareneingang'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
+    | '/app/lager/'
     | '/app/preise/'
     | '/app/produkte/'
   fileRoutesByTo: FileRoutesByTo
@@ -195,10 +261,16 @@ export interface FileRouteTypes {
     | '/app/shops'
     | '/app/team'
     | '/app'
+    | '/app/lager/bewegungen'
+    | '/app/lager/lagerorte'
+    | '/app/lager/reservierungen'
+    | '/app/lager/transfers'
+    | '/app/lager/wareneingang'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
+    | '/app/lager'
     | '/app/preise'
     | '/app/produkte'
   id:
@@ -213,10 +285,16 @@ export interface FileRouteTypes {
     | '/_authenticated/app/shops'
     | '/_authenticated/app/team'
     | '/_authenticated/app/'
+    | '/_authenticated/app/lager/bewegungen'
+    | '/_authenticated/app/lager/lagerorte'
+    | '/_authenticated/app/lager/reservierungen'
+    | '/_authenticated/app/lager/transfers'
+    | '/_authenticated/app/lager/wareneingang'
     | '/_authenticated/app/marketing/promotions'
     | '/_authenticated/app/preise/testen'
     | '/_authenticated/app/produkte/$productId'
     | '/_authenticated/app/produkte/neu'
+    | '/_authenticated/app/lager/'
     | '/_authenticated/app/preise/'
     | '/_authenticated/app/produkte/'
   fileRoutesById: FileRoutesById
@@ -300,6 +378,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/lager/': {
+      id: '/_authenticated/app/lager/'
+      path: '/app/lager'
+      fullPath: '/app/lager/'
+      preLoaderRoute: typeof AuthenticatedAppLagerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/lager/bewegungen': {
+      id: '/_authenticated/app/lager/bewegungen'
+      path: '/app/lager/bewegungen'
+      fullPath: '/app/lager/bewegungen'
+      preLoaderRoute: typeof AuthenticatedAppLagerBewegungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/lager/lagerorte': {
+      id: '/_authenticated/app/lager/lagerorte'
+      path: '/app/lager/lagerorte'
+      fullPath: '/app/lager/lagerorte'
+      preLoaderRoute: typeof AuthenticatedAppLagerLagerorteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/lager/reservierungen': {
+      id: '/_authenticated/app/lager/reservierungen'
+      path: '/app/lager/reservierungen'
+      fullPath: '/app/lager/reservierungen'
+      preLoaderRoute: typeof AuthenticatedAppLagerReservierungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/lager/transfers': {
+      id: '/_authenticated/app/lager/transfers'
+      path: '/app/lager/transfers'
+      fullPath: '/app/lager/transfers'
+      preLoaderRoute: typeof AuthenticatedAppLagerTransfersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/lager/wareneingang': {
+      id: '/_authenticated/app/lager/wareneingang'
+      path: '/app/lager/wareneingang'
+      fullPath: '/app/lager/wareneingang'
+      preLoaderRoute: typeof AuthenticatedAppLagerWareneingangRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/marketing/promotions': {
       id: '/_authenticated/app/marketing/promotions'
       path: '/app/marketing/promotions'
@@ -352,10 +472,16 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppShopsRoute: typeof AuthenticatedAppShopsRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppLagerBewegungenRoute: typeof AuthenticatedAppLagerBewegungenRoute
+  AuthenticatedAppLagerLagerorteRoute: typeof AuthenticatedAppLagerLagerorteRoute
+  AuthenticatedAppLagerReservierungenRoute: typeof AuthenticatedAppLagerReservierungenRoute
+  AuthenticatedAppLagerTransfersRoute: typeof AuthenticatedAppLagerTransfersRoute
+  AuthenticatedAppLagerWareneingangRoute: typeof AuthenticatedAppLagerWareneingangRoute
   AuthenticatedAppMarketingPromotionsRoute: typeof AuthenticatedAppMarketingPromotionsRoute
   AuthenticatedAppPreiseTestenRoute: typeof AuthenticatedAppPreiseTestenRoute
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
+  AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
   AuthenticatedAppPreiseIndexRoute: typeof AuthenticatedAppPreiseIndexRoute
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
 }
@@ -367,12 +493,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppShopsRoute: AuthenticatedAppShopsRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppLagerBewegungenRoute: AuthenticatedAppLagerBewegungenRoute,
+  AuthenticatedAppLagerLagerorteRoute: AuthenticatedAppLagerLagerorteRoute,
+  AuthenticatedAppLagerReservierungenRoute:
+    AuthenticatedAppLagerReservierungenRoute,
+  AuthenticatedAppLagerTransfersRoute: AuthenticatedAppLagerTransfersRoute,
+  AuthenticatedAppLagerWareneingangRoute:
+    AuthenticatedAppLagerWareneingangRoute,
   AuthenticatedAppMarketingPromotionsRoute:
     AuthenticatedAppMarketingPromotionsRoute,
   AuthenticatedAppPreiseTestenRoute: AuthenticatedAppPreiseTestenRoute,
   AuthenticatedAppProdukteProductIdRoute:
     AuthenticatedAppProdukteProductIdRoute,
   AuthenticatedAppProdukteNeuRoute: AuthenticatedAppProdukteNeuRoute,
+  AuthenticatedAppLagerIndexRoute: AuthenticatedAppLagerIndexRoute,
   AuthenticatedAppPreiseIndexRoute: AuthenticatedAppPreiseIndexRoute,
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
 }
