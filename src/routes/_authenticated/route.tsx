@@ -1,5 +1,12 @@
-import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import {
+  createFileRoute,
+  Outlet,
+  useNavigate,
+  Link,
+  useRouterState,
+  redirect,
+} from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +24,12 @@ import {
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 
 export const Route = createFileRoute("/_authenticated")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/auth" });
+    return { user: data.user };
+  },
   component: AuthenticatedLayout,
 });
 
@@ -29,18 +42,10 @@ const NAV = [
 
 function AuthenticatedLayout() {
   const navigate = useNavigate();
-  const [checked, setChecked] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { orgId, setOrgId } = useWorkspaceStore();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        navigate({ to: "/auth", search: { next: window.location.pathname } as never });
-        return;
-      }
-      setChecked(true);
-    });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (!session) navigate({ to: "/auth" });
     });
@@ -51,7 +56,6 @@ function AuthenticatedLayout() {
   const { data, isLoading } = useQuery({
     queryKey: ["workspace"],
     queryFn: () => fetchWorkspace(),
-    enabled: checked,
   });
 
   useEffect(() => {
@@ -141,7 +145,7 @@ function AuthenticatedLayout() {
               </Link>
             ))}
           </div>
-          {checked ? <Outlet /> : <Skeleton className="h-64 w-full" />}
+          <Outlet />
         </div>
       </main>
     </div>
