@@ -43,6 +43,7 @@ import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/
 import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
 import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_authenticated/app/retouren/index'
 import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
+import { Route as AuthenticatedAppRetourenEinstellungenRouteImport } from './routes/_authenticated/app/retouren/einstellungen'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
@@ -244,6 +245,12 @@ const AuthenticatedAppRetourenReturnIdRoute =
     path: '/app/retouren/$returnId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppRetourenEinstellungenRoute =
+  AuthenticatedAppRetourenEinstellungenRouteImport.update({
+    id: '/app/retouren/einstellungen',
+    path: '/app/retouren/einstellungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemStorefrontTestRoute =
   AuthenticatedAppSystemStorefrontTestRouteImport.update({
     id: '/app/system/storefront-test',
@@ -313,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
+  '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
+  '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -399,6 +408,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
+  '/_authenticated/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -443,6 +453,7 @@ export interface FileRouteTypes {
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
+    | '/app/retouren/einstellungen'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -485,6 +496,7 @@ export interface FileRouteTypes {
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
+    | '/app/retouren/einstellungen'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -528,6 +540,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/$productId'
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/retouren/$returnId'
+    | '/_authenticated/app/retouren/einstellungen'
     | '/_authenticated/app/system/storefront-test'
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
@@ -793,6 +806,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRetourenReturnIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/retouren/einstellungen': {
+      id: '/_authenticated/app/retouren/einstellungen'
+      path: '/app/retouren/einstellungen'
+      fullPath: '/app/retouren/einstellungen'
+      preLoaderRoute: typeof AuthenticatedAppRetourenEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/storefront-test': {
       id: '/_authenticated/app/system/storefront-test'
       path: '/app/system/storefront-test'
@@ -869,6 +889,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppRetourenReturnIdRoute: typeof AuthenticatedAppRetourenReturnIdRoute
+  AuthenticatedAppRetourenEinstellungenRoute: typeof AuthenticatedAppRetourenEinstellungenRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
@@ -914,6 +935,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppProdukteProductIdRoute,
   AuthenticatedAppProdukteNeuRoute: AuthenticatedAppProdukteNeuRoute,
   AuthenticatedAppRetourenReturnIdRoute: AuthenticatedAppRetourenReturnIdRoute,
+  AuthenticatedAppRetourenEinstellungenRoute:
+    AuthenticatedAppRetourenEinstellungenRoute,
   AuthenticatedAppSystemStorefrontTestRoute:
     AuthenticatedAppSystemStorefrontTestRoute,
   AuthenticatedAppVersandFulfillmentIdRoute:
