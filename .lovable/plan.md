@@ -47,7 +47,7 @@ Inventar wird nur als `in_stock | low_stock | out_of_stock | backorder` plus opt
 - Cart: create/get/items CRUD/promotions. Auth via Key + Cart-ID + `X-Cart-Token` (nie Query). Missbrauchslimits: max. Zeilen, Menge/Zeile, Promo-Codes, Mutationen pro Minute.
 - Checkout: `start`, `contact`, `shipping-address`, `billing-address`, `shipping-options`, `shipping-option`, `validate`; Status open/validated/awaiting_payment/completed/expired/cancelled.
 - Payment: `POST /checkout/:id/payment-session`, `GET /checkout/:id/payment-status`; generischer Contract (`type: "redirect" | "embedded"`), keine Secrets.
-- Orders: `GET /orders/confirmation/:accessToken` (keine ratbaren IDs), `POST /orders/guest-access` (order_number + email, uniform response, strenges Rate Limit, scoped Token auf einen Shop/eine Order — nutzt Phase-9-`guest_order_access_tokens`).
+- Orders: `GET /orders/confirmation/:accessToken` — der Token ist **kurzlebig (Minuten), einmal einlösbar und auf genau eine Order + einen Shop gescoped**, wird beim Checkout-Abschluss ausgestellt und tauscht sich gegen eine kurzlebige Session bzw. einen scoped Guest-Token; kein langlebiger, teilbarer Order-Link. `POST /orders/guest-access` (order_number + email, uniform response, strenges Rate Limit, scoped Token auf einen Shop/eine Order mit Ablauf — nutzt Phase-9-`guest_order_access_tokens`).
 - Customer: Session über bestehende Auth; `GET/PATCH /customer`, `/customer/orders`, `/customer/addresses` CRUD, `/customer/orders/:id/documents` + Download als kurzlebige signierte URL, `/customer/orders/:id/tracking`, Returns (`return-eligibility`, `returns` create/list/detail) über die Phase-9-Engine.
 
 ## 5. SDK
