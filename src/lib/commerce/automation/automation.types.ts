@@ -1,5 +1,8 @@
 /** Shared, client-safe types for the automation engine. */
 
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonObject = { [key: string]: JsonValue };
+
 export type AutomationStatus = "draft" | "active" | "paused" | "archived";
 export type TriggerType = "domain_event" | "schedule" | "manual";
 export type ExecutionStatus =
@@ -28,7 +31,7 @@ export type ConditionOperator =
 export type Condition = {
   field: string;
   operator: ConditionOperator;
-  value?: unknown;
+  value?: JsonValue;
 };
 
 export type ConditionGroup = {
@@ -54,7 +57,7 @@ export type AutomationAction = {
   id?: string;
   position: number;
   actionType: string;
-  config: Record<string, unknown>;
+  config: JsonObject;
   continueOnFailure: boolean;
   delaySeconds: number;
 };
@@ -102,7 +105,7 @@ export type ActionExecutionView = {
   errorCode: string | null;
   errorMessage: string | null;
   skippedReason: string | null;
-  output: Record<string, unknown>;
+  output: JsonObject;
   startedAt: string | null;
   finishedAt: string | null;
 };
@@ -118,7 +121,7 @@ export type ExecutionView = {
   status: ExecutionStatus;
   errorCode: string | null;
   error: string | null;
-  contextSnapshot: Record<string, unknown>;
+  contextSnapshot: JsonObject;
   correlationId: string;
   chainDepth: number;
   retryOfExecutionId: string | null;
@@ -131,7 +134,7 @@ export type ExecutionView = {
 
 export type DryRunResult = {
   triggerMatched: boolean;
-  conditionResults: { field: string; operator: string; expected: unknown; actual: unknown; passed: boolean }[];
+  conditionResults: { field: string; operator: string; expected: JsonValue; actual: JsonValue; passed: boolean }[];
   conditionsPassed: boolean;
   plannedActions: { position: number; actionType: string; summary: string; delaySeconds: number; blocked?: string | null }[];
 };
