@@ -102,7 +102,7 @@ export const registerMedia = createServerFn({ method: "POST" })
         width: data.width ?? null,
         height: data.height ?? null,
         alt_text: data.altText ?? null,
-        created_by: userId,
+        uploaded_by: userId,
       })
       .select("id")
       .single();
