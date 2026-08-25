@@ -150,6 +150,16 @@ function OrderDetailPage() {
               <Row label="Zwischensumme" value={formatMoney(o.subtotalMinor, currency)} />
               <Row label="Rabatt" value={`−${formatMoney(o.discountMinor, currency)}`} />
               <Row label="Versand" value={formatMoney(o.shippingMinor, currency)} />
+              <Row label="Netto" value={formatMoney(o.netTotalMinor, currency)} />
+              {(o.taxBreakdown as Array<Record<string, number | string>>).map((b, idx) => (
+                <Row
+                  key={idx}
+                  label={`USt ${(Number(b['rateBp'] ?? 0) / 100).toFixed(
+                    Number(b['rateBp'] ?? 0) % 100 === 0 ? 0 : 2,
+                  )} %`}
+                  value={formatMoney(Number(b['taxMinor'] ?? 0), currency)}
+                />
+              ))}
               <Row label="Steuer" value={formatMoney(o.taxMinor, currency)} />
               <Row label="Gesamt" value={formatMoney(o.totalMinor, currency)} strong />
               {o.refundedMinor > 0 && (

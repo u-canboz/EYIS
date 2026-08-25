@@ -450,12 +450,22 @@ function StorefrontTest() {
               <Row label="Zwischensumme" value={formatMoney(cart.totals.subtotalMinor, cart.currencyCode)} />
               <Row label="Rabatt" value={`−${formatMoney(cart.totals.discountMinor, cart.currencyCode)}`} />
               <Row label="Versand" value={formatMoney(cart.totals.shippingMinor, cart.currencyCode)} />
-              <Row label="Steuer (Phase 5)" value={formatMoney(cart.totals.taxMinor, cart.currencyCode)} />
+              <Row label="Netto" value={formatMoney(cart.tax.netTotalMinor, cart.currencyCode)} />
+              {cart.tax.breakdown.map((b) => (
+                <Row
+                  key={`${b.rateBp}-${b.reason}`}
+                  label={`USt ${(b.rateBp / 100).toFixed(b.rateBp % 100 === 0 ? 0 : 2)} %`}
+                  value={formatMoney(b.taxMinor, cart.currencyCode)}
+                />
+              ))}
+              <Row label="Steuer gesamt" value={formatMoney(cart.tax.taxMinor, cart.currencyCode)} />
               <Separator className="my-2" />
               <Row label="Gesamt" value={formatMoney(cart.totals.totalMinor, cart.currencyCode)} strong />
             </dl>
             <p className="text-muted-foreground text-xs">
-              Snapshot v{cart.snapshotVersion} · Engine {cart.pricingEngineVersion}
+              Snapshot v{cart.snapshotVersion} · Engine {cart.pricingEngineVersion} · Steuer{" "}
+              {cart.tax.engineVersion} ({cart.tax.calculationMode === "gross" ? "Brutto" : "Netto"})
+              {cart.tax.reverseCharge ? " · Reverse Charge" : ""}
             </p>
             {cart.appliedPromotions.map((p) => (
               <p key={p.promotionId} className="text-xs">
