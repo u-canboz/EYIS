@@ -54,7 +54,7 @@ Kundenkonto: `customer.welcome`, `guest_order_access`.
 
 Standardmäßig aktiv sind nur Bestellbestätigung, Versandbestätigung, Rechnung und die Retouren-Statusmails; Zahlungs- und Zustellbestätigung sind konfigurierbar und standardmäßig aus.
 
-Dokumentlinks in Mails sind nie dauerhaft öffentlich: entweder kurzlebige signierte URL oder Weg über das Kundenportal bzw. den bestehenden Gast-Token-Mechanismus aus Phase 9.
+Dokumentlinks in Mails sind nie dauerhaft öffentlich: entweder kurzlebige signierte URL oder Weg über das Kundenportal bzw. den bestehenden Gast-Token-Mechanismus aus Phase 9. Insbesondere `guest_order_access` rendert niemals eine dauerhafte Dokument-URL, sondern ausschließlich einen kurzlebigen, widerrufbaren Zugangslink auf die Portal-Gastansicht; das Dokument selbst wird erst nach Prüfung des Tokens signiert ausgeliefert.
 
 ## Event-Verarbeitung
 
