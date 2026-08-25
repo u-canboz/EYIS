@@ -10,6 +10,11 @@ import {
   createRefundFn,
 } from "@/lib/commerce/orders/order.functions";
 import { getOrderFulfillments } from "@/lib/commerce/fulfillment/fulfillment.functions";
+import {
+  getOrderDocumentsFn,
+  createInvoiceFn,
+} from "@/lib/commerce/documents/document.functions";
+import { INVOICE_STATUS_LABELS } from "@/lib/commerce/documents/document.types";
 import { getOrderTrackingFn } from "@/lib/commerce/shipping/carrier.functions";
 import {
   FULFILLMENT_STATE_LABELS,
@@ -64,6 +69,8 @@ function OrderDetailPage() {
   const refund = useServerFn(createRefundFn);
   const listOrderFulfillments = useServerFn(getOrderFulfillments);
   const getTracking = useServerFn(getOrderTrackingFn);
+  const getDocuments = useServerFn(getOrderDocumentsFn);
+  const createInvoice = useServerFn(createInvoiceFn);
 
   const order = useQuery({
     queryKey: ["order", organizationId, orderId],
@@ -83,8 +90,24 @@ function OrderDetailPage() {
     queryFn: () => getTracking({ data: { organizationId, orderId } }),
   });
 
+  const documents = useQuery({
+    queryKey: ["order-documents", organizationId, orderId],
+    enabled: !!organizationId,
+    queryFn: () => getDocuments({ data: { organizationId, orderId } }),
+  });
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["order", organizationId, orderId] });
   const fail = (e: Error) => toast.error(e.message);
+
+  const createInvoiceMutation = useMutation({
+    mutationFn: () => createInvoice({ data: { organizationId, orderId } }),
+    onSuccess: () => {
+      toast.success("Rechnungsentwurf erstellt.");
+      queryClient.invalidateQueries({ queryKey: ["order-documents", organizationId, orderId] });
+    },
+    onError: fail,
+  });
+
 
   const noteMutation = useMutation({
     mutationFn: () => saveNote({ data: { organizationId, orderId, note: note ?? "" } }),
@@ -296,6 +319,65 @@ function OrderDetailPage() {
             )}
           </section>
 
+          <section className="rounded-lg border p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="font-medium">Dokumente</h2>
+              <Link to="/app/dokumente" className="text-muted-foreground text-xs hover:underline">
+                Alle Dokumente →
+              </Link>
+            </div>
+            {documents.isLoading ? (
+              <Skeleton className="h-16 w-full" />
+            ) : (
+              <>
+                {!documents.data?.invoices.length ? (
+                  <p className="text-muted-foreground text-sm">
+                    Für diese Bestellung existiert noch keine Rechnung.
+                  </p>
+                ) : (
+                  <ul className="space-y-2 text-sm">
+                    {documents.data.invoices.map((inv) => (
+                      <li key={inv.id} className="flex flex-wrap items-center justify-between gap-2">
+                        <Link
+                          to="/app/dokumente/$invoiceId"
+                          params={{ invoiceId: inv.id }}
+                          className="font-medium hover:underline"
+                        >
+                          {inv.invoiceNumber ?? "Rechnungsentwurf"}
+                        </Link>
+                        <span className="flex items-center gap-2">
+                          <Badge variant={inv.status === "issued" ? "default" : "outline"}>
+                            {INVOICE_STATUS_LABELS[inv.status]}
+                          </Badge>
+                          {formatMoney(inv.totalGrossMinor, inv.currencyCode)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {!!documents.data?.deliveryNotes.length && (
+                  <ul className="text-muted-foreground mt-3 space-y-1 border-t pt-3 text-sm">
+                    {documents.data.deliveryNotes.map((dn) => (
+                      <li key={dn.id}>
+                        Lieferschein {dn.documentNumber ?? "Entwurf"} · {dn.itemCount} Position(en)
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {!documents.data?.invoices.length && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    disabled={!can("invoices.manage") || createInvoiceMutation.isPending}
+                    onClick={() => createInvoiceMutation.mutate()}
+                  >
+                    Rechnung erstellen
+                  </Button>
+                )}
+              </>
+            )}
+          </section>
 
 
           <section className="rounded-lg border p-4">
