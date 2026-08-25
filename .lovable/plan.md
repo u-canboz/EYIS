@@ -53,11 +53,11 @@ Fehlende Events werden an den bestehenden Stellen ausschließlich als zusätzlic
 - Worker `processAutomationJobs()` claimt über `FOR UPDATE SKIP LOCKED` in einer SQL-Funktion; parallele Läufe führen einen Job genau einmal aus.
 - Cron-Endpunkt `/api/public/jobs/automation` mit der bestehenden Cron-Authentifizierung; kein dauerhafter Worker.
 - Retry-Backoff 1 min → 5 min → 30 min → 2 h → 6 h. Permanente Fehler (`permission_denied`, `invalid_configuration`, `entity_not_found`, `unsupported_action`) ohne Retry; temporäre (`provider_timeout`, `rate_limited`, `temporary_unavailable`) mit Retry. Danach Dead Letter → `failed` + Attention Item.
-- Loop Protection: `correlation_id`/`causation_id` durchgereicht, `MAX_AUTOMATION_CHAIN_DEPTH = 10`, danach Status `blocked_loop` plus Attention Item.
-- Circuit Breaker: definierte Fehlerdichte je Rule (z. B. 50 Fehler in 5 Minuten) → `auto_pause` mit sichtbarer Begründung.
-- Rate Limits je Rule (pro Stunde, pro Entität) als Schutz vor Fehlkonfiguration.
+- Loop Protection: `correlation_id`/`causation_id` durchgereicht, `MAX_AUTOMATION_CHAIN_DEPTH = 10`, danach `failed` mit `error_code = 'blocked_loop'` plus Attention Item.
+- Circuit Breaker und Rate Limits zählen atomar in der Datenbank, nicht in der Anwendung: eine Zählertabelle `automation_rule_counters` (Rule + Zeitfenster-Bucket + Entität) wird per `INSERT ... ON CONFLICT DO UPDATE ... RETURNING` in einer `SECURITY DEFINER`-Funktion hoch- bzw. mitgezählt. Die Funktion liefert im selben Aufruf die Entscheidung `allow | rate_limited | circuit_open` zurück und setzt bei Überschreitung der Fehlerdichte (z. B. 50 Fehler in 5 Minuten) `auto_paused_at`/`auto_pause_reason` in derselben Transaktion. Kein Lesen-dann-entscheiden, keine Race Condition bei parallelen Workern.
+- Rate Limits je Rule (pro Stunde, pro Entität) laufen über dieselbe atomare Funktion und wirken auch bei gleichzeitigen Läufen.
 - Bulk-Events (z. B. Massenimport) laufen ausschließlich über die Queue, nie synchron.
-- Runtime-Actor `system_automation` mit begrenzter, ausdrücklich freigegebener Capability-Liste — kein Superadmin-Kontext.
+- Runtime-Actor: `system_automation` ist **keine** Rolle in `memberships` und kein `app_role`-Wert. Es ist ein rein interner Ausführungskontext (`actor_type = 'system_automation'` im Execution- und Audit-Datensatz) mit einer im Code fest definierten Capability-Allowlist, die exakt den Aktionen der Action Registry entspricht. Jede Domain-Aktion prüft diese Allowlist; alles außerhalb wird abgelehnt. Kein Superadmin-Kontext, keine RLS-Umgehung über eine Pseudomitgliedschaft.
 
 ## Outgoing Webhooks
 
