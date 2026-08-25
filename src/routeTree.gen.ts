@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as InviteRouteImport } from './routes/invite'
+import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as PortalGastRouteImport } from './routes/portal/gast'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppAuditRouteImport } from './routes/_authenticated/app/audit'
 import { Route as AuthenticatedAppKategorienRouteImport } from './routes/_authenticated/app/kategorien'
@@ -22,11 +24,14 @@ import { Route as AuthenticatedAppSteuernRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authenticated/app/warenkoerbe'
 import { Route as AuthenticatedAppZahlungenRouteImport } from './routes/_authenticated/app/zahlungen'
+import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/bestellungen/$orderId'
 import { Route as AuthenticatedAppBestellungenIndexRouteImport } from './routes/_authenticated/app/bestellungen/index'
 import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './routes/_authenticated/app/bestellungen/$orderId'
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
 import { Route as AuthenticatedAppDokumenteInvoiceIdRouteImport } from './routes/_authenticated/app/dokumente/$invoiceId'
 import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './routes/_authenticated/app/dokumente/einstellungen'
+import { Route as AuthenticatedAppKundenIndexRouteImport } from './routes/_authenticated/app/kunden/index'
+import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app/kunden/$customerId'
 import { Route as AuthenticatedAppLagerIndexRouteImport } from './routes/_authenticated/app/lager/index'
 import { Route as AuthenticatedAppLagerBewegungenRouteImport } from './routes/_authenticated/app/lager/bewegungen'
 import { Route as AuthenticatedAppLagerLagerorteRouteImport } from './routes/_authenticated/app/lager/lagerorte'
@@ -39,6 +44,9 @@ import { Route as AuthenticatedAppPreiseTestenRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppProdukteIndexRouteImport } from './routes/_authenticated/app/produkte/index'
 import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/_authenticated/app/produkte/$productId'
 import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
+import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_authenticated/app/retouren/index'
+import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
+import { Route as AuthenticatedAppRetourenEinstellungenRouteImport } from './routes/_authenticated/app/retouren/einstellungen'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
@@ -64,6 +72,16 @@ const AuthRoute = AuthRouteImport.update({
 const InviteRoute = InviteRouteImport.update({
   id: '/invite',
   path: '/invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalIndexRoute = PortalIndexRouteImport.update({
+  id: '/portal/',
+  path: '/portal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalGastRoute = PortalGastRouteImport.update({
+  id: '/portal/gast',
+  path: '/portal/gast',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
@@ -114,6 +132,12 @@ const AuthenticatedAppZahlungenRoute =
     path: '/app/zahlungen',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const PortalBestellungenOrderIdRoute =
+  PortalBestellungenOrderIdRouteImport.update({
+    id: '/portal/bestellungen/$orderId',
+    path: '/portal/bestellungen/$orderId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAppBestellungenIndexRoute =
   AuthenticatedAppBestellungenIndexRouteImport.update({
     id: '/app/bestellungen/',
@@ -142,6 +166,18 @@ const AuthenticatedAppDokumenteEinstellungenRoute =
   AuthenticatedAppDokumenteEinstellungenRouteImport.update({
     id: '/app/dokumente/einstellungen',
     path: '/app/dokumente/einstellungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKundenIndexRoute =
+  AuthenticatedAppKundenIndexRouteImport.update({
+    id: '/app/kunden/',
+    path: '/app/kunden/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKundenCustomerIdRoute =
+  AuthenticatedAppKundenCustomerIdRouteImport.update({
+    id: '/app/kunden/$customerId',
+    path: '/app/kunden/$customerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppLagerIndexRoute =
@@ -216,6 +252,24 @@ const AuthenticatedAppProdukteNeuRoute =
     path: '/app/produkte/neu',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppRetourenIndexRoute =
+  AuthenticatedAppRetourenIndexRouteImport.update({
+    id: '/app/retouren/',
+    path: '/app/retouren/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppRetourenReturnIdRoute =
+  AuthenticatedAppRetourenReturnIdRouteImport.update({
+    id: '/app/retouren/$returnId',
+    path: '/app/retouren/$returnId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppRetourenEinstellungenRoute =
+  AuthenticatedAppRetourenEinstellungenRouteImport.update({
+    id: '/app/retouren/einstellungen',
+    path: '/app/retouren/einstellungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemStorefrontTestRoute =
   AuthenticatedAppSystemStorefrontTestRouteImport.update({
     id: '/app/system/storefront-test',
@@ -262,6 +316,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
+  '/portal/gast': typeof PortalGastRoute
+  '/portal/': typeof PortalIndexRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
@@ -270,10 +326,12 @@ export interface FileRoutesByFullPath {
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
+  '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
@@ -283,6 +341,8 @@ export interface FileRoutesByFullPath {
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
+  '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -290,9 +350,11 @@ export interface FileRoutesByFullPath {
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
+  '/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
@@ -300,6 +362,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
+  '/portal/gast': typeof PortalGastRoute
+  '/portal': typeof PortalIndexRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
@@ -308,10 +372,12 @@ export interface FileRoutesByTo {
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
+  '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
@@ -321,6 +387,8 @@ export interface FileRoutesByTo {
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
+  '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -328,9 +396,11 @@ export interface FileRoutesByTo {
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/kunden': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
+  '/app/retouren': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
@@ -340,6 +410,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
+  '/portal/gast': typeof PortalGastRoute
+  '/portal/': typeof PortalIndexRoute
   '/_authenticated/app/audit': typeof AuthenticatedAppAuditRoute
   '/_authenticated/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/_authenticated/app/medien': typeof AuthenticatedAppMedienRoute
@@ -348,10 +420,12 @@ export interface FileRoutesById {
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/_authenticated/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
+  '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/_authenticated/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/_authenticated/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
   '/_authenticated/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
@@ -361,6 +435,8 @@ export interface FileRoutesById {
   '/_authenticated/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/_authenticated/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
+  '/_authenticated/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -368,9 +444,11 @@ export interface FileRoutesById {
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/_authenticated/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/_authenticated/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/_authenticated/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
+  '/_authenticated/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
@@ -380,6 +458,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/invite'
+    | '/portal/gast'
+    | '/portal/'
     | '/app/audit'
     | '/app/kategorien'
     | '/app/medien'
@@ -388,10 +468,12 @@ export interface FileRouteTypes {
     | '/app/team'
     | '/app/warenkoerbe'
     | '/app/zahlungen'
+    | '/portal/bestellungen/$orderId'
     | '/app/'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
     | '/app/lager/reservierungen'
@@ -401,6 +483,8 @@ export interface FileRouteTypes {
     | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
+    | '/app/retouren/$returnId'
+    | '/app/retouren/einstellungen'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -408,9 +492,11 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen/'
     | '/app/dokumente/'
+    | '/app/kunden/'
     | '/app/lager/'
     | '/app/preise/'
     | '/app/produkte/'
+    | '/app/retouren/'
     | '/app/versand/'
     | '/api/public/webhooks/carrier/$provider'
   fileRoutesByTo: FileRoutesByTo
@@ -418,6 +504,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/invite'
+    | '/portal/gast'
+    | '/portal'
     | '/app/audit'
     | '/app/kategorien'
     | '/app/medien'
@@ -426,10 +514,12 @@ export interface FileRouteTypes {
     | '/app/team'
     | '/app/warenkoerbe'
     | '/app/zahlungen'
+    | '/portal/bestellungen/$orderId'
     | '/app'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
     | '/app/lager/reservierungen'
@@ -439,6 +529,8 @@ export interface FileRouteTypes {
     | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
+    | '/app/retouren/$returnId'
+    | '/app/retouren/einstellungen'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -446,9 +538,11 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen'
     | '/app/dokumente'
+    | '/app/kunden'
     | '/app/lager'
     | '/app/preise'
     | '/app/produkte'
+    | '/app/retouren'
     | '/app/versand'
     | '/api/public/webhooks/carrier/$provider'
   id:
@@ -457,6 +551,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/invite'
+    | '/portal/gast'
+    | '/portal/'
     | '/_authenticated/app/audit'
     | '/_authenticated/app/kategorien'
     | '/_authenticated/app/medien'
@@ -465,10 +561,12 @@ export interface FileRouteTypes {
     | '/_authenticated/app/team'
     | '/_authenticated/app/warenkoerbe'
     | '/_authenticated/app/zahlungen'
+    | '/portal/bestellungen/$orderId'
     | '/_authenticated/app/'
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
+    | '/_authenticated/app/kunden/$customerId'
     | '/_authenticated/app/lager/bewegungen'
     | '/_authenticated/app/lager/lagerorte'
     | '/_authenticated/app/lager/reservierungen'
@@ -478,6 +576,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/preise/testen'
     | '/_authenticated/app/produkte/$productId'
     | '/_authenticated/app/produkte/neu'
+    | '/_authenticated/app/retouren/$returnId'
+    | '/_authenticated/app/retouren/einstellungen'
     | '/_authenticated/app/system/storefront-test'
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
@@ -485,9 +585,11 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/stripe'
     | '/_authenticated/app/bestellungen/'
     | '/_authenticated/app/dokumente/'
+    | '/_authenticated/app/kunden/'
     | '/_authenticated/app/lager/'
     | '/_authenticated/app/preise/'
     | '/_authenticated/app/produkte/'
+    | '/_authenticated/app/retouren/'
     | '/_authenticated/app/versand/'
     | '/api/public/webhooks/carrier/$provider'
   fileRoutesById: FileRoutesById
@@ -497,6 +599,9 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   InviteRoute: typeof InviteRoute
+  PortalGastRoute: typeof PortalGastRoute
+  PortalIndexRoute: typeof PortalIndexRoute
+  PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
 }
@@ -529,6 +634,20 @@ declare module '@tanstack/react-router' {
       path: '/invite'
       fullPath: '/invite'
       preLoaderRoute: typeof InviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/': {
+      id: '/portal/'
+      path: '/portal'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof PortalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/gast': {
+      id: '/portal/gast'
+      path: '/portal/gast'
+      fullPath: '/portal/gast'
+      preLoaderRoute: typeof PortalGastRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/': {
@@ -594,6 +713,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppZahlungenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/portal/bestellungen/$orderId': {
+      id: '/portal/bestellungen/$orderId'
+      path: '/portal/bestellungen/$orderId'
+      fullPath: '/portal/bestellungen/$orderId'
+      preLoaderRoute: typeof PortalBestellungenOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/bestellungen/': {
       id: '/_authenticated/app/bestellungen/'
       path: '/app/bestellungen'
@@ -627,6 +753,20 @@ declare module '@tanstack/react-router' {
       path: '/app/dokumente/einstellungen'
       fullPath: '/app/dokumente/einstellungen'
       preLoaderRoute: typeof AuthenticatedAppDokumenteEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kunden/': {
+      id: '/_authenticated/app/kunden/'
+      path: '/app/kunden'
+      fullPath: '/app/kunden/'
+      preLoaderRoute: typeof AuthenticatedAppKundenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kunden/$customerId': {
+      id: '/_authenticated/app/kunden/$customerId'
+      path: '/app/kunden/$customerId'
+      fullPath: '/app/kunden/$customerId'
+      preLoaderRoute: typeof AuthenticatedAppKundenCustomerIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/lager/': {
@@ -713,6 +853,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProdukteNeuRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/retouren/': {
+      id: '/_authenticated/app/retouren/'
+      path: '/app/retouren'
+      fullPath: '/app/retouren/'
+      preLoaderRoute: typeof AuthenticatedAppRetourenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/retouren/$returnId': {
+      id: '/_authenticated/app/retouren/$returnId'
+      path: '/app/retouren/$returnId'
+      fullPath: '/app/retouren/$returnId'
+      preLoaderRoute: typeof AuthenticatedAppRetourenReturnIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/retouren/einstellungen': {
+      id: '/_authenticated/app/retouren/einstellungen'
+      path: '/app/retouren/einstellungen'
+      fullPath: '/app/retouren/einstellungen'
+      preLoaderRoute: typeof AuthenticatedAppRetourenEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/storefront-test': {
       id: '/_authenticated/app/system/storefront-test'
       path: '/app/system/storefront-test'
@@ -778,6 +939,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
+  AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
   AuthenticatedAppLagerBewegungenRoute: typeof AuthenticatedAppLagerBewegungenRoute
   AuthenticatedAppLagerLagerorteRoute: typeof AuthenticatedAppLagerLagerorteRoute
   AuthenticatedAppLagerReservierungenRoute: typeof AuthenticatedAppLagerReservierungenRoute
@@ -787,15 +949,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppPreiseTestenRoute: typeof AuthenticatedAppPreiseTestenRoute
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
+  AuthenticatedAppRetourenReturnIdRoute: typeof AuthenticatedAppRetourenReturnIdRoute
+  AuthenticatedAppRetourenEinstellungenRoute: typeof AuthenticatedAppRetourenEinstellungenRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppDokumenteIndexRoute: typeof AuthenticatedAppDokumenteIndexRoute
+  AuthenticatedAppKundenIndexRoute: typeof AuthenticatedAppKundenIndexRoute
   AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
   AuthenticatedAppPreiseIndexRoute: typeof AuthenticatedAppPreiseIndexRoute
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
+  AuthenticatedAppRetourenIndexRoute: typeof AuthenticatedAppRetourenIndexRoute
   AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
 }
 
@@ -815,6 +981,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppDokumenteInvoiceIdRoute,
   AuthenticatedAppDokumenteEinstellungenRoute:
     AuthenticatedAppDokumenteEinstellungenRoute,
+  AuthenticatedAppKundenCustomerIdRoute: AuthenticatedAppKundenCustomerIdRoute,
   AuthenticatedAppLagerBewegungenRoute: AuthenticatedAppLagerBewegungenRoute,
   AuthenticatedAppLagerLagerorteRoute: AuthenticatedAppLagerLagerorteRoute,
   AuthenticatedAppLagerReservierungenRoute:
@@ -828,6 +995,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppProdukteProductIdRoute:
     AuthenticatedAppProdukteProductIdRoute,
   AuthenticatedAppProdukteNeuRoute: AuthenticatedAppProdukteNeuRoute,
+  AuthenticatedAppRetourenReturnIdRoute: AuthenticatedAppRetourenReturnIdRoute,
+  AuthenticatedAppRetourenEinstellungenRoute:
+    AuthenticatedAppRetourenEinstellungenRoute,
   AuthenticatedAppSystemStorefrontTestRoute:
     AuthenticatedAppSystemStorefrontTestRoute,
   AuthenticatedAppVersandFulfillmentIdRoute:
@@ -839,9 +1009,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppBestellungenIndexRoute:
     AuthenticatedAppBestellungenIndexRoute,
   AuthenticatedAppDokumenteIndexRoute: AuthenticatedAppDokumenteIndexRoute,
+  AuthenticatedAppKundenIndexRoute: AuthenticatedAppKundenIndexRoute,
   AuthenticatedAppLagerIndexRoute: AuthenticatedAppLagerIndexRoute,
   AuthenticatedAppPreiseIndexRoute: AuthenticatedAppPreiseIndexRoute,
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
+  AuthenticatedAppRetourenIndexRoute: AuthenticatedAppRetourenIndexRoute,
   AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
 }
 
@@ -853,6 +1025,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   InviteRoute: InviteRoute,
+  PortalGastRoute: PortalGastRoute,
+  PortalIndexRoute: PortalIndexRoute,
+  PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,
 }

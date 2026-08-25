@@ -1,0 +1,10 @@
+REVOKE EXECUTE ON FUNCTION public.ret_returned_qty(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_authorize(uuid, uuid, uuid, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_reject(uuid, uuid, uuid, text, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_mark_in_transit(uuid, uuid, uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_receive(uuid, uuid, uuid, jsonb, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_start_inspection(uuid, uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_inspect(uuid, uuid, uuid, jsonb, public.shipping_refund_mode, bigint, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_restock(uuid, uuid, uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_complete(uuid, uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.ret_cancel(uuid, uuid, uuid, boolean) FROM anon;

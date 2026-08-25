@@ -45,6 +45,8 @@ const NAV = [
   { to: "/app/steuern", label: "Steuern" },
   { to: "/app/warenkoerbe", label: "Warenkörbe" },
   { to: "/app/bestellungen", label: "Bestellungen" },
+  { to: "/app/kunden", label: "Kunden" },
+  { to: "/app/retouren", label: "Retouren" },
   { to: "/app/dokumente", label: "Dokumente" },
   { to: "/app/zahlungen", label: "Zahlungen" },
   { to: "/app/system/storefront-test", label: "Test-Storefront" },
