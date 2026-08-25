@@ -6,6 +6,7 @@
 import { getAdmin, writeAudit, emitEvent } from "../core.server";
 import { getProvider } from "./provider.server";
 import type { PaymentStatusView } from "./payment-types";
+import { publishOrderEvent } from "../event-payloads.server";
 
 export type PaymentSessionRow = {
   id: string;
@@ -190,7 +191,15 @@ export async function finalizeFromPayment(args: {
     _idem: args.idempotencyKey ?? `finalize:${args.paymentSessionId}`,
   } as never);
   if (error) throw new Error(error.message);
-  return data as unknown as { order_id: string; order_number: string; created: boolean };
+  const result = data as unknown as { order_id: string; order_number: string; created: boolean };
+  if (result.created) {
+    await publishOrderEvent(result.order_id, "order.created");
+  }
+  await publishOrderEvent(result.order_id, "payment.succeeded", {
+    amount_minor: args.amountMinor,
+    payment_provider: (await loadPaymentSession(args.paymentSessionId)).provider,
+  });
+  return result;
 }
 
 export async function markPaymentFailed(paymentSessionId: string, message: string, cancelled = false) {

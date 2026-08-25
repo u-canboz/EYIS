@@ -221,6 +221,8 @@ export async function upsertCustomer(input: {
     entityType: "customer",
     entityId: id,
   });
+  const { publishCustomerEvent } = await import("../event-payloads.server");
+  await publishCustomerEvent(id, "customer.created");
   return { customerId: id };
 }
 

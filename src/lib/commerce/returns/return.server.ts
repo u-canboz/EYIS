@@ -4,6 +4,7 @@
  * quantities can never exceed what was ordered and not yet effectively returned.
  */
 import { getAdmin } from "../core.server";
+import { publishReturnEvent } from "../event-payloads.server";
 import type {
   EligibilityLine,
   ReturnDetail,
@@ -379,7 +380,7 @@ export async function requestReturn(input: {
       throw new Error("Rückgabemenge überschreitet die rückgabefähige Menge.");
     }
   }
-  return await rpc<{ return_id: string; return_number: string; status: string; duplicate: boolean }>("ret_request", {
+  const requested = await rpc<{ return_id: string; return_number: string; status: string; duplicate: boolean }>("ret_request", {
     _org: input.organizationId,
     _shop: input.shopId,
     _order: input.orderId,
@@ -394,6 +395,8 @@ export async function requestReturn(input: {
     _note: input.note ?? null,
     _idem: input.idempotencyKey,
   });
+  if (!requested.duplicate) await publishReturnEvent(requested.return_id, "return.requested");
+  return requested;
 }
 
 export async function authorizeReturn(input: {
@@ -447,7 +450,7 @@ export async function receiveReturn(input: {
   items: { returnItemId: string; quantityReceived: number; condition?: ReturnItemCondition }[];
   idempotencyKey?: string | null;
 }) {
-  return await rpc<{ status: string }>("ret_receive", {
+  const received = await rpc<{ status: string }>("ret_receive", {
     _org: input.organizationId,
     _return: input.returnId,
     _actor: input.actorId,
@@ -458,6 +461,8 @@ export async function receiveReturn(input: {
     })),
     _idem: input.idempotencyKey ?? null,
   });
+  await publishReturnEvent(input.returnId, "return.received");
+  return received;
 }
 
 export async function startInspection(input: { organizationId: string; returnId: string; actorId: string }) {

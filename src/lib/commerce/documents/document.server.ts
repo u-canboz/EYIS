@@ -20,6 +20,7 @@ import type {
   InvoiceView,
 } from "./document.types";
 import { DOCUMENT_RENDERER_VERSION } from "./document.types";
+import { publishInvoiceEvent } from "../event-payloads.server";
 
 type Row = Record<string, unknown>;
 const num = (v: unknown) => Number(v ?? 0);
@@ -544,6 +545,7 @@ export async function issueInvoice(input: {
     _idem: input.idempotencyKey ?? null,
   });
   await generateInvoicePdf({ ...input, force: true });
+  if (result.issued) await publishInvoiceEvent(input.invoiceId, "invoice.issued");
   return result;
 }
 
