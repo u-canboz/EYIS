@@ -20,14 +20,17 @@ Internal Engine (Phase 0–11)
 
 ## 2. API-Boundary
 
+Grundsatz: **Der Publishable Key ist kein Sicherheitsmerkmal.** Er identifiziert nur Shop, Environment und Capabilities. Jeder Zugriff auf Cart-, Customer-, Order-, Dokument- oder Return-Daten erfordert zusätzlich ein echtes Zugriffsmerkmal: Cart-Token, Customer-Session oder scoped Guest-Access-Token. Ebenso ist der **Origin-Check nur Zusatzschutz, kein Auth-Ersatz** — auch bei korrektem Origin prüft der Server immer Shop-Kontext, Token-Gültigkeit und Ownership der angefragten Ressource.
+
 - Alle Routen unter `src/routes/api/store/v1/...`. Diese liegen bewusst **nicht** unter `/api/public/*` für Admin-Zwecke, sondern bekommen eine eigene Gate-Middleware.
 - Ein einziger Request-Handler-Wrapper (`store/gateway.server.ts`) macht für jeden Request:
   1. `request_id` erzeugen → `X-Request-ID`, als correlation_id an Domain-Events weitergereicht.
-  2. Publishable Key aus `X-Commerce-Key` lesen, hashen, Key laden, Status/Environment prüfen.
+  2. Publishable Key aus `X-Commerce-Key` lesen, hashen, Key laden, Status/Environment prüfen (nur Shop-Identifikation).
   3. Origin serverseitig gegen `allowed_origins` prüfen (Dev-Origins nur bei environment=test), CORS-Header + OPTIONS.
-  4. Rate Limit nach Profil (catalog_read, search, cart_write, checkout, customer_auth, guest_lookup).
-  5. Body-/Payload-Limits, Zod-Validierung, `Idempotency-Key` an bestehende `idempotency_keys`-Infrastruktur.
-  6. Einheitliche Fehler + Logging in `store_api_request_logs`, Security-Header, keine Stack Traces.
+  4. Ressourcen-Autorisierung: Cart-Token / Customer-Session / Guest-Token prüfen und gegen den Shop des Keys sowie den Owner der Ressource abgleichen.
+  5. Rate Limit nach Profil: catalog_read, search, cart_write, checkout, customer_auth, guest_lookup — plus eigene, strengere Buckets für `payment_session`, `return_create` und `customer_login`.
+  6. Body-/Payload-Limits, Zod-Validierung, `Idempotency-Key` an bestehende `idempotency_keys`-Infrastruktur.
+  7. Einheitliche Fehler + Logging in `store_api_request_logs`, Security-Header, keine Stack Traces.
 
 ## 3. Public DTOs
 
