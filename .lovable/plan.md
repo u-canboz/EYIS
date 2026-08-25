@@ -105,6 +105,9 @@ Vitest wird eingerichtet; die Engine wird als reine Funktion über einem geladen
 - Prozent- und Festbetrag-Promotion
 - zwei nicht kombinierbare Promotions → deterministisches Ergebnis
 - Cross-Tenant: fremde Promotion/Kundengruppe wird ignoriert
+- Gleichrangige Kandidaten: günstigster gültiger Preis gewinnt, kein First-Match
+- Bulk relativ: rechnet nachweislich vom gespeicherten Basispreis, nicht vom Endpreis
+- `buy_x_get_y`: Engine liefert den Status „nur vorbereitet“ statt einer Behelfsrechnung
 
 Zusätzlich manuelle End-to-End-Prüfung im Browser: Preise setzen, Bulk-Aktion, Promotion anlegen, Preview-Ergebnis, Rechte mit einer Read-Only-Rolle.
 
