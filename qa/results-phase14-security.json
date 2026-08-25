@@ -1,8 +1,8 @@
 {
-  "ranAt": "2026-08-25T23:33:36.884Z",
+  "ranAt": "2026-08-25T23:33:53.822Z",
   "base": "http://localhost:8080",
   "total": 32,
-  "passed": 31,
+  "passed": 32,
   "results": [
     {
       "name": "Store API ohne Key -> 401",
@@ -36,7 +36,7 @@
     },
     {
       "name": "Cart anlegen liefert Token",
-      "ok": false,
+      "ok": true,
       "detail": ""
     },
     {

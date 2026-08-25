@@ -88,8 +88,8 @@ async function main() {
 
   // ------------------------------------------- A3.2 Object-Level Authorization
   const cart = await call("/cart", { key: keyA2.key, method: "POST" });
-  const cartId: string = cart.body?.data?.id;
-  const cartToken: string = cart.body?.data?.token;
+  const cartId: string = cart.body?.data?.cart?.id;
+  const cartToken: string = cart.body?.data?.cartToken;
   check("Cart anlegen liefert Token", Boolean(cartId && cartToken));
   check(
     "Cart ohne Token -> 401/403",
