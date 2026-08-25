@@ -1,0 +1,273 @@
+{
+  "gate": "A4",
+  "title": "Datenbank-, RLS-, RPC- und Storage-Sicherheitsinventur",
+  "executedAt": "2026-08-25T23:59:38.732Z",
+  "organizations": [
+    "ba039523-f8ec-44ff-bb9d-2b5b86b0c0a6",
+    "29cb83d1-2f6a-42ff-8bb5-413463402b07"
+  ],
+  "shops": [
+    "a9751182-2f3a-4f9a-a2e6-73b6ffd48974",
+    "b7fa4e29-2a98-4640-8c2f-c6064e9b1658"
+  ],
+  "total": 51,
+  "passed": 47,
+  "failed": 4,
+  "checks": [
+    {
+      "name": "Alle public-Tabellen erfasst",
+      "status": "PASS",
+      "evidence": "112 Tabellen"
+    },
+    {
+      "name": "RLS auf jeder public-Tabelle aktiv",
+      "status": "PASS",
+      "evidence": "0 Ausnahmen"
+    },
+    {
+      "name": "Tabellen ohne Policy sind ausschließlich server-only Systemtabellen",
+      "status": "PASS",
+      "evidence": "ohne Policy: automation_rule_counters, idempotency_keys, outbox_events, store_api_rate_counters, store_confirmation_tokens, store_privacy_salts"
+    },
+    {
+      "name": "Server-only Tabellen ohne anon/authenticated-GRANT",
+      "status": "PASS",
+      "evidence": "0 Treffer"
+    },
+    {
+      "name": "Kein anon-GRANT auf public-Tabellen",
+      "status": "PASS",
+      "evidence": "0"
+    },
+    {
+      "name": "Kein PUBLIC-GRANT auf public-Tabellen",
+      "status": "PASS",
+      "evidence": "0"
+    },
+    {
+      "name": "Keine Views/Materialized Views, die RLS umgehen könnten",
+      "status": "PASS",
+      "evidence": "0 Views"
+    },
+    {
+      "name": "Jede SECURITY-DEFINER-Funktion hat festen search_path",
+      "status": "PASS",
+      "evidence": "0 Ausnahmen"
+    },
+    {
+      "name": "Kein EXECUTE-Recht für anon auf public-Funktionen",
+      "status": "PASS",
+      "evidence": "0"
+    },
+    {
+      "name": "authenticated darf nur die RLS-Hilfsfunktionen ausführen",
+      "status": "PASS",
+      "evidence": "erlaubt: can_view_profile, current_org_ids, has_org_role, has_permission, is_org_member, shares_org_with, shop_in_org"
+    },
+    {
+      "name": "Kein dynamisches SQL in Datenbankfunktionen",
+      "status": "PASS",
+      "evidence": "0"
+    },
+    {
+      "name": "Jede mandantenbezogene Tabelle hat einen Index auf organization_id",
+      "status": "FAIL",
+      "evidence": "98 Tabellen mit organization_id, ohne Index: shop_domains, outbox_events, customer_groups, price_sets, prices, promotions, shipping_methods, cart_price_snapshots, cart_item_price_snapshots, cart_promotion_codes, checkout_addresses, checkout_reservations, checkout_snapshots, payment_provider_configs, shop_order_sequences, payment_attempts, payment_events, order_items, order_addresses, order_promotions, payment_transactions, refunds, tax_rates, tax_settings, tax_snapshots, fulfillment_items, package_items, document_sequences, invoice_items, credit_note_items, document_files, document_branding, invoice_settings, customer_addresses, customer_group_members, customer_notes, guest_order_access_tokens, return_settings, return_sequences, return_items, sender_identities, return_media, communication_branding, communication_rules, communication_attempts, communication_provider_events, automation_rule_versions, automation_actions, automation_action_executions, automation_jobs, outgoing_webhook_endpoints, store_confirmation_tokens"
+    },
+    {
+      "name": "organization_id ist überall per Foreign Key an organizations gebunden",
+      "status": "PASS",
+      "evidence": "0 Ausnahmen"
+    },
+    {
+      "name": "memberships: Unique auf (organization_id, user_id)",
+      "status": "PASS",
+      "evidence": "memberships_org_user_unique"
+    },
+    {
+      "name": "invitations: partieller Unique-Index für offene Einladungen",
+      "status": "PASS",
+      "evidence": "invitations_one_pending_per_email"
+    },
+    {
+      "name": "Append-only/Immutable-Trigger aktiv auf audit_log",
+      "status": "PASS",
+      "evidence": "Trigger vorhanden"
+    },
+    {
+      "name": "Append-only/Immutable-Trigger aktiv auf inventory_movements",
+      "status": "PASS",
+      "evidence": "Trigger vorhanden"
+    },
+    {
+      "name": "Append-only/Immutable-Trigger aktiv auf payment_events",
+      "status": "PASS",
+      "evidence": "Trigger vorhanden"
+    },
+    {
+      "name": "Append-only/Immutable-Trigger aktiv auf tax_snapshots",
+      "status": "PASS",
+      "evidence": "Trigger vorhanden"
+    },
+    {
+      "name": "Alle Storage-Buckets sind privat mit Größenlimit",
+      "status": "FAIL",
+      "evidence": "media|false|25000000 ; shipping-labels|false|20000000 ; documents|false|20000000"
+    },
+    {
+      "name": "Storage-Policies für media, shipping-labels und documents vorhanden",
+      "status": "PASS",
+      "evidence": "documents_read, documents_write, media_delete_own_org, media_insert_own_org, media_read_own_org, media_update_own_org, shipping_labels_storage_read, shipping_labels_storage_write"
+    },
+    {
+      "name": "Jede Storage-Policy prüft den Mandanten-Ordner",
+      "status": "PASS",
+      "evidence": "0 Ausnahmen"
+    },
+    {
+      "name": "Storage-MIME-Allowlist auf Bucket-Ebene",
+      "status": "FAIL",
+      "evidence": "BLOCKED: Plattform bietet kein Setzen von allowed_mime_types (media, shipping-labels, documents); Durchsetzung erfolgt in registerMedia"
+    },
+    {
+      "name": "Nutzer B (Organisation B) angemeldet",
+      "status": "PASS",
+      "evidence": "ae02a210-f3fb-4993-8d70-d135035601e2"
+    },
+    {
+      "name": "Cross-Tenant-Lesen über organization_id blockiert (43 Tabellen)",
+      "status": "PASS",
+      "evidence": "0 Leaks"
+    },
+    {
+      "name": "Manipulierte Order-ID aus Organisation A nicht lesbar",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "Manipulierte Produkt-ID aus Organisation A nicht lesbar",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "Produkt aus Organisation A nicht änderbar",
+      "status": "PASS",
+      "evidence": "Could not find the 'title' column of 'products' in the schema cache"
+    },
+    {
+      "name": "Produkt aus Organisation A nicht löschbar",
+      "status": "PASS",
+      "evidence": "Datensatz vorhanden"
+    },
+    {
+      "name": "Insert in fremde Organisation abgelehnt",
+      "status": "PASS",
+      "evidence": "Could not find the 'title' column of 'products' in the schema cache"
+    },
+    {
+      "name": "Shop aus Organisation A nicht änderbar",
+      "status": "PASS",
+      "evidence": "0 Zeilen geändert"
+    },
+    {
+      "name": "Selbstbeförderung in fremde Organisation abgelehnt",
+      "status": "PASS",
+      "evidence": "new row violates row-level security policy for table \"memberships\""
+    },
+    {
+      "name": "Rechte-Katalog nicht durch Nutzer beschreibbar",
+      "status": "PASS",
+      "evidence": "new row violates row-level security policy for table \"role_permissions\""
+    },
+    {
+      "name": "Audit-Log ist append-only für Nutzer",
+      "status": "FAIL",
+      "evidence": "-/-"
+    },
+    {
+      "name": "Profil eines fremden Nutzers nicht lesbar",
+      "status": "PASS",
+      "evidence": "[]"
+    },
+    {
+      "name": "Eigenes Profil weiterhin lesbar",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "profiles_select_self exponiert nur eigene Organisation",
+      "status": "PASS",
+      "evidence": "1 sichtbare Profile"
+    },
+    {
+      "name": "Kundenadresse aus Organisation A nicht lesbar",
+      "status": "PASS",
+      "evidence": "keine Testadresse vorhanden — Policy strukturell geprüft"
+    },
+    {
+      "name": "customer_addresses_self in getrennte Regeln pro Operation aufgeteilt",
+      "status": "PASS",
+      "evidence": "customer_addresses_self_delete:DELETE, customer_addresses_self_insert:INSERT, customer_addresses_self_select:SELECT, customer_addresses_self_update:UPDATE"
+    },
+    {
+      "name": "Selbst angelegte Adressen müssen zu Organisation und Shop der Kundschaft passen",
+      "status": "PASS",
+      "evidence": "2 Policies mit Mandantenprüfung"
+    },
+    {
+      "name": "Privilegierte RPCs für angemeldete Nutzer gesperrt (12 Funktionen)",
+      "status": "PASS",
+      "evidence": "alle abgelehnt"
+    },
+    {
+      "name": "has_permission liefert für fremde Organisation false",
+      "status": "PASS",
+      "evidence": "false"
+    },
+    {
+      "name": "is_org_member liefert für fremde Organisation false",
+      "status": "PASS",
+      "evidence": "false"
+    },
+    {
+      "name": "current_org_ids liefert ausschließlich eigene Organisationen",
+      "status": "PASS",
+      "evidence": "29cb83d1-2f6a-42ff-8bb5-413463402b07"
+    },
+    {
+      "name": "can_view_profile verweigert fremde Nutzer",
+      "status": "PASS",
+      "evidence": "false"
+    },
+    {
+      "name": "Storage media: fremder Mandantenordner nicht auflistbar",
+      "status": "PASS",
+      "evidence": "[]"
+    },
+    {
+      "name": "Storage shipping-labels: fremder Mandantenordner nicht auflistbar",
+      "status": "PASS",
+      "evidence": "[]"
+    },
+    {
+      "name": "Storage documents: fremder Mandantenordner nicht auflistbar",
+      "status": "PASS",
+      "evidence": "[]"
+    },
+    {
+      "name": "Storage: Datei aus fremdem Mandanten nicht ladbar",
+      "status": "PASS",
+      "evidence": "keine Objekte von Organisation A vorhanden"
+    },
+    {
+      "name": "Storage: Upload in fremden Mandantenordner abgelehnt",
+      "status": "PASS",
+      "evidence": "new row violates row-level security policy"
+    },
+    {
+      "name": "Anonymer Data-API-Zugriff liefert keine Daten",
+      "status": "PASS",
+      "evidence": "0 Leaks"
+    }
+  ]
+}

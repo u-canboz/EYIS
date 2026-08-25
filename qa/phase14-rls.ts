@@ -144,7 +144,7 @@ async function main() {
   check("Kein PUBLIC-GRANT auf public-Tabellen", publicGrants.length === 0, publicGrants.join(", ") || "0");
 
   const views = sql(
-    "select c.relname||' ('||c.relkind||')' from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('v','m')",
+    "select c.relname||' ('||c.relkind::text||')' from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('v','m')",
   );
   check(
     "Keine Views/Materialized Views, die RLS umgehen könnten",
@@ -226,7 +226,7 @@ async function main() {
     );
   }
 
-  const buckets = sql("select id||'|'||public||'|'||coalesce(file_size_limit::text,'-') from storage.buckets");
+  const buckets = sql("select id||'|'||public::text||'|'||coalesce(file_size_limit::text,'-') from storage.buckets");
   check(
     "Alle Storage-Buckets sind privat mit Größenlimit",
     buckets.length === 3 && buckets.every((b) => b.split("|")[1] === "f" && b.split("|")[2] !== "-"),
