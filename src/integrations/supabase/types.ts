@@ -1897,6 +1897,197 @@ export type Database = {
         Args: { _org_id: string; _permission: string; _user_id: string }
         Returns: boolean
       }
+      inv_adjust_stock: {
+        Args: {
+          _actor: string
+          _counted: number
+          _idem?: string
+          _item: string
+          _loc: string
+          _note?: string
+          _org: string
+          _reason: string
+          _shop: string
+        }
+        Returns: Json
+      }
+      inv_assert: {
+        Args: { _actor: string; _org: string; _perm: string }
+        Returns: undefined
+      }
+      inv_audit: {
+        Args: {
+          _action: string
+          _actor: string
+          _entity: string
+          _entity_id: string
+          _meta: Json
+          _org: string
+        }
+        Returns: undefined
+      }
+      inv_available: {
+        Args: { _lvl: Database["public"]["Tables"]["inventory_levels"]["Row"] }
+        Returns: number
+      }
+      inv_commit_reservation: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _org: string
+          _reservation: string
+        }
+        Returns: Json
+      }
+      inv_event: {
+        Args: { _org: string; _payload: Json; _type: string }
+        Returns: undefined
+      }
+      inv_expire_reservations: {
+        Args: { _actor: string; _org: string }
+        Returns: Json
+      }
+      inv_health_check: {
+        Args: { _actor: string; _org: string }
+        Returns: Json
+      }
+      inv_idem_get: {
+        Args: { _endpoint: string; _key: string; _org: string }
+        Returns: Json
+      }
+      inv_idem_put: {
+        Args: { _endpoint: string; _key: string; _org: string; _response: Json }
+        Returns: undefined
+      }
+      inv_lock_level: {
+        Args: { _item: string; _loc: string; _org: string; _shop: string }
+        Returns: {
+          damaged: number
+          id: string
+          incoming: number
+          inventory_item_id: string
+          location_id: string
+          on_hand: number
+          organization_id: string
+          reserved: number
+          shop_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "inventory_levels"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      inv_mark_damaged: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _item: string
+          _loc: string
+          _note?: string
+          _org: string
+          _qty: number
+          _reason?: string
+          _shop: string
+        }
+        Returns: Json
+      }
+      inv_movement: {
+        Args: {
+          _actor: string
+          _delta: number
+          _idem: string
+          _item: string
+          _loc: string
+          _note: string
+          _org: string
+          _reason: string
+          _ref_id: string
+          _ref_type: string
+          _shop: string
+          _type: Database["public"]["Enums"]["inventory_movement_type"]
+        }
+        Returns: string
+      }
+      inv_receive_stock: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _incoming_delta?: number
+          _item: string
+          _loc: string
+          _note?: string
+          _org: string
+          _qty: number
+          _reference?: string
+          _shop: string
+        }
+        Returns: Json
+      }
+      inv_release_reservation: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _org: string
+          _reservation: string
+        }
+        Returns: Json
+      }
+      inv_reserve_stock: {
+        Args: {
+          _actor: string
+          _expires_at?: string
+          _idem?: string
+          _item: string
+          _loc: string
+          _org: string
+          _qty: number
+          _reference_id?: string
+          _reference_type?: string
+          _shop: string
+        }
+        Returns: Json
+      }
+      inv_status_events: {
+        Args: {
+          _item: string
+          _loc: string
+          _new: number
+          _old: number
+          _org: string
+          _shop: string
+        }
+        Returns: undefined
+      }
+      inv_transfer_cancel: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _org: string
+          _transfer: string
+        }
+        Returns: Json
+      }
+      inv_transfer_complete: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _org: string
+          _transfer: string
+        }
+        Returns: Json
+      }
+      inv_transfer_start: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _org: string
+          _transfer: string
+        }
+        Returns: Json
+      }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
