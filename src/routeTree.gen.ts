@@ -59,6 +59,7 @@ import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './route
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as AuthenticatedAppAutomationenRegelRuleIdRouteImport } from './routes/_authenticated/app/automationen/regel.$ruleId'
 import { Route as AuthenticatedAppKommunikationVerlaufIndexRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/index'
 import { Route as AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/$communicationId'
 import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
@@ -351,6 +352,12 @@ const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   path: '/api/public/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppAutomationenRegelRuleIdRoute =
+  AuthenticatedAppAutomationenRegelRuleIdRouteImport.update({
+    id: '/app/automationen/regel/$ruleId',
+    path: '/app/automationen/regel/$ruleId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppKommunikationVerlaufIndexRoute =
   AuthenticatedAppKommunikationVerlaufIndexRouteImport.update({
     id: '/app/kommunikation/verlauf/',
@@ -438,6 +445,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -495,6 +503,7 @@ export interface FileRoutesByTo {
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren': typeof AuthenticatedAppRetourenIndexRoute
   '/app/versand': typeof AuthenticatedAppVersandIndexRoute
+  '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -554,6 +563,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/_authenticated/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
   '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
+  '/_authenticated/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -613,6 +623,7 @@ export interface FileRouteTypes {
     | '/app/produkte/'
     | '/app/retouren/'
     | '/app/versand/'
+    | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
@@ -670,6 +681,7 @@ export interface FileRouteTypes {
     | '/app/produkte'
     | '/app/retouren'
     | '/app/versand'
+    | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
@@ -728,6 +740,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/'
     | '/_authenticated/app/retouren/'
     | '/_authenticated/app/versand/'
+    | '/_authenticated/app/automationen/regel/$ruleId'
     | '/_authenticated/app/kommunikation/verlauf/$communicationId'
     | '/_authenticated/app/kommunikation/vorlagen/$templateId'
     | '/api/public/webhooks/carrier/$provider'
@@ -1103,6 +1116,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/app/automationen/regel/$ruleId': {
+      id: '/_authenticated/app/automationen/regel/$ruleId'
+      path: '/app/automationen/regel/$ruleId'
+      fullPath: '/app/automationen/regel/$ruleId'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenRegelRuleIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/kommunikation/verlauf/': {
       id: '/_authenticated/app/kommunikation/verlauf/'
       path: '/app/kommunikation/verlauf'
@@ -1189,6 +1209,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
   AuthenticatedAppRetourenIndexRoute: typeof AuthenticatedAppRetourenIndexRoute
   AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
+  AuthenticatedAppAutomationenRegelRuleIdRoute: typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   AuthenticatedAppKommunikationVerlaufCommunicationIdRoute: typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   AuthenticatedAppKommunikationVorlagenTemplateIdRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   AuthenticatedAppKommunikationVerlaufIndexRoute: typeof AuthenticatedAppKommunikationVerlaufIndexRoute
@@ -1253,6 +1274,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
   AuthenticatedAppRetourenIndexRoute: AuthenticatedAppRetourenIndexRoute,
   AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
+  AuthenticatedAppAutomationenRegelRuleIdRoute:
+    AuthenticatedAppAutomationenRegelRuleIdRoute,
   AuthenticatedAppKommunikationVerlaufCommunicationIdRoute:
     AuthenticatedAppKommunikationVerlaufCommunicationIdRoute,
   AuthenticatedAppKommunikationVorlagenTemplateIdRoute:
