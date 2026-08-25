@@ -15,9 +15,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppAuditRouteImport } from './routes/_authenticated/app/audit'
+import { Route as AuthenticatedAppKategorienRouteImport } from './routes/_authenticated/app/kategorien'
+import { Route as AuthenticatedAppMedienRouteImport } from './routes/_authenticated/app/medien'
 import { Route as AuthenticatedAppShopsRouteImport } from './routes/_authenticated/app/shops'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppProdukteIndexRouteImport } from './routes/_authenticated/app/produkte/index'
+import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/_authenticated/app/produkte/$productId'
+import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,6 +52,17 @@ const AuthenticatedAppAuditRoute = AuthenticatedAppAuditRouteImport.update({
   path: '/app/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppKategorienRoute =
+  AuthenticatedAppKategorienRouteImport.update({
+    id: '/app/kategorien',
+    path: '/app/kategorien',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppMedienRoute = AuthenticatedAppMedienRouteImport.update({
+  id: '/app/medien',
+  path: '/app/medien',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAppShopsRoute = AuthenticatedAppShopsRouteImport.update({
   id: '/app/shops',
   path: '/app/shops',
@@ -64,15 +79,31 @@ const AuthenticatedAppProdukteIndexRoute =
     path: '/app/produkte/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppProdukteProductIdRoute =
+  AuthenticatedAppProdukteProductIdRouteImport.update({
+    id: '/app/produkte/$productId',
+    path: '/app/produkte/$productId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppProdukteNeuRoute =
+  AuthenticatedAppProdukteNeuRouteImport.update({
+    id: '/app/produkte/neu',
+    path: '/app/produkte/neu',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
+  '/app/kategorien': typeof AuthenticatedAppKategorienRoute
+  '/app/medien': typeof AuthenticatedAppMedienRoute
   '/app/shops': typeof AuthenticatedAppShopsRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
+  '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
 }
 export interface FileRoutesByTo {
@@ -80,9 +111,13 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
+  '/app/kategorien': typeof AuthenticatedAppKategorienRoute
+  '/app/medien': typeof AuthenticatedAppMedienRoute
   '/app/shops': typeof AuthenticatedAppShopsRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
+  '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
 }
 export interface FileRoutesById {
@@ -92,9 +127,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/_authenticated/app/audit': typeof AuthenticatedAppAuditRoute
+  '/_authenticated/app/kategorien': typeof AuthenticatedAppKategorienRoute
+  '/_authenticated/app/medien': typeof AuthenticatedAppMedienRoute
   '/_authenticated/app/shops': typeof AuthenticatedAppShopsRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
+  '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
 }
 export interface FileRouteTypes {
@@ -104,9 +143,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/app/audit'
+    | '/app/kategorien'
+    | '/app/medien'
     | '/app/shops'
     | '/app/team'
     | '/app/'
+    | '/app/produkte/$productId'
+    | '/app/produkte/neu'
     | '/app/produkte/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -114,9 +157,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/app/audit'
+    | '/app/kategorien'
+    | '/app/medien'
     | '/app/shops'
     | '/app/team'
     | '/app'
+    | '/app/produkte/$productId'
+    | '/app/produkte/neu'
     | '/app/produkte'
   id:
     | '__root__'
@@ -125,9 +172,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/_authenticated/app/audit'
+    | '/_authenticated/app/kategorien'
+    | '/_authenticated/app/medien'
     | '/_authenticated/app/shops'
     | '/_authenticated/app/team'
     | '/_authenticated/app/'
+    | '/_authenticated/app/produkte/$productId'
+    | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/produkte/'
   fileRoutesById: FileRoutesById
 }
@@ -182,6 +233,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/kategorien': {
+      id: '/_authenticated/app/kategorien'
+      path: '/app/kategorien'
+      fullPath: '/app/kategorien'
+      preLoaderRoute: typeof AuthenticatedAppKategorienRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/medien': {
+      id: '/_authenticated/app/medien'
+      path: '/app/medien'
+      fullPath: '/app/medien'
+      preLoaderRoute: typeof AuthenticatedAppMedienRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/shops': {
       id: '/_authenticated/app/shops'
       path: '/app/shops'
@@ -203,22 +268,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProdukteIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/produkte/$productId': {
+      id: '/_authenticated/app/produkte/$productId'
+      path: '/app/produkte/$productId'
+      fullPath: '/app/produkte/$productId'
+      preLoaderRoute: typeof AuthenticatedAppProdukteProductIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/produkte/neu': {
+      id: '/_authenticated/app/produkte/neu'
+      path: '/app/produkte/neu'
+      fullPath: '/app/produkte/neu'
+      preLoaderRoute: typeof AuthenticatedAppProdukteNeuRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppAuditRoute: typeof AuthenticatedAppAuditRoute
+  AuthenticatedAppKategorienRoute: typeof AuthenticatedAppKategorienRoute
+  AuthenticatedAppMedienRoute: typeof AuthenticatedAppMedienRoute
   AuthenticatedAppShopsRoute: typeof AuthenticatedAppShopsRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
+  AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppAuditRoute: AuthenticatedAppAuditRoute,
+  AuthenticatedAppKategorienRoute: AuthenticatedAppKategorienRoute,
+  AuthenticatedAppMedienRoute: AuthenticatedAppMedienRoute,
   AuthenticatedAppShopsRoute: AuthenticatedAppShopsRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppProdukteProductIdRoute:
+    AuthenticatedAppProdukteProductIdRoute,
+  AuthenticatedAppProdukteNeuRoute: AuthenticatedAppProdukteNeuRoute,
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
 }
 

@@ -28,7 +28,7 @@ export type BlueprintField = {
   label: string;
   description?: string;
   required?: boolean;
-  default?: unknown;
+  default?: string | number | boolean | null;
   unit?: string;
   options?: string[];
   min?: number;
