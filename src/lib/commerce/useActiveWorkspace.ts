@@ -19,6 +19,7 @@ export function useActiveWorkspace() {
     organization: org,
     shops,
     shopId: shops[0]?.id ?? "",
+    shopCurrency: (shops[0] as { currency?: string } | undefined)?.currency ?? "EUR",
     can: (permission: string) => permissions.includes(permission),
   };
 }
