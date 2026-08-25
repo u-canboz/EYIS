@@ -7886,6 +7886,7 @@ export type Database = {
           old_amount: number
         }[]
       }
+      can_view_profile: { Args: { _other_user: string }; Returns: boolean }
       cart_cancel_checkout: {
         Args: {
           _actor: string
