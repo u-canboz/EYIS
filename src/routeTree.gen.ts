@@ -39,6 +39,7 @@ import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
+import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './routes/_authenticated/app/versand/dienstleister'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
@@ -212,6 +213,12 @@ const AuthenticatedAppVersandFulfillmentIdRoute =
     path: '/app/versand/$fulfillmentId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppVersandDienstleisterRoute =
+  AuthenticatedAppVersandDienstleisterRouteImport.update({
+    id: '/app/versand/dienstleister',
+    path: '/app/versand/dienstleister',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppVersandVersandartenRoute =
   AuthenticatedAppVersandVersandartenRouteImport.update({
     id: '/app/versand/versandarten',
@@ -255,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
+  '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -289,6 +297,7 @@ export interface FileRoutesByTo {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
+  '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
@@ -325,6 +334,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
+  '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
+    | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen/'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
+    | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen'
@@ -430,6 +442,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/system/storefront-test'
     | '/_authenticated/app/versand/$fulfillmentId'
+    | '/_authenticated/app/versand/dienstleister'
     | '/_authenticated/app/versand/versandarten'
     | '/api/public/webhooks/stripe'
     | '/_authenticated/app/bestellungen/'
@@ -661,6 +674,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppVersandFulfillmentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/versand/dienstleister': {
+      id: '/_authenticated/app/versand/dienstleister'
+      path: '/app/versand/dienstleister'
+      fullPath: '/app/versand/dienstleister'
+      preLoaderRoute: typeof AuthenticatedAppVersandDienstleisterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/versand/versandarten': {
       id: '/_authenticated/app/versand/versandarten'
       path: '/app/versand/versandarten'
@@ -707,6 +727,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
+  AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
@@ -744,6 +765,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppSystemStorefrontTestRoute,
   AuthenticatedAppVersandFulfillmentIdRoute:
     AuthenticatedAppVersandFulfillmentIdRoute,
+  AuthenticatedAppVersandDienstleisterRoute:
+    AuthenticatedAppVersandDienstleisterRoute,
   AuthenticatedAppVersandVersandartenRoute:
     AuthenticatedAppVersandVersandartenRoute,
   AuthenticatedAppBestellungenIndexRoute:
