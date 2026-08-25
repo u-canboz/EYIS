@@ -124,9 +124,9 @@ function OrderDetailPage() {
     onError: fail,
   });
 
-  if (order.isLoading || !order.data) return <Skeleton className="h-64 w-full" />;
   if (order.error) return <p className="text-destructive text-sm">{(order.error as Error).message}</p>;
-  const o = order.data!;
+  if (!order.data) return <Skeleton className="h-64 w-full" />;
+  const o = order.data;
   const currency = o.currencyCode;
 
   return (
