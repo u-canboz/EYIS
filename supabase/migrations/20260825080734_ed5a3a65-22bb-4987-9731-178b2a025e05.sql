@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.shop_in_org(uuid, uuid) FROM anon;
