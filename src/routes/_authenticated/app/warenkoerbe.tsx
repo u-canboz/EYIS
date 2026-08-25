@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { listCarts, getCartDetail, expireCheckoutSessions } from "@/lib/commerce/carts-admin.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { formatMoney } from "@/lib/commerce/money";
+import type { CartStatus } from "@/lib/commerce/cart-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
