@@ -14,7 +14,7 @@ Neue Tabellen, alle mit `organization_id` + `shop_id`, RLS an, GRANTs nur für `
 
 - `carts` — Status `active | checkout | completed | abandoned | expired`, `currency_code`, `customer_email`, `region_code`, `locale`, `anonymous_token_hash`, `expires_at`, `last_activity_at`, `abandoned_at`, `completed_at`, `metadata`.
 - `cart_items` — `product_id`, `variant_id`, `quantity`, Snapshot-Felder für Titel/Variantentitel/SKU/Bild. Unique auf `(cart_id, variant_id)`, damit dieselbe Variante Menge addiert statt Doppelzeilen zu erzeugen.
-- `cart_price_snapshots` — versioniert pro Cart, unveränderbar (Trigger blockt UPDATE/DELETE), enthält Totals in Minor Units plus `pricing_context` und `calculation_result`.
+- `cart_price_snapshots` — versioniert pro Cart, unveränderbar (Trigger blockt UPDATE/DELETE), enthält Totals in Minor Units plus `pricing_context`, `calculation_result` und `pricing_engine_version`, damit später nachvollziehbar bleibt, mit welcher Pricing-Logik ein alter Cart berechnet wurde.
 - `cart_item_price_snapshots` — pro Line eines Snapshots: Basis-, aufgelöster, Zeilen-, Rabatt- und Endbetrag, angewandte Preisregeln und Promotions.
 - `cart_promotion_codes` — angewandte Codes je Cart mit `code_snapshot`.
 - `checkout_sessions` — Status `open | validated | awaiting_payment | expired | cancelled`, `price_snapshot_id`, `expires_at` (Standard 20 Minuten), `validated_at`.
