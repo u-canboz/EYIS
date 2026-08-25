@@ -8,6 +8,7 @@ import { mapShipment } from "../fulfillment/fulfillment.server";
 import { getCarrier } from "./registry.server";
 import { CarrierError, type CarrierAddress, type CarrierParcel, type CarrierRate } from "./provider";
 import type { ShipmentView } from "../fulfillment/fulfillment.types";
+import { publishShipmentEvent } from "../event-payloads.server";
 
 type Row = Record<string, unknown>;
 const LABEL_BUCKET = "shipping-labels";
@@ -409,6 +410,7 @@ export async function markShipped(input: {
     _idem: input.idempotencyKey ?? null,
   } as never);
   if (error) throw new Error(error.message);
+  await publishShipmentEvent(input.shipmentId, "shipment.shipped");
   return data as unknown as { shipment_id: string; status: string; order_fulfillment_status: string | null };
 }
 

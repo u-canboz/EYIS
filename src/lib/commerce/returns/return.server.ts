@@ -5,6 +5,7 @@
  */
 import { getAdmin } from "../core.server";
 import type {
+import { publishReturnEvent } from "../event-payloads.server";
   EligibilityLine,
   ReturnDetail,
   ReturnEligibility,
@@ -379,7 +380,7 @@ export async function requestReturn(input: {
       throw new Error("Rückgabemenge überschreitet die rückgabefähige Menge.");
     }
   }
-  return await rpc<{ return_id: string; return_number: string; status: string; duplicate: boolean }>("ret_request", {
+  const requested = await rpc<{ return_id: string; return_number: string; status: string; duplicate: boolean }>("ret_request", {
     _org: input.organizationId,
     _shop: input.shopId,
     _order: input.orderId,
