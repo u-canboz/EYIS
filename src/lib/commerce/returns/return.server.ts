@@ -4,8 +4,8 @@
  * quantities can never exceed what was ordered and not yet effectively returned.
  */
 import { getAdmin } from "../core.server";
-import type {
 import { publishReturnEvent } from "../event-payloads.server";
+import type {
   EligibilityLine,
   ReturnDetail,
   ReturnEligibility,
