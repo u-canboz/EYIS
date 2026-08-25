@@ -29,7 +29,7 @@ Komponenten unter `src/components/storefront/`: ProductCard, ProductGrid, Produc
 
 Diese Verzeichnisse importieren ausschließlich `@/lib/store-sdk/*` und UI-Primitives. Durchgesetzt per ESLint-`no-restricted-imports` (error) für `src/routes/store/**` und `src/components/storefront/**`: verboten sind `@/lib/commerce/*`, `@/integrations/supabase/*`, `@supabase/*` und alle `*.server` / `*.functions` Module. Zusätzlich ein Vitest-Test, der die Importgraphen dieser Ordner statisch prüft, damit der Bruch auch ohne Lint-Gate auffällt.
 
-Konfiguration: `VITE_COMMERCE_API_URL` und `VITE_COMMERCE_PUBLISHABLE_KEY`; ohne gesetzten Key zeigt der Shop einen erklärenden Setup-Hinweis statt eines Fehlers.
+Konfiguration: `VITE_COMMERCE_API_URL` und `VITE_COMMERCE_PUBLISHABLE_KEY`; ohne gesetzten Key zeigt der Shop einen erklärenden Setup-Hinweis statt eines Fehlers. Die Doku (Developer-UI und `docs/`) sagt ausdrücklich: **Publishable Key = Shop-Identifikation, kein Secret.** Er darf im Client-Bundle stehen; jeder sensible Zugriff braucht zusätzlich Cart-Token, Kunden-Session oder scoped Guest-Token. Der Key gehört nie in Server-Secrets-Rollen und ersetzt keine Autorisierung.
 
 ## 3. Developer-Dashboard (Backoffice)
 
