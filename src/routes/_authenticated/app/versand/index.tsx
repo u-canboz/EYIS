@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { listFulfillments, createFulfillmentFn, getAllocationSuggestion } from "@/lib/commerce/fulfillment/fulfillment.functions";
-import { listOrders } from "@/lib/commerce/orders/order.functions";
+import { listOrdersFn } from "@/lib/commerce/orders/order.functions";
 import { FULFILLMENT_STATE_LABELS, type FulfillmentState } from "@/lib/commerce/fulfillment/fulfillment.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { carrierLabel } from "@/lib/commerce/shipping/carriers";
@@ -52,7 +52,7 @@ function FulfillmentWorkspace() {
   const [locationId, setLocationId] = useState<string>("");
 
   const fetchQueue = useServerFn(listFulfillments);
-  const fetchOrders = useServerFn(listOrders);
+  const fetchOrders = useServerFn(listOrdersFn);
   const fetchAllocation = useServerFn(getAllocationSuggestion);
   const create = useServerFn(createFulfillmentFn);
 
@@ -71,9 +71,9 @@ function FulfillmentWorkspace() {
     queryKey: ["fulfillment-open-orders", organizationId, shopId],
     enabled: !!organizationId && orderPickerOpen,
     queryFn: () =>
-      fetchOrders({
-        data: { organizationId, shopId: shopId || null, fulfillmentStatus: "unfulfilled", limit: 50 },
-      }),
+      fetchOrders({ data: { organizationId, shopId: shopId || null, paymentStatus: "paid" } }).then((rows) =>
+        rows.filter((o) => o.fulfillmentStatus !== "fulfilled" && o.orderStatus !== "cancelled"),
+      ),
   });
 
   const allocation = useQuery({
@@ -211,11 +211,11 @@ function FulfillmentWorkspace() {
           {!allocationOrderId ? (
             openOrders.isLoading ? (
               <Skeleton className="h-40 w-full" />
-            ) : !openOrders.data?.orders?.length ? (
+            ) : !openOrders.data?.length ? (
               <p className="text-muted-foreground text-sm">Keine offenen Bestellungen.</p>
             ) : (
               <div className="max-h-96 space-y-2 overflow-y-auto">
-                {openOrders.data.orders.map((o) => (
+                {openOrders.data.map((o) => (
                   <button
                     key={o.id}
                     type="button"
