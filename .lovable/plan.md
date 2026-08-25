@@ -61,7 +61,11 @@ Inventar wird nur als `in_stock | low_stock | out_of_stock | backorder` plus opt
 
 ## 6. Reference Storefront
 
-Neutraler Referenz-Shop unter `/store/*` (Home, Shop, Category, Collection, Product, Search, Cart, Checkout, Account, Orders, Returns) mit Komponenten (ProductCard, ProductGrid, ProductGallery, VariantSelector, Price, AddToCart, CartDrawer, CheckoutForm, AccountLayout, OrderCard, TrackingTimeline, ReturnWizard). Diese Routen importieren ausschließlich das SDK — ein ESLint-Boundary-Regel-Eintrag verbietet `@/lib/commerce/*` und Supabase-Clients dort. Der bestehende Test-Storefront bleibt als internes Werkzeug bestehen. `commerce.config.ts` im Projektroot als neutrale Beispielkonfiguration.
+Neutraler Referenz-Shop unter `/store/*` (Home, Shop, Category, Collection, Product, Search, Cart, Checkout, Account, Orders, Returns) mit Komponenten (ProductCard, ProductGrid, ProductGallery, VariantSelector, Price, AddToCart, CartDrawer, CheckoutForm, AccountLayout, OrderCard, TrackingTimeline, ReturnWizard).
+
+Diese Routen und Komponenten importieren **ausschließlich** das SDK. Durchgesetzt wird das hart: eine ESLint-`no-restricted-imports`-Boundary für `src/routes/store/**` und `src/components/storefront/**` verbietet `@/lib/commerce/*`, `@/integrations/supabase/*`, alle `*.server`/`*.functions`-Module und `@supabase/*` — als **error**, und Lint läuft als Build-/CI-Gate, sodass ein interner Import den Build scheitern lässt. Zusätzlich ein Test, der die Importgraphen dieser Verzeichnisse prüft.
+
+Der bestehende Test-Storefront bleibt als internes Werkzeug bestehen. `commerce.config.ts` im Projektroot als neutrale Beispielkonfiguration.
 
 ## 7. Developer-Bereich (Backoffice)
 
