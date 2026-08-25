@@ -212,11 +212,11 @@ function TaxPage() {
           destinationCountryCode: preview.country,
           customerType: preview.customerType,
           vatIdValid: preview.vatIdValid,
-          shippingMinor: parseMoneyToMinor(preview.shipping, currency),
+          shippingMinor: parseMoneyToMinor(preview.shipping, currency) ?? 0,
           lines: [
             {
               taxClassId: preview.taxClassId || null,
-              amountMinor: parseMoneyToMinor(preview.amount, currency),
+              amountMinor: parseMoneyToMinor(preview.amount, currency) ?? 0,
               quantity: Number(preview.quantity) || 1,
             },
           ],
