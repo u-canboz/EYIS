@@ -17,7 +17,9 @@ Store API (/api/public/store/v1)
 - `storage.ts`: Interfaces `TokenStorage` / `CartStorage` plus Browser-Default (localStorage) und In-Memory-Fallback für SSR/Tests.
 - Namensräume: `config`, `catalog` (products, product, categories, collections, search), `pricing`, `cart`, `checkout`, `payments`, `orders` (confirmation, guest-access, guest), `customer` (me, orders, addresses, documents, tracking), `returns`.
 - Automatik: Cart-ID + Cart-Token werden persistiert; `CART_EXPIRED` löscht den lokalen Cart und wird als Fehler durchgereicht (kein stiller Neu-Cart). `CUSTOMER_SESSION_EXPIRED` löscht das Session-Token.
-- `src/lib/store-sdk/react/`: `CommerceProvider`, `useCommerce`, `useProducts`, `useProduct`, `useSearch`, `useCart`, `useCheckout`, `useCustomer`, `useOrders`, `useReturns` — auf TanStack Query, klar getrennt vom Core.
+- **Customer-Auth**: eigener Store-Auth-Wrapper im SDK (`customer.login`, `customer.register`, `customer.requestPasswordReset`, `customer.logout`) gegen `/api/public/store/v1/customer/auth/*`. Der Server tauscht die Anmeldung serverseitig gegen ein Store-Session-Token; die Storefront sieht nie einen Supabase-Client, kein Supabase-Token, keine Auth-URL. Das Token liegt im `TokenStorage` und geht als `Authorization` an die Store API. Kein `@supabase/*`-Import in Storefront oder SDK.
+- **Order-Confirmation-Token**: bleibt kurzlebig (Minuten), auf genau eine Order + einen Shop gescoped, einmal einlösbar und serverseitig widerrufbar (`revoked_at`); nach Einlösung wird er gegen eine kurzlebige Session bzw. einen scoped Guest-Token getauscht. Das SDK persistiert ihn nicht und baut daraus keine teilbare Bestell-URL; die Bestätigungsseite liest ihn einmalig aus der Redirect-URL und ersetzt die History-Entry.
+- `src/lib/store-sdk/react/`: `CommerceProvider`, `useCommerce`, `useProducts`, `useProduct`, `useSearch`, `useCart`, `useCheckout`, `useCustomer`, `useOrders`, `useReturns` — auf TanStack Query. Der Provider hält ausschließlich die Client-Instanz und den QueryClient-Kontext; jede Fachlogik (Token-Handling, Retry, Fehler-Mapping, Cart-Persistenz) bleibt im Core. Hooks sind dünne Wrapper um Core-Aufrufe, kein paralleler Zustandsspeicher.
 
 ## 2. Reference Storefront — `/store/*`
 
@@ -27,7 +29,7 @@ Komponenten unter `src/components/storefront/`: ProductCard, ProductGrid, Produc
 
 Diese Verzeichnisse importieren ausschließlich `@/lib/store-sdk/*` und UI-Primitives. Durchgesetzt per ESLint-`no-restricted-imports` (error) für `src/routes/store/**` und `src/components/storefront/**`: verboten sind `@/lib/commerce/*`, `@/integrations/supabase/*`, `@supabase/*` und alle `*.server` / `*.functions` Module. Zusätzlich ein Vitest-Test, der die Importgraphen dieser Ordner statisch prüft, damit der Bruch auch ohne Lint-Gate auffällt.
 
-Konfiguration: `VITE_COMMERCE_API_URL` und `VITE_COMMERCE_PUBLISHABLE_KEY`; ohne gesetzten Key zeigt der Shop einen erklärenden Setup-Hinweis statt eines Fehlers.
+Konfiguration: `VITE_COMMERCE_API_URL` und `VITE_COMMERCE_PUBLISHABLE_KEY`; ohne gesetzten Key zeigt der Shop einen erklärenden Setup-Hinweis statt eines Fehlers. Die Doku (Developer-UI und `docs/`) sagt ausdrücklich: **Publishable Key = Shop-Identifikation, kein Secret.** Er darf im Client-Bundle stehen; jeder sensible Zugriff braucht zusätzlich Cart-Token, Kunden-Session oder scoped Guest-Token. Der Key gehört nie in Server-Secrets-Rollen und ersetzt keine Autorisierung.
 
 ## 3. Developer-Dashboard (Backoffice)
 
@@ -46,10 +48,11 @@ Server Functions in `src/lib/commerce/store/store-admin.functions.ts` mit `requi
 1. Test-Key anlegen → Client bauen → `/config`.
 2. Katalog: Liste, Detail, Suche, Kategorie — Prüfung, dass keine internen Felder (organization_id, Kosten, interne Status) im JSON auftauchen.
 3. Cart: erstellen, Position hinzufügen/ändern/löschen, Promo anwenden/entfernen, Totals-Konsistenz.
-4. Checkout: E-Mail, Adressen, Versandart, Validate, Payment-Session (Mock), Zahlung, Confirmation-Token einlösen.
-5. Account/Gast: Guest-Access anfordern und einlösen, Bestellung lesen, Dokument-Download-URL, Tracking.
+4. Checkout: E-Mail, Adressen, Versandart, Validate, Payment-Session (Mock), Zahlung, Confirmation-Token einlösen; danach Nachweis, dass derselbe Token ein zweites Mal und nach Widerruf abgelehnt wird.
+5. Account/Gast: Login über den Store-Auth-Wrapper (ohne Supabase-Client), Guest-Access anfordern und einlösen, Bestellung lesen, Dokument-Download-URL, Tracking.
 6. Retoure: Eligibility, Anlage, Duplikat abgelehnt.
-7. Negativfälle: revoked Key, fremder Origin, Cross-Tenant-Zugriff (Key A auf Shop B), fehlender Cart-Token, fremder Cart-Token, Rate-Limit für `customer_login`, `payment_session`, `return_create`, Idempotenz-Wiederholung.
+7. **Cross-Tenant per ID-Manipulation**: Es werden zwei Shops mit je eigenem Key aufgesetzt. Ein Client mit Shop-A-Key ruft mit echten IDs aus Shop B gezielt `GET /cart/:id`, Cart-Mutationen, `GET /checkout/:id`, `GET /orders/confirmation/:token`, `GET /customer/orders/:id`, Dokument- und Tracking-Endpunkte sowie `POST /returns` auf — inklusive der Variante mit gültigem Cart-/Guest-Token aus Shop B. Erwartet ist durchgehend `NOT_FOUND`/`FORBIDDEN` ohne Existenz-Leak und ohne Unterschied in Antwortform oder Timing-Klasse.
+8. Weitere Negativfälle: revoked Key, fremder Origin, fehlender Cart-Token, fremder Cart-Token, Rate-Limit für `customer_login`, `payment_session`, `return_create`, Idempotenz-Wiederholung.
 
 Ergebnis nach `qa/results-phase12.json` plus Kurzreport.
 
