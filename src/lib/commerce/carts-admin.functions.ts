@@ -1,6 +1,7 @@
 /** Admin API: read-only insight into carts and checkout sessions. */
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { CartStatus } from "./cart-types";
 
 type Base = { organizationId: string; shopId: string };
 
