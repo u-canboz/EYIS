@@ -15,7 +15,8 @@ export const mockProvider: PaymentProvider = {
   id: "mock",
 
   async createSession(input: CreateSessionInput): Promise<CreateSessionResult> {
-    if (input.environment === "live") throw new Error("Der Test-Anbieter ist im Live-Betrieb nicht zulässig.");
+    if (input.environment === "live")
+      throw new Error("Der Test-Anbieter ist im Live-Betrieb nicht zulässig.");
     const url = new URL(input.successUrl);
     url.searchParams.set("mock", "1");
     return {

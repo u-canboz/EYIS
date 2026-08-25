@@ -22,7 +22,11 @@ export const saveOptions = createServerFn({ method: "POST" })
       .select("id, key, product_option_values(id, value)")
       .eq("product_id", data.productId);
 
-    type OptRow = { id: string; key: string; product_option_values: { id: string; value: string }[] };
+    type OptRow = {
+      id: string;
+      key: string;
+      product_option_values: { id: string; value: string }[];
+    };
     const rows = (existing ?? []) as unknown as OptRow[];
     const keepKeys = new Set(data.axes.map((a) => a.key));
 
@@ -123,7 +127,12 @@ export const generateVariants = createServerFn({ method: "POST" })
       axes.map((axis) =>
         [...axis.product_option_values]
           .sort((a, b) => a.position - b.position)
-          .map((value) => ({ optionId: axis.id, optionKey: axis.key, valueId: value.id, value: value.value })),
+          .map((value) => ({
+            optionId: axis.id,
+            optionKey: axis.key,
+            valueId: value.id,
+            value: value.value,
+          })),
       ),
     );
 
@@ -136,7 +145,9 @@ export const generateVariants = createServerFn({ method: "POST" })
     let created = 0;
     let position = existing?.length ?? 0;
     for (const combo of combos) {
-      const signature = optionSignature(combo.map((c) => ({ optionKey: c.optionKey, value: c.value })));
+      const signature = optionSignature(
+        combo.map((c) => ({ optionKey: c.optionKey, value: c.value })),
+      );
       if (known.has(signature)) continue;
 
       const { data: variant, error } = await supabase
@@ -200,10 +211,11 @@ export const updateVariant = createServerFn({ method: "POST" })
     await assertPermission(supabase, userId, data.organizationId, "products.update");
 
     const patch: Record<string, unknown> = {};
-    if (data.title !== undefined) patch['title'] = data.title;
-    if (data.sku !== undefined) patch['sku'] = data.sku?.trim() ? data.sku.trim() : null;
-    if (data.barcode !== undefined) patch['barcode'] = data.barcode?.trim() ? data.barcode.trim() : null;
-    if (data.status !== undefined) patch['status'] = data.status;
+    if (data.title !== undefined) patch["title"] = data.title;
+    if (data.sku !== undefined) patch["sku"] = data.sku?.trim() ? data.sku.trim() : null;
+    if (data.barcode !== undefined)
+      patch["barcode"] = data.barcode?.trim() ? data.barcode.trim() : null;
+    if (data.status !== undefined) patch["status"] = data.status;
 
     const { error } = await supabase
       .from("product_variants")

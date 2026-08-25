@@ -2,7 +2,8 @@
 
 export function positiveInt(value: unknown, label: string) {
   const n = Number(value);
-  if (!Number.isInteger(n) || n <= 0) throw new Error(`${label} muss eine ganze Zahl größer als 0 sein.`);
+  if (!Number.isInteger(n) || n <= 0)
+    throw new Error(`${label} muss eine ganze Zahl größer als 0 sein.`);
   return n;
 }
 
@@ -14,7 +15,8 @@ export function nonNegativeInt(value: unknown, label: string) {
 
 export function nonZeroInt(value: unknown, label: string) {
   const n = Number(value);
-  if (!Number.isInteger(n) || n === 0) throw new Error(`${label} muss eine ganze Zahl ungleich 0 sein.`);
+  if (!Number.isInteger(n) || n === 0)
+    throw new Error(`${label} muss eine ganze Zahl ungleich 0 sein.`);
   return n;
 }
 

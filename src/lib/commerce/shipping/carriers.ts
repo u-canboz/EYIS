@@ -38,7 +38,13 @@ export const CARRIER_CATALOG: CarrierCatalogEntry[] = [
   { id: "dpd", displayName: "DPD", implemented: false, testOnly: false, capabilities: NONE },
   { id: "gls", displayName: "GLS", implemented: false, testOnly: false, capabilities: NONE },
   { id: "ups", displayName: "UPS", implemented: false, testOnly: false, capabilities: NONE },
-  { id: "sendcloud", displayName: "Sendcloud", implemented: false, testOnly: false, capabilities: NONE },
+  {
+    id: "sendcloud",
+    displayName: "Sendcloud",
+    implemented: false,
+    testOnly: false,
+    capabilities: NONE,
+  },
 ];
 
 export function carrierEntry(id: string): CarrierCatalogEntry | undefined {

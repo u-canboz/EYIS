@@ -13,7 +13,12 @@ import {
 } from "@/lib/commerce/variants.functions";
 import { listTaxonomy } from "@/lib/commerce/taxonomy.functions";
 import { getTaxConfiguration } from "@/lib/commerce/tax.functions";
-import { listMedia, attachMedia, detachMedia, reorderProductMedia } from "@/lib/commerce/media.functions";
+import {
+  listMedia,
+  attachMedia,
+  detachMedia,
+  reorderProductMedia,
+} from "@/lib/commerce/media.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { BlueprintForm } from "@/components/commerce/BlueprintForm";
 import type { BlueprintData } from "@/lib/commerce/blueprint-types";
@@ -195,7 +200,10 @@ function ProductEditor() {
               <SelectItem value="archived">Archiviert</SelectItem>
             </SelectContent>
           </Select>
-          <Button disabled={!canEdit || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
+          <Button
+            disabled={!canEdit || saveMutation.isPending}
+            onClick={() => saveMutation.mutate()}
+          >
             {saveMutation.isPending ? "Speichert…" : "Speichern"}
           </Button>
         </div>
@@ -258,12 +266,14 @@ function ProductEditor() {
                 disabled={!canEdit}
                 onValueChange={(v) => setForm({ ...form, taxClassId: v === "default" ? "" : v })}
               >
-                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-2">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="default">Standard des Shops</SelectItem>
                   {(taxConfigQuery.data?.classes ?? []).map((c) => (
-                    <SelectItem key={c['id'] as string} value={c['id'] as string}>
-                      {c['name'] as string}
+                    <SelectItem key={c["id"] as string} value={c["id"] as string}>
+                      {c["name"] as string}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -342,7 +352,9 @@ function ProductEditor() {
                     disabled={!canEdit}
                     onCheckedChange={(checked) =>
                       setCategoryIds(
-                        checked ? [...categoryIds, cat.id] : categoryIds.filter((i) => i !== cat.id),
+                        checked
+                          ? [...categoryIds, cat.id]
+                          : categoryIds.filter((i) => i !== cat.id),
                       )
                     }
                   />
@@ -385,7 +397,9 @@ function ProductEditor() {
                 maxLength={60}
                 onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
               />
-              <p className="mt-1 text-xs text-muted-foreground">{form.seoTitle.length}/60 Zeichen</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {form.seoTitle.length}/60 Zeichen
+              </p>
             </div>
             <div>
               <Label>SEO-Beschreibung</Label>
@@ -458,9 +472,15 @@ function VariantsTab({
       const list = Object.entries(draft)
         .map(([key, raw]) => ({
           key,
-          name: axes.find((a) => a.key === key)?.name ?? options.find((o) => o.key === key)?.name ?? key,
+          name:
+            axes.find((a) => a.key === key)?.name ??
+            options.find((o) => o.key === key)?.name ??
+            key,
           display_type: axes.find((a) => a.key === key)?.display_type ?? "list",
-          values: raw.split(",").map((v) => v.trim()).filter(Boolean),
+          values: raw
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean),
         }))
         .filter((axis) => axis.values.length > 0);
       await runSaveOptions({ data: { productId, organizationId, axes: list } });
@@ -474,8 +494,12 @@ function VariantsTab({
   });
 
   const variantMutation = useMutation({
-    mutationFn: (input: { variantId: string; sku?: string; barcode?: string; status?: VariantRow["status"] }) =>
-      runUpdateVariant({ data: { organizationId, ...input } }),
+    mutationFn: (input: {
+      variantId: string;
+      sku?: string;
+      barcode?: string;
+      status?: VariantRow["status"];
+    }) => runUpdateVariant({ data: { organizationId, ...input } }),
     onSuccess: () => invalidate(),
     onError: (error: Error) => toast.error(error.message),
   });
@@ -644,8 +668,7 @@ function MediaTab({
   });
 
   const detachMutation = useMutation({
-    mutationFn: (productMediaId: string) =>
-      runDetach({ data: { organizationId, productMediaId } }),
+    mutationFn: (productMediaId: string) => runDetach({ data: { organizationId, productMediaId } }),
     onSuccess: invalidate,
     onError: (error: Error) => toast.error(error.message),
   });
@@ -691,11 +714,7 @@ function MediaTab({
                   <Button variant="ghost" size="sm" onClick={() => move(index, 1)}>
                     →
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => detachMutation.mutate(item.id)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => detachMutation.mutate(item.id)}>
                     Lösen
                   </Button>
                 </div>

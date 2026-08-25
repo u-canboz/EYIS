@@ -17,8 +17,7 @@ export const TAX_NOTE_BY_REASON: Record<string, string> = {
   small_business_exemption:
     "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).",
   zero_rate: "Steuerfreie Lieferung.",
-  oss_destination_rate:
-    "Besteuerung im Bestimmungsland (One-Stop-Shop-Verfahren).",
+  oss_destination_rate: "Besteuerung im Bestimmungsland (One-Stop-Shop-Verfahren).",
 };
 
 export function formatAddressLines(a: DocumentAddress): string[] {
@@ -82,10 +81,7 @@ export function invoiceToRenderable(inv: InvoiceView): RenderableDocument {
   };
 }
 
-export function creditNoteToRenderable(
-  cn: CreditNoteView,
-  inv: InvoiceView,
-): RenderableDocument {
+export function creditNoteToRenderable(cn: CreditNoteView, inv: InvoiceView): RenderableDocument {
   const reference: { label: string; value: string }[] = [];
   if (inv.invoiceNumber) reference.push({ label: "Rechnungsnummer", value: inv.invoiceNumber });
   if (inv.orderNumber) reference.push({ label: "Bestellnummer", value: inv.orderNumber });
@@ -126,7 +122,12 @@ export function deliveryNoteToRenderable(input: {
   recipient: DocumentAddress;
   seller: RenderableDocument["seller"];
   branding: RenderableDocument["branding"];
-  items: { productName: string; variantName: string | null; sku: string | null; quantity: number }[];
+  items: {
+    productName: string;
+    variantName: string | null;
+    sku: string | null;
+    quantity: number;
+  }[];
   notes: string | null;
 }): RenderableDocument {
   const lines: DocumentLine[] = input.items.map((i, idx) => ({
@@ -147,7 +148,8 @@ export function deliveryNoteToRenderable(input: {
   }));
 
   const reference: { label: string; value: string }[] = [];
-  if (input.note.orderNumber) reference.push({ label: "Bestellnummer", value: input.note.orderNumber });
+  if (input.note.orderNumber)
+    reference.push({ label: "Bestellnummer", value: input.note.orderNumber });
 
   return {
     kind: "delivery_note",

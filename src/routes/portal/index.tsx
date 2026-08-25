@@ -14,9 +14,16 @@ export const Route = createFileRoute("/portal/")({
   head: () => ({
     meta: [
       { title: "Mein Konto – Bestellungen und Retouren" },
-      { name: "description", content: "Bestellungen einsehen, Sendungen verfolgen, Rechnungen laden und Retouren anmelden." },
+      {
+        name: "description",
+        content:
+          "Bestellungen einsehen, Sendungen verfolgen, Rechnungen laden und Retouren anmelden.",
+      },
       { property: "og:title", content: "Mein Konto – Bestellungen und Retouren" },
-      { property: "og:description", content: "Dein Kundenportal für Bestellungen, Belege und Rücksendungen." },
+      {
+        property: "og:description",
+        content: "Dein Kundenportal für Bestellungen, Belege und Rücksendungen.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -60,7 +67,8 @@ function PortalHome() {
       {!signedIn ? (
         <div className="space-y-4 rounded-xl border p-6">
           <p className="text-sm">
-            Melde dich an, um alle deine Bestellungen zu sehen – oder rufe eine einzelne Bestellung als Gast auf.
+            Melde dich an, um alle deine Bestellungen zu sehen – oder rufe eine einzelne Bestellung
+            als Gast auf.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => navigate({ to: "/auth" })}>Anmelden</Button>
@@ -73,7 +81,9 @@ function PortalHome() {
         <Skeleton className="h-64 w-full" />
       ) : !orders.data?.length ? (
         <div className="space-y-4 rounded-xl border border-dashed p-8 text-center">
-          <p className="text-sm text-muted-foreground">Wir haben zu diesem Konto noch keine Bestellungen gefunden.</p>
+          <p className="text-sm text-muted-foreground">
+            Wir haben zu diesem Konto noch keine Bestellungen gefunden.
+          </p>
           <Button variant="outline" asChild>
             <Link to="/portal/gast">Bestellung mit Bestellnummer suchen</Link>
           </Button>

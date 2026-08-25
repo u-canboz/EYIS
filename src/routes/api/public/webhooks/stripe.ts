@@ -76,7 +76,9 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
           .eq("provider_event_id", event.providerEventId);
 
         // 200 even on internal failure would hide problems: signal a retry instead.
-        return processError ? new Response("Processing error", { status: 500 }) : new Response("ok");
+        return processError
+          ? new Response("Processing error", { status: 500 })
+          : new Response("ok");
       },
     },
   },

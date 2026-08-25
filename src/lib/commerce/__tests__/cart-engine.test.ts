@@ -21,7 +21,9 @@ function line(overrides: Partial<CartEngineLine> & { id: string }): CartEngineLi
   };
 }
 
-function promo(overrides: Partial<PromotionRow> & { id: string; type: PromotionRow["type"] }): PromotionRow {
+function promo(
+  overrides: Partial<PromotionRow> & { id: string; type: PromotionRow["type"] },
+): PromotionRow {
   return {
     organization_id: ORG,
     shop_id: SHOP,
@@ -59,7 +61,9 @@ function input(overrides: Partial<CartEngineInput> = {}): CartEngineInput {
 describe("cart engine", () => {
   it("sums line subtotals without promotions", () => {
     const r = calculateCart(
-      input({ lines: [line({ id: "a", quantity: 2 }), line({ id: "b", unitResolvedMinor: 2500 })] }),
+      input({
+        lines: [line({ id: "a", quantity: 2 }), line({ id: "b", unitResolvedMinor: 2500 })],
+      }),
     );
     expect(r.totals.subtotalMinor).toBe(4500);
     expect(r.totals.discountMinor).toBe(0);
@@ -118,7 +122,9 @@ describe("cart engine", () => {
     ];
     const promos = [promo({ id: "p", type: "fixed_amount", value: 100 })];
     const first = calculateCart(input({ lines, promotions: promos }));
-    const shuffled = calculateCart(input({ lines: [lines[2]!, lines[0]!, lines[1]!], promotions: promos }));
+    const shuffled = calculateCart(
+      input({ lines: [lines[2]!, lines[0]!, lines[1]!], promotions: promos }),
+    );
     const asMap = (r: ReturnType<typeof calculateCart>) =>
       Object.fromEntries(r.lines.map((l) => [l.lineId, l.lineDiscountMinor]));
     expect(asMap(first)).toEqual(asMap(shuffled));
@@ -140,8 +146,8 @@ describe("cart engine", () => {
     );
     expect(r.totals.discountMinor).toBe(500);
     const byLine = Object.fromEntries(r.lines.map((l) => [l.lineId, l.lineDiscountMinor]));
-    expect(byLine['a']).toBe(500);
-    expect(byLine['b']).toBe(0);
+    expect(byLine["a"]).toBe(500);
+    expect(byLine["b"]).toBe(0);
   });
 
   it("rejects a promotion whose minimum subtotal is not reached", () => {
@@ -197,7 +203,9 @@ describe("cart engine", () => {
   });
 
   it("applies shipping and honours the free-above threshold", () => {
-    const paid = calculateCart(input({ shipping: { methodId: "m", amountMinor: 490, freeAboveMinor: 5000 } }));
+    const paid = calculateCart(
+      input({ shipping: { methodId: "m", amountMinor: 490, freeAboveMinor: 5000 } }),
+    );
     expect(paid.totals.shippingMinor).toBe(490);
     expect(paid.totals.totalMinor).toBe(1490);
 
@@ -245,9 +253,7 @@ describe("cart engine", () => {
   it("marks per-customer usage limits as pending", () => {
     const r = calculateCart(
       input({
-        promotions: [
-          promo({ id: "p", type: "percentage", value: 1000, usageLimitPerCustomer: 1 }),
-        ],
+        promotions: [promo({ id: "p", type: "percentage", value: 1000, usageLimitPerCustomer: 1 })],
       }),
     );
     expect(r.pendingPromotions[0]?.pending).toBe("requires_orders");
@@ -269,7 +275,12 @@ describe("cart engine", () => {
     const r = calculateCart(
       input({
         promotions: [
-          promo({ id: "old", type: "percentage", value: 5000, ends_at: "2026-01-01T00:00:00.000Z" }),
+          promo({
+            id: "old",
+            type: "percentage",
+            value: 5000,
+            ends_at: "2026-01-01T00:00:00.000Z",
+          }),
           promo({ id: "usd", type: "percentage", value: 5000, currency_code: "USD" }),
         ],
       }),
@@ -279,7 +290,10 @@ describe("cart engine", () => {
 
   it("is deterministic for identical input", () => {
     const args = input({
-      lines: [line({ id: "a", unitResolvedMinor: 1234, quantity: 3 }), line({ id: "b", unitResolvedMinor: 999 })],
+      lines: [
+        line({ id: "a", unitResolvedMinor: 1234, quantity: 3 }),
+        line({ id: "b", unitResolvedMinor: 999 }),
+      ],
       promotions: [
         promo({ id: "p1", type: "percentage", value: 1500, priority: 3 }),
         promo({ id: "p2", type: "fixed_amount", value: 250, priority: 3 }),

@@ -1,7 +1,8 @@
 /** Client-safe view types for the fulfillment workspace. */
 import type { TrackingStatusCode } from "../shipping/provider";
 
-export type FulfillmentState = "draft" | "ready" | "picking" | "packed" | "shipped" | "delivered" | "cancelled";
+export type FulfillmentState =
+  "draft" | "ready" | "picking" | "packed" | "shipped" | "delivered" | "cancelled";
 export type PackageStatus = "draft" | "packed" | "shipped" | "delivered" | "cancelled";
 export type ShipmentStatus =
   | "created"

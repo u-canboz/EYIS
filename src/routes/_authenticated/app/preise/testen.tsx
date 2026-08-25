@@ -198,7 +198,10 @@ function PricingPreviewPage() {
           <div className="rounded-lg border bg-card p-6">
             <p className="font-medium">Ergebnis</p>
             <dl className="mt-4 space-y-2 text-sm">
-              <Row label="Normalpreis" value={formatMoney(result.baseAmount, result.currencyCode)} />
+              <Row
+                label="Normalpreis"
+                value={formatMoney(result.baseAmount, result.currencyCode)}
+              />
               <Row
                 label="Aufgelöster Stückpreis"
                 value={formatMoney(result.resolvedUnitAmount, result.currencyCode)}

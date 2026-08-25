@@ -78,7 +78,13 @@ function conditionPasses(
   subtotal: number,
   now: number,
 ): boolean {
-  const c = condition as { kind: string; ids?: string[]; value?: number; from?: string | null; to?: string | null };
+  const c = condition as {
+    kind: string;
+    ids?: string[];
+    value?: number;
+    from?: string | null;
+    to?: string | null;
+  };
   switch (c.kind) {
     case "product":
       return (c.ids ?? []).includes(ctx.productId);
@@ -205,9 +211,13 @@ export function resolvePricing(snapshot: PricingSnapshot, ctx: PricingContext): 
     });
   }
 
-  let subtotal = resolvedUnitAmount * quantity;
+  const subtotal = resolvedUnitAmount * quantity;
   if (quantity > 1) {
-    explanation.push({ label: `Zwischensumme (${quantity} ×)`, amountMinor: subtotal, source: "subtotal" });
+    explanation.push({
+      label: `Zwischensumme (${quantity} ×)`,
+      amountMinor: subtotal,
+      source: "subtotal",
+    });
   }
 
   // ---- 4. Promotions ----------------------------------------------------
@@ -216,7 +226,8 @@ export function resolvePricing(snapshot: PricingSnapshot, ctx: PricingContext): 
   const pendingPromotions: AppliedPromotion[] = [];
 
   for (const promo of snapshot.promotions) {
-    if (promo.shop_id !== snapshot.shopId || promo.organization_id !== snapshot.organizationId) continue;
+    if (promo.shop_id !== snapshot.shopId || promo.organization_id !== snapshot.organizationId)
+      continue;
     if (promo.status !== "active") continue;
     if (!inWindow(now, promo.starts_at, promo.ends_at)) continue;
     if (promo.code && !codes.includes(promo.code.toUpperCase())) continue;
@@ -268,7 +279,11 @@ export function resolvePricing(snapshot: PricingSnapshot, ctx: PricingContext): 
         priority: promo.priority,
         discountMinor: 0,
       });
-      explanation.push({ label: `Gratisversand: ${promo.name}`, amountMinor: runningSubtotal, source: promo.id });
+      explanation.push({
+        label: `Gratisversand: ${promo.name}`,
+        amountMinor: runningSubtotal,
+        source: promo.id,
+      });
       if (!promo.stackable) break;
       continue;
     }

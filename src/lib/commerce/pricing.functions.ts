@@ -215,7 +215,8 @@ export const bulkUpdatePrices = createServerFn({ method: "POST" })
     await assertPermission(supabase, userId, data.organizationId, "pricing.manage");
     if (!data.priceIds.length) throw new Error("Bitte wähle mindestens eine Preiszeile aus.");
     if (data.mode === "set" && (data.amountMinor ?? -1) < 0) throw new Error("Ungültiger Betrag.");
-    if (data.mode.endsWith("percent") && (data.percentBp ?? 0) <= 0) throw new Error("Ungültiger Prozentwert.");
+    if (data.mode.endsWith("percent") && (data.percentBp ?? 0) <= 0)
+      throw new Error("Ungültiger Prozentwert.");
 
     const admin = await getAdmin();
 
@@ -227,15 +228,19 @@ export const bulkUpdatePrices = createServerFn({ method: "POST" })
       .eq("endpoint", "pricing.bulk")
       .eq("key", data.idempotencyKey)
       .maybeSingle();
-    if (existing) return (existing.response ?? { ok: true, replayed: true }) as { updated?: number };
+    if (existing)
+      return (existing.response ?? { ok: true, replayed: true }) as { updated?: number };
 
-    const { data: result, error } = await admin.rpc("bulk_update_prices" as never, {
-      _org_id: data.organizationId,
-      _price_ids: data.priceIds,
-      _mode: data.mode,
-      _amount_minor: data.amountMinor ?? 0,
-      _percent_bp: data.percentBp ?? 0,
-    } as never);
+    const { data: result, error } = await admin.rpc(
+      "bulk_update_prices" as never,
+      {
+        _org_id: data.organizationId,
+        _price_ids: data.priceIds,
+        _mode: data.mode,
+        _amount_minor: data.amountMinor ?? 0,
+        _percent_bp: data.percentBp ?? 0,
+      } as never,
+    );
     if (error) throw new Error(error.message);
 
     const rows = (result ?? []) as { id: string; old_amount: number; new_amount: number }[];
@@ -298,7 +303,13 @@ export const resolvePrice = createServerFn({ method: "POST" })
 export const listPriceOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { organizationId: string; shopId: string; type?: string; search?: string; status?: string }) => data,
+    (data: {
+      organizationId: string;
+      shopId: string;
+      type?: string;
+      search?: string;
+      status?: string;
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -332,7 +343,10 @@ export const listPriceOverview = createServerFn({ method: "POST" })
         ? supabase.from("products").select("id, name").in("id", Array.from(productIds))
         : Promise.resolve({ data: [] as { id: string; name: string }[] }),
       variantIds.size
-        ? supabase.from("product_variants").select("id, title, product_id").in("id", Array.from(variantIds))
+        ? supabase
+            .from("product_variants")
+            .select("id, title, product_id")
+            .in("id", Array.from(variantIds))
         : Promise.resolve({ data: [] as { id: string; title: string; product_id: string }[] }),
     ]);
 

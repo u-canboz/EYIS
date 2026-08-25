@@ -67,13 +67,7 @@ export type InboundEvent = {
   providerMessageId: string | null;
   eventType: string;
   deliveryStatus:
-    | "sent"
-    | "delivered"
-    | "soft_bounce"
-    | "hard_bounce"
-    | "complained"
-    | "rejected"
-    | "unknown";
+    "sent" | "delivered" | "soft_bounce" | "hard_bounce" | "complained" | "rejected" | "unknown";
   recipient: string | null;
   occurredAt: string;
   payload: Record<string, unknown>;

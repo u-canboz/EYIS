@@ -3,14 +3,23 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { listProviderConfigsFn, upsertProviderConfigFn } from "@/lib/commerce/payments/payment.functions";
+import {
+  listProviderConfigsFn,
+  upsertProviderConfigFn,
+} from "@/lib/commerce/payments/payment.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/zahlungen")({
   head: () => ({
@@ -63,7 +72,9 @@ function PaymentSettingsPage() {
   });
 
   if (!can("payment_settings.read")) {
-    return <p className="text-muted-foreground text-sm">Keine Berechtigung für Zahlungseinstellungen.</p>;
+    return (
+      <p className="text-muted-foreground text-sm">Keine Berechtigung für Zahlungseinstellungen.</p>
+    );
   }
 
   return (
@@ -157,7 +168,9 @@ function PaymentSettingsPage() {
                 <tr key={c.id} className="border-t">
                   <td className="p-3">{c.displayName}</td>
                   <td className="p-3">
-                    <Badge variant={c.environment === "live" ? "default" : "outline"}>{c.environment}</Badge>
+                    <Badge variant={c.environment === "live" ? "default" : "outline"}>
+                      {c.environment}
+                    </Badge>
                   </td>
                   <td className="p-3">{c.status === "active" ? "Aktiv" : "Inaktiv"}</td>
                   <td className="p-3">{c.priority}</td>

@@ -2,7 +2,12 @@
 
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { AvailabilityResult, InventoryRow, MovementRow, MovementType } from "./inventory.types";
+import type {
+  AvailabilityResult,
+  InventoryRow,
+  MovementRow,
+  MovementType,
+} from "./inventory.types";
 
 type Base = { organizationId: string; shopId: string };
 
@@ -341,7 +346,8 @@ export const reserveStock = createServerFn({ method: "POST" })
 export const releaseReservation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { organizationId: string; reservationId: string; idempotencyKey?: string | null }) => data,
+    (data: { organizationId: string; reservationId: string; idempotencyKey?: string | null }) =>
+      data,
   )
   .handler(async ({ data, context }) => {
     const inv = await import("./inventory.server");
@@ -354,7 +360,8 @@ export const releaseReservation = createServerFn({ method: "POST" })
 export const commitReservation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { organizationId: string; reservationId: string; idempotencyKey?: string | null }) => data,
+    (data: { organizationId: string; reservationId: string; idempotencyKey?: string | null }) =>
+      data,
   )
   .handler(async ({ data, context }) => {
     const inv = await import("./inventory.server");
@@ -478,32 +485,40 @@ export const startTransfer = createServerFn({ method: "POST" })
 
 export const completeTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string; transferId: string; idempotencyKey: string }) => data)
+  .inputValidator(
+    (data: { organizationId: string; transferId: string; idempotencyKey: string }) => data,
+  )
   .handler(async ({ data, context }) => {
     const inv = await import("./inventory.server");
-    return inv.completeTransfer({ supabase: context.supabase as never, userId: context.userId }, data);
+    return inv.completeTransfer(
+      { supabase: context.supabase as never, userId: context.userId },
+      data,
+    );
   });
 
 export const cancelTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string; transferId: string; idempotencyKey: string }) => data)
+  .inputValidator(
+    (data: { organizationId: string; transferId: string; idempotencyKey: string }) => data,
+  )
   .handler(async ({ data, context }) => {
     const inv = await import("./inventory.server");
-    return inv.cancelTransfer({ supabase: context.supabase as never, userId: context.userId }, data);
+    return inv.cancelTransfer(
+      { supabase: context.supabase as never, userId: context.userId },
+      data,
+    );
   });
 
 export const updateItemSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (
-      data: {
-        organizationId: string;
-        inventoryItemId: string;
-        trackInventory?: boolean;
-        allowBackorder?: boolean;
-        sku?: string | null;
-      },
-    ) => data,
+    (data: {
+      organizationId: string;
+      inventoryItemId: string;
+      trackInventory?: boolean;
+      allowBackorder?: boolean;
+      sku?: string | null;
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     const { assertPermission, writeAudit } = await import("./core.server");
@@ -515,9 +530,9 @@ export const updateItemSettings = createServerFn({ method: "POST" })
     );
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const patch: Record<string, unknown> = {};
-    if (data.trackInventory !== undefined) patch['track_inventory'] = data.trackInventory;
-    if (data.allowBackorder !== undefined) patch['allow_backorder'] = data.allowBackorder;
-    if (data.sku !== undefined) patch['sku'] = data.sku?.trim() || null;
+    if (data.trackInventory !== undefined) patch["track_inventory"] = data.trackInventory;
+    if (data.allowBackorder !== undefined) patch["allow_backorder"] = data.allowBackorder;
+    if (data.sku !== undefined) patch["sku"] = data.sku?.trim() || null;
     if (!Object.keys(patch).length) return { ok: true };
 
     const { error } = await supabaseAdmin
@@ -543,7 +558,10 @@ export const inventoryHealth = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string }) => data)
   .handler(async ({ data, context }) => {
     const inv = await import("./inventory.server");
-    return inv.inventoryHealth({ supabase: context.supabase as never, userId: context.userId }, data);
+    return inv.inventoryHealth(
+      { supabase: context.supabase as never, userId: context.userId },
+      data,
+    );
   });
 
 export const lowStockSummary = createServerFn({ method: "POST" })

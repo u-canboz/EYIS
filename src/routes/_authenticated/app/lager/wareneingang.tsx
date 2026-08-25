@@ -24,10 +24,14 @@ export const Route = createFileRoute("/_authenticated/app/lager/wareneingang")({
       { title: "Wareneingang buchen – Commerce OS" },
       {
         name: "description",
-        content: "Gelieferte Ware pro Lagerort und Variante erfassen und nachvollziehbar einbuchen.",
+        content:
+          "Gelieferte Ware pro Lagerort und Variante erfassen und nachvollziehbar einbuchen.",
       },
       { property: "og:title", content: "Wareneingang buchen – Commerce OS" },
-      { property: "og:description", content: "Zugänge erfassen und im Bewegungsjournal dokumentieren." },
+      {
+        property: "og:description",
+        content: "Zugänge erfassen und im Bewegungsjournal dokumentieren.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -187,8 +191,8 @@ function ReceivingPage() {
                   {rows.length === 0 && (
                     <tr>
                       <td className="text-muted-foreground p-6 text-center" colSpan={4}>
-                        Keine Varianten mit aktivierter Bestandsverfolgung gefunden. Aktiviere den Tab
-                        „Bestand“ im Produkteditor.
+                        Keine Varianten mit aktivierter Bestandsverfolgung gefunden. Aktiviere den
+                        Tab „Bestand“ im Produkteditor.
                       </td>
                     </tr>
                   )}

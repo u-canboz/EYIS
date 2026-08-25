@@ -23,7 +23,10 @@ export const DEFAULT_LOW_STOCK_THRESHOLD = 5;
 
 type AnyClient = {
   from: (table: string) => any;
-  rpc: (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: any; error: { message: string } | null }>;
+  rpc: (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => PromiseLike<{ data: any; error: { message: string } | null }>;
 };
 
 export type Ctx = { supabase: AnyClient; userId: string };
@@ -157,7 +160,9 @@ async function loadThresholds(
   const rules = (data ?? []) as { inventory_item_id: string | null; threshold: number }[];
   const globalRule = rules.find((r) => r.inventory_item_id === null);
   const byItem = new Map(
-    rules.filter((r) => r.inventory_item_id).map((r) => [r.inventory_item_id as string, r.threshold]),
+    rules
+      .filter((r) => r.inventory_item_id)
+      .map((r) => [r.inventory_item_id as string, r.threshold]),
   );
   return (itemId: string) =>
     byItem.get(itemId) ?? globalRule?.threshold ?? DEFAULT_LOW_STOCK_THRESHOLD;
@@ -213,7 +218,9 @@ export async function getInventory(
       .from("product_categories")
       .select("product_id")
       .eq("category_id", filters.categoryId);
-    categoryProductIds = new Set(((data ?? []) as { product_id: string }[]).map((r) => r.product_id));
+    categoryProductIds = new Set(
+      ((data ?? []) as { product_id: string }[]).map((r) => r.product_id),
+    );
   }
 
   const levelsByItem = new Map<string, { location_id: string; level: LevelNumbers }[]>();
@@ -306,7 +313,9 @@ export async function getInventory(
   }
 
   rows.sort(
-    (a, b) => a.product_name.localeCompare(b.product_name) || a.variant_title.localeCompare(b.variant_title),
+    (a, b) =>
+      a.product_name.localeCompare(b.product_name) ||
+      a.variant_title.localeCompare(b.variant_title),
   );
   return { rows, locations };
 }
@@ -480,7 +489,9 @@ export async function getMovementHistory(
     }))
     .filter((r) =>
       search
-        ? `${r.product_name ?? ""} ${r.variant_title ?? ""} ${r.sku ?? ""}`.toLowerCase().includes(search)
+        ? `${r.product_name ?? ""} ${r.variant_title ?? ""} ${r.sku ?? ""}`
+            .toLowerCase()
+            .includes(search)
         : true,
     );
 }
@@ -714,12 +725,15 @@ export async function completeTransfer(
   ctx: Ctx,
   args: { organizationId: string; transferId: string; idempotencyKey: string },
 ) {
-  return callRpc<{ transfer_id: string; status: string; changed: boolean }>("inv_transfer_complete", {
-    _org: args.organizationId,
-    _actor: ctx.userId,
-    _transfer: args.transferId,
-    _idem: args.idempotencyKey,
-  });
+  return callRpc<{ transfer_id: string; status: string; changed: boolean }>(
+    "inv_transfer_complete",
+    {
+      _org: args.organizationId,
+      _actor: ctx.userId,
+      _transfer: args.transferId,
+      _idem: args.idempotencyKey,
+    },
+  );
 }
 
 export async function cancelTransfer(

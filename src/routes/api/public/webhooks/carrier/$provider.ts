@@ -34,7 +34,12 @@ export const Route = createFileRoute("/api/public/webhooks/carrier/$provider")({
           .eq("status", "active");
 
         const secretName = ((configs ?? []) as Record<string, unknown>[])
-          .map((c) => (c['configuration_reference'] as Record<string, string> | null)?.['webhook_secret_name'])
+          .map(
+            (c) =>
+              (c["configuration_reference"] as Record<string, string> | null)?.[
+                "webhook_secret_name"
+              ],
+          )
           .find(Boolean);
         const secret = secretName ? (process.env[secretName] ?? null) : null;
 
@@ -46,8 +51,13 @@ export const Route = createFileRoute("/api/public/webhooks/carrier/$provider")({
           return new Response("Invalid signature", { status: 401 });
         }
 
-        let query = admin.from("shipments").select("id, organization_id").eq("carrier_provider", provider).limit(1);
-        if (parsed.providerShipmentId) query = query.eq("provider_shipment_id", parsed.providerShipmentId);
+        let query = admin
+          .from("shipments")
+          .select("id, organization_id")
+          .eq("carrier_provider", provider)
+          .limit(1);
+        if (parsed.providerShipmentId)
+          query = query.eq("provider_shipment_id", parsed.providerShipmentId);
         else if (parsed.trackingNumber) query = query.eq("tracking_number", parsed.trackingNumber);
         else return new Response("Missing shipment reference", { status: 400 });
 
@@ -58,8 +68,8 @@ export const Route = createFileRoute("/api/public/webhooks/carrier/$provider")({
 
         try {
           const result = await recordTrackingEvents(
-            shipment['organization_id'] as string,
-            shipment['id'] as string,
+            shipment["organization_id"] as string,
+            shipment["id"] as string,
             provider,
             parsed.events,
           );

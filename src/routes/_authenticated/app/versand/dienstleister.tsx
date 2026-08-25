@@ -19,7 +19,13 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/versand/dienstleister")({
   head: () => ({
@@ -27,10 +33,14 @@ export const Route = createFileRoute("/_authenticated/app/versand/dienstleister"
       { title: "Versanddienstleister – Commerce OS" },
       {
         name: "description",
-        content: "Carrier aktivieren, Testmodus steuern und Verpackungs-Presets für die Kommissionierung pflegen.",
+        content:
+          "Carrier aktivieren, Testmodus steuern und Verpackungs-Presets für die Kommissionierung pflegen.",
       },
       { property: "og:title", content: "Versanddienstleister – Commerce OS" },
-      { property: "og:description", content: "DHL, DPD, GLS, UPS, Sendcloud und Test-Carrier konfigurieren." },
+      {
+        property: "og:description",
+        content: "DHL, DPD, GLS, UPS, Sendcloud und Test-Carrier konfigurieren.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -157,7 +167,8 @@ function CarrierSettings() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Versanddienstleister</h1>
         <p className="text-muted-foreground text-sm">
-          Nur aktive Dienstleister können Labels erzeugen. Zugangsdaten liegen als Secrets, nie in der Datenbank.
+          Nur aktive Dienstleister können Labels erzeugen. Zugangsdaten liegen als Secrets, nie in
+          der Datenbank.
         </p>
       </header>
 
@@ -209,7 +220,9 @@ function CarrierSettings() {
                     <td className="p-3">{c.testMode ? "Test" : "Live"}</td>
                     <td className="p-3">{c.priority}</td>
                     <td className="p-3">
-                      <Badge variant={c.status === "active" ? "default" : "secondary"}>{c.status}</Badge>
+                      <Badge variant={c.status === "active" ? "default" : "secondary"}>
+                        {c.status}
+                      </Badge>
                     </td>
                     <td className="p-3 text-right">
                       {manage && (
@@ -243,7 +256,11 @@ function CarrierSettings() {
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-medium">Verpackungs-Presets</h2>
-          {manage && <Button variant="outline" onClick={() => setPreset({ ...EMPTY_PRESET })}>Preset anlegen</Button>}
+          {manage && (
+            <Button variant="outline" onClick={() => setPreset({ ...EMPTY_PRESET })}>
+              Preset anlegen
+            </Button>
+          )}
         </div>
         {presets.isLoading ? (
           <Skeleton className="h-24 w-full" />
@@ -297,7 +314,11 @@ function CarrierSettings() {
                           >
                             Bearbeiten
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => presetDelete.mutate(p.id)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => presetDelete.mutate(p.id)}
+                          >
                             Löschen
                           </Button>
                         </div>
@@ -314,7 +335,9 @@ function CarrierSettings() {
       <Dialog open={!!config} onOpenChange={(open) => !open && setConfig(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{config?.id ? "Dienstleister bearbeiten" : "Dienstleister hinzufügen"}</DialogTitle>
+            <DialogTitle>
+              {config?.id ? "Dienstleister bearbeiten" : "Dienstleister hinzufügen"}
+            </DialogTitle>
           </DialogHeader>
           {config && (
             <div className="grid gap-3">
@@ -349,13 +372,18 @@ function CarrierSettings() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-2">
                   <Label>Priorität</Label>
-                  <Input value={config.priority} onChange={(e) => setConfig({ ...config, priority: e.target.value })} />
+                  <Input
+                    value={config.priority}
+                    onChange={(e) => setConfig({ ...config, priority: e.target.value })}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label>Status</Label>
                   <Select
                     value={config.status}
-                    onValueChange={(v) => setConfig({ ...config, status: v as ConfigDraft["status"] })}
+                    onValueChange={(v) =>
+                      setConfig({ ...config, status: v as ConfigDraft["status"] })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -379,11 +407,19 @@ function CarrierSettings() {
               <div className="flex items-center justify-between rounded-md border p-3">
                 <div>
                   <p className="text-sm font-medium">Testmodus</p>
-                  <p className="text-muted-foreground text-xs">Im Testmodus werden keine echten Labels gekauft.</p>
+                  <p className="text-muted-foreground text-xs">
+                    Im Testmodus werden keine echten Labels gekauft.
+                  </p>
                 </div>
-                <Switch checked={config.testMode} onCheckedChange={(v) => setConfig({ ...config, testMode: v })} />
+                <Switch
+                  checked={config.testMode}
+                  onCheckedChange={(v) => setConfig({ ...config, testMode: v })}
+                />
               </div>
-              <Button onClick={() => configMutation.mutate(config)} disabled={configMutation.isPending}>
+              <Button
+                onClick={() => configMutation.mutate(config)}
+                disabled={configMutation.isPending}
+              >
                 Speichern
               </Button>
             </div>
@@ -400,12 +436,18 @@ function CarrierSettings() {
             <div className="grid gap-3">
               <div className="grid gap-2">
                 <Label>Name</Label>
-                <Input value={preset.name} onChange={(e) => setPreset({ ...preset, name: e.target.value })} />
+                <Input
+                  value={preset.name}
+                  onChange={(e) => setPreset({ ...preset, name: e.target.value })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-2">
                   <Label>Gewicht (g)</Label>
-                  <Input value={preset.weight} onChange={(e) => setPreset({ ...preset, weight: e.target.value })} />
+                  <Input
+                    value={preset.weight}
+                    onChange={(e) => setPreset({ ...preset, weight: e.target.value })}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label>Verpackungstyp</Label>
@@ -418,22 +460,37 @@ function CarrierSettings() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="grid gap-2">
                   <Label>Länge</Label>
-                  <Input value={preset.length} onChange={(e) => setPreset({ ...preset, length: e.target.value })} />
+                  <Input
+                    value={preset.length}
+                    onChange={(e) => setPreset({ ...preset, length: e.target.value })}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label>Breite</Label>
-                  <Input value={preset.width} onChange={(e) => setPreset({ ...preset, width: e.target.value })} />
+                  <Input
+                    value={preset.width}
+                    onChange={(e) => setPreset({ ...preset, width: e.target.value })}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label>Höhe</Label>
-                  <Input value={preset.height} onChange={(e) => setPreset({ ...preset, height: e.target.value })} />
+                  <Input
+                    value={preset.height}
+                    onChange={(e) => setPreset({ ...preset, height: e.target.value })}
+                  />
                 </div>
               </div>
               <div className="flex items-center justify-between rounded-md border p-3">
                 <p className="text-sm font-medium">Als Standard verwenden</p>
-                <Switch checked={preset.isDefault} onCheckedChange={(v) => setPreset({ ...preset, isDefault: v })} />
+                <Switch
+                  checked={preset.isDefault}
+                  onCheckedChange={(v) => setPreset({ ...preset, isDefault: v })}
+                />
               </div>
-              <Button onClick={() => presetMutation.mutate(preset)} disabled={presetMutation.isPending}>
+              <Button
+                onClick={() => presetMutation.mutate(preset)}
+                disabled={presetMutation.isPending}
+              >
                 Speichern
               </Button>
             </div>

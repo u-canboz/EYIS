@@ -123,10 +123,18 @@ function TaskInbox() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button size="sm" variant={filter === "open" ? "default" : "outline"} onClick={() => setFilter("open")}>
+          <Button
+            size="sm"
+            variant={filter === "open" ? "default" : "outline"}
+            onClick={() => setFilter("open")}
+          >
             Offen
           </Button>
-          <Button size="sm" variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")}>
+          <Button
+            size="sm"
+            variant={filter === "all" ? "default" : "outline"}
+            onClick={() => setFilter("all")}
+          >
             Alle
           </Button>
         </div>
@@ -166,7 +174,9 @@ function TaskInbox() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => statusMutation.mutate({ taskId: t.id, status: "in_progress" })}
+                        onClick={() =>
+                          statusMutation.mutate({ taskId: t.id, status: "in_progress" })
+                        }
                       >
                         Übernehmen
                       </Button>

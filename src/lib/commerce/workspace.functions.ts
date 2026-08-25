@@ -66,7 +66,8 @@ export const getWorkspace = createServerFn({ method: "GET" })
         .insert({ name: baseName, slug })
         .select("id, name, slug")
         .single();
-      if (orgError || !org) throw new Error(orgError?.message ?? "Organisation konnte nicht angelegt werden.");
+      if (orgError || !org)
+        throw new Error(orgError?.message ?? "Organisation konnte nicht angelegt werden.");
 
       const { error: memberError } = await admin
         .from("memberships")

@@ -13,7 +13,12 @@ export const listCarrierConfigs = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { shopId?: string | null }) => data)
   .handler(async ({ data, context }): Promise<ProviderConfigView[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_settings.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_settings.read",
+    );
     const { listProviderConfigs } = await import("./shipping.server");
     return await listProviderConfigs(data.organizationId, data.shopId ?? null);
   });
@@ -36,7 +41,12 @@ export const saveCarrierConfig = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_settings.manage",
+    );
     const { saveProviderConfig } = await import("./shipping.server");
     return await saveProviderConfig({ ...data, actorId: context.userId });
   });
@@ -46,7 +56,12 @@ export const listPackagePresetsFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { shopId?: string | null }) => data)
   .handler(async ({ data, context }): Promise<PackagePresetView[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_settings.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_settings.read",
+    );
     const { listPackagePresets } = await import("./shipping.server");
     return await listPackagePresets(data.organizationId, data.shopId ?? null);
   });
@@ -70,7 +85,12 @@ export const savePackagePresetFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_settings.manage",
+    );
     const { savePackagePreset } = await import("./shipping.server");
     return await savePackagePreset(data);
   });
@@ -80,17 +100,29 @@ export const deletePackagePresetFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { id: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_settings.manage",
+    );
     const { deletePackagePreset } = await import("./shipping.server");
     return await deletePackagePreset(data.organizationId, data.id);
   });
 
 export const getCarrierRates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { fulfillmentId: string; packageId: string; provider: string }) => data)
+  .inputValidator(
+    (data: Org & { fulfillmentId: string; packageId: string; provider: string }) => data,
+  )
   .handler(async ({ data, context }): Promise<CarrierRate[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping.manage",
+    );
     const { getRates } = await import("./shipping.server");
     return await getRates(data);
   });
@@ -111,7 +143,12 @@ export const createLabelFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<ShipmentView> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping.create_label");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping.create_label",
+    );
     const { createShipmentWithLabel } = await import("./shipping.server");
     return await createShipmentWithLabel({ ...data, actorId: context.userId });
   });
@@ -131,17 +168,30 @@ export const markShippedFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { shipmentId: string; idempotencyKey?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping.manage",
+    );
     const { markShipped } = await import("./shipping.server");
     return await markShipped({ ...data, actorId: context.userId });
   });
 
 export const cancelShipmentFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { shipmentId: string; reason?: string | null; idempotencyKey?: string | null }) => data)
+  .inputValidator(
+    (data: Org & { shipmentId: string; reason?: string | null; idempotencyKey?: string | null }) =>
+      data,
+  )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping.cancel");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping.cancel",
+    );
     const { cancelShipment } = await import("./shipping.server");
     return await cancelShipment({ ...data, actorId: context.userId });
   });

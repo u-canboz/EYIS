@@ -16,7 +16,10 @@ export function optionSignature(pairs: { optionKey: string; value: string }[]) {
 }
 
 export function cartesian<T>(lists: T[][]): T[][] {
-  return lists.reduce<T[][]>((acc, list) => acc.flatMap((row) => list.map((v) => [...row, v])), [[]]);
+  return lists.reduce<T[][]>(
+    (acc, list) => acc.flatMap((row) => list.map((v) => [...row, v])),
+    [[]],
+  );
 }
 
 /** Finds a free handle within a shop. */
@@ -30,7 +33,12 @@ export async function uniqueHandle(
   const base = slugify(desired) || "eintrag";
   for (let i = 0; i < 50; i += 1) {
     const candidate = i === 0 ? base : `${base}-${i + 1}`;
-    let query = supabase.from(table).select("id").eq("shop_id", shopId).eq("handle", candidate).limit(1);
+    let query = supabase
+      .from(table)
+      .select("id")
+      .eq("shop_id", shopId)
+      .eq("handle", candidate)
+      .limit(1);
     if (excludeId) query = query.neq("id", excludeId);
     const { data } = await query;
     if (!data || data.length === 0) return candidate;

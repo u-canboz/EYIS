@@ -262,9 +262,12 @@ function TeamPage() {
               <div className="flex items-center gap-2">
                 <Badge variant={i.status === "pending" ? "default" : "secondary"}>
                   {
-                    { pending: "offen", accepted: "angenommen", revoked: "widerrufen", expired: "abgelaufen" }[
-                      i.status
-                    ]
+                    {
+                      pending: "offen",
+                      accepted: "angenommen",
+                      revoked: "widerrufen",
+                      expired: "abgelaufen",
+                    }[i.status]
                   }
                 </Badge>
                 {canManage && i.status === "pending" && (

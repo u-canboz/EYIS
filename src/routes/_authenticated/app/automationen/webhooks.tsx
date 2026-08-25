@@ -97,8 +97,8 @@ function WebhookEndpoints() {
         </Link>
         <h1 className="font-display text-2xl font-semibold">Webhook-Ziele</h1>
         <p className="text-sm text-muted-foreground">
-          Nur öffentlich erreichbare HTTPS-Adressen sind erlaubt. Jede Anfrage wird signiert; interne
-          Netzwerkadressen und Weiterleitungen werden blockiert.
+          Nur öffentlich erreichbare HTTPS-Adressen sind erlaubt. Jede Anfrage wird signiert;
+          interne Netzwerkadressen und Weiterleitungen werden blockiert.
         </p>
       </header>
 

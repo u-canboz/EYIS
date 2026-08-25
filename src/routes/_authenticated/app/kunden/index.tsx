@@ -4,7 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { listCustomersFn, saveCustomerFn } from "@/lib/commerce/customers/customer.functions";
-import { CUSTOMER_STATUS_LABELS, type CustomerStatus } from "@/lib/commerce/customers/customer.types";
+import {
+  CUSTOMER_STATUS_LABELS,
+  type CustomerStatus,
+} from "@/lib/commerce/customers/customer.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { formatMoney } from "@/lib/commerce/money";
 import { Button } from "@/components/ui/button";
@@ -13,15 +16,27 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/kunden/")({
   head: () => ({
     meta: [
       { title: "Kunden – Commerce OS" },
-      { name: "description", content: "Kundenkonten, Adressen, Bestellhistorie und Kundengruppen verwalten." },
+      {
+        name: "description",
+        content: "Kundenkonten, Adressen, Bestellhistorie und Kundengruppen verwalten.",
+      },
       { property: "og:title", content: "Kunden – Commerce OS" },
-      { property: "og:description", content: "Zentrale Kundenverwaltung mit Historie, Gruppen und Sperren." },
+      {
+        property: "og:description",
+        content: "Zentrale Kundenverwaltung mit Historie, Gruppen und Sperren.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -43,7 +58,13 @@ function CustomersPage() {
   const [tab, setTab] = useState("all");
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ email: "", firstName: "", lastName: "", phone: "", type: "b2c" });
+  const [form, setForm] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    type: "b2c",
+  });
 
   const fetchCustomers = useServerFn(listCustomersFn);
   const save = useServerFn(saveCustomerFn);
@@ -53,7 +74,9 @@ function CustomersPage() {
     queryKey: ["customers", organizationId, shopId, tab, search],
     enabled: !!organizationId,
     queryFn: () =>
-      fetchCustomers({ data: { organizationId, shopId: shopId || null, status, search: search || null } }),
+      fetchCustomers({
+        data: { organizationId, shopId: shopId || null, status, search: search || null },
+      }),
   });
 
   const create = useMutation({
@@ -94,7 +117,12 @@ function CustomersPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         {STATUS_FILTERS.map((f) => (
-          <Button key={f.key} size="sm" variant={tab === f.key ? "default" : "outline"} onClick={() => setTab(f.key)}>
+          <Button
+            key={f.key}
+            size="sm"
+            variant={tab === f.key ? "default" : "outline"}
+            onClick={() => setTab(f.key)}
+          >
             {f.label}
           </Button>
         ))}
@@ -145,10 +173,14 @@ function CustomersPage() {
                     <Badge variant={c.status === "blocked" ? "destructive" : "secondary"}>
                       {CUSTOMER_STATUS_LABELS[c.status]}
                     </Badge>
-                    {c.hasAccount && <span className="ml-2 text-xs text-muted-foreground">Konto</span>}
+                    {c.hasAccount && (
+                      <span className="ml-2 text-xs text-muted-foreground">Konto</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right">{c.orderCount}</td>
-                  <td className="px-4 py-3 text-right">{formatMoney(c.totalSpentMinor, c.currencyCode)}</td>
+                  <td className="px-4 py-3 text-right">
+                    {formatMoney(c.totalSpentMinor, c.currencyCode)}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {c.lastOrderAt ? new Date(c.lastOrderAt).toLocaleDateString("de-DE") : "—"}
                   </td>
@@ -167,22 +199,38 @@ function CustomersPage() {
           <div className="space-y-3">
             <div>
               <Label htmlFor="email">E-Mail</Label>
-              <Input id="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Input
+                id="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="first">Vorname</Label>
-                <Input id="first" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+                <Input
+                  id="first"
+                  value={form.firstName}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                />
               </div>
               <div>
                 <Label htmlFor="last">Nachname</Label>
-                <Input id="last" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+                <Input
+                  id="last"
+                  value={form.lastName}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="phone">Telefon</Label>
-                <Input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                <Input
+                  id="phone"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
               </div>
               <div>
                 <Label>Kundentyp</Label>

@@ -93,8 +93,7 @@ function TaxonomyPage() {
   });
 
   const collectionMutation = useMutation({
-    mutationFn: () =>
-      runSaveCollection({ data: { organizationId, shopId, name: collectionName } }),
+    mutationFn: () => runSaveCollection({ data: { organizationId, shopId, name: collectionName } }),
     onSuccess: () => {
       toast.success("Kollektion gespeichert.");
       setCollectionName("");

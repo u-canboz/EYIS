@@ -10,7 +10,12 @@ type Auth = { cartId: string; token: string };
 
 export const createCartFn = createServerFn({ method: "POST" })
   .inputValidator(
-    (data: { organizationId: string; shopId: string; locale?: string; regionCode?: string | null }) => data,
+    (data: {
+      organizationId: string;
+      shopId: string;
+      locale?: string;
+      regionCode?: string | null;
+    }) => data,
   )
   .handler(async ({ data }) => {
     const { getAdmin } = await import("./core.server");
@@ -55,9 +60,14 @@ export const addCartItemFn = createServerFn({ method: "POST" })
     cartApi.assertMutable(cart);
 
     const quantity = Math.floor(data.quantity);
-    if (!Number.isFinite(quantity) || quantity <= 0) throw new Error("Menge muss größer als 0 sein.");
+    if (!Number.isFinite(quantity) || quantity <= 0)
+      throw new Error("Menge muss größer als 0 sein.");
 
-    const snap = await cartApi.loadVariantSnapshot(cart.organization_id, cart.shop_id, data.variantId);
+    const snap = await cartApi.loadVariantSnapshot(
+      cart.organization_id,
+      cart.shop_id,
+      data.variantId,
+    );
     const { data: existing } = await admin
       .from("cart_items")
       .select("id, quantity")
@@ -65,7 +75,13 @@ export const addCartItemFn = createServerFn({ method: "POST" })
       .eq("variant_id", data.variantId)
       .maybeSingle();
     const target = ((existing as { quantity: number } | null)?.quantity ?? 0) + quantity;
-    await cartApi.assertAvailable(cart.organization_id, cart.shop_id, data.variantId, target, snap.title);
+    await cartApi.assertAvailable(
+      cart.organization_id,
+      cart.shop_id,
+      data.variantId,
+      target,
+      snap.title,
+    );
 
     if (existing) {
       const { error } = await admin
@@ -90,7 +106,10 @@ export const addCartItemFn = createServerFn({ method: "POST" })
     }
 
     await cartApi.touchCart(cart.id);
-    await cartApi.cartEvent(cart, "cart.item.added", { variant_id: data.variantId, quantity: target });
+    await cartApi.cartEvent(cart, "cart.item.added", {
+      variant_id: data.variantId,
+      quantity: target,
+    });
     return (await cartApi.buildCartView(cart)) as CartView;
   });
 
@@ -213,7 +232,12 @@ export const removePromotionCodeFn = createServerFn({ method: "POST" })
 /** Merges a guest cart into a target cart. Quantities are summed, availability re-checked. */
 export const mergeCartFn = createServerFn({ method: "POST" })
   .inputValidator(
-    (data: { sourceCartId: string; sourceToken: string; targetCartId: string; targetToken: string }) => data,
+    (data: {
+      sourceCartId: string;
+      sourceToken: string;
+      targetCartId: string;
+      targetToken: string;
+    }) => data,
   )
   .handler(async ({ data }) => {
     const cartApi = await import("./cart.server");
@@ -276,7 +300,10 @@ export const mergeCartFn = createServerFn({ method: "POST" })
     }
 
     await admin.from("cart_items").delete().eq("cart_id", source.id);
-    await admin.from("carts").update({ status: "abandoned", abandoned_at: new Date().toISOString() }).eq("id", source.id);
+    await admin
+      .from("carts")
+      .update({ status: "abandoned", abandoned_at: new Date().toISOString() })
+      .eq("id", source.id);
     await cartApi.cartEvent(target, "cart.merged", { source_cart_id: source.id });
     return (await cartApi.buildCartView(target)) as CartView;
   });

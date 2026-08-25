@@ -64,13 +64,16 @@ export const cancelOrderFn = createServerFn({ method: "POST" })
     const { assertPermission, getAdmin } = await import("../core.server");
     await assertPermission(context.supabase, context.userId, data.organizationId, "orders.cancel");
     const admin = await getAdmin();
-    const { data: result, error } = await admin.rpc("order_cancel" as never, {
-      _org: data.organizationId,
-      _order: data.orderId,
-      _actor: context.userId,
-      _reason: data.reason,
-      _idem: null,
-    } as never);
+    const { data: result, error } = await admin.rpc(
+      "order_cancel" as never,
+      {
+        _org: data.organizationId,
+        _order: data.orderId,
+        _actor: context.userId,
+        _reason: data.reason,
+        _idem: null,
+      } as never,
+    );
     if (error) throw new Error(error.message);
     const cancelled = result as unknown as { order_id: string; status: string; changed: boolean };
     if (cancelled.changed) {
@@ -94,17 +97,25 @@ export const createRefundFn = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { assertPermission, getAdmin } = await import("../core.server");
     const { getProvider } = await import("../payments/provider.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "payments.refund");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "payments.refund",
+    );
     const admin = await getAdmin();
 
-    const { data: created, error } = await admin.rpc("refund_create" as never, {
-      _org: data.organizationId,
-      _order: data.orderId,
-      _actor: context.userId,
-      _amount_minor: Math.floor(data.amountMinor),
-      _reason: data.reason,
-      _idem: data.idempotencyKey ?? null,
-    } as never);
+    const { data: created, error } = await admin.rpc(
+      "refund_create" as never,
+      {
+        _org: data.organizationId,
+        _order: data.orderId,
+        _actor: context.userId,
+        _amount_minor: Math.floor(data.amountMinor),
+        _reason: data.reason,
+        _idem: data.idempotencyKey ?? null,
+      } as never,
+    );
     if (error) throw new Error(error.message);
     const refund = created as unknown as { refund_id: string; amount_minor: number };
 
@@ -116,7 +127,10 @@ export const createRefundFn = createServerFn({ method: "POST" })
       .eq("type", "charge")
       .order("created_at", { ascending: false })
       .limit(1);
-    const charge = ((tx ?? [])[0] ?? null) as { provider: string; provider_transaction_id: string | null } | null;
+    const charge = ((tx ?? [])[0] ?? null) as {
+      provider: string;
+      provider_transaction_id: string | null;
+    } | null;
 
     let status: "completed" | "processing" | "failed" = "processing";
     let providerRefundId: string | null = null;
@@ -141,14 +155,17 @@ export const createRefundFn = createServerFn({ method: "POST" })
       errorMessage = "Keine Zahlungsbuchung mit Anbieter-Referenz gefunden.";
     }
 
-    const { error: settleError } = await admin.rpc("refund_settle" as never, {
-      _org: data.organizationId,
-      _refund: refund.refund_id,
-      _status: status,
-      _provider: charge?.provider ?? null,
-      _provider_refund_id: providerRefundId,
-      _error: errorMessage,
-    } as never);
+    const { error: settleError } = await admin.rpc(
+      "refund_settle" as never,
+      {
+        _org: data.organizationId,
+        _refund: refund.refund_id,
+        _status: status,
+        _provider: charge?.provider ?? null,
+        _provider_refund_id: providerRefundId,
+        _error: errorMessage,
+      } as never,
+    );
     if (settleError) throw new Error(settleError.message);
     if (status === "completed") {
       const { publishOrderEvent } = await import("../event-payloads.server");

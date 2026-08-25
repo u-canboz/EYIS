@@ -21,9 +21,16 @@ export const Route = createFileRoute("/portal/gast")({
   head: () => ({
     meta: [
       { title: "Bestellung als Gast ansehen" },
-      { name: "description", content: "Bestellnummer und E-Mail eingeben, um Bestellung, Sendung, Belege und Retoure zu öffnen." },
+      {
+        name: "description",
+        content:
+          "Bestellnummer und E-Mail eingeben, um Bestellung, Sendung, Belege und Retoure zu öffnen.",
+      },
       { property: "og:title", content: "Bestellung als Gast ansehen" },
-      { property: "og:description", content: "Gastzugang zu deiner Bestellung – ohne Kundenkonto." },
+      {
+        property: "og:description",
+        content: "Gastzugang zu deiner Bestellung – ohne Kundenkonto.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -87,8 +94,8 @@ function GuestLookupPage() {
           <div>
             <h1 className="font-display text-2xl font-semibold">Bestellung als Gast öffnen</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Gib Bestellnummer und die E-Mail-Adresse der Bestellung ein. Der Zugang gilt für zwei Stunden und nur für
-              diese eine Bestellung.
+              Gib Bestellnummer und die E-Mail-Adresse der Bestellung ein. Der Zugang gilt für zwei
+              Stunden und nur für diese eine Bestellung.
             </p>
           </div>
           <div className="space-y-3">
@@ -103,7 +110,12 @@ function GuestLookupPage() {
             </div>
             <div>
               <Label htmlFor="email">E-Mail-Adresse</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <Button onClick={lookup} disabled={pending || !orderNumber.trim() || !email.trim()}>
               Bestellung öffnen
@@ -117,7 +129,9 @@ function GuestLookupPage() {
           <PortalOrderView
             order={order.data}
             eligibility={eligibility.data ?? null}
-            onDocument={(kind, documentId) => documentUrl({ data: { token: token!, documentId, kind } })}
+            onDocument={(kind, documentId) =>
+              documentUrl({ data: { token: token!, documentId, kind } })
+            }
             onCreateReturn={async (input) => {
               await createReturn({ data: { token: token!, ...input } });
               await queryClient.invalidateQueries({ queryKey: ["guest-order", token] });

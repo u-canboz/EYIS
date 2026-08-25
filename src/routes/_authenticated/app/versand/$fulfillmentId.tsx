@@ -34,7 +34,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/versand/$fulfillmentId")({
   head: () => ({
@@ -42,7 +48,8 @@ export const Route = createFileRoute("/_authenticated/app/versand/$fulfillmentId
       { title: "Kommissionierung & Versand – Commerce OS" },
       {
         name: "description",
-        content: "Pickliste abarbeiten, Pakete packen, Versandlabel erzeugen und Sendungsstatus verfolgen.",
+        content:
+          "Pickliste abarbeiten, Pakete packen, Versandlabel erzeugen und Sendungsstatus verfolgen.",
       },
       { property: "og:title", content: "Kommissionierung & Versand – Commerce OS" },
       { property: "og:description", content: "Ein Vorgang von der Pickliste bis zur Zustellung." },
@@ -166,7 +173,9 @@ function FulfillmentDetail() {
   const labelMutation = useMutation({
     mutationFn: (packageId: string) => {
       if (!provider) throw new Error("Bitte einen Versanddienstleister wählen.");
-      return createLabel({ data: { organizationId, fulfillmentId, packageId, provider, service: null } });
+      return createLabel({
+        data: { organizationId, fulfillmentId, packageId, provider, service: null },
+      });
     },
     onSuccess: () => {
       toast.success("Label erstellt.");
@@ -196,7 +205,11 @@ function FulfillmentDetail() {
   const refreshMutation = useMutation({
     mutationFn: (shipmentId: string) => refresh({ data: { organizationId, shipmentId } }),
     onSuccess: (r) => {
-      toast.success(r.supported ? `${r.stored} neue Ereignisse.` : "Dieser Dienstleister unterstützt kein Tracking.");
+      toast.success(
+        r.supported
+          ? `${r.stored} neue Ereignisse.`
+          : "Dieser Dienstleister unterstützt kein Tracking.",
+      );
       invalidate();
       queryClient.invalidateQueries({ queryKey: ["tracking-events"] });
     },
@@ -204,7 +217,8 @@ function FulfillmentDetail() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: () => cancelFul({ data: { organizationId, fulfillmentId, reason: "Manuell storniert" } }),
+    mutationFn: () =>
+      cancelFul({ data: { organizationId, fulfillmentId, reason: "Manuell storniert" } }),
     onSuccess: () => {
       toast.success("Fulfillment storniert.");
       invalidate();
@@ -234,7 +248,11 @@ function FulfillmentDetail() {
               Versand
             </Link>{" "}
             /{" "}
-            <Link to="/app/bestellungen/$orderId" params={{ orderId: view.orderId }} className="hover:underline">
+            <Link
+              to="/app/bestellungen/$orderId"
+              params={{ orderId: view.orderId }}
+              className="hover:underline"
+            >
               {view.orderNumber}
             </Link>
           </p>
@@ -245,12 +263,16 @@ function FulfillmentDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {next && next.action !== "done" && <Badge variant="secondary">Nächster Schritt: {next.label}</Badge>}
-          {can("fulfillment.manage") && view.status !== "cancelled" && view.status !== "shipped" && (
-            <Button variant="ghost" onClick={() => cancelMutation.mutate()}>
-              Stornieren
-            </Button>
+          {next && next.action !== "done" && (
+            <Badge variant="secondary">Nächster Schritt: {next.label}</Badge>
           )}
+          {can("fulfillment.manage") &&
+            view.status !== "cancelled" &&
+            view.status !== "shipped" && (
+              <Button variant="ghost" onClick={() => cancelMutation.mutate()}>
+                Stornieren
+              </Button>
+            )}
         </div>
       </header>
 
@@ -258,7 +280,11 @@ function FulfillmentDetail() {
         <div className="flex items-center justify-between">
           <h2 className="font-medium">Pickliste</h2>
           {can("fulfillment.pick") && (view.status === "ready" || view.status === "draft") && (
-            <Button size="sm" onClick={() => startMutation.mutate()} disabled={startMutation.isPending}>
+            <Button
+              size="sm"
+              onClick={() => startMutation.mutate()}
+              disabled={startMutation.isPending}
+            >
               Kommissionierung starten
             </Button>
           )}
@@ -280,7 +306,9 @@ function FulfillmentDetail() {
                 <tr key={i.id} className="border-t">
                   <td className="p-2">
                     {i.title}
-                    {i.variantTitle ? <span className="text-muted-foreground"> · {i.variantTitle}</span> : null}
+                    {i.variantTitle ? (
+                      <span className="text-muted-foreground"> · {i.variantTitle}</span>
+                    ) : null}
                   </td>
                   <td className="text-muted-foreground p-2 font-mono text-xs">{i.sku ?? "—"}</td>
                   <td className="p-2">{i.quantity}</td>
@@ -304,7 +332,11 @@ function FulfillmentDetail() {
         </div>
         {showPicking && can("fulfillment.pick") && (
           <div className="flex justify-end">
-            <Button size="sm" onClick={() => pickMutation.mutate()} disabled={pickMutation.isPending}>
+            <Button
+              size="sm"
+              onClick={() => pickMutation.mutate()}
+              disabled={pickMutation.isPending}
+            >
               Pickliste speichern
             </Button>
           </div>
@@ -317,12 +349,20 @@ function FulfillmentDetail() {
           <div className="flex flex-wrap items-end gap-3">
             <div className="grid gap-2">
               <Label>Gewicht (g)</Label>
-              <Input className="w-40" value={packWeight} onChange={(e) => setPackWeight(e.target.value)} />
+              <Input
+                className="w-40"
+                value={packWeight}
+                onChange={(e) => setPackWeight(e.target.value)}
+              />
             </div>
             {presets.data?.length ? (
               <div className="grid gap-2">
                 <Label>Verpackungs-Preset</Label>
-                <Select onValueChange={(id) => setPackWeight(String(presets.data?.find((p) => p.id === id)?.weightGrams ?? ""))}>
+                <Select
+                  onValueChange={(id) =>
+                    setPackWeight(String(presets.data?.find((p) => p.id === id)?.weightGrams ?? ""))
+                  }
+                >
                   <SelectTrigger className="w-56">
                     <SelectValue placeholder="Preset wählen" />
                   </SelectTrigger>
@@ -380,14 +420,20 @@ function FulfillmentDetail() {
                   <div className="flex flex-wrap items-center gap-2">
                     {p.shipment ? (
                       <>
-                        <Badge variant={p.shipment.status === "exception" ? "destructive" : "secondary"}>
+                        <Badge
+                          variant={p.shipment.status === "exception" ? "destructive" : "secondary"}
+                        >
                           {SHIPMENT_STATUS_LABELS[p.shipment.status]}
                         </Badge>
                         <span className="text-muted-foreground font-mono text-xs">
                           {p.shipment.trackingNumber ?? "—"}
                         </span>
                         {p.shipment.labelPath && (
-                          <Button size="sm" variant="outline" onClick={() => openLabel(p.shipment!.id)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openLabel(p.shipment!.id)}
+                          >
                             Label öffnen
                           </Button>
                         )}
@@ -396,25 +442,39 @@ function FulfillmentDetail() {
                             Als versendet melden
                           </Button>
                         )}
-                        <Button size="sm" variant="outline" onClick={() => refreshMutation.mutate(p.shipment!.id)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => refreshMutation.mutate(p.shipment!.id)}
+                        >
                           Tracking aktualisieren
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => setOpenEvents(openEvents === p.shipment!.id ? null : p.shipment!.id)}
+                          onClick={() =>
+                            setOpenEvents(openEvents === p.shipment!.id ? null : p.shipment!.id)
+                          }
                         >
                           Verlauf
                         </Button>
                         {can("shipping.cancel") && !p.shipment.shippedAt && (
-                          <Button size="sm" variant="ghost" onClick={() => cancelShipMutation.mutate(p.shipment!.id)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => cancelShipMutation.mutate(p.shipment!.id)}
+                          >
                             Sendung stornieren
                           </Button>
                         )}
                       </>
                     ) : (
                       can("shipping.create_label") && (
-                        <Button size="sm" onClick={() => labelMutation.mutate(p.id)} disabled={labelMutation.isPending}>
+                        <Button
+                          size="sm"
+                          onClick={() => labelMutation.mutate(p.id)}
+                          disabled={labelMutation.isPending}
+                        >
                           Label erstellen
                         </Button>
                       )
@@ -429,7 +489,8 @@ function FulfillmentDetail() {
                 )}
                 {p.shipment?.carrierCostMinor !== null && p.shipment?.currencyCode && (
                   <p className="text-muted-foreground mt-2 text-xs">
-                    Versandkosten Carrier: {formatMoney(p.shipment.carrierCostMinor!, p.shipment.currencyCode)}
+                    Versandkosten Carrier:{" "}
+                    {formatMoney(p.shipment.carrierCostMinor!, p.shipment.currencyCode)}
                   </p>
                 )}
 
@@ -438,7 +499,9 @@ function FulfillmentDetail() {
                     {events.isLoading ? (
                       <Skeleton className="h-16 w-full" />
                     ) : !events.data?.length ? (
-                      <p className="text-muted-foreground text-xs">Noch keine Tracking-Ereignisse.</p>
+                      <p className="text-muted-foreground text-xs">
+                        Noch keine Tracking-Ereignisse.
+                      </p>
                     ) : (
                       <ul className="space-y-2 text-xs">
                         {events.data.map((e) => (

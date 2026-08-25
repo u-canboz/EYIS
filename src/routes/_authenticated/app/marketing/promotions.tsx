@@ -11,7 +11,12 @@ import {
 } from "@/lib/commerce/promotions.functions";
 import { listCustomerGroups } from "@/lib/commerce/customer-groups.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
-import { formatMoney, formatPercentBp, parseMoneyToMinor, PROMOTION_TYPE_LABELS } from "@/lib/commerce/money";
+import {
+  formatMoney,
+  formatPercentBp,
+  parseMoneyToMinor,
+  PROMOTION_TYPE_LABELS,
+} from "@/lib/commerce/money";
 import type { PromotionCondition, PromotionType } from "@/lib/commerce/pricing-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +51,13 @@ export const Route = createFileRoute("/_authenticated/app/marketing/promotions")
   component: PromotionsPage,
 });
 
-const TYPES: PromotionType[] = ["percentage", "fixed_amount", "fixed_price", "free_shipping", "buy_x_get_y"];
+const TYPES: PromotionType[] = [
+  "percentage",
+  "fixed_amount",
+  "fixed_price",
+  "free_shipping",
+  "buy_x_get_y",
+];
 
 type FormState = {
   name: string;
@@ -118,13 +129,15 @@ function PromotionsPage() {
       let value = 0;
       if (form.type === "percentage") {
         const pct = Number(form.value.replace(",", "."));
-        if (!Number.isFinite(pct) || pct <= 0) throw new Error("Bitte gib einen gültigen Prozentwert an.");
+        if (!Number.isFinite(pct) || pct <= 0)
+          throw new Error("Bitte gib einen gültigen Prozentwert an.");
         value = Math.round(pct * 100);
       } else if (form.type === "free_shipping") {
         value = 0;
       } else if (form.type === "buy_x_get_y") {
         const qty = Number(form.value);
-        if (!Number.isInteger(qty) || qty <= 0) throw new Error("Bitte gib eine gültige Gratis-Menge an.");
+        if (!Number.isInteger(qty) || qty <= 0)
+          throw new Error("Bitte gib eine gültige Gratis-Menge an.");
         value = qty;
       } else {
         const minor = parseMoneyToMinor(form.value, currency);
@@ -158,7 +171,8 @@ function PromotionsPage() {
             code: form.code || null,
             type: form.type,
             value,
-            currencyCode: form.type === "fixed_amount" || form.type === "fixed_price" ? currency : null,
+            currencyCode:
+              form.type === "fixed_amount" || form.type === "fixed_price" ? currency : null,
             startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : null,
             endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : null,
             usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
@@ -283,7 +297,11 @@ function PromotionsPage() {
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <Label>Name</Label>
-              <Input className="mt-2" value={form.name} onChange={(e) => set("name", e.target.value)} />
+              <Input
+                className="mt-2"
+                value={form.name}
+                onChange={(e) => set("name", e.target.value)}
+              />
             </div>
             <div>
               <Label>Gutscheincode (optional)</Label>
@@ -318,7 +336,11 @@ function PromotionsPage() {
                       ? "Gratis-Menge"
                       : "Betrag"}
                 </Label>
-                <Input className="mt-2" value={form.value} onChange={(e) => set("value", e.target.value)} />
+                <Input
+                  className="mt-2"
+                  value={form.value}
+                  onChange={(e) => set("value", e.target.value)}
+                />
               </div>
             )}
             <div>
@@ -415,7 +437,10 @@ function PromotionsPage() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <Button disabled={!form.name.trim() || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
+            <Button
+              disabled={!form.name.trim() || saveMutation.isPending}
+              onClick={() => saveMutation.mutate()}
+            >
               Speichern
             </Button>
             {editingId && (

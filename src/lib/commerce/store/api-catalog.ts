@@ -1,0 +1,537 @@
+/**
+ * Client-safe description of the public Store API (v1).
+ *
+ * Mirrors `routes.server.ts` for documentation purposes only. It is a plain
+ * data module without any server import so the developer UI can render it in
+ * the browser bundle.
+ */
+
+export const STORE_API_BASE_PATH = "/api/public/store/v1";
+
+export type AuthLevel = "key" | "cart" | "customer" | "guest";
+
+export const AUTH_LABEL: Record<AuthLevel, string> = {
+  key: "Publishable Key",
+  cart: "Key + Cart-Token",
+  customer: "Key + Kunden-Session",
+  guest: "Key + Guest-Token",
+};
+
+export type StoreEndpoint = {
+  method: "GET" | "POST" | "PATCH" | "DELETE";
+  path: string;
+  auth: AuthLevel;
+  profile: string;
+  summary: string;
+  input?: string;
+  output: string;
+  errors: string[];
+  sdk: string;
+};
+
+export type StoreEndpointGroup = {
+  key: string;
+  title: string;
+  description: string;
+  endpoints: StoreEndpoint[];
+};
+
+export const STORE_RATE_LIMITS: { profile: string; limit: string }[] = [
+  { profile: "catalog_read", limit: "300 / 60 s" },
+  { profile: "search", limit: "60 / 60 s" },
+  { profile: "cart_write", limit: "60 / 60 s" },
+  { profile: "checkout", limit: "30 / 60 s" },
+  { profile: "customer_auth", limit: "30 / 60 s" },
+  { profile: "guest_lookup", limit: "10 / 300 s" },
+  { profile: "payment_session", limit: "10 / 300 s" },
+  { profile: "return_create", limit: "5 / 600 s" },
+  { profile: "customer_login", limit: "5 / 300 s" },
+];
+
+export const STORE_HEADERS: { name: string; required: string; purpose: string }[] = [
+  {
+    name: "X-Commerce-Key",
+    required: "immer",
+    purpose: "Identifiziert Shop und Umgebung. Kein Geheimnis.",
+  },
+  {
+    name: "X-Cart-Token",
+    required: "Cart/Checkout",
+    purpose: "Zugriffsnachweis für genau einen Warenkorb.",
+  },
+  {
+    name: "Authorization",
+    required: "Kundenkonto",
+    purpose: "Bearer mit der Store-Session aus customer.login.",
+  },
+  {
+    name: "X-Guest-Token",
+    required: "Gastzugang",
+    purpose: "Auf genau eine Bestellung gescopter Token.",
+  },
+  {
+    name: "Idempotency-Key",
+    required: "sensible Writes",
+    purpose: "Wiederholung ohne Doppelbuchung.",
+  },
+  { name: "X-Request-ID", required: "Antwort", purpose: "Korrelation mit dem Anfrage-Protokoll." },
+];
+
+export const STORE_ERROR_CODES: { code: string; status: string; meaning: string }[] = [
+  {
+    code: "UNAUTHORIZED",
+    status: "401",
+    meaning: "Key fehlt/ungültig oder Zugriffsnachweis fehlt.",
+  },
+  {
+    code: "FORBIDDEN",
+    status: "403",
+    meaning: "Origin gesperrt oder Ressource gehört zu einem anderen Shop.",
+  },
+  { code: "NOT_FOUND", status: "404", meaning: "Endpunkt oder Ressource existiert nicht." },
+  { code: "VALIDATION_ERROR", status: "400", meaning: "Eingabe ungültig; Details in fieldErrors." },
+  {
+    code: "CART_EXPIRED",
+    status: "409",
+    meaning: "Warenkorb ist abgelaufen oder wurde konvertiert.",
+  },
+  { code: "OUT_OF_STOCK", status: "409", meaning: "Bestand reicht nicht mehr aus." },
+  {
+    code: "CHECKOUT_INVALID",
+    status: "409",
+    meaning: "Checkout ist unvollständig oder nicht mehr gültig.",
+  },
+  { code: "PAYMENT_FAILED", status: "402", meaning: "Zahlung wurde abgelehnt." },
+  {
+    code: "CUSTOMER_SESSION_EXPIRED",
+    status: "401",
+    meaning: "Store-Session abgelaufen; neu anmelden.",
+  },
+  { code: "RATE_LIMITED", status: "429", meaning: "Zu viele Anfragen im Zeitfenster." },
+  { code: "INTERNAL_ERROR", status: "500", meaning: "Unerwarteter Fehler; Request-ID melden." },
+];
+
+export const STORE_API_GROUPS: StoreEndpointGroup[] = [
+  {
+    key: "config",
+    title: "Konfiguration",
+    description: "Shop-Stammdaten, Länder, Steueranzeige und Feature-Flags.",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/config",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Shop-Konfiguration für den Storefront-Start.",
+        output: "StoreConfig",
+        errors: ["UNAUTHORIZED", "FORBIDDEN", "RATE_LIMITED"],
+        sdk: "await client.config()",
+      },
+    ],
+  },
+  {
+    key: "catalog",
+    title: "Katalog",
+    description: "Öffentliche Produktdaten. Interne Felder werden serverseitig entfernt.",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/products",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Produktliste mit Paging, Kategorie-/Kollektionsfilter und Sortierung.",
+        input: "page, pageSize, category, collection, sort",
+        output: "StoreList<StoreProductSummary>",
+        errors: ["UNAUTHORIZED", "RATE_LIMITED"],
+        sdk: "await client.catalog.products({ page: 1, pageSize: 24 })",
+      },
+      {
+        method: "GET",
+        path: "/products/:handle",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Produktdetail inklusive Varianten, Medien und Preisen.",
+        output: "StoreProduct",
+        errors: ["NOT_FOUND", "UNAUTHORIZED"],
+        sdk: 'await client.catalog.product("handle")',
+      },
+      {
+        method: "GET",
+        path: "/search",
+        auth: "key",
+        profile: "search",
+        summary: "Volltextsuche über den veröffentlichten Katalog.",
+        input: "q, limit",
+        output: "StoreList<StoreProductSummary>",
+        errors: ["VALIDATION_ERROR", "RATE_LIMITED"],
+        sdk: 'await client.catalog.search("stuhl", 12)',
+      },
+      {
+        method: "GET",
+        path: "/categories",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Kategoriebaum des Shops.",
+        output: "StoreCategory[]",
+        errors: ["UNAUTHORIZED"],
+        sdk: "await client.catalog.categories()",
+      },
+      {
+        method: "GET",
+        path: "/collections",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Kuratierte Kollektionen.",
+        output: "StoreCollection[]",
+        errors: ["UNAUTHORIZED"],
+        sdk: "await client.catalog.collections()",
+      },
+    ],
+  },
+  {
+    key: "cart",
+    title: "Warenkorb",
+    description:
+      "Der Cart-Token wird beim Anlegen einmalig zurückgegeben und ist der einzige Zugriffsnachweis auf diesen Warenkorb.",
+    endpoints: [
+      {
+        method: "POST",
+        path: "/cart",
+        auth: "key",
+        profile: "cart_write",
+        summary: "Warenkorb anlegen; liefert Cart und Cart-Token.",
+        input: "{ locale?, regionCode? }",
+        output: "{ cart, cartToken }",
+        errors: ["VALIDATION_ERROR", "RATE_LIMITED"],
+        sdk: "await client.cart.create()",
+      },
+      {
+        method: "GET",
+        path: "/cart/:cartId",
+        auth: "cart",
+        profile: "catalog_read",
+        summary: "Warenkorb mit Positionen, Rabatten und Summen lesen.",
+        output: "StoreCart",
+        errors: ["UNAUTHORIZED", "NOT_FOUND", "CART_EXPIRED"],
+        sdk: "await client.cart.get()",
+      },
+      {
+        method: "POST",
+        path: "/cart/:cartId/items",
+        auth: "cart",
+        profile: "cart_write",
+        summary: "Variante hinzufügen.",
+        input: "{ variantId, quantity }",
+        output: "StoreCart",
+        errors: ["VALIDATION_ERROR", "OUT_OF_STOCK", "UNAUTHORIZED"],
+        sdk: "await client.cart.addItem({ variantId, quantity: 1 })",
+      },
+      {
+        method: "PATCH",
+        path: "/cart/:cartId/items/:itemId",
+        auth: "cart",
+        profile: "cart_write",
+        summary: "Menge ändern; Menge 0 entfernt die Position.",
+        input: "{ quantity }",
+        output: "StoreCart",
+        errors: ["VALIDATION_ERROR", "OUT_OF_STOCK", "NOT_FOUND"],
+        sdk: "await client.cart.updateItem(itemId, 2)",
+      },
+      {
+        method: "DELETE",
+        path: "/cart/:cartId/items/:itemId",
+        auth: "cart",
+        profile: "cart_write",
+        summary: "Position entfernen.",
+        output: "StoreCart",
+        errors: ["NOT_FOUND", "UNAUTHORIZED"],
+        sdk: "await client.cart.removeItem(itemId)",
+      },
+      {
+        method: "POST",
+        path: "/cart/:cartId/promotions",
+        auth: "cart",
+        profile: "cart_write",
+        summary: "Gutschein-/Aktionscode anwenden.",
+        input: "{ code }",
+        output: "StoreCart",
+        errors: ["VALIDATION_ERROR", "NOT_FOUND"],
+        sdk: 'await client.cart.applyPromotion("WELCOME10")',
+      },
+      {
+        method: "DELETE",
+        path: "/cart/:cartId/promotions/:code",
+        auth: "cart",
+        profile: "cart_write",
+        summary: "Code wieder entfernen.",
+        output: "StoreCart",
+        errors: ["NOT_FOUND"],
+        sdk: 'await client.cart.removePromotion("WELCOME10")',
+      },
+    ],
+  },
+  {
+    key: "checkout",
+    title: "Checkout & Zahlung",
+    description:
+      "Checkout-Sessions werden über den Cart-Token ihres eigenen Warenkorbs autorisiert.",
+    endpoints: [
+      {
+        method: "POST",
+        path: "/checkout",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Checkout-Session starten und Bestand reservieren.",
+        input: "{ cartId, email? }",
+        output: "StoreCheckout",
+        errors: ["CART_EXPIRED", "OUT_OF_STOCK", "UNAUTHORIZED"],
+        sdk: "await client.checkout.start(email)",
+      },
+      {
+        method: "GET",
+        path: "/checkout/:sessionId",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Aktuellen Stand der Session lesen.",
+        output: "StoreCheckout",
+        errors: ["NOT_FOUND", "FORBIDDEN"],
+        sdk: "await client.checkout.get(sessionId)",
+      },
+      {
+        method: "POST",
+        path: "/checkout/:sessionId/email",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Kontakt-E-Mail setzen.",
+        input: "{ email }",
+        output: "StoreCheckout",
+        errors: ["VALIDATION_ERROR"],
+        sdk: "await client.checkout.setEmail(sessionId, email)",
+      },
+      {
+        method: "POST",
+        path: "/checkout/:sessionId/address",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Liefer- oder Rechnungsadresse setzen.",
+        input: "{ type, address, billingSameAsShipping? }",
+        output: "StoreCheckout",
+        errors: ["VALIDATION_ERROR"],
+        sdk: 'await client.checkout.setAddress(sessionId, { type: "shipping", address })',
+      },
+      {
+        method: "GET",
+        path: "/checkout/:sessionId/shipping-options",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Verfügbare Versandarten für die gesetzte Adresse.",
+        output: "StoreShippingOption[]",
+        errors: ["CHECKOUT_INVALID"],
+        sdk: "await client.checkout.shippingOptions(sessionId)",
+      },
+      {
+        method: "POST",
+        path: "/checkout/:sessionId/shipping-option",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Versandart wählen.",
+        input: "{ shippingMethodId }",
+        output: "StoreCheckout",
+        errors: ["VALIDATION_ERROR", "NOT_FOUND"],
+        sdk: "await client.checkout.setShippingOption(sessionId, methodId)",
+      },
+      {
+        method: "POST",
+        path: "/checkout/:sessionId/validate",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Vollständigkeit prüfen, bevor bezahlt wird.",
+        output: "StoreCheckout",
+        errors: ["CHECKOUT_INVALID"],
+        sdk: "await client.checkout.validate(sessionId)",
+      },
+      {
+        method: "POST",
+        path: "/checkout/:sessionId/payment-session",
+        auth: "cart",
+        profile: "payment_session",
+        summary: "Zahlung starten; liefert Redirect- oder Client-Secret-Daten.",
+        input: "{ returnUrl, cancelUrl?, provider? }",
+        output: "StorePaymentSession",
+        errors: ["CHECKOUT_INVALID", "PAYMENT_FAILED", "RATE_LIMITED"],
+        sdk: "await client.checkout.createPaymentSession(sessionId, { returnUrl })",
+      },
+      {
+        method: "GET",
+        path: "/payments/:paymentSessionId/status",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Zahlungsstatus pollen; liefert nach Erfolg den Confirmation-Token.",
+        output: "StorePaymentStatus",
+        errors: ["NOT_FOUND", "PAYMENT_FAILED"],
+        sdk: "await client.payments.status(paymentSessionId)",
+      },
+    ],
+  },
+  {
+    key: "orders",
+    title: "Bestellungen & Gastzugang",
+    description:
+      "Confirmation-Token sind kurzlebig, auf eine Bestellung gescoped, einmal einlösbar und serverseitig widerrufbar.",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/orders/confirmation/:confirmationToken",
+        auth: "key",
+        profile: "guest_lookup",
+        summary: "Bestätigungs-Token einmalig einlösen und Bestellung lesen.",
+        output: "StoreOrder",
+        errors: ["NOT_FOUND", "UNAUTHORIZED", "RATE_LIMITED"],
+        sdk: "await client.orders.redeemConfirmation(token)",
+      },
+      {
+        method: "POST",
+        path: "/orders/guest-access",
+        auth: "key",
+        profile: "guest_lookup",
+        summary: "Gastzugang per E-Mail anfordern (Antwort verrät keine Existenz).",
+        input: "{ orderNumber, email }",
+        output: "{ requested: true }",
+        errors: ["VALIDATION_ERROR", "RATE_LIMITED"],
+        sdk: "await client.orders.requestGuestAccess({ orderNumber, email })",
+      },
+      {
+        method: "GET",
+        path: "/orders/guest",
+        auth: "guest",
+        profile: "guest_lookup",
+        summary: "Bestellung des Guest-Tokens lesen.",
+        output: "StoreOrder",
+        errors: ["UNAUTHORIZED", "NOT_FOUND"],
+        sdk: "await client.orders.guestOrder()",
+      },
+      {
+        method: "GET",
+        path: "/orders/guest/documents/:documentId",
+        auth: "guest",
+        profile: "guest_lookup",
+        summary: "Kurzlebige Download-URL für ein Dokument der Bestellung.",
+        output: "{ url }",
+        errors: ["UNAUTHORIZED", "NOT_FOUND"],
+        sdk: "await client.orders.guestDocumentUrl(documentId)",
+      },
+    ],
+  },
+  {
+    key: "returns",
+    title: "Retouren",
+    description:
+      "Retouren sind idempotent; eine Wiederholung mit gleichem Key erzeugt keine zweite RMA.",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/returns/eligibility",
+        auth: "guest",
+        profile: "guest_lookup",
+        summary: "Retourenfähige Positionen und Fristen prüfen.",
+        output: "StoreReturnEligibility",
+        errors: ["UNAUTHORIZED", "NOT_FOUND"],
+        sdk: "await client.returns.guestEligibility()",
+      },
+      {
+        method: "POST",
+        path: "/returns",
+        auth: "guest",
+        profile: "return_create",
+        summary: "Retoure anlegen.",
+        input: "{ items, reason, note?, idempotencyKey }",
+        output: "StoreReturn",
+        errors: ["VALIDATION_ERROR", "FORBIDDEN", "RATE_LIMITED"],
+        sdk: 'await client.returns.create({ items, reason: "damaged" })',
+      },
+    ],
+  },
+  {
+    key: "customer",
+    title: "Kundenkonto",
+    description:
+      "Die Anmeldung wird serverseitig gegen eine Store-Session getauscht. Die Storefront sieht nie einen Auth-Provider.",
+    endpoints: [
+      {
+        method: "POST",
+        path: "/customer/auth/login",
+        auth: "key",
+        profile: "customer_login",
+        summary: "Anmelden und Store-Session-Token erhalten.",
+        input: "{ email, password }",
+        output: "{ token, expiresAt, customer }",
+        errors: ["UNAUTHORIZED", "RATE_LIMITED"],
+        sdk: "await client.customer.login({ email, password })",
+      },
+      {
+        method: "POST",
+        path: "/customer/auth/register",
+        auth: "key",
+        profile: "customer_login",
+        summary: "Konto anlegen; je nach Shop mit E-Mail-Bestätigung.",
+        input: "{ email, password, firstName?, lastName? }",
+        output: "{ token, customer, confirmationRequired }",
+        errors: ["VALIDATION_ERROR", "RATE_LIMITED"],
+        sdk: "await client.customer.register({ email, password })",
+      },
+      {
+        method: "POST",
+        path: "/customer/auth/password-reset",
+        auth: "key",
+        profile: "customer_login",
+        summary: "Passwort-Reset anstoßen (immer neutrale Antwort).",
+        input: "{ email }",
+        output: "{ requested: true }",
+        errors: ["RATE_LIMITED"],
+        sdk: "await client.customer.requestPasswordReset(email)",
+      },
+      {
+        method: "GET",
+        path: "/customer/me",
+        auth: "customer",
+        profile: "customer_auth",
+        summary: "Profil der aktuellen Store-Session.",
+        output: "StoreCustomer",
+        errors: ["CUSTOMER_SESSION_EXPIRED"],
+        sdk: "await client.customer.me()",
+      },
+      {
+        method: "GET",
+        path: "/customer/orders",
+        auth: "customer",
+        profile: "customer_auth",
+        summary: "Bestellhistorie des Kunden.",
+        output: "StoreOrderSummary[]",
+        errors: ["CUSTOMER_SESSION_EXPIRED"],
+        sdk: "await client.customer.orders()",
+      },
+      {
+        method: "GET",
+        path: "/customer/orders/:orderId",
+        auth: "customer",
+        profile: "customer_auth",
+        summary: "Bestelldetail inklusive Tracking.",
+        output: "StoreOrder",
+        errors: ["NOT_FOUND", "FORBIDDEN"],
+        sdk: "await client.customer.order(orderId)",
+      },
+      {
+        method: "GET",
+        path: "/customer/orders/:orderId/documents/:documentId",
+        auth: "customer",
+        profile: "customer_auth",
+        summary: "Kurzlebige Download-URL für Rechnung oder Gutschrift.",
+        output: "{ url }",
+        errors: ["NOT_FOUND", "FORBIDDEN"],
+        sdk: "await client.customer.documentUrl(orderId, documentId)",
+      },
+    ],
+  },
+];
+
+export const STORE_ENDPOINT_COUNT = STORE_API_GROUPS.reduce((n, g) => n + g.endpoints.length, 0);

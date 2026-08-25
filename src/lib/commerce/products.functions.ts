@@ -50,7 +50,8 @@ export const listProducts = createServerFn({ method: "POST" })
 
     if (data.shopId) query = query.eq("shop_id", data.shopId);
     if (data.status && data.status !== "all") query = query.eq("status", data.status);
-    if (data.blueprintKey && data.blueprintKey !== "all") query = query.eq("blueprint_key", data.blueprintKey);
+    if (data.blueprintKey && data.blueprintKey !== "all")
+      query = query.eq("blueprint_key", data.blueprintKey);
     if (data.search?.trim()) {
       const term = `%${data.search.trim()}%`;
       query = query.or(`name.ilike.${term},handle.ilike.${term}`);
@@ -61,7 +62,11 @@ export const listProducts = createServerFn({ method: "POST" })
     else if (sort === "name_desc") query = query.order("name", { ascending: false });
     else query = query.order("updated_at", { ascending: sort === "updated_asc" });
 
-    const { data: rows, error, count } = await query.range((page - 1) * pageSize, page * pageSize - 1);
+    const {
+      data: rows,
+      error,
+      count,
+    } = await query.range((page - 1) * pageSize, page * pageSize - 1);
     if (error) throw new Error(error.message);
 
     type Row = {
@@ -77,18 +82,23 @@ export const listProducts = createServerFn({ method: "POST" })
       product_media: { position: number; media_assets: { storage_path: string } | null }[];
     };
 
-    let list = ((rows ?? []) as unknown as Row[]).filter((row) => {
+    const list = ((rows ?? []) as unknown as Row[]).filter((row) => {
       if (data.categoryId && data.categoryId !== "all") {
         if (!row.product_categories.some((c) => c.categories?.id === data.categoryId)) return false;
       }
       if (data.collectionId && data.collectionId !== "all") {
-        if (!row.product_collections.some((c) => c.collection_id === data.collectionId)) return false;
+        if (!row.product_collections.some((c) => c.collection_id === data.collectionId))
+          return false;
       }
       return true;
     });
 
     const paths = list
-      .map((row) => [...row.product_media].sort((a, b) => a.position - b.position)[0]?.media_assets?.storage_path)
+      .map(
+        (row) =>
+          [...row.product_media].sort((a, b) => a.position - b.position)[0]?.media_assets
+            ?.storage_path,
+      )
       .filter((p): p is string => Boolean(p));
 
     const signed = new Map<string, string>();
@@ -98,7 +108,8 @@ export const listProducts = createServerFn({ method: "POST" })
     }
 
     const items: ProductListItem[] = list.map((row) => {
-      const cover = [...row.product_media].sort((a, b) => a.position - b.position)[0]?.media_assets?.storage_path;
+      const cover = [...row.product_media].sort((a, b) => a.position - b.position)[0]?.media_assets
+        ?.storage_path;
       return {
         id: row.id,
         name: row.name,
@@ -107,7 +118,9 @@ export const listProducts = createServerFn({ method: "POST" })
         blueprint_key: row.blueprint_key,
         updated_at: row.updated_at,
         variant_count: row.product_variants?.[0]?.count ?? 0,
-        categories: row.product_categories.map((c) => c.categories?.name).filter((n): n is string => Boolean(n)),
+        categories: row.product_categories
+          .map((c) => c.categories?.name)
+          .filter((n): n is string => Boolean(n)),
         cover_url: cover ? (signed.get(cover) ?? null) : null,
       };
     });
@@ -133,21 +146,30 @@ export const getProduct = createServerFn({ method: "POST" })
       await Promise.all([
         supabase
           .from("product_options")
-          .select("id, name, key, position, display_type, product_option_values(id, value, label, position)")
+          .select(
+            "id, name, key, position, display_type, product_option_values(id, value, label, position)",
+          )
           .eq("product_id", data.productId)
           .order("position", { ascending: true }),
         supabase
           .from("product_variants")
-          .select("id, title, sku, barcode, status, position, option_signature, variant_option_values(option_id, option_value_id)")
+          .select(
+            "id, title, sku, barcode, status, position, option_signature, variant_option_values(option_id, option_value_id)",
+          )
           .eq("product_id", data.productId)
           .order("position", { ascending: true }),
         supabase
           .from("product_media")
-          .select("id, position, role, variant_id, media_asset_id, media_assets(id, storage_path, filename, alt_text, title)")
+          .select(
+            "id, position, role, variant_id, media_asset_id, media_assets(id, storage_path, filename, alt_text, title)",
+          )
           .eq("product_id", data.productId)
           .order("position", { ascending: true }),
         supabase.from("product_categories").select("category_id").eq("product_id", data.productId),
-        supabase.from("product_collections").select("collection_id").eq("product_id", data.productId),
+        supabase
+          .from("product_collections")
+          .select("collection_id")
+          .eq("product_id", data.productId),
       ]);
 
     type MediaRow = {
@@ -156,10 +178,18 @@ export const getProduct = createServerFn({ method: "POST" })
       role: string;
       variant_id: string | null;
       media_asset_id: string;
-      media_assets: { id: string; storage_path: string; filename: string; alt_text: string | null; title: string | null } | null;
+      media_assets: {
+        id: string;
+        storage_path: string;
+        filename: string;
+        alt_text: string | null;
+        title: string | null;
+      } | null;
     };
     const mediaRows = (media ?? []) as unknown as MediaRow[];
-    const paths = mediaRows.map((m) => m.media_assets?.storage_path).filter((p): p is string => Boolean(p));
+    const paths = mediaRows
+      .map((m) => m.media_assets?.storage_path)
+      .filter((p): p is string => Boolean(p));
     const signed = new Map<string, string>();
     if (paths.length) {
       const { data: urls } = await supabase.storage.from("media").createSignedUrls(paths, 3600);
@@ -304,7 +334,9 @@ export const updateProduct = createServerFn({ method: "POST" })
 
     const { data: existing, error: exErr } = await supabase
       .from("products")
-      .select("id, shop_id, handle, blueprint_key, blueprint_version, blueprint_id, organization_id")
+      .select(
+        "id, shop_id, handle, blueprint_key, blueprint_version, blueprint_id, organization_id",
+      )
       .eq("id", data.productId)
       .maybeSingle();
     if (exErr) throw new Error(exErr.message);
@@ -312,19 +344,19 @@ export const updateProduct = createServerFn({ method: "POST" })
       throw new Error("Produkt nicht gefunden.");
 
     const patch: Record<string, unknown> = { updated_by: userId };
-    if (data.name !== undefined) patch['name'] = data.name.trim();
-    if (data.subtitle !== undefined) patch['subtitle'] = data.subtitle;
-    if (data.description !== undefined) patch['description'] = data.description;
-    if (data.vendor !== undefined) patch['vendor'] = data.vendor;
-    if (data.productType !== undefined) patch['product_type'] = data.productType;
-    if (data.status !== undefined) patch['status'] = data.status;
-    if (data.featured !== undefined) patch['featured'] = data.featured;
-    if (data.seoTitle !== undefined) patch['seo_title'] = data.seoTitle;
-    if (data.seoDescription !== undefined) patch['seo_description'] = data.seoDescription;
-    if (data.taxClassId !== undefined) patch['tax_class_id'] = data.taxClassId;
+    if (data.name !== undefined) patch["name"] = data.name.trim();
+    if (data.subtitle !== undefined) patch["subtitle"] = data.subtitle;
+    if (data.description !== undefined) patch["description"] = data.description;
+    if (data.vendor !== undefined) patch["vendor"] = data.vendor;
+    if (data.productType !== undefined) patch["product_type"] = data.productType;
+    if (data.status !== undefined) patch["status"] = data.status;
+    if (data.featured !== undefined) patch["featured"] = data.featured;
+    if (data.seoTitle !== undefined) patch["seo_title"] = data.seoTitle;
+    if (data.seoDescription !== undefined) patch["seo_description"] = data.seoDescription;
+    if (data.taxClassId !== undefined) patch["tax_class_id"] = data.taxClassId;
 
     if (data.handle !== undefined && data.handle !== existing.handle) {
-      patch['handle'] = await uniqueHandle(
+      patch["handle"] = await uniqueHandle(
         supabase as never,
         "products",
         existing.shop_id,
@@ -339,13 +371,16 @@ export const updateProduct = createServerFn({ method: "POST" })
         .select("schema")
         .eq("id", existing.blueprint_id ?? "")
         .maybeSingle();
-      patch['blueprint_data'] = validateBlueprintData(
+      patch["blueprint_data"] = validateBlueprintData(
         (bp?.schema ?? { groups: [] }) as never,
         data.blueprintData,
       );
     }
 
-    const { error } = await supabase.from("products").update(patch as never).eq("id", data.productId);
+    const { error } = await supabase
+      .from("products")
+      .update(patch as never)
+      .eq("id", data.productId);
     if (error) throw new Error(error.message);
 
     if (data.categoryIds) {
@@ -360,7 +395,9 @@ export const updateProduct = createServerFn({ method: "POST" })
       if (data.collectionIds.length)
         await supabase
           .from("product_collections")
-          .insert(data.collectionIds.map((id) => ({ product_id: data.productId, collection_id: id })));
+          .insert(
+            data.collectionIds.map((id) => ({ product_id: data.productId, collection_id: id })),
+          );
     }
 
     await writeAudit({
@@ -398,7 +435,9 @@ export const archiveProduct = createServerFn({ method: "POST" })
       entityType: "product",
       entityId: data.productId,
     });
-    await emitEvent(data.organizationId, "catalog.product.archived", { product_id: data.productId });
+    await emitEvent(data.organizationId, "catalog.product.archived", {
+      product_id: data.productId,
+    });
     return { ok: true };
   });
 
@@ -452,7 +491,9 @@ export const duplicateProduct = createServerFn({ method: "POST" })
     // Options + values + variants
     const { data: options } = await supabase
       .from("product_options")
-      .select("id, name, key, position, display_type, product_option_values(id, value, label, position)")
+      .select(
+        "id, name, key, position, display_type, product_option_values(id, value, label, position)",
+      )
       .eq("product_id", source.id);
 
     const valueMap = new Map<string, string>();
@@ -463,7 +504,12 @@ export const duplicateProduct = createServerFn({ method: "POST" })
       key: string;
       position: number;
       display_type: string;
-      product_option_values: { id: string; value: string; label: string | null; position: number }[];
+      product_option_values: {
+        id: string;
+        value: string;
+        label: string | null;
+        position: number;
+      }[];
     };
     for (const opt of (options ?? []) as unknown as OptRow[]) {
       const { data: newOpt } = await supabase
@@ -482,7 +528,12 @@ export const duplicateProduct = createServerFn({ method: "POST" })
       for (const val of opt.product_option_values) {
         const { data: newVal } = await supabase
           .from("product_option_values")
-          .insert({ option_id: newOpt.id, value: val.value, label: val.label, position: val.position })
+          .insert({
+            option_id: newOpt.id,
+            value: val.value,
+            label: val.label,
+            position: val.position,
+          })
           .select("id")
           .single();
         if (newVal) valueMap.set(val.id, newVal.id);
@@ -491,7 +542,9 @@ export const duplicateProduct = createServerFn({ method: "POST" })
 
     const { data: variants } = await supabase
       .from("product_variants")
-      .select("id, title, barcode, status, position, option_signature, variant_option_values(option_id, option_value_id)")
+      .select(
+        "id, title, barcode, status, position, option_signature, variant_option_values(option_id, option_value_id)",
+      )
       .eq("product_id", source.id);
     type VarRow = {
       id: string;

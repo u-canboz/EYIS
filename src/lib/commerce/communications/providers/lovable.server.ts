@@ -3,7 +3,12 @@
  * Only used when a verified sending domain exists; otherwise the engine falls
  * back to the internal test provider.
  */
-import { CommunicationError, type CommunicationProvider, type SendMessage, type SendResult } from "../provider";
+import {
+  CommunicationError,
+  type CommunicationProvider,
+  type SendMessage,
+  type SendResult,
+} from "../provider";
 
 const ENDPOINT = "https://api.lovable.dev/v1/email/send";
 
@@ -22,10 +27,18 @@ export const lovableProvider: CommunicationProvider = {
   async send(message: SendMessage): Promise<SendResult> {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) {
-      throw new CommunicationError("not_configured", "Kein API-Schlüssel für den Versand hinterlegt.", false);
+      throw new CommunicationError(
+        "not_configured",
+        "Kein API-Schlüssel für den Versand hinterlegt.",
+        false,
+      );
     }
     if (!message.senderAddress) {
-      throw new CommunicationError("invalid_sender", "Keine verifizierte Absenderadresse hinterlegt.", false);
+      throw new CommunicationError(
+        "invalid_sender",
+        "Keine verifizierte Absenderadresse hinterlegt.",
+        false,
+      );
     }
 
     let response: Response;
@@ -89,7 +102,9 @@ export const lovableProvider: CommunicationProvider = {
         ["sign"],
       );
       const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
-      const expected = Array.from(new Uint8Array(mac), (b) => b.toString(16).padStart(2, "0")).join("");
+      const expected = Array.from(new Uint8Array(mac), (b) => b.toString(16).padStart(2, "0")).join(
+        "",
+      );
       verified =
         expected.length === signature.length &&
         expected.split("").every((c, i) => c === signature[i]);
@@ -97,7 +112,10 @@ export const lovableProvider: CommunicationProvider = {
 
     const payload = JSON.parse(body) as Record<string, unknown>;
     const type = String(payload["type"] ?? payload["event"] ?? "unknown");
-    const map: Record<string, "delivered" | "hard_bounce" | "soft_bounce" | "complained" | "rejected" | "sent"> = {
+    const map: Record<
+      string,
+      "delivered" | "hard_bounce" | "soft_bounce" | "complained" | "rejected" | "sent"
+    > = {
       "email.sent": "sent",
       "email.delivered": "delivered",
       "email.bounced": "hard_bounce",

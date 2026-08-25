@@ -42,7 +42,8 @@ function AuthPage() {
   useEffect(() => {
     setNext(safeNext(new URLSearchParams(window.location.search).get("next")));
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: safeNext(new URLSearchParams(window.location.search).get("next")) });
+      if (data.session)
+        navigate({ to: safeNext(new URLSearchParams(window.location.search).get("next")) });
     });
   }, [navigate]);
 
@@ -186,7 +187,8 @@ function AuthPage() {
           </Tabs>
 
           <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> oder <span className="h-px flex-1 bg-border" />
+            <span className="h-px flex-1 bg-border" /> oder{" "}
+            <span className="h-px flex-1 bg-border" />
           </div>
           <Button variant="outline" className="w-full" onClick={google}>
             Mit Google fortfahren

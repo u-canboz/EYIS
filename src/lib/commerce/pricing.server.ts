@@ -30,8 +30,14 @@ export async function loadSnapshot(
     : await setQuery.eq("product_id", args.productId);
   if (setErr) throw new Error(setErr.message);
 
-  const setRows = (sets ?? []) as { id: string; product_id: string | null; variant_id: string | null }[];
-  const scopeById = new Map(setRows.map((s) => [s.id, s.variant_id ? "variant" : "product"] as const));
+  const setRows = (sets ?? []) as {
+    id: string;
+    product_id: string | null;
+    variant_id: string | null;
+  }[];
+  const scopeById = new Map(
+    setRows.map((s) => [s.id, s.variant_id ? "variant" : "product"] as const),
+  );
 
   let prices: PriceRow[] = [];
   if (setRows.length) {
@@ -125,7 +131,12 @@ export async function resolveFromDatabase(
 /** Ensures a price set exists for a product or variant and returns its id. */
 export async function ensurePriceSet(
   supabase: Client,
-  args: { organizationId: string; shopId: string; productId?: string | null; variantId?: string | null },
+  args: {
+    organizationId: string;
+    shopId: string;
+    productId?: string | null;
+    variantId?: string | null;
+  },
 ) {
   const column = args.variantId ? "variant_id" : "product_id";
   const value = args.variantId ?? args.productId;
@@ -173,10 +184,13 @@ export function validatePriceInput(input: {
   if (
     input.maxQuantity !== null &&
     input.maxQuantity !== undefined &&
-    (input.minQuantity === null || input.minQuantity === undefined || input.maxQuantity < input.minQuantity)
+    (input.minQuantity === null ||
+      input.minQuantity === undefined ||
+      input.maxQuantity < input.minQuantity)
   )
     throw new Error("Die Höchstmenge muss größer oder gleich der Mindestmenge sein.");
-  if (input.type === "tier" && !input.minQuantity) throw new Error("Eine Mengenstaffel braucht eine Mindestmenge.");
+  if (input.type === "tier" && !input.minQuantity)
+    throw new Error("Eine Mengenstaffel braucht eine Mindestmenge.");
   if (input.type === "customer_group" && !input.customerGroupId)
     throw new Error("Ein Kundengruppenpreis braucht eine Kundengruppe.");
 }

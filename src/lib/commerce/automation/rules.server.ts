@@ -42,7 +42,11 @@ export type RuleDetail = RuleSummary & {
   actions: RuleActionInput[];
 };
 
-function mapSummary(r: Row, counts: { runs: number; failures: number }, actionCount: number): RuleSummary {
+function mapSummary(
+  r: Row,
+  counts: { runs: number; failures: number },
+  actionCount: number,
+): RuleSummary {
   return {
     id: r["id"] as string,
     name: r["name"] as string,
@@ -78,7 +82,11 @@ export async function listRules(organizationId: string, shopId: string): Promise
   const ids = rules.map((r) => r["id"] as string);
   const since = new Date(Date.now() - 86_400_000).toISOString();
   const [{ data: execs }, { data: actions }] = await Promise.all([
-    admin.from("automation_executions").select("rule_id, status").in("rule_id", ids).gte("created_at", since),
+    admin
+      .from("automation_executions")
+      .select("rule_id, status")
+      .in("rule_id", ids)
+      .gte("created_at", since),
     admin.from("automation_actions").select("rule_id").in("rule_id", ids),
   ]);
 
@@ -97,7 +105,11 @@ export async function listRules(organizationId: string, shopId: string): Promise
   }
 
   return rules.map((r) =>
-    mapSummary(r, stats.get(r["id"] as string) ?? { runs: 0, failures: 0 }, actionCounts.get(r["id"] as string) ?? 0),
+    mapSummary(
+      r,
+      stats.get(r["id"] as string) ?? { runs: 0, failures: 0 },
+      actionCounts.get(r["id"] as string) ?? 0,
+    ),
   );
 }
 
@@ -184,8 +196,13 @@ export async function validateRule(input: {
       warnings.push(
         `Der Shop erstellt Rechnungen bereits automatisch (${strategy}). Die Rechnungs-Aktionen werden bei der Ausführung übersprungen.`,
       );
-    if (settings["automatically_issue_invoice"] && input.actions.some((a) => a.actionType === "invoice.issue"))
-      warnings.push("Rechnungen werden bereits automatisch festgeschrieben. Die Aktion wird übersprungen.");
+    if (
+      settings["automatically_issue_invoice"] &&
+      input.actions.some((a) => a.actionType === "invoice.issue")
+    )
+      warnings.push(
+        "Rechnungen werden bereits automatisch festgeschrieben. Die Aktion wird übersprungen.",
+      );
   }
 
   return { valid: errors.length === 0, errors, warnings };
@@ -233,7 +250,11 @@ export async function saveRule(input: {
 
   let ruleId = input.ruleId ?? null;
   if (ruleId) {
-    const { error } = await admin.from("automation_rules").update(base as never).eq("id", ruleId).eq("organization_id", input.organizationId);
+    const { error } = await admin
+      .from("automation_rules")
+      .update(base as never)
+      .eq("id", ruleId)
+      .eq("organization_id", input.organizationId);
     if (error) throw new Error(error.message);
   } else {
     const { data, error } = await admin
@@ -274,7 +295,11 @@ export async function saveRule(input: {
 }
 
 /** Freezes the current draft as an immutable version and activates it. */
-export async function publishRule(input: { organizationId: string; ruleId: string; actorId: string }) {
+export async function publishRule(input: {
+  organizationId: string;
+  ruleId: string;
+  actorId: string;
+}) {
   const admin = await getAdmin();
   const detail = await loadRule(input.organizationId, input.ruleId);
   const validation = await validateRule({
@@ -332,7 +357,11 @@ export async function publishRule(input: { organizationId: string; ruleId: strin
 
 async function shopIdOf(ruleId: string) {
   const admin = await getAdmin();
-  const { data } = await admin.from("automation_rules").select("shop_id").eq("id", ruleId).maybeSingle();
+  const { data } = await admin
+    .from("automation_rules")
+    .select("shop_id")
+    .eq("id", ruleId)
+    .maybeSingle();
   return (data as { shop_id: string } | null)?.shop_id ?? null;
 }
 
@@ -366,7 +395,11 @@ export async function setRuleStatus(input: {
   return { ok: true };
 }
 
-export async function deleteRule(input: { organizationId: string; ruleId: string; actorId: string }) {
+export async function deleteRule(input: {
+  organizationId: string;
+  ruleId: string;
+  actorId: string;
+}) {
   return await setRuleStatus({ ...input, status: "archived" });
 }
 
@@ -536,7 +569,11 @@ export async function resetCircuitBreaker(input: {
     .eq("id", input.ruleId)
     .eq("organization_id", input.organizationId);
   if (error) throw new Error(error.message);
-  await admin.from("automation_rule_counters").delete().eq("rule_id", input.ruleId).eq("bucket_kind", "error");
+  await admin
+    .from("automation_rule_counters")
+    .delete()
+    .eq("rule_id", input.ruleId)
+    .eq("bucket_kind", "error");
   await writeAudit({
     organizationId: input.organizationId,
     actorId: input.actorId,
@@ -607,10 +644,7 @@ export async function saveWebhookEndpoint(input: {
   return { endpointId: (data as { id: string }).id };
 }
 
-export async function deleteWebhookEndpoint(input: {
-  organizationId: string;
-  endpointId: string;
-}) {
+export async function deleteWebhookEndpoint(input: { organizationId: string; endpointId: string }) {
   const admin = await getAdmin();
   const { error } = await admin
     .from("outgoing_webhook_endpoints")

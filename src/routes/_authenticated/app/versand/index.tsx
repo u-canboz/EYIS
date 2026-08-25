@@ -3,9 +3,16 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { listFulfillments, createFulfillmentFn, getAllocationSuggestion } from "@/lib/commerce/fulfillment/fulfillment.functions";
+import {
+  listFulfillments,
+  createFulfillmentFn,
+  getAllocationSuggestion,
+} from "@/lib/commerce/fulfillment/fulfillment.functions";
 import { listOrdersFn } from "@/lib/commerce/orders/order.functions";
-import { FULFILLMENT_STATE_LABELS, type FulfillmentState } from "@/lib/commerce/fulfillment/fulfillment.types";
+import {
+  FULFILLMENT_STATE_LABELS,
+  type FulfillmentState,
+} from "@/lib/commerce/fulfillment/fulfillment.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { carrierLabel } from "@/lib/commerce/shipping/carriers";
 import { Button } from "@/components/ui/button";
@@ -14,7 +21,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/versand/")({
   head: () => ({
@@ -22,10 +35,14 @@ export const Route = createFileRoute("/_authenticated/app/versand/")({
       { title: "Versand & Fulfillment – Commerce OS" },
       {
         name: "description",
-        content: "Offene Bestellungen kommissionieren, verpacken, Labels erzeugen und Sendungen verfolgen.",
+        content:
+          "Offene Bestellungen kommissionieren, verpacken, Labels erzeugen und Sendungen verfolgen.",
       },
       { property: "og:title", content: "Versand & Fulfillment – Commerce OS" },
-      { property: "og:description", content: "Der operative Arbeitsplatz für Kommissionierung und Versand." },
+      {
+        property: "og:description",
+        content: "Der operative Arbeitsplatz für Kommissionierung und Versand.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -71,8 +88,9 @@ function FulfillmentWorkspace() {
     queryKey: ["fulfillment-open-orders", organizationId, shopId],
     enabled: !!organizationId && orderPickerOpen,
     queryFn: () =>
-      fetchOrders({ data: { organizationId, shopId: shopId || null, paymentStatus: "paid" } }).then((rows) =>
-        rows.filter((o) => o.fulfillmentStatus !== "fulfilled" && o.orderStatus !== "cancelled"),
+      fetchOrders({ data: { organizationId, shopId: shopId || null, paymentStatus: "paid" } }).then(
+        (rows) =>
+          rows.filter((o) => o.fulfillmentStatus !== "fulfilled" && o.orderStatus !== "cancelled"),
       ),
   });
 
@@ -133,7 +151,12 @@ function FulfillmentWorkspace() {
 
       <div className="flex flex-wrap items-center gap-2">
         {TABS.map((t) => (
-          <Button key={t.key} size="sm" variant={t.key === tab ? "default" : "outline"} onClick={() => setTab(t.key)}>
+          <Button
+            key={t.key}
+            size="sm"
+            variant={t.key === tab ? "default" : "outline"}
+            onClick={() => setTab(t.key)}
+          >
             {t.label}
           </Button>
         ))}
@@ -171,17 +194,30 @@ function FulfillmentWorkspace() {
                 <tr key={f.id} className="border-t">
                   <td className="p-3 font-medium">{f.orderNumber}</td>
                   <td className="p-3">
-                    <Badge variant={f.hasException ? "destructive" : f.status === "delivered" ? "secondary" : "default"}>
+                    <Badge
+                      variant={
+                        f.hasException
+                          ? "destructive"
+                          : f.status === "delivered"
+                            ? "secondary"
+                            : "default"
+                      }
+                    >
                       {FULFILLMENT_STATE_LABELS[f.status]}
                     </Badge>
                   </td>
                   <td className="text-muted-foreground p-3 text-xs">
-                    {f.pickedQuantity}/{f.totalQuantity} gepickt · {f.packedQuantity} gepackt · {f.shippedQuantity} versendet
+                    {f.pickedQuantity}/{f.totalQuantity} gepickt · {f.packedQuantity} gepackt ·{" "}
+                    {f.shippedQuantity} versendet
                   </td>
                   <td className="p-3">{f.locationName ?? "—"}</td>
                   <td className="p-3">{f.packageCount}</td>
-                  <td className="p-3">{f.carrierProvider ? carrierLabel(f.carrierProvider) : "—"}</td>
-                  <td className="text-muted-foreground p-3 font-mono text-xs">{f.trackingNumber ?? "—"}</td>
+                  <td className="p-3">
+                    {f.carrierProvider ? carrierLabel(f.carrierProvider) : "—"}
+                  </td>
+                  <td className="text-muted-foreground p-3 font-mono text-xs">
+                    {f.trackingNumber ?? "—"}
+                  </td>
                   <td className="p-3 text-right">
                     <Button variant="outline" size="sm" asChild>
                       <Link to="/app/versand/$fulfillmentId" params={{ fulfillmentId: f.id }}>
@@ -205,7 +241,9 @@ function FulfillmentWorkspace() {
       >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{allocationOrderId ? "Positionen zuweisen" : "Offene Bestellung wählen"}</DialogTitle>
+            <DialogTitle>
+              {allocationOrderId ? "Positionen zuweisen" : "Offene Bestellung wählen"}
+            </DialogTitle>
           </DialogHeader>
 
           {!allocationOrderId ? (
@@ -243,18 +281,24 @@ function FulfillmentWorkspace() {
                   </thead>
                   <tbody>
                     {allocation.data?.lines.map((l) => {
-                      const suggested = l.options.find((o) => o.locationId === l.suggestedLocationId);
+                      const suggested = l.options.find(
+                        (o) => o.locationId === l.suggestedLocationId,
+                      );
                       return (
                         <tr key={l.orderItemId} className="border-t">
                           <td className="p-2">
                             {l.title}
-                            {l.variantTitle ? <span className="text-muted-foreground"> · {l.variantTitle}</span> : null}
+                            {l.variantTitle ? (
+                              <span className="text-muted-foreground"> · {l.variantTitle}</span>
+                            ) : null}
                           </td>
                           <td className="p-2">
                             {l.openQuantity} / {l.orderedQuantity}
                           </td>
                           <td className="p-2">
-                            {suggested ? `${suggested.locationName} · ${suggested.available}` : "Kein Lagerort"}
+                            {suggested
+                              ? `${suggested.locationName} · ${suggested.available}`
+                              : "Kein Lagerort"}
                           </td>
                         </tr>
                       );
@@ -278,7 +322,8 @@ function FulfillmentWorkspace() {
                   </SelectContent>
                 </Select>
                 <p className="text-muted-foreground text-xs">
-                  Der Vorschlag basiert auf Verfügbarkeit und Priorität und wird nie automatisch ausgeführt.
+                  Der Vorschlag basiert auf Verfügbarkeit und Priorität und wird nie automatisch
+                  ausgeführt.
                 </p>
               </div>
 

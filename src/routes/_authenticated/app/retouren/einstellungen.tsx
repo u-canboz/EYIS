@@ -4,7 +4,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { getReturnSettingsFn, saveReturnSettingsFn } from "@/lib/commerce/returns/return.functions";
-import type { ReturnApprovalStrategy, ReturnSettings, ReturnWindowStart } from "@/lib/commerce/returns/return.types";
+import type {
+  ReturnApprovalStrategy,
+  ReturnSettings,
+  ReturnWindowStart,
+} from "@/lib/commerce/returns/return.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,13 +17,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/retouren/einstellungen")({
   head: () => ({
     meta: [
       { title: "Retouren-Einstellungen – Commerce OS" },
-      { name: "description", content: "Rückgabefrist, Genehmigungsstrategie, Rücksendekosten und Einlagerung festlegen." },
+      {
+        name: "description",
+        content: "Rückgabefrist, Genehmigungsstrategie, Rücksendekosten und Einlagerung festlegen.",
+      },
       { property: "og:title", content: "Retouren-Einstellungen – Commerce OS" },
       { property: "og:description", content: "Retourenregeln pro Shop konfigurieren." },
       { property: "og:type", content: "website" },
@@ -76,7 +89,10 @@ function ReturnSettingsPage() {
         <CardContent className="space-y-5">
           <label className="flex items-center justify-between gap-4">
             <span className="text-sm">Retouren aktiviert</span>
-            <Switch checked={draft.returnsEnabled} onCheckedChange={(v) => set("returnsEnabled", v)} />
+            <Switch
+              checked={draft.returnsEnabled}
+              onCheckedChange={(v) => set("returnsEnabled", v)}
+            />
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -91,7 +107,10 @@ function ReturnSettingsPage() {
             </div>
             <div>
               <Label>Frist beginnt ab</Label>
-              <Select value={draft.windowStart} onValueChange={(v) => set("windowStart", v as ReturnWindowStart)}>
+              <Select
+                value={draft.windowStart}
+                onValueChange={(v) => set("windowStart", v as ReturnWindowStart)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -129,7 +148,10 @@ function ReturnSettingsPage() {
           </label>
           <label className="flex items-center justify-between gap-4">
             <span className="text-sm">Automatische Erstattung nach Genehmigung</span>
-            <Switch checked={draft.autoRefundOnApproval} onCheckedChange={(v) => set("autoRefundOnApproval", v)} />
+            <Switch
+              checked={draft.autoRefundOnApproval}
+              onCheckedChange={(v) => set("autoRefundOnApproval", v)}
+            />
           </label>
           <label className="flex items-center justify-between gap-4">
             <span className="text-sm">Ware automatisch einlagern (nur Zustand „neuwertig“)</span>

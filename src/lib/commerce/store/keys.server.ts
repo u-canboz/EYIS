@@ -26,20 +26,20 @@ export async function resolveKey(rawKey: string | null): Promise<StoreKey | null
   const hash = await hashToken(rawKey);
   const { data } = await admin
     .from("store_api_keys")
-    .select("id, organization_id, shop_id, environment, allowed_origins, rate_limit_profile, status")
+    .select(
+      "id, organization_id, shop_id, environment, allowed_origins, rate_limit_profile, status",
+    )
     .eq("key_hash", hash)
     .maybeSingle();
-  const row = data as
-    | {
-        id: string;
-        organization_id: string;
-        shop_id: string;
-        environment: "test" | "live";
-        allowed_origins: string[] | null;
-        rate_limit_profile: string;
-        status: string;
-      }
-    | null;
+  const row = data as {
+    id: string;
+    organization_id: string;
+    shop_id: string;
+    environment: "test" | "live";
+    allowed_origins: string[] | null;
+    rate_limit_profile: string;
+    status: string;
+  } | null;
   if (!row || row.status !== "active") return null;
   return {
     id: row.id,
@@ -59,7 +59,8 @@ export function originAllowed(key: StoreKey, origin: string | null): boolean {
   if (key.environment === "test") {
     try {
       const host = new URL(origin).hostname;
-      if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".lovable.app")) return true;
+      if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".lovable.app"))
+        return true;
     } catch {
       return false;
     }
@@ -187,7 +188,9 @@ export async function listRequestLogs(input: {
   const admin = await getAdmin();
   let query = admin
     .from("store_api_request_logs")
-    .select("id, request_id, key_id, method, route, status_code, duration_ms, error_code, user_agent_summary, created_at")
+    .select(
+      "id, request_id, key_id, method, route, status_code, duration_ms, error_code, user_agent_summary, created_at",
+    )
     .eq("organization_id", input.organizationId)
     .eq("shop_id", input.shopId)
     .order("created_at", { ascending: false })

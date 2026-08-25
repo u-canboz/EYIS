@@ -35,14 +35,23 @@ export function taxFromNet(netMinor: number, bp: number): number {
   return roundHalfUp((netMinor * bp) / 10000);
 }
 
-function ratesFor(context: TaxContext, taxClassId: string | null, countryCode: string): TaxRateRule[] {
+function ratesFor(
+  context: TaxContext,
+  taxClassId: string | null,
+  countryCode: string,
+): TaxRateRule[] {
   const now = Date.parse(context.now);
   return context.rates
     .filter((r) => {
       if (taxClassId && r.taxClassId !== taxClassId) return false;
       if (r.countryCode.toUpperCase() !== countryCode.toUpperCase()) return false;
       if (r.customerType !== "any" && r.customerType !== context.customerType) return false;
-      if (r.regionCode && context.destinationRegionCode && r.regionCode !== context.destinationRegionCode) return false;
+      if (
+        r.regionCode &&
+        context.destinationRegionCode &&
+        r.regionCode !== context.destinationRegionCode
+      )
+        return false;
       if (Date.parse(r.validFrom) > now) return false;
       if (r.validUntil && Date.parse(r.validUntil) <= now) return false;
       return true;
@@ -181,7 +190,8 @@ export function calculateTax(context: TaxContext): TaxResult {
     current.grossMinor += gross;
     groups.set(key, current);
   };
-  for (const l of lines) push(l.rateBasisPoints, l.reasonCode, l.countryCode, l.netMinor, l.taxMinor, l.grossMinor);
+  for (const l of lines)
+    push(l.rateBasisPoints, l.reasonCode, l.countryCode, l.netMinor, l.taxMinor, l.grossMinor);
   if (shippingAmount > 0) {
     push(
       shipping.rateBasisPoints,

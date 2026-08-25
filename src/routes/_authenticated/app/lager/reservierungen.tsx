@@ -29,10 +29,14 @@ export const Route = createFileRoute("/_authenticated/app/lager/reservierungen")
       { title: "Reservierungen – Commerce OS" },
       {
         name: "description",
-        content: "Aktive Bestandsreservierungen einsehen, freigeben, verbuchen oder abgelaufene bereinigen.",
+        content:
+          "Aktive Bestandsreservierungen einsehen, freigeben, verbuchen oder abgelaufene bereinigen.",
       },
       { property: "og:title", content: "Reservierungen – Commerce OS" },
-      { property: "og:description", content: "Reservierter Bestand bleibt jederzeit nachvollziehbar." },
+      {
+        property: "og:description",
+        content: "Reservierter Bestand bleibt jederzeit nachvollziehbar.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

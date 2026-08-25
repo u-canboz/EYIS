@@ -54,7 +54,11 @@ export interface PaymentProvider {
   createSession(input: CreateSessionInput): Promise<CreateSessionResult>;
   getSession(providerSessionId: string): Promise<ProviderPaymentState>;
   cancelSession(providerSessionId: string): Promise<void>;
-  refundPayment(providerPaymentId: string, amountMinor: number, reason: string | null): Promise<RefundResult>;
+  refundPayment(
+    providerPaymentId: string,
+    amountMinor: number,
+    reason: string | null,
+  ): Promise<RefundResult>;
   /** Verifies the signature and maps the payload. Throws when the signature is invalid. */
   parseWebhook(rawBody: string, headers: Headers): Promise<WebhookEvent>;
 }

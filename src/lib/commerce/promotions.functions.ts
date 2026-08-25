@@ -74,7 +74,12 @@ export const listPromotions = createServerFn({ method: "POST" })
 export const savePromotion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { organizationId: string; shopId: string; promotion: PromotionInput; idempotencyKey?: string }) => data,
+    (data: {
+      organizationId: string;
+      shopId: string;
+      promotion: PromotionInput;
+      idempotencyKey?: string;
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -83,8 +88,10 @@ export const savePromotion = createServerFn({ method: "POST" })
 
     const p = data.promotion;
     if (!p.name.trim()) throw new Error("Bitte gib einen Namen an.");
-    if (!Number.isInteger(p.value) || p.value < 0) throw new Error("Der Wert muss eine ganze Zahl ≥ 0 sein.");
-    if (p.type === "percentage" && p.value > 10000) throw new Error("Ein Prozentwert über 100 % ist nicht erlaubt.");
+    if (!Number.isInteger(p.value) || p.value < 0)
+      throw new Error("Der Wert muss eine ganze Zahl ≥ 0 sein.");
+    if (p.type === "percentage" && p.value > 10000)
+      throw new Error("Ein Prozentwert über 100 % ist nicht erlaubt.");
     if (p.startsAt && p.endsAt && Date.parse(p.startsAt) >= Date.parse(p.endsAt))
       throw new Error("Der Startzeitpunkt muss vor dem Endzeitpunkt liegen.");
     if (p.usageLimit !== null && p.usageLimit !== undefined && p.usageLimit <= 0)
@@ -93,18 +100,27 @@ export const savePromotion = createServerFn({ method: "POST" })
     const conditions = p.conditions ?? [];
     for (const c of conditions) {
       const kind = (c as { kind?: string }).kind;
-      if (!kind || !KNOWN_CONDITIONS.has(kind)) throw new Error(`Unbekannte Bedingung: ${kind ?? "—"}`);
+      if (!kind || !KNOWN_CONDITIONS.has(kind))
+        throw new Error(`Unbekannte Bedingung: ${kind ?? "—"}`);
       const ids = (c as { ids?: string[] }).ids;
       const value = (c as { value?: number }).value;
-      if (["product", "variant", "category", "collection", "customer_group"].includes(kind) && !ids?.length)
+      if (
+        ["product", "variant", "category", "collection", "customer_group"].includes(kind) &&
+        !ids?.length
+      )
         throw new Error("Bedingung ist unvollständig: Es fehlt eine Auswahl.");
-      if (["minimum_quantity", "minimum_subtotal"].includes(kind) && (value === undefined || value <= 0))
+      if (
+        ["minimum_quantity", "minimum_subtotal"].includes(kind) &&
+        (value === undefined || value <= 0)
+      )
         throw new Error("Bedingung ist unvollständig: Es fehlt ein gültiger Wert.");
     }
 
     // Referenced ids must belong to the same organization.
     const groupIds = conditions.flatMap((c) =>
-      (c as { kind: string; ids?: string[] }).kind === "customer_group" ? ((c as any).ids ?? []) : [],
+      (c as { kind: string; ids?: string[] }).kind === "customer_group"
+        ? ((c as any).ids ?? [])
+        : [],
     );
     if (groupIds.length) {
       const { data: groups } = await supabase
@@ -187,7 +203,11 @@ export const savePromotion = createServerFn({ method: "POST" })
 export const setPromotionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { organizationId: string; promotionId: string; status: "active" | "inactive" | "archived" }) => data,
+    (data: {
+      organizationId: string;
+      promotionId: string;
+      status: "active" | "inactive" | "archived";
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

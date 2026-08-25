@@ -41,18 +41,27 @@ export const setCheckoutEmailFn = createServerFn({ method: "POST" })
     const { getAdmin } = await import("./core.server");
     const { session, cart } = await checkout.loadSessionAuthorized(data.sessionId, data.token);
     const email = data.email.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("Bitte eine gültige E-Mail-Adresse angeben.");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+      throw new Error("Bitte eine gültige E-Mail-Adresse angeben.");
     const admin = await getAdmin();
     await admin.from("checkout_sessions").update({ email }).eq("id", session.id);
     await admin.from("carts").update({ customer_email: email }).eq("id", cart.id);
     const fresh = await checkout.loadSession(session.id);
-    return (await checkout.buildCheckoutView(fresh, { ...cart, customer_email: email })) as CheckoutView;
+    return (await checkout.buildCheckoutView(fresh, {
+      ...cart,
+      customer_email: email,
+    })) as CheckoutView;
   });
 
 export const setCheckoutAddressFn = createServerFn({ method: "POST" })
   .inputValidator(
-    (data: SessionAuth & { type: "shipping" | "billing"; address: AddressInput; billingSameAsShipping?: boolean }) =>
-      data,
+    (
+      data: SessionAuth & {
+        type: "shipping" | "billing";
+        address: AddressInput;
+        billingSameAsShipping?: boolean;
+      },
+    ) => data,
   )
   .handler(async ({ data }) => {
     const checkout = await import("./checkout.server");
@@ -68,7 +77,10 @@ export const setCheckoutAddressFn = createServerFn({ method: "POST" })
         .update({ billing_same_as_shipping: data.billingSameAsShipping })
         .eq("id", session.id);
     }
-    await admin.from("checkout_sessions").update({ status: "open", validated_at: null }).eq("id", session.id);
+    await admin
+      .from("checkout_sessions")
+      .update({ status: "open", validated_at: null })
+      .eq("id", session.id);
     const fresh = await checkout.loadSession(session.id);
     return (await checkout.buildCheckoutView(fresh, cart)) as CheckoutView;
   });
@@ -80,7 +92,8 @@ export const listShippingMethodsFn = createServerFn({ method: "POST" })
     const cartApi = await import("./cart.server");
     const { session, cart } = await checkout.loadSessionAuthorized(data.sessionId, data.token);
     const view = await cartApi.buildCartView(cart, { persist: false });
-    const country = (await checkout.buildCheckoutView(session, cart)).shippingAddress?.countryCode ?? null;
+    const country =
+      (await checkout.buildCheckoutView(session, cart)).shippingAddress?.countryCode ?? null;
     return (await checkout.listShippingMethods(
       session.organization_id,
       session.shop_id,
@@ -122,7 +135,8 @@ export const validateCheckoutFn = createServerFn({ method: "POST" })
     await checkout.expireDueSessions(null);
     const { session, cart } = await checkout.loadSessionAuthorized(data.sessionId, data.token);
     const view = await checkout.buildCheckoutView(session, cart);
-    if (!view.ready) throw new Error(`Checkout ist noch nicht vollständig: ${view.issues.join(" ")}`);
+    if (!view.ready)
+      throw new Error(`Checkout ist noch nicht vollständig: ${view.issues.join(" ")}`);
 
     const written = await checkout.writeCheckoutSnapshot(session, cart, view);
     await cartApi.cartEvent(cart, "checkout.validated", {
@@ -140,7 +154,12 @@ export const cancelCheckoutFn = createServerFn({ method: "POST" })
     const checkout = await import("./checkout.server");
     const cartApi = await import("./cart.server");
     const { session, cart } = await checkout.loadSessionAuthorized(data.sessionId, data.token);
-    const result = await checkout.cancelCheckout(session.organization_id, session.id, null, "cancelled");
+    const result = await checkout.cancelCheckout(
+      session.organization_id,
+      session.id,
+      null,
+      "cancelled",
+    );
     await cartApi.cartEvent(cart, "checkout.cancelled", {
       checkout_session_id: session.id,
       released: result.released,

@@ -13,7 +13,13 @@ type Org = { organizationId: string };
 export const listCustomersFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Org & { shopId?: string | null; search?: string | null; status?: CustomerStatus | null }) => data,
+    (
+      data: Org & {
+        shopId?: string | null;
+        search?: string | null;
+        status?: CustomerStatus | null;
+      },
+    ) => data,
   )
   .handler(async ({ data, context }): Promise<CustomerListItem[]> => {
     const { assertPermission } = await import("../core.server");
@@ -49,14 +55,21 @@ export const saveCustomerFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "customers.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "customers.manage",
+    );
     const { upsertCustomer } = await import("./customer.server");
     return await upsertCustomer({ ...data, actorId: context.userId });
   });
 
 export const setCustomerStatusFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { customerId: string; status: CustomerStatus; reason?: string | null }) => data)
+  .inputValidator(
+    (data: Org & { customerId: string; status: CustomerStatus; reason?: string | null }) => data,
+  )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
     const permission = data.status === "blocked" ? "customers.block" : "customers.manage";
@@ -70,7 +83,12 @@ export const saveCustomerAddressFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { customerId: string; address: CustomerAddressInput }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "customers.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "customers.manage",
+    );
     const { saveAddress } = await import("./customer.server");
     return await saveAddress(data);
   });
@@ -80,7 +98,12 @@ export const deleteCustomerAddressFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { addressId: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "customers.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "customers.manage",
+    );
     const { deleteAddress } = await import("./customer.server");
     return await deleteAddress(data.organizationId, data.addressId);
   });
@@ -90,7 +113,12 @@ export const setCustomerGroupsFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { customerId: string; groupIds: string[] }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "customer_groups.assign");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "customer_groups.assign",
+    );
     const { setCustomerGroups } = await import("./customer.server");
     return await setCustomerGroups(data);
   });
@@ -100,7 +128,12 @@ export const addCustomerNoteFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { customerId: string; body: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "customers.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "customers.manage",
+    );
     const { addCustomerNote } = await import("./customer.server");
     return await addCustomerNote({ ...data, actorId: context.userId });
   });

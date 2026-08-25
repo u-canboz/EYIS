@@ -13,10 +13,13 @@ const BACKOFF_SECONDS = [60, 300, 1_800, 7_200, 21_600];
 export async function processAutomationJobs(limit = 20) {
   const admin = await getAdmin();
   const worker = `worker-${crypto.randomUUID().slice(0, 8)}`;
-  const { data, error } = await admin.rpc("automation_claim_jobs" as never, {
-    _limit: limit,
-    _worker: worker,
-  } as never);
+  const { data, error } = await admin.rpc(
+    "automation_claim_jobs" as never,
+    {
+      _limit: limit,
+      _worker: worker,
+    } as never,
+  );
   if (error) throw new Error(error.message);
 
   const jobs = (data ?? []) as Row[];
@@ -39,14 +42,21 @@ export async function processAutomationJobs(limit = 20) {
         case "scheduled_rule": {
           const { runScheduledRule } = await import("./schedule.server");
           await runScheduledRule(job["rule_id"] as string);
-          await admin.from("automation_jobs").update({ status: "completed" } as never).eq("id", jobId);
+          await admin
+            .from("automation_jobs")
+            .update({ status: "completed" } as never)
+            .eq("id", jobId);
           results.push({ jobId, status: "completed" });
           break;
         }
         default: {
           await admin
             .from("automation_jobs")
-            .update({ status: "failed", last_error_code: "invalid_configuration", last_error: "Unbekannter Job-Typ." } as never)
+            .update({
+              status: "failed",
+              last_error_code: "invalid_configuration",
+              last_error: "Unbekannter Job-Typ.",
+            } as never)
             .eq("id", jobId);
           results.push({ jobId, status: "failed" });
         }

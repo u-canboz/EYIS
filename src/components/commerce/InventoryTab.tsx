@@ -97,10 +97,11 @@ export function InventoryTab({ productId, organizationId, shopId, canEdit }: Pro
   if (rows.length === 0) {
     return (
       <div className="space-y-4 rounded-lg border border-dashed p-10 text-center">
-        <p className="text-sm">
-          Für dieses Produkt ist noch keine Bestandsführung eingerichtet.
-        </p>
-        <Button onClick={() => setupMutation.mutate()} disabled={!canEdit || setupMutation.isPending}>
+        <p className="text-sm">Für dieses Produkt ist noch keine Bestandsführung eingerichtet.</p>
+        <Button
+          onClick={() => setupMutation.mutate()}
+          disabled={!canEdit || setupMutation.isPending}
+        >
           Bestandsführung aktivieren
         </Button>
       </div>
@@ -141,7 +142,10 @@ export function InventoryTab({ productId, organizationId, shopId, canEdit }: Pro
 
             <div className="mt-3 space-y-1 text-xs">
               {row.locations.map((location) => (
-                <div key={location.location_id} className="text-muted-foreground flex justify-between">
+                <div
+                  key={location.location_id}
+                  className="text-muted-foreground flex justify-between"
+                >
                   <span>{location.location_name}</span>
                   <span>
                     {location.level.on_hand} physisch · {location.available} verfügbar

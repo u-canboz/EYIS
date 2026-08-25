@@ -10,17 +10,17 @@ import type {
 
 function toListItem(r: Record<string, unknown>): OrderListItem {
   return {
-    id: r['id'] as string,
-    orderNumber: r['order_number'] as string,
-    placedAt: r['placed_at'] as string,
-    email: (r['email'] as string) ?? null,
-    currencyCode: r['currency_code'] as string,
-    totalMinor: Number(r['total_minor'] ?? 0),
-    refundedMinor: Number(r['refunded_minor'] ?? 0),
-    orderStatus: r['order_status'] as OrderState,
-    paymentStatus: r['payment_status'] as OrderPaymentStatus,
-    fulfillmentStatus: r['fulfillment_status'] as OrderDetailView["fulfillmentStatus"],
-    environment: r['environment'] as "test" | "live",
+    id: r["id"] as string,
+    orderNumber: r["order_number"] as string,
+    placedAt: r["placed_at"] as string,
+    email: (r["email"] as string) ?? null,
+    currencyCode: r["currency_code"] as string,
+    totalMinor: Number(r["total_minor"] ?? 0),
+    refundedMinor: Number(r["refunded_minor"] ?? 0),
+    orderStatus: r["order_status"] as OrderState,
+    paymentStatus: r["payment_status"] as OrderPaymentStatus,
+    fulfillmentStatus: r["fulfillment_status"] as OrderDetailView["fulfillmentStatus"],
+    environment: r["environment"] as "test" | "live",
   };
 }
 
@@ -67,7 +67,10 @@ export async function listOrders(input: {
   return ((data ?? []) as Record<string, unknown>[]).map(toListItem);
 }
 
-export async function loadOrderDetail(organizationId: string, orderId: string): Promise<OrderDetailView> {
+export async function loadOrderDetail(
+  organizationId: string,
+  orderId: string,
+): Promise<OrderDetailView> {
   const admin = await getAdmin();
   const { data, error } = await admin
     .from("orders")
@@ -84,7 +87,11 @@ export async function loadOrderDetail(organizationId: string, orderId: string): 
     admin.from("order_addresses").select("*").eq("order_id", orderId),
     admin.from("order_promotions").select("*").eq("order_id", orderId),
     admin.from("payment_transactions").select("*").eq("order_id", orderId).order("created_at"),
-    admin.from("refunds").select("*").eq("order_id", orderId).order("created_at", { ascending: false }),
+    admin
+      .from("refunds")
+      .select("*")
+      .eq("order_id", orderId)
+      .order("created_at", { ascending: false }),
     admin
       .from("audit_log")
       .select("id, action, created_at, metadata")
@@ -96,64 +103,64 @@ export async function loadOrderDetail(organizationId: string, orderId: string): 
 
   const refundRows = (refunds.data ?? []) as Record<string, unknown>[];
   const blocked = refundRows
-    .filter((r) => ["requested", "processing", "completed"].includes(r['status'] as string))
-    .reduce((sum, r) => sum + Number(r['amount_minor'] ?? 0), 0);
+    .filter((r) => ["requested", "processing", "completed"].includes(r["status"] as string))
+    .reduce((sum, r) => sum + Number(r["amount_minor"] ?? 0), 0);
 
   return {
     ...toListItem(o),
-    subtotalMinor: Number(o['subtotal_minor'] ?? 0),
-    discountMinor: Number(o['discount_minor'] ?? 0),
-    shippingMinor: Number(o['shipping_minor'] ?? 0),
-    taxMinor: Number(o['tax_minor'] ?? 0),
-    netTotalMinor: Number(o['net_total_minor'] ?? 0),
-    taxBreakdown: ((o['tax_breakdown'] as JsonValue[] | null) ?? []),
-    internalNote: (o['internal_note'] as string) ?? null,
-    cancelReason: (o['cancel_reason'] as string) ?? null,
-    shippingMethod: (o['shipping_method'] as Record<string, JsonValue>) ?? {},
+    subtotalMinor: Number(o["subtotal_minor"] ?? 0),
+    discountMinor: Number(o["discount_minor"] ?? 0),
+    shippingMinor: Number(o["shipping_minor"] ?? 0),
+    taxMinor: Number(o["tax_minor"] ?? 0),
+    netTotalMinor: Number(o["net_total_minor"] ?? 0),
+    taxBreakdown: (o["tax_breakdown"] as JsonValue[] | null) ?? [],
+    internalNote: (o["internal_note"] as string) ?? null,
+    cancelReason: (o["cancel_reason"] as string) ?? null,
+    shippingMethod: (o["shipping_method"] as Record<string, JsonValue>) ?? {},
     items: ((items.data ?? []) as Record<string, unknown>[]).map((i) => ({
-      id: i['id'] as string,
-      title: i['title_snapshot'] as string,
-      variantTitle: i['variant_title_snapshot'] as string,
-      sku: (i['sku_snapshot'] as string) ?? null,
-      quantity: Number(i['quantity'] ?? 0),
-      unitResolvedMinor: Number(i['unit_resolved_minor'] ?? 0),
-      lineDiscountMinor: Number(i['line_discount_minor'] ?? 0),
-      lineTotalMinor: Number(i['line_total_minor'] ?? 0),
+      id: i["id"] as string,
+      title: i["title_snapshot"] as string,
+      variantTitle: i["variant_title_snapshot"] as string,
+      sku: (i["sku_snapshot"] as string) ?? null,
+      quantity: Number(i["quantity"] ?? 0),
+      unitResolvedMinor: Number(i["unit_resolved_minor"] ?? 0),
+      lineDiscountMinor: Number(i["line_discount_minor"] ?? 0),
+      lineTotalMinor: Number(i["line_total_minor"] ?? 0),
     })),
     addresses: ((addresses.data ?? []) as Record<string, unknown>[]).map((a) => ({
-      ...((a['address'] as Record<string, JsonValue>) ?? {}),
-      type: a['type'] as "shipping" | "billing",
+      ...((a["address"] as Record<string, JsonValue>) ?? {}),
+      type: a["type"] as "shipping" | "billing",
     })),
     promotions: ((promotions.data ?? []) as Record<string, unknown>[]).map((p) => ({
-      id: p['id'] as string,
-      name: p['name_snapshot'] as string,
-      code: (p['code_snapshot'] as string) ?? null,
-      discountMinor: Number(p['discount_minor'] ?? 0),
+      id: p["id"] as string,
+      name: p["name_snapshot"] as string,
+      code: (p["code_snapshot"] as string) ?? null,
+      discountMinor: Number(p["discount_minor"] ?? 0),
     })),
     transactions: ((transactions.data ?? []) as Record<string, unknown>[]).map((t) => ({
-      id: t['id'] as string,
-      type: t['type'] as string,
-      provider: t['provider'] as string,
-      amountMinor: Number(t['amount_minor'] ?? 0),
-      currencyCode: t['currency_code'] as string,
-      providerTransactionId: (t['provider_transaction_id'] as string) ?? null,
-      createdAt: t['created_at'] as string,
+      id: t["id"] as string,
+      type: t["type"] as string,
+      provider: t["provider"] as string,
+      amountMinor: Number(t["amount_minor"] ?? 0),
+      currencyCode: t["currency_code"] as string,
+      providerTransactionId: (t["provider_transaction_id"] as string) ?? null,
+      createdAt: t["created_at"] as string,
     })),
     refunds: refundRows.map((r) => ({
-      id: r['id'] as string,
-      amountMinor: Number(r['amount_minor'] ?? 0),
-      currencyCode: r['currency_code'] as string,
-      status: r['status'] as OrderDetailView["refunds"][number]["status"],
-      reason: (r['reason'] as string) ?? null,
-      createdAt: r['created_at'] as string,
-      providerRefundId: (r['provider_refund_id'] as string) ?? null,
+      id: r["id"] as string,
+      amountMinor: Number(r["amount_minor"] ?? 0),
+      currencyCode: r["currency_code"] as string,
+      status: r["status"] as OrderDetailView["refunds"][number]["status"],
+      reason: (r["reason"] as string) ?? null,
+      createdAt: r["created_at"] as string,
+      providerRefundId: (r["provider_refund_id"] as string) ?? null,
     })),
     timeline: ((timeline.data ?? []) as Record<string, unknown>[]).map((t) => ({
-      id: t['id'] as string,
-      action: t['action'] as string,
-      createdAt: t['created_at'] as string,
-      metadata: (t['metadata'] as Record<string, JsonValue>) ?? {},
+      id: t["id"] as string,
+      action: t["action"] as string,
+      createdAt: t["created_at"] as string,
+      metadata: (t["metadata"] as Record<string, JsonValue>) ?? {},
     })),
-    refundableMinor: Math.max(Number(o['total_minor'] ?? 0) - blocked, 0),
+    refundableMinor: Math.max(Number(o["total_minor"] ?? 0) - blocked, 0),
   };
 }

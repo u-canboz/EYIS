@@ -17,7 +17,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import type { BlueprintData, BlueprintField, BlueprintSchema } from "@/lib/commerce/blueprint-types";
+import type {
+  BlueprintData,
+  BlueprintField,
+  BlueprintSchema,
+} from "@/lib/commerce/blueprint-types";
 import { isFieldVisible } from "@/lib/commerce/blueprint-types";
 
 type Props = {
@@ -166,9 +170,7 @@ function Control({
               <Checkbox
                 checked={selected.includes(option)}
                 onCheckedChange={(checked) =>
-                  onChange(
-                    checked ? [...selected, option] : selected.filter((v) => v !== option),
-                  )
+                  onChange(checked ? [...selected, option] : selected.filter((v) => v !== option))
                 }
               />
               {option}

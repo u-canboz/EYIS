@@ -122,7 +122,10 @@ function renderBlock(
       };
     }
     case "divider":
-      return { html: `<hr style="border:none;border-top:1px solid #e4e4e7;margin:16px 0"/>`, text: [] };
+      return {
+        html: `<hr style="border:none;border-top:1px solid #e4e4e7;margin:16px 0"/>`,
+        text: [],
+      };
     case "order_summary": {
       const o = ctx.order;
       if (!o) return null;
@@ -221,9 +224,12 @@ function renderBlock(
         : "";
       return {
         html: `<div style="margin:12px 0"><div style="font-weight:600;margin-bottom:6px">Retoure ${escapeHtml(r.number)}</div>${table(rows, b)}${hint}</div>`,
-        text: [`Retoure ${r.number}`, ...itemLines(r.items), `Status: ${r.status}`, r.instructions].filter(
-          Boolean,
-        ) as string[],
+        text: [
+          `Retoure ${r.number}`,
+          ...itemLines(r.items),
+          `Status: ${r.status}`,
+          r.instructions,
+        ].filter(Boolean) as string[],
       };
     }
     case "address": {

@@ -124,8 +124,7 @@ function AuthenticatedLayout() {
 
         <nav className="mt-8 flex flex-1 flex-col gap-1">
           {NAV.map((item) => {
-            const active =
-              item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
+            const active = item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
             return (
               <Link
                 key={item.to}

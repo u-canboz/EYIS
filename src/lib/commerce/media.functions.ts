@@ -43,9 +43,10 @@ export const listMedia = createServerFn({ method: "POST" })
     const list = (rows ?? []) as unknown as Row[];
     const signed = new Map<string, string>();
     if (list.length) {
-      const { data: urls } = await supabase.storage
-        .from("media")
-        .createSignedUrls(list.map((r) => r.storage_path), 3600);
+      const { data: urls } = await supabase.storage.from("media").createSignedUrls(
+        list.map((r) => r.storage_path),
+        3600,
+      );
       for (const u of urls ?? []) if (u.path && u.signedUrl) signed.set(u.path, u.signedUrl);
     }
 
@@ -122,8 +123,12 @@ export const registerMedia = createServerFn({ method: "POST" })
 export const updateMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { mediaId: string; organizationId: string; altText?: string | null; title?: string | null }) =>
-      data,
+    (data: {
+      mediaId: string;
+      organizationId: string;
+      altText?: string | null;
+      title?: string | null;
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -131,8 +136,8 @@ export const updateMedia = createServerFn({ method: "POST" })
     await assertPermission(supabase, userId, data.organizationId, "media.upload");
 
     const patch: Record<string, unknown> = {};
-    if (data.altText !== undefined) patch['alt_text'] = data.altText;
-    if (data.title !== undefined) patch['title'] = data.title;
+    if (data.altText !== undefined) patch["alt_text"] = data.altText;
+    if (data.title !== undefined) patch["title"] = data.title;
 
     const { error } = await supabase
       .from("media_assets")
@@ -161,7 +166,8 @@ export const deleteMedia = createServerFn({ method: "POST" })
     if (readErr) throw new Error(readErr.message);
     if (!asset) throw new Error("Datei nicht gefunden.");
 
-    const usage = (asset as unknown as { product_media: { count: number }[] }).product_media?.[0]?.count ?? 0;
+    const usage =
+      (asset as unknown as { product_media: { count: number }[] }).product_media?.[0]?.count ?? 0;
     if (usage > 0) throw new Error("Diese Datei wird noch von Produkten verwendet.");
 
     await supabase.storage.from("media").remove([asset.storage_path]);

@@ -10,7 +10,12 @@ export const listStoreKeysFn = createServerFn({ method: "POST" })
   .inputValidator((data: Scope) => data)
   .handler(async ({ data, context }): Promise<StoreKeySummary[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "settings.manage",
+    );
     const { listKeys } = await import("./keys.server");
     return listKeys(data.organizationId, data.shopId);
   });
@@ -18,11 +23,17 @@ export const listStoreKeysFn = createServerFn({ method: "POST" })
 export const createStoreKeyFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Scope & { name: string; environment: "test" | "live"; allowedOrigins: string[] }) => data,
+    (data: Scope & { name: string; environment: "test" | "live"; allowedOrigins: string[] }) =>
+      data,
   )
   .handler(async ({ data, context }): Promise<{ id: string; key: string; prefix: string }> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "settings.manage",
+    );
     const { createKey } = await import("./keys.server");
     return createKey({
       organizationId: data.organizationId,
@@ -47,7 +58,12 @@ export const updateStoreKeyFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "settings.manage",
+    );
     const { updateKey } = await import("./keys.server");
     return updateKey(data);
   });
@@ -57,7 +73,12 @@ export const listStoreLogsFn = createServerFn({ method: "POST" })
   .inputValidator((data: Scope & { keyId?: string | null; onlyErrors?: boolean }) => data)
   .handler(async ({ data, context }): Promise<StoreRequestLog[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "settings.manage",
+    );
     const { listRequestLogs } = await import("./keys.server");
     return listRequestLogs(data);
   });

@@ -29,7 +29,10 @@ export const Route = createFileRoute("/_authenticated/app/produkte/neu")({
           "Assistent für neue Produkte: Vorlage wählen, Details ausfüllen, Varianten erzeugen.",
       },
       { property: "og:title", content: "Neues Produkt anlegen – Commerce OS" },
-      { property: "og:description", content: "Produktassistent mit Blueprints und Variantenmatrix." },
+      {
+        property: "og:description",
+        content: "Produktassistent mit Blueprints und Variantenmatrix.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -198,7 +201,11 @@ function ProductWizard() {
             </div>
             <div className="sm:col-span-2">
               <Label>Untertitel</Label>
-              <Input className="mt-2" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
+              <Input
+                className="mt-2"
+                value={subtitle}
+                onChange={(e) => setSubtitle(e.target.value)}
+              />
             </div>
             <div className="sm:col-span-2">
               <Label>Beschreibung</Label>
@@ -326,7 +333,8 @@ function ProductWizard() {
               {axes.length ? variantCount : 0}
             </p>
             <p className="text-muted-foreground">
-              Das Produkt wird als Entwurf gespeichert und kann danach vollständig bearbeitet werden.
+              Das Produkt wird als Entwurf gespeichert und kann danach vollständig bearbeitet
+              werden.
             </p>
           </div>
         )}

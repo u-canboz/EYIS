@@ -100,7 +100,8 @@ export const saveCategory = createServerFn({ method: "POST" })
     const { uniqueHandle } = await import("./catalog.server");
     await assertPermission(supabase, userId, data.organizationId, "categories.manage");
     if (!data.name.trim()) throw new Error("Bitte gib einen Namen an.");
-    if (data.id && data.parentId === data.id) throw new Error("Eine Kategorie kann nicht ihr eigenes Elternteil sein.");
+    if (data.id && data.parentId === data.id)
+      throw new Error("Eine Kategorie kann nicht ihr eigenes Elternteil sein.");
 
     if (data.id) {
       const { error } = await supabase

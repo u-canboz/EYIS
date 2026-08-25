@@ -33,10 +33,14 @@ export const Route = createFileRoute("/_authenticated/app/lager/transfers")({
       { title: "Umlagerungen – Commerce OS" },
       {
         name: "description",
-        content: "Bestände zwischen Lagerorten verschieben – mit Zwischenstatus unterwegs und sauberem Journal.",
+        content:
+          "Bestände zwischen Lagerorten verschieben – mit Zwischenstatus unterwegs und sauberem Journal.",
       },
       { property: "og:title", content: "Umlagerungen – Commerce OS" },
-      { property: "og:description", content: "Transfers zwischen Lagerorten transaktionssicher steuern." },
+      {
+        property: "og:description",
+        content: "Transfers zwischen Lagerorten transaktionssicher steuern.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

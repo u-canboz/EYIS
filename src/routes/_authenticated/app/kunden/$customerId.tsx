@@ -12,7 +12,10 @@ import {
 } from "@/lib/commerce/customers/customer.functions";
 import { listCustomerGroups } from "@/lib/commerce/customer-groups.functions";
 import { listReturnsFn } from "@/lib/commerce/returns/return.functions";
-import { CUSTOMER_STATUS_LABELS, CUSTOMER_KIND_LABELS } from "@/lib/commerce/customers/customer.types";
+import {
+  CUSTOMER_STATUS_LABELS,
+  CUSTOMER_KIND_LABELS,
+} from "@/lib/commerce/customers/customer.types";
 import { RETURN_STATUS_LABELS } from "@/lib/commerce/returns/return.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { formatMoney } from "@/lib/commerce/money";
@@ -30,7 +33,10 @@ export const Route = createFileRoute("/_authenticated/app/kunden/$customerId")({
   head: () => ({
     meta: [
       { title: "Kundendetails – Commerce OS" },
-      { name: "description", content: "Kundenprofil mit Adressen, Bestellungen, Retouren und Notizen." },
+      {
+        name: "description",
+        content: "Kundenprofil mit Adressen, Bestellungen, Retouren und Notizen.",
+      },
       { property: "og:title", content: "Kundendetails – Commerce OS" },
       { property: "og:description", content: "Alles zu einem Kunden auf einen Blick." },
       { property: "og:type", content: "website" },
@@ -90,7 +96,8 @@ function CustomerDetailPage() {
     queryFn: () => fetchReturns({ data: { organizationId, customerId } }),
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["customer", organizationId, customerId] });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["customer", organizationId, customerId] });
 
   const statusMutation = useMutation({
     mutationFn: (status: "active" | "blocked" | "archived") =>
@@ -114,7 +121,8 @@ function CustomerDetailPage() {
   });
 
   const groupMutation = useMutation({
-    mutationFn: (groupIds: string[]) => setGroups({ data: { organizationId, customerId, groupIds } }),
+    mutationFn: (groupIds: string[]) =>
+      setGroups({ data: { organizationId, customerId, groupIds } }),
     onSuccess: () => {
       toast.success("Kundengruppen aktualisiert.");
       refresh();
@@ -160,7 +168,11 @@ function CustomerDetailPage() {
                 Entsperren
               </Button>
             ) : (
-              <Button size="sm" variant="destructive" onClick={() => statusMutation.mutate("blocked")}>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => statusMutation.mutate("blocked")}
+              >
                 Sperren
               </Button>
             ))}
@@ -169,8 +181,8 @@ function CustomerDetailPage() {
 
       {c.status === "blocked" && (
         <p className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">
-          Gesperrt: keine neuen Bestellungen oder Retouren. Bestehende Bestellungen, Rechnungen und Belege bleiben
-          weiterhin einsehbar.
+          Gesperrt: keine neuen Bestellungen oder Retouren. Bestehende Bestellungen, Rechnungen und
+          Belege bleiben weiterhin einsehbar.
         </p>
       )}
 
@@ -262,7 +274,10 @@ function CustomerDetailPage() {
             <p className="text-sm text-muted-foreground">Noch keine Bestellungen.</p>
           ) : (
             c.orders.map((o) => (
-              <div key={o.id} className="flex items-center justify-between rounded-md border p-3 text-sm">
+              <div
+                key={o.id}
+                className="flex items-center justify-between rounded-md border p-3 text-sm"
+              >
                 <div>
                   <Link
                     to="/app/bestellungen/$orderId"
@@ -291,8 +306,15 @@ function CustomerDetailPage() {
             <p className="text-sm text-muted-foreground">Keine Retouren.</p>
           ) : (
             returns.data.map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-md border p-3 text-sm">
-                <Link to="/app/retouren/$returnId" params={{ returnId: r.id }} className="font-medium hover:underline">
+              <div
+                key={r.id}
+                className="flex items-center justify-between rounded-md border p-3 text-sm"
+              >
+                <Link
+                  to="/app/retouren/$returnId"
+                  params={{ returnId: r.id }}
+                  className="font-medium hover:underline"
+                >
                   {r.returnNumber}
                 </Link>
                 <Badge variant="secondary">{RETURN_STATUS_LABELS[r.status]}</Badge>
@@ -309,8 +331,16 @@ function CustomerDetailPage() {
         <CardContent className="space-y-3">
           {can("customers.manage") && (
             <div className="space-y-2">
-              <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Notiz hinzufügen" />
-              <Button size="sm" disabled={!note.trim() || noteMutation.isPending} onClick={() => noteMutation.mutate()}>
+              <Textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Notiz hinzufügen"
+              />
+              <Button
+                size="sm"
+                disabled={!note.trim() || noteMutation.isPending}
+                onClick={() => noteMutation.mutate()}
+              >
                 Notiz speichern
               </Button>
             </div>
@@ -334,31 +364,52 @@ function CustomerDetailPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Vorname</Label>
-              <Input value={address.firstName} onChange={(e) => setAddress({ ...address, firstName: e.target.value })} />
+              <Input
+                value={address.firstName}
+                onChange={(e) => setAddress({ ...address, firstName: e.target.value })}
+              />
             </div>
             <div>
               <Label>Nachname</Label>
-              <Input value={address.lastName} onChange={(e) => setAddress({ ...address, lastName: e.target.value })} />
+              <Input
+                value={address.lastName}
+                onChange={(e) => setAddress({ ...address, lastName: e.target.value })}
+              />
             </div>
             <div className="col-span-2">
               <Label>Straße und Hausnummer</Label>
-              <Input value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} />
+              <Input
+                value={address.street}
+                onChange={(e) => setAddress({ ...address, street: e.target.value })}
+              />
             </div>
             <div>
               <Label>PLZ</Label>
-              <Input value={address.postalCode} onChange={(e) => setAddress({ ...address, postalCode: e.target.value })} />
+              <Input
+                value={address.postalCode}
+                onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
+              />
             </div>
             <div>
               <Label>Ort</Label>
-              <Input value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
+              <Input
+                value={address.city}
+                onChange={(e) => setAddress({ ...address, city: e.target.value })}
+              />
             </div>
             <div>
               <Label>Land (ISO)</Label>
-              <Input value={address.countryCode} onChange={(e) => setAddress({ ...address, countryCode: e.target.value })} />
+              <Input
+                value={address.countryCode}
+                onChange={(e) => setAddress({ ...address, countryCode: e.target.value })}
+              />
             </div>
             <div>
               <Label>Telefon</Label>
-              <Input value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
+              <Input
+                value={address.phone}
+                onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+              />
             </div>
           </div>
           <Button onClick={() => addressMutation.mutate()} disabled={addressMutation.isPending}>

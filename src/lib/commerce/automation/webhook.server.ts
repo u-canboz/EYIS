@@ -26,7 +26,8 @@ export class WebhookError extends Error {
 
 function ipv4Blocked(ip: string): boolean {
   const parts = ip.split(".").map(Number);
-  if (parts.length !== 4 || parts.some((p) => !Number.isInteger(p) || p < 0 || p > 255)) return true;
+  if (parts.length !== 4 || parts.some((p) => !Number.isInteger(p) || p < 0 || p > 255))
+    return true;
   const [a, b] = parts as [number, number, number, number];
   if (a === 0 || a === 10 || a === 127) return true; // this-network, private, loopback
   if (a === 169 && b === 254) return true; // link-local incl. 169.254.169.254 metadata
@@ -82,7 +83,12 @@ export async function assertSafeTarget(rawUrl: string): Promise<URL> {
     throw new WebhookError("invalid_configuration", "Zugangsdaten in der URL sind nicht erlaubt.");
 
   const host = url.hostname.toLowerCase();
-  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".internal") || host.endsWith(".local"))
+  if (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".internal") ||
+    host.endsWith(".local")
+  )
     throw new WebhookError("invalid_configuration", "Interne Hostnamen sind nicht erlaubt.");
 
   const literal = host.replace(/^\[|\]$/g, "");
@@ -179,7 +185,8 @@ export async function sendWebhook(input: {
     snippet = text.slice(0, MAX_RESPONSE_BYTES);
     if (status >= 500)
       throw new WebhookError("temporary_unavailable", `Ziel antwortete mit ${status}.`, true);
-    if (status === 429) throw new WebhookError("rate_limited", "Ziel meldet zu viele Anfragen.", true);
+    if (status === 429)
+      throw new WebhookError("rate_limited", "Ziel meldet zu viele Anfragen.", true);
     if (status >= 400)
       throw new WebhookError("invalid_configuration", `Ziel antwortete mit ${status}.`);
     return { status, response: snippet };
@@ -187,7 +194,11 @@ export async function sendWebhook(input: {
     if (error instanceof WebhookError) {
       await admin
         .from("outgoing_webhook_endpoints")
-        .update({ last_status_code: status || null, last_error: error.message, last_called_at: new Date().toISOString() } as never)
+        .update({
+          last_status_code: status || null,
+          last_error: error.message,
+          last_called_at: new Date().toISOString(),
+        } as never)
         .eq("id", input.endpointId);
       throw error;
     }
@@ -202,7 +213,11 @@ export async function sendWebhook(input: {
     if (status && status < 300) {
       await admin
         .from("outgoing_webhook_endpoints")
-        .update({ last_status_code: status, last_error: null, last_called_at: new Date().toISOString() } as never)
+        .update({
+          last_status_code: status,
+          last_error: null,
+          last_called_at: new Date().toISOString(),
+        } as never)
         .eq("id", input.endpointId);
     }
   }

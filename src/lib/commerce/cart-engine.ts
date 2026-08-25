@@ -7,11 +7,7 @@
  *
  * All money is integer minor units.
  */
-import type {
-  AppliedPromotion,
-  PromotionCondition,
-  PromotionRow,
-} from "./pricing-types";
+import type { AppliedPromotion, PromotionCondition, PromotionRow } from "./pricing-types";
 import {
   PRICING_ENGINE_VERSION,
   type CartCalculation,
@@ -29,7 +25,8 @@ function inWindow(now: number, from: string | null, to: string | null) {
 /** Deterministic order: most expensive unit first, then variant, then line id. */
 function sortLines(lines: CartEngineLine[]) {
   return [...lines].sort((a, b) => {
-    if (a.unitResolvedMinor !== b.unitResolvedMinor) return b.unitResolvedMinor - a.unitResolvedMinor;
+    if (a.unitResolvedMinor !== b.unitResolvedMinor)
+      return b.unitResolvedMinor - a.unitResolvedMinor;
     if (a.variantId !== b.variantId) return a.variantId.localeCompare(b.variantId);
     return a.id.localeCompare(b.id);
   });
@@ -110,10 +107,7 @@ function buyGetConfig(promo: PromotionRow): { buy: number; get: number } | null 
  * to their running totals. Rounding remainders are assigned to the first line
  * in the deterministic sort order — never to a random database row order.
  */
-function distribute(
-  amount: number,
-  lines: { id: string; running: number }[],
-): Map<string, number> {
+function distribute(amount: number, lines: { id: string; running: number }[]): Map<string, number> {
   const out = new Map<string, number>();
   const total = lines.reduce((s, l) => s + l.running, 0);
   if (amount <= 0 || total <= 0) return out;
@@ -215,7 +209,8 @@ export function calculateCart(input: CartEngineInput): CartCalculation {
         // Deterministic: cheapest qualifying units are the free ones.
         const units: number[] = [];
         for (const l of [...c.lines].sort((a, b) => {
-          if (a.unitResolvedMinor !== b.unitResolvedMinor) return a.unitResolvedMinor - b.unitResolvedMinor;
+          if (a.unitResolvedMinor !== b.unitResolvedMinor)
+            return a.unitResolvedMinor - b.unitResolvedMinor;
           if (a.variantId !== b.variantId) return a.variantId.localeCompare(b.variantId);
           return a.id.localeCompare(b.id);
         })) {

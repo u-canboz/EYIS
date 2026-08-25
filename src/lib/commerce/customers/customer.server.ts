@@ -19,35 +19,35 @@ function str(v: unknown): string | null {
 
 function mapAddress(r: Row): CustomerAddress {
   return {
-    id: r['id'] as string,
-    customerId: r['customer_id'] as string,
-    type: r['type'] as CustomerAddress["type"],
-    firstName: r['first_name'] as string,
-    lastName: r['last_name'] as string,
-    company: str(r['company']),
-    street: r['street'] as string,
-    street2: str(r['street2']),
-    postalCode: r['postal_code'] as string,
-    city: r['city'] as string,
-    state: str(r['state']),
-    countryCode: r['country_code'] as string,
-    phone: str(r['phone']),
-    isDefault: Boolean(r['is_default']),
+    id: r["id"] as string,
+    customerId: r["customer_id"] as string,
+    type: r["type"] as CustomerAddress["type"],
+    firstName: r["first_name"] as string,
+    lastName: r["last_name"] as string,
+    company: str(r["company"]),
+    street: r["street"] as string,
+    street2: str(r["street2"]),
+    postalCode: r["postal_code"] as string,
+    city: r["city"] as string,
+    state: str(r["state"]),
+    countryCode: r["country_code"] as string,
+    phone: str(r["phone"]),
+    isDefault: Boolean(r["is_default"]),
   };
 }
 
 function baseItem(r: Row): CustomerListItem {
   return {
-    id: r['id'] as string,
-    shopId: r['shop_id'] as string,
-    email: r['email'] as string,
-    firstName: str(r['first_name']),
-    lastName: str(r['last_name']),
-    phone: str(r['phone']),
-    status: r['status'] as CustomerStatus,
-    customerType: r['customer_type'] as CustomerListItem["customerType"],
-    hasAccount: Boolean(r['auth_user_id']),
-    createdAt: r['created_at'] as string,
+    id: r["id"] as string,
+    shopId: r["shop_id"] as string,
+    email: r["email"] as string,
+    firstName: str(r["first_name"]),
+    lastName: str(r["last_name"]),
+    phone: str(r["phone"]),
+    status: r["status"] as CustomerStatus,
+    customerType: r["customer_type"] as CustomerListItem["customerType"],
+    hasAccount: Boolean(r["auth_user_id"]),
+    createdAt: r["created_at"] as string,
     orderCount: 0,
     totalSpentMinor: 0,
     currencyCode: "EUR",
@@ -57,7 +57,10 @@ function baseItem(r: Row): CustomerListItem {
 
 /** Aggregates order stats for a set of customers in one query. */
 async function orderStats(organizationId: string, customerIds: string[]) {
-  const stats = new Map<string, { count: number; total: number; last: string | null; currency: string }>();
+  const stats = new Map<
+    string,
+    { count: number; total: number; last: string | null; currency: string }
+  >();
   if (!customerIds.length) return stats;
   const admin = await getAdmin();
   const { data } = await admin
@@ -66,12 +69,12 @@ async function orderStats(organizationId: string, customerIds: string[]) {
     .eq("organization_id", organizationId)
     .in("customer_id", customerIds);
   for (const row of (data ?? []) as Row[]) {
-    const id = row['customer_id'] as string;
+    const id = row["customer_id"] as string;
     const entry = stats.get(id) ?? { count: 0, total: 0, last: null, currency: "EUR" };
     entry.count += 1;
-    if (row['payment_status'] === "paid") entry.total += Number(row['total_minor'] ?? 0);
-    entry.currency = (row['currency_code'] as string) ?? entry.currency;
-    const placed = row['placed_at'] as string;
+    if (row["payment_status"] === "paid") entry.total += Number(row["total_minor"] ?? 0);
+    entry.currency = (row["currency_code"] as string) ?? entry.currency;
+    const placed = row["placed_at"] as string;
     if (!entry.last || placed > entry.last) entry.last = placed;
     stats.set(id, entry);
   }
@@ -97,23 +100,37 @@ export async function listCustomers(input: {
   const term = (input.search ?? "").trim();
   if (term) {
     query = query.or(
-      [`email.ilike.%${term}%`, `first_name.ilike.%${term}%`, `last_name.ilike.%${term}%`].join(","),
+      [`email.ilike.%${term}%`, `first_name.ilike.%${term}%`, `last_name.ilike.%${term}%`].join(
+        ",",
+      ),
     );
   }
   const { data, error } = await query;
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as Row[];
-  const stats = await orderStats(input.organizationId, rows.map((r) => r['id'] as string));
+  const stats = await orderStats(
+    input.organizationId,
+    rows.map((r) => r["id"] as string),
+  );
   return rows.map((r) => {
     const item = baseItem(r);
     const s = stats.get(item.id);
     return s
-      ? { ...item, orderCount: s.count, totalSpentMinor: s.total, lastOrderAt: s.last, currencyCode: s.currency }
+      ? {
+          ...item,
+          orderCount: s.count,
+          totalSpentMinor: s.total,
+          lastOrderAt: s.last,
+          currencyCode: s.currency,
+        }
       : item;
   });
 }
 
-export async function loadCustomer(organizationId: string, customerId: string): Promise<CustomerDetail> {
+export async function loadCustomer(
+  organizationId: string,
+  customerId: string,
+): Promise<CustomerDetail> {
   const admin = await getAdmin();
   const { data, error } = await admin
     .from("customers")
@@ -129,42 +146,48 @@ export async function loadCustomer(organizationId: string, customerId: string): 
     admin.from("customer_group_members").select("customer_group_id").eq("customer_id", customerId),
     admin
       .from("orders")
-      .select("id, order_number, placed_at, total_minor, currency_code, order_status, payment_status, fulfillment_status")
+      .select(
+        "id, order_number, placed_at, total_minor, currency_code, order_status, payment_status, fulfillment_status",
+      )
       .eq("organization_id", organizationId)
       .eq("customer_id", customerId)
       .order("placed_at", { ascending: false })
       .limit(50),
-    admin.from("customer_notes").select("*").eq("customer_id", customerId).order("created_at", { ascending: false }),
+    admin
+      .from("customer_notes")
+      .select("*")
+      .eq("customer_id", customerId)
+      .order("created_at", { ascending: false }),
     admin.from("returns").select("id").eq("customer_id", customerId),
   ]);
 
   const orderRows = (orders.data ?? []) as Row[];
   const item = baseItem(data as Row);
-  const paid = orderRows.filter((o) => o['payment_status'] === "paid");
+  const paid = orderRows.filter((o) => o["payment_status"] === "paid");
 
   return {
     ...item,
     orderCount: orderRows.length,
-    totalSpentMinor: paid.reduce((sum, o) => sum + Number(o['total_minor'] ?? 0), 0),
-    currencyCode: (orderRows[0]?.['currency_code'] as string) ?? "EUR",
-    lastOrderAt: (orderRows[0]?.['placed_at'] as string) ?? null,
+    totalSpentMinor: paid.reduce((sum, o) => sum + Number(o["total_minor"] ?? 0), 0),
+    currencyCode: (orderRows[0]?.["currency_code"] as string) ?? "EUR",
+    lastOrderAt: (orderRows[0]?.["placed_at"] as string) ?? null,
     addresses: ((addresses.data ?? []) as Row[]).map(mapAddress),
-    groupIds: ((groups.data ?? []) as Row[]).map((g) => g['customer_group_id'] as string),
+    groupIds: ((groups.data ?? []) as Row[]).map((g) => g["customer_group_id"] as string),
     orders: orderRows.map((o) => ({
-      id: o['id'] as string,
-      orderNumber: o['order_number'] as string,
-      placedAt: o['placed_at'] as string,
-      totalMinor: Number(o['total_minor'] ?? 0),
-      currencyCode: o['currency_code'] as string,
-      orderStatus: o['order_status'] as string,
-      paymentStatus: o['payment_status'] as string,
-      fulfillmentStatus: o['fulfillment_status'] as string,
+      id: o["id"] as string,
+      orderNumber: o["order_number"] as string,
+      placedAt: o["placed_at"] as string,
+      totalMinor: Number(o["total_minor"] ?? 0),
+      currencyCode: o["currency_code"] as string,
+      orderStatus: o["order_status"] as string,
+      paymentStatus: o["payment_status"] as string,
+      fulfillmentStatus: o["fulfillment_status"] as string,
     })),
     notes: ((notes.data ?? []) as Row[]).map((n) => ({
-      id: n['id'] as string,
-      body: n['body'] as string,
-      authorId: str(n['author_id']),
-      createdAt: n['created_at'] as string,
+      id: n["id"] as string,
+      body: n["body"] as string,
+      authorId: str(n["author_id"]),
+      createdAt: n["created_at"] as string,
     })),
     returnCount: ((returns.data ?? []) as Row[]).length,
   };
@@ -213,7 +236,7 @@ export async function upsertCustomer(input: {
     .select("id")
     .single();
   if (error) throw new Error(error.message);
-  const id = (data as Row)['id'] as string;
+  const id = (data as Row)["id"] as string;
   await writeAudit({
     organizationId: input.organizationId,
     actorId: input.actorId,
@@ -272,7 +295,7 @@ export async function saveAddress(input: {
   const a = input.address;
   const payload = {
     organization_id: input.organizationId,
-    shop_id: (customer as Row)['shop_id'] as string,
+    shop_id: (customer as Row)["shop_id"] as string,
     customer_id: input.customerId,
     type: a.type,
     first_name: a.firstName,
@@ -288,13 +311,20 @@ export async function saveAddress(input: {
     is_default: a.isDefault ?? false,
   };
   if (a.id) {
-    const { error } = await admin.from("customer_addresses").update(payload as never).eq("id", a.id);
+    const { error } = await admin
+      .from("customer_addresses")
+      .update(payload as never)
+      .eq("id", a.id);
     if (error) throw new Error(error.message);
     return { addressId: a.id };
   }
-  const { data, error } = await admin.from("customer_addresses").insert(payload as never).select("id").single();
+  const { data, error } = await admin
+    .from("customer_addresses")
+    .insert(payload as never)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
-  return { addressId: (data as Row)['id'] as string };
+  return { addressId: (data as Row)["id"] as string };
 }
 
 export async function deleteAddress(organizationId: string, addressId: string) {
@@ -390,16 +420,16 @@ export async function resolveGuestToken(token: string) {
     .maybeSingle();
   if (!data) return null;
   const row = data as Row;
-  if (row['revoked_at']) return null;
-  if (new Date(row['expires_at'] as string).getTime() < Date.now()) return null;
+  if (row["revoked_at"]) return null;
+  if (new Date(row["expires_at"] as string).getTime() < Date.now()) return null;
   await admin
     .from("guest_order_access_tokens")
     .update({ used_at: new Date().toISOString() } as never)
-    .eq("id", row['id'] as string);
+    .eq("id", row["id"] as string);
   return {
-    organizationId: row['organization_id'] as string,
-    shopId: row['shop_id'] as string,
-    orderId: row['order_id'] as string,
+    organizationId: row["organization_id"] as string,
+    shopId: row["shop_id"] as string,
+    orderId: row["order_id"] as string,
   };
 }
 
@@ -438,8 +468,8 @@ export async function claimOrdersForUser(input: { userId: string; email: string 
   const customerByShop = new Map<string, string>();
 
   for (const order of orders) {
-    const shopId = order['shop_id'] as string;
-    const orgId = order['organization_id'] as string;
+    const shopId = order["shop_id"] as string;
+    const orgId = order["organization_id"] as string;
     let customerId = customerByShop.get(shopId) ?? null;
 
     if (!customerId) {
@@ -450,8 +480,8 @@ export async function claimOrdersForUser(input: { userId: string; email: string 
         .ilike("email", email)
         .maybeSingle();
       if (existing) {
-        customerId = (existing as Row)['id'] as string;
-        if (!(existing as Row)['auth_user_id']) {
+        customerId = (existing as Row)["id"] as string;
+        if (!(existing as Row)["auth_user_id"]) {
           await admin
             .from("customers")
             .update({ auth_user_id: input.userId, status: "active" } as never)
@@ -470,7 +500,7 @@ export async function claimOrdersForUser(input: { userId: string; email: string 
           .select("id")
           .single();
         if (error) continue;
-        customerId = (created as Row)['id'] as string;
+        customerId = (created as Row)["id"] as string;
       }
       customerByShop.set(shopId, customerId);
     }
@@ -478,22 +508,22 @@ export async function claimOrdersForUser(input: { userId: string; email: string 
     const { error: linkError } = await admin
       .from("orders")
       .update({ customer_id: customerId } as never)
-      .eq("id", order['id'] as string)
+      .eq("id", order["id"] as string)
       .is("customer_id", null);
     if (linkError) continue;
 
-    claimed.push(order['id'] as string);
+    claimed.push(order["id"] as string);
     await writeAudit({
       organizationId: orgId,
       actorId: input.userId,
       actorEmail: email,
       action: "customer.order_claimed",
       entityType: "order",
-      entityId: order['id'] as string,
+      entityId: order["id"] as string,
       metadata: { customer_id: customerId, reason: "account_linking" },
     });
     await emitEvent(orgId, "security.customer_order_claimed", {
-      order_id: order['id'],
+      order_id: order["id"],
       customer_id: customerId,
       auth_user_id: input.userId,
     });

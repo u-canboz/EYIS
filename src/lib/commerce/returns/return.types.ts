@@ -24,13 +24,7 @@ export type ReturnReasonCode =
   | "other";
 
 export type ReturnItemCondition =
-  | "new"
-  | "opened"
-  | "used"
-  | "damaged"
-  | "defective"
-  | "missing_parts"
-  | "unknown";
+  "new" | "opened" | "used" | "damaged" | "defective" | "missing_parts" | "unknown";
 
 export type RestockDecision = "pending" | "restock" | "do_not_restock" | "manual_review";
 export type ReturnResolution = "refund" | "store_credit" | "replacement" | "none";

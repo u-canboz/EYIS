@@ -1,21 +1,19 @@
 /** Client-safe payment & order types. All money is integer minor units. */
 
-export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 export type PaymentProviderId = "stripe" | "mock";
 export type CommerceEnvironment = "test" | "live";
 
-export type PaymentSessionStatus = "created" | "pending" | "paid" | "failed" | "cancelled" | "expired";
+export type PaymentSessionStatus =
+  "created" | "pending" | "paid" | "failed" | "cancelled" | "expired";
 
 export type OrderState = "pending" | "confirmed" | "processing" | "completed" | "cancelled";
 export type OrderPaymentStatus =
-  | "unpaid"
-  | "authorized"
-  | "paid"
-  | "partially_refunded"
-  | "refunded"
-  | "failed";
-export type OrderFulfillmentStatus = "unfulfilled" | "partially_fulfilled" | "fulfilled" | "returned";
+  "unpaid" | "authorized" | "paid" | "partially_refunded" | "refunded" | "failed";
+export type OrderFulfillmentStatus =
+  "unfulfilled" | "partially_fulfilled" | "fulfilled" | "returned";
 export type RefundStatus = "requested" | "processing" | "completed" | "failed" | "cancelled";
 
 export type PaymentSessionView = {
@@ -34,7 +32,13 @@ export type PaymentStatusView = {
   status: PaymentSessionStatus;
   amountMinor: number;
   currencyCode: string;
-  order: { id: string; orderNumber: string; totalMinor: number; currencyCode: string; email: string | null } | null;
+  order: {
+    id: string;
+    orderNumber: string;
+    totalMinor: number;
+    currencyCode: string;
+    email: string | null;
+  } | null;
 };
 
 export type OrderListItem = {

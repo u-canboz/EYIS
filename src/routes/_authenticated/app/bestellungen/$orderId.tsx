@@ -10,10 +10,7 @@ import {
   createRefundFn,
 } from "@/lib/commerce/orders/order.functions";
 import { getOrderFulfillments } from "@/lib/commerce/fulfillment/fulfillment.functions";
-import {
-  getOrderDocumentsFn,
-  createInvoiceFn,
-} from "@/lib/commerce/documents/document.functions";
+import { getOrderDocumentsFn, createInvoiceFn } from "@/lib/commerce/documents/document.functions";
 import { INVOICE_STATUS_LABELS } from "@/lib/commerce/documents/document.types";
 import { getOrderTrackingFn } from "@/lib/commerce/shipping/carrier.functions";
 import {
@@ -43,7 +40,8 @@ export const Route = createFileRoute("/_authenticated/app/bestellungen/$orderId"
       { title: "Bestelldetails – Commerce OS" },
       {
         name: "description",
-        content: "Positionen, Adressen, Zahlungsbuchungen, Erstattungen und Verlauf einer Bestellung.",
+        content:
+          "Positionen, Adressen, Zahlungsbuchungen, Erstattungen und Verlauf einer Bestellung.",
       },
       { property: "og:title", content: "Bestelldetails – Commerce OS" },
       { property: "og:description", content: "Vollständige Historie einer Bestellung." },
@@ -96,7 +94,8 @@ function OrderDetailPage() {
     queryFn: () => getDocuments({ data: { organizationId, orderId } }),
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["order", organizationId, orderId] });
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["order", organizationId, orderId] });
   const fail = (e: Error) => toast.error(e.message);
 
   const createInvoiceMutation = useMutation({
@@ -107,7 +106,6 @@ function OrderDetailPage() {
     },
     onError: fail,
   });
-
 
   const noteMutation = useMutation({
     mutationFn: () => saveNote({ data: { organizationId, orderId, note: note ?? "" } }),
@@ -147,7 +145,8 @@ function OrderDetailPage() {
     onError: fail,
   });
 
-  if (order.error) return <p className="text-destructive text-sm">{(order.error as Error).message}</p>;
+  if (order.error)
+    return <p className="text-destructive text-sm">{(order.error as Error).message}</p>;
   if (!order.data) return <Skeleton className="h-64 w-full" />;
   const o = order.data;
   const currency = o.currencyCode;
@@ -182,7 +181,8 @@ function OrderDetailPage() {
               {o.items.map((i) => (
                 <li key={i.id} className="flex justify-between gap-3">
                   <span>
-                    {i.quantity} × {i.title} · <span className="text-muted-foreground">{i.variantTitle}</span>
+                    {i.quantity} × {i.title} ·{" "}
+                    <span className="text-muted-foreground">{i.variantTitle}</span>
                     {i.sku && <span className="text-muted-foreground"> · {i.sku}</span>}
                   </span>
                   <span>{formatMoney(i.lineTotalMinor, currency)}</span>
@@ -198,10 +198,10 @@ function OrderDetailPage() {
               {(o.taxBreakdown as Array<Record<string, number | string>>).map((b, idx) => (
                 <Row
                   key={idx}
-                  label={`USt ${(Number(b['rateBasisPoints'] ?? 0) / 100).toFixed(
-                    Number(b['rateBasisPoints'] ?? 0) % 100 === 0 ? 0 : 2,
+                  label={`USt ${(Number(b["rateBasisPoints"] ?? 0) / 100).toFixed(
+                    Number(b["rateBasisPoints"] ?? 0) % 100 === 0 ? 0 : 2,
                   )} %`}
-                  value={formatMoney(Number(b['taxMinor'] ?? 0), currency)}
+                  value={formatMoney(Number(b["taxMinor"] ?? 0), currency)}
                 />
               ))}
               <Row label="Steuer" value={formatMoney(o.taxMinor, currency)} />
@@ -220,12 +220,12 @@ function OrderDetailPage() {
                 </h3>
                 <p className="text-muted-foreground text-sm whitespace-pre-line">
                   {[
-                    `${a['firstName'] ?? ""} ${a['lastName'] ?? ""}`.trim(),
-                    a['company'],
-                    a['street'],
-                    a['street2'],
-                    `${a['postalCode'] ?? ""} ${a['city'] ?? ""}`.trim(),
-                    a['countryCode'],
+                    `${a["firstName"] ?? ""} ${a["lastName"] ?? ""}`.trim(),
+                    a["company"],
+                    a["street"],
+                    a["street2"],
+                    `${a["postalCode"] ?? ""} ${a["city"] ?? ""}`.trim(),
+                    a["countryCode"],
                   ]
                     .filter(Boolean)
                     .join("\n")}
@@ -245,8 +245,8 @@ function OrderDetailPage() {
               <Skeleton className="h-20 w-full" />
             ) : !fulfillments.data?.length ? (
               <p className="text-muted-foreground text-sm">
-                Noch kein Fulfillment angelegt. Bezahlte Bestellungen lassen sich im Versand-Workspace
-                kommissionieren.
+                Noch kein Fulfillment angelegt. Bezahlte Bestellungen lassen sich im
+                Versand-Workspace kommissionieren.
               </p>
             ) : (
               <ul className="space-y-4">
@@ -266,29 +266,35 @@ function OrderDetailPage() {
                       {f.items.reduce((sum, i) => sum + i.quantity, 0)} Artikel ·{" "}
                       {f.packages.length} Paket(e)
                     </p>
-                    {f.packages.map((p) => p.shipment).filter((s) => s !== null).map((s) => (
-                      <div key={s.id} className="mt-2 border-t pt-2 text-sm">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span>
-                            {s.carrierProvider}
-                            {s.trackingNumber && (
-                              <span className="text-muted-foreground font-mono text-xs"> · {s.trackingNumber}</span>
-                            )}
-                          </span>
-                          <Badge variant="secondary">{SHIPMENT_STATUS_LABELS[s.status]}</Badge>
+                    {f.packages
+                      .map((p) => p.shipment)
+                      .filter((s) => s !== null)
+                      .map((s) => (
+                        <div key={s.id} className="mt-2 border-t pt-2 text-sm">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span>
+                              {s.carrierProvider}
+                              {s.trackingNumber && (
+                                <span className="text-muted-foreground font-mono text-xs">
+                                  {" "}
+                                  · {s.trackingNumber}
+                                </span>
+                              )}
+                            </span>
+                            <Badge variant="secondary">{SHIPMENT_STATUS_LABELS[s.status]}</Badge>
+                          </div>
+                          {s.trackingUrl && (
+                            <a
+                              href={s.trackingUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary text-xs hover:underline"
+                            >
+                              Sendung beim Dienstleister verfolgen
+                            </a>
+                          )}
                         </div>
-                        {s.trackingUrl && (
-                          <a
-                            href={s.trackingUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-primary text-xs hover:underline"
-                          >
-                            Sendung beim Dienstleister verfolgen
-                          </a>
-                        )}
-                      </div>
-                    ))}
+                      ))}
                   </li>
                 ))}
               </ul>
@@ -301,7 +307,10 @@ function OrderDetailPage() {
                 <ul className="space-y-1 text-sm">
                   {tracking.data.shipments.flatMap((s) =>
                     s.events.map((e, idx) => (
-                      <li key={`${s.trackingNumber ?? s.carrierProvider}-${idx}`} className="flex justify-between gap-3">
+                      <li
+                        key={`${s.trackingNumber ?? s.carrierProvider}-${idx}`}
+                        className="flex justify-between gap-3"
+                      >
                         <span>
                           {TRACKING_STATUS_LABELS[e.status]}
                           {e.description && (
@@ -337,7 +346,10 @@ function OrderDetailPage() {
                 ) : (
                   <ul className="space-y-2 text-sm">
                     {documents.data.invoices.map((inv) => (
-                      <li key={inv.id} className="flex flex-wrap items-center justify-between gap-2">
+                      <li
+                        key={inv.id}
+                        className="flex flex-wrap items-center justify-between gap-2"
+                      >
                         <Link
                           to="/app/dokumente/$invoiceId"
                           params={{ invoiceId: inv.id }}
@@ -379,7 +391,6 @@ function OrderDetailPage() {
             )}
           </section>
 
-
           <section className="rounded-lg border p-4">
             <h2 className="mb-3 font-medium">Zahlungsbuchungen</h2>
             {!o.transactions.length ? (
@@ -390,7 +401,9 @@ function OrderDetailPage() {
                   <li key={t.id} className="flex justify-between gap-3">
                     <span>
                       {t.type} · {t.provider} ·{" "}
-                      <span className="text-muted-foreground">{t.providerTransactionId ?? "—"}</span>
+                      <span className="text-muted-foreground">
+                        {t.providerTransactionId ?? "—"}
+                      </span>
                     </span>
                     <span>{formatMoney(t.amountMinor, t.currencyCode)}</span>
                   </li>
@@ -467,7 +480,8 @@ function OrderDetailPage() {
                 {o.refunds.map((r) => (
                   <li key={r.id} className="flex justify-between gap-2">
                     <span>
-                      {formatMoney(r.amountMinor, r.currencyCode)} · {REFUND_STATUS_LABELS[r.status]}
+                      {formatMoney(r.amountMinor, r.currencyCode)} ·{" "}
+                      {REFUND_STATUS_LABELS[r.status]}
                     </span>
                     <span className="text-muted-foreground">
                       {new Date(r.createdAt).toLocaleDateString("de-DE")}

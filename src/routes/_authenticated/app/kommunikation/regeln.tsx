@@ -49,7 +49,12 @@ function RulesPage() {
   const removeSuppression = useServerFn(removeSuppressionFn);
 
   const [busy, setBusy] = useState(false);
-  const [sender, setSender] = useState({ displayName: "", senderName: "", senderAddress: "", replyTo: "" });
+  const [sender, setSender] = useState({
+    displayName: "",
+    senderName: "",
+    senderAddress: "",
+    replyTo: "",
+  });
 
   const rules = useQuery({
     queryKey: ["communication-rules", organizationId, shopId],

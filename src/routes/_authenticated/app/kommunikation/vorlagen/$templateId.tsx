@@ -93,8 +93,7 @@ function TemplateEditor() {
   const previewQuery = useQuery({
     queryKey: ["communication-preview", organizationId, shopId, templateId, subject, blocks],
     enabled: !!organizationId && !!shopId && blocks.length > 0,
-    queryFn: () =>
-      preview({ data: { organizationId, shopId, subject, preheader, blocks } }),
+    queryFn: () => preview({ data: { organizationId, shopId, subject, preheader, blocks } }),
   });
 
   const isSystem = !template.data?.organizationId;
@@ -390,9 +389,7 @@ function TemplateEditor() {
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">
                     {group.group}
                   </p>
-                  <p className="text-xs">
-                    {group.items.map((i) => `{{${i.path}}}`).join("  ")}
-                  </p>
+                  <p className="text-xs">{group.items.map((i) => `{{${i.path}}}`).join("  ")}</p>
                 </div>
               ))}
             </div>

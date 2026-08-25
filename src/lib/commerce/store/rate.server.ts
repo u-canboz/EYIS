@@ -31,19 +31,31 @@ export const RATE_LIMITS: Record<RateProfile, { limit: number; windowSeconds: nu
 
 export type RateResult = { allowed: boolean; hits: number; limit: number; resetAt: string };
 
-export async function rateHit(keyId: string, profile: RateProfile, bucket: string): Promise<RateResult> {
+export async function rateHit(
+  keyId: string,
+  profile: RateProfile,
+  bucket: string,
+): Promise<RateResult> {
   const conf = RATE_LIMITS[profile];
   const admin = await getAdmin();
-  const { data, error } = await admin.rpc("store_rate_hit" as never, {
-    p_key_id: keyId,
-    p_profile: profile,
-    p_bucket: bucket.slice(0, 64),
-    p_limit: conf.limit,
-    p_window_seconds: conf.windowSeconds,
-  } as never);
+  const { data, error } = await admin.rpc(
+    "store_rate_hit" as never,
+    {
+      p_key_id: keyId,
+      p_profile: profile,
+      p_bucket: bucket.slice(0, 64),
+      p_limit: conf.limit,
+      p_window_seconds: conf.windowSeconds,
+    } as never,
+  );
   if (error) {
     // Fail closed only for the strict buckets; catalog reads stay available.
-    const strict: RateProfile[] = ["payment_session", "return_create", "customer_login", "guest_lookup"];
+    const strict: RateProfile[] = [
+      "payment_session",
+      "return_create",
+      "customer_login",
+      "guest_lookup",
+    ];
     return {
       allowed: !strict.includes(profile),
       hits: 0,

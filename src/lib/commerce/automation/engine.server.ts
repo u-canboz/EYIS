@@ -95,16 +95,25 @@ export async function dispatchAutomations(event: AutomationEvent) {
     }
 
     // Atomic, server-side counting: circuit breaker + rate limits in one call.
-    const { data: verdict } = await admin.rpc("automation_check_limits" as never, {
-      _rule_id: ruleId,
-      _entity_key: entityKey(event.payload),
-    } as never);
+    const { data: verdict } = await admin.rpc(
+      "automation_check_limits" as never,
+      {
+        _rule_id: ruleId,
+        _entity_key: entityKey(event.payload),
+      } as never,
+    );
     if (verdict !== "allow") {
       started.push({ ruleId, executionId: null, outcome: String(verdict) });
       continue;
     }
 
-    const executionId = await insertExecution({ rule, event, correlationId, chainDepth, status: "queued" });
+    const executionId = await insertExecution({
+      rule,
+      event,
+      correlationId,
+      chainDepth,
+      status: "queued",
+    });
     if (!executionId) {
       started.push({ ruleId, executionId: null, outcome: "duplicate" });
       continue;
@@ -173,11 +182,19 @@ export async function runExecution(executionId: string): Promise<ExecutionResult
     .maybeSingle();
   const execution = execData as Row | null;
   if (!execution) return { status: "missing", actions: 0, failed: 0 };
-  if (["completed", "failed", "cancelled", "partially_completed"].includes(execution["status"] as string))
+  if (
+    ["completed", "failed", "cancelled", "partially_completed"].includes(
+      execution["status"] as string,
+    )
+  )
     return { status: execution["status"] as string, actions: 0, failed: 0 };
 
   const ruleId = execution["rule_id"] as string;
-  const { data: ruleData } = await admin.from("automation_rules").select("*").eq("id", ruleId).maybeSingle();
+  const { data: ruleData } = await admin
+    .from("automation_rules")
+    .select("*")
+    .eq("id", ruleId)
+    .maybeSingle();
   const rule = (ruleData as Row) ?? {};
   const { data: versionData } = await admin
     .from("automation_rule_versions")
@@ -187,22 +204,32 @@ export async function runExecution(executionId: string): Promise<ExecutionResult
   const version = versionData as Row | null;
 
   const payload = (execution["context_snapshot"] as Record<string, unknown>) ?? {};
-  const conditions = (version?.["conditions_snapshot"] ?? rule["conditions"]) as ConditionGroup | null;
-  const actions = ((version?.["actions_snapshot"] as Row[]) ?? []).slice().sort(
-    (a, b) => Number(a["position"] ?? 0) - Number(b["position"] ?? 0),
-  );
+  const conditions = (version?.["conditions_snapshot"] ??
+    rule["conditions"]) as ConditionGroup | null;
+  const actions = ((version?.["actions_snapshot"] as Row[]) ?? [])
+    .slice()
+    .sort((a, b) => Number(a["position"] ?? 0) - Number(b["position"] ?? 0));
 
   const startedAt = Date.now();
   await admin
     .from("automation_executions")
-    .update({ status: "running", started_at: execution["started_at"] ?? new Date().toISOString() } as never)
+    .update({
+      status: "running",
+      started_at: execution["started_at"] ?? new Date().toISOString(),
+    } as never)
     .eq("id", executionId);
 
   // Conditions are evaluated once, at the start of the (first) run.
   if (Number(execution["current_action_position"] ?? 0) === 0) {
     const { passed } = evaluateGroup(conditions, payload);
     if (!passed) {
-      await finish(executionId, "completed", "conditions_not_met", "Bedingungen nicht erfüllt.", startedAt);
+      await finish(
+        executionId,
+        "completed",
+        "conditions_not_met",
+        "Bedingungen nicht erfüllt.",
+        startedAt,
+      );
       return { status: "skipped_conditions", actions: 0, failed: 0 };
     }
   }
@@ -265,7 +292,13 @@ export async function runExecution(executionId: string): Promise<ExecutionResult
       }
       await admin.rpc("automation_record_error" as never, { _rule_id: ruleId } as never);
       if (!continueOnFailure && stopOnError) {
-        await finish(executionId, "failed", outcome.errorCode ?? "engine_error", outcome.errorMessage ?? null, startedAt);
+        await finish(
+          executionId,
+          "failed",
+          outcome.errorCode ?? "engine_error",
+          outcome.errorMessage ?? null,
+          startedAt,
+        );
         return { status: "failed", actions: ran, failed };
       }
     }
@@ -341,7 +374,12 @@ async function completeAction(id: string, outcome: Awaited<ReturnType<typeof run
     .eq("id", id);
 }
 
-async function scheduleResume(execution: Row, executionId: string, position: number, delaySeconds: number) {
+async function scheduleResume(
+  execution: Row,
+  executionId: string,
+  position: number,
+  delaySeconds: number,
+) {
   const admin = await getAdmin();
   await admin.from("automation_jobs").insert({
     organization_id: execution["organization_id"],
@@ -415,7 +453,11 @@ export async function dryRunRule(input: {
     .order("position");
 
   const trace: ConditionTrace[] = [];
-  const { passed } = evaluateGroup((rule["conditions"] as ConditionGroup) ?? null, input.payload, trace);
+  const { passed } = evaluateGroup(
+    (rule["conditions"] as ConditionGroup) ?? null,
+    input.payload,
+    trace,
+  );
   return {
     matched: passed,
     trace,

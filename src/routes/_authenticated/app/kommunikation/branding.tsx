@@ -63,8 +63,7 @@ function BrandingPage() {
   const previewQuery = useQuery({
     queryKey: ["communication-branding-preview", organizationId, shopId, branding.dataUpdatedAt],
     enabled: !!organizationId && !!shopId,
-    queryFn: () =>
-      preview({ data: { organizationId, shopId, templateKey: "order.confirmation" } }),
+    queryFn: () => preview({ data: { organizationId, shopId, templateKey: "order.confirmation" } }),
   });
 
   if (!settings) return <Skeleton className="h-96 w-full" />;

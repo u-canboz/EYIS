@@ -44,19 +44,22 @@ const DEFAULT_SETTINGS = (shopId: string): ReturnSettings => ({
 
 function mapSettings(r: Row): ReturnSettings {
   return {
-    shopId: r['shop_id'] as string,
-    returnsEnabled: Boolean(r['returns_enabled']),
-    defaultReturnWindowDays: Number(r['default_return_window_days'] ?? 30),
-    windowStart: r['window_start'] as ReturnSettings["windowStart"],
-    approvalStrategy: r['approval_strategy'] as ReturnSettings["approvalStrategy"],
-    customerPaysReturnShipping: Boolean(r['customer_pays_return_shipping']),
-    autoRefundOnApproval: Boolean(r['auto_refund_on_approval']),
-    autoRestock: Boolean(r['auto_restock']),
-    instructions: (r['instructions'] as string) ?? null,
+    shopId: r["shop_id"] as string,
+    returnsEnabled: Boolean(r["returns_enabled"]),
+    defaultReturnWindowDays: Number(r["default_return_window_days"] ?? 30),
+    windowStart: r["window_start"] as ReturnSettings["windowStart"],
+    approvalStrategy: r["approval_strategy"] as ReturnSettings["approvalStrategy"],
+    customerPaysReturnShipping: Boolean(r["customer_pays_return_shipping"]),
+    autoRefundOnApproval: Boolean(r["auto_refund_on_approval"]),
+    autoRestock: Boolean(r["auto_restock"]),
+    instructions: (r["instructions"] as string) ?? null,
   };
 }
 
-export async function loadReturnSettings(organizationId: string, shopId: string): Promise<ReturnSettings> {
+export async function loadReturnSettings(
+  organizationId: string,
+  shopId: string,
+): Promise<ReturnSettings> {
   const admin = await getAdmin();
   const { data } = await admin
     .from("return_settings")
@@ -96,7 +99,10 @@ export async function saveReturnSettings(input: {
 /* ------------------------------ eligibility ----------------------------- */
 
 /** What can still be returned for this order, and until when. */
-export async function getEligibility(organizationId: string, orderId: string): Promise<ReturnEligibility> {
+export async function getEligibility(
+  organizationId: string,
+  orderId: string,
+): Promise<ReturnEligibility> {
   const admin = await getAdmin();
   const { data: orderRow, error } = await admin
     .from("orders")
@@ -108,7 +114,7 @@ export async function getEligibility(organizationId: string, orderId: string): P
   if (!orderRow) throw new Error("Bestellung nicht gefunden.");
   const order = orderRow as Row;
 
-  const settings = await loadReturnSettings(organizationId, order['shop_id'] as string);
+  const settings = await loadReturnSettings(organizationId, order["shop_id"] as string);
 
   const [items, returnRows, shipments] = await Promise.all([
     admin.from("order_items").select("*").eq("order_id", orderId).order("created_at"),
@@ -118,15 +124,16 @@ export async function getEligibility(organizationId: string, orderId: string): P
       .select("shipped_at, delivered_at")
       .in(
         "fulfillment_id",
-        ((
-          await admin.from("fulfillments").select("id").eq("order_id", orderId)
-        ).data ?? ([] as Row[])).map((f) => (f as Row)['id'] as string),
+        (
+          (await admin.from("fulfillments").select("id").eq("order_id", orderId)).data ??
+          ([] as Row[])
+        ).map((f) => (f as Row)["id"] as string),
       ),
   ]);
 
   const returnIds = ((returnRows.data ?? []) as Row[])
-    .filter((r) => !["rejected", "cancelled"].includes(r['status'] as string))
-    .map((r) => r['id'] as string);
+    .filter((r) => !["rejected", "cancelled"].includes(r["status"] as string))
+    .map((r) => r["id"] as string);
 
   const { data: returnItems } = returnIds.length
     ? await admin.from("return_items").select("*, returns!inner(status)").in("return_id", returnIds)
@@ -134,60 +141,66 @@ export async function getEligibility(organizationId: string, orderId: string): P
 
   const returnedByItem = new Map<string, number>();
   for (const ri of (returnItems ?? []) as Row[]) {
-    const status = ((ri['returns'] as Row | null)?.['status'] as string) ?? "requested";
+    const status = ((ri["returns"] as Row | null)?.["status"] as string) ?? "requested";
     const qty = ["approved", "partially_approved", "refunded", "completed"].includes(status)
-      ? Number(ri['quantity_approved'] ?? 0)
-      : Number(ri['quantity_requested'] ?? 0);
-    const key = ri['order_item_id'] as string;
+      ? Number(ri["quantity_approved"] ?? 0)
+      : Number(ri["quantity_requested"] ?? 0);
+    const key = ri["order_item_id"] as string;
     returnedByItem.set(key, (returnedByItem.get(key) ?? 0) + qty);
   }
 
   const shipRows = (shipments.data ?? []) as Row[];
   const deliveredAt = shipRows
-    .map((s) => s['delivered_at'] as string | null)
+    .map((s) => s["delivered_at"] as string | null)
     .filter(Boolean)
     .sort()
     .pop() as string | undefined;
   const shippedAt = shipRows
-    .map((s) => s['shipped_at'] as string | null)
+    .map((s) => s["shipped_at"] as string | null)
     .filter(Boolean)
     .sort()
     .pop() as string | undefined;
 
   const startDate =
     settings.windowStart === "order_date"
-      ? (order['placed_at'] as string)
+      ? (order["placed_at"] as string)
       : settings.windowStart === "shipping_date"
-        ? (shippedAt ?? (order['placed_at'] as string))
-        : (deliveredAt ?? shippedAt ?? (order['placed_at'] as string));
+        ? (shippedAt ?? (order["placed_at"] as string))
+        : (deliveredAt ?? shippedAt ?? (order["placed_at"] as string));
   const windowEndsAt = new Date(
     new Date(startDate).getTime() + settings.defaultReturnWindowDays * 86_400_000,
   ).toISOString();
 
-  const productIds = [...new Set(((items.data ?? []) as Row[]).map((i) => i['product_id']).filter(Boolean))] as string[];
+  const productIds = [
+    ...new Set(((items.data ?? []) as Row[]).map((i) => i["product_id"]).filter(Boolean)),
+  ] as string[];
   const { data: products } = productIds.length
-    ? await admin.from("products").select("id, return_policy_type, return_policy_note").in("id", productIds)
+    ? await admin
+        .from("products")
+        .select("id, return_policy_type, return_policy_note")
+        .in("id", productIds)
     : { data: [] as Row[] };
-  const policyByProduct = new Map(((products ?? []) as Row[]).map((p) => [p['id'] as string, p]));
+  const policyByProduct = new Map(((products ?? []) as Row[]).map((p) => [p["id"] as string, p]));
 
   const lines: EligibilityLine[] = ((items.data ?? []) as Row[]).map((i) => {
-    const alreadyReturned = returnedByItem.get(i['id'] as string) ?? 0;
-    const quantity = Number(i['quantity'] ?? 0);
-    const policy = policyByProduct.get(i['product_id'] as string);
-    const nonReturnable = policy?.['return_policy_type'] === "non_returnable";
-    const gross = Number(i['gross_minor'] ?? i['line_total_minor'] ?? 0);
+    const alreadyReturned = returnedByItem.get(i["id"] as string) ?? 0;
+    const quantity = Number(i["quantity"] ?? 0);
+    const policy = policyByProduct.get(i["product_id"] as string);
+    const nonReturnable = policy?.["return_policy_type"] === "non_returnable";
+    const gross = Number(i["gross_minor"] ?? i["line_total_minor"] ?? 0);
     return {
-      orderItemId: i['id'] as string,
-      title: i['title_snapshot'] as string,
-      variantTitle: (i['variant_title_snapshot'] as string) ?? null,
-      sku: (i['sku_snapshot'] as string) ?? null,
+      orderItemId: i["id"] as string,
+      title: i["title_snapshot"] as string,
+      variantTitle: (i["variant_title_snapshot"] as string) ?? null,
+      sku: (i["sku_snapshot"] as string) ?? null,
       quantity,
       alreadyReturned,
       returnableQuantity: nonReturnable ? 0 : Math.max(quantity - alreadyReturned, 0),
       unitGrossMinor: quantity > 0 ? Math.round(gross / quantity) : 0,
       lineGrossMinor: gross,
       blockedReason: nonReturnable
-        ? ((policy?.['return_policy_note'] as string) ?? "Artikel ist vom Rückgaberecht ausgeschlossen.")
+        ? ((policy?.["return_policy_note"] as string) ??
+          "Artikel ist vom Rückgaberecht ausgeschlossen.")
         : alreadyReturned >= quantity
           ? "Bereits vollständig retourniert."
           : null,
@@ -196,14 +209,17 @@ export async function getEligibility(organizationId: string, orderId: string): P
 
   let reason: string | null = null;
   if (!settings.returnsEnabled) reason = "Retouren sind für diesen Shop deaktiviert.";
-  else if (order['payment_status'] !== "paid") reason = "Nur bezahlte Bestellungen können retourniert werden.";
-  else if (Date.now() > new Date(windowEndsAt).getTime()) reason = "Die Rückgabefrist ist abgelaufen.";
-  else if (!lines.some((l) => l.returnableQuantity > 0)) reason = "Keine rückgabefähigen Positionen.";
+  else if (order["payment_status"] !== "paid")
+    reason = "Nur bezahlte Bestellungen können retourniert werden.";
+  else if (Date.now() > new Date(windowEndsAt).getTime())
+    reason = "Die Rückgabefrist ist abgelaufen.";
+  else if (!lines.some((l) => l.returnableQuantity > 0))
+    reason = "Keine rückgabefähigen Positionen.";
 
   return {
     orderId,
-    orderNumber: order['order_number'] as string,
-    currencyCode: order['currency_code'] as string,
+    orderNumber: order["order_number"] as string,
+    currencyCode: order["currency_code"] as string,
     eligible: reason === null,
     reason,
     windowEndsAt,
@@ -213,20 +229,25 @@ export async function getEligibility(organizationId: string, orderId: string): P
 
 /* --------------------------------- reads -------------------------------- */
 
-function mapListItem(r: Row, orderNumber: string, email: string | null, itemCount: number): ReturnListItem {
+function mapListItem(
+  r: Row,
+  orderNumber: string,
+  email: string | null,
+  itemCount: number,
+): ReturnListItem {
   return {
-    id: r['id'] as string,
-    returnNumber: r['return_number'] as string,
-    orderId: r['order_id'] as string,
+    id: r["id"] as string,
+    returnNumber: r["return_number"] as string,
+    orderId: r["order_id"] as string,
     orderNumber,
-    customerId: (r['customer_id'] as string) ?? null,
+    customerId: (r["customer_id"] as string) ?? null,
     customerEmail: email,
-    status: r['status'] as ReturnStatus,
-    reasonCategory: r['reason_category'] as ReturnReasonCode,
+    status: r["status"] as ReturnStatus,
+    reasonCategory: r["reason_category"] as ReturnReasonCode,
     itemCount,
-    refundTotalMinor: Number(r['refund_total_minor'] ?? 0),
-    currencyCode: r['currency_code'] as string,
-    requestedAt: r['requested_at'] as string,
+    refundTotalMinor: Number(r["refund_total_minor"] ?? 0),
+    currencyCode: r["currency_code"] as string,
+    requestedAt: r["requested_at"] as string,
   };
 }
 
@@ -257,23 +278,35 @@ export async function listReturns(input: {
   if (!rows.length) return [];
 
   const [orders, items] = await Promise.all([
-    admin.from("orders").select("id, order_number, email").in("id", rows.map((r) => r['order_id'] as string)),
-    admin.from("return_items").select("return_id").in("return_id", rows.map((r) => r['id'] as string)),
+    admin
+      .from("orders")
+      .select("id, order_number, email")
+      .in(
+        "id",
+        rows.map((r) => r["order_id"] as string),
+      ),
+    admin
+      .from("return_items")
+      .select("return_id")
+      .in(
+        "return_id",
+        rows.map((r) => r["id"] as string),
+      ),
   ]);
-  const orderById = new Map(((orders.data ?? []) as Row[]).map((o) => [o['id'] as string, o]));
+  const orderById = new Map(((orders.data ?? []) as Row[]).map((o) => [o["id"] as string, o]));
   const counts = new Map<string, number>();
   for (const i of (items.data ?? []) as Row[]) {
-    const k = i['return_id'] as string;
+    const k = i["return_id"] as string;
     counts.set(k, (counts.get(k) ?? 0) + 1);
   }
 
   return rows.map((r) => {
-    const order = orderById.get(r['order_id'] as string);
+    const order = orderById.get(r["order_id"] as string);
     return mapListItem(
       r,
-      (order?.['order_number'] as string) ?? "—",
-      (order?.['email'] as string) ?? null,
-      counts.get(r['id'] as string) ?? 0,
+      (order?.["order_number"] as string) ?? "—",
+      (order?.["email"] as string) ?? null,
+      counts.get(r["id"] as string) ?? 0,
     );
   });
 }
@@ -292,7 +325,11 @@ export async function loadReturn(organizationId: string, returnId: string): Prom
 
   const [items, order, timeline] = await Promise.all([
     admin.from("return_items").select("*").eq("return_id", returnId).order("created_at"),
-    admin.from("orders").select("id, order_number, email").eq("id", r['order_id'] as string).maybeSingle(),
+    admin
+      .from("orders")
+      .select("id, order_number, email")
+      .eq("id", r["order_id"] as string)
+      .maybeSingle(),
     admin
       .from("audit_log")
       .select("id, action, created_at")
@@ -307,54 +344,63 @@ export async function loadReturn(organizationId: string, returnId: string): Prom
     ? await admin
         .from("order_items")
         .select("id, title_snapshot, variant_title_snapshot, sku_snapshot, quantity")
-        .in("id", itemRows.map((i) => i['order_item_id'] as string))
+        .in(
+          "id",
+          itemRows.map((i) => i["order_item_id"] as string),
+        )
     : { data: [] as Row[] };
-  const orderItemById = new Map(((orderItems ?? []) as Row[]).map((o) => [o['id'] as string, o]));
+  const orderItemById = new Map(((orderItems ?? []) as Row[]).map((o) => [o["id"] as string, o]));
 
   const mappedItems: ReturnItemView[] = itemRows.map((i) => {
-    const oi = orderItemById.get(i['order_item_id'] as string);
+    const oi = orderItemById.get(i["order_item_id"] as string);
     return {
-      id: i['id'] as string,
-      orderItemId: i['order_item_id'] as string,
-      title: (oi?.['title_snapshot'] as string) ?? "Position",
-      variantTitle: (oi?.['variant_title_snapshot'] as string) ?? null,
-      sku: (oi?.['sku_snapshot'] as string) ?? null,
-      quantityOrdered: Number(oi?.['quantity'] ?? 0),
-      quantityRequested: Number(i['quantity_requested'] ?? 0),
-      quantityReceived: Number(i['quantity_received'] ?? 0),
-      quantityApproved: Number(i['quantity_approved'] ?? 0),
-      reasonCode: i['reason_code'] as ReturnReasonCode,
-      condition: i['condition'] as ReturnItemCondition,
-      resolution: i['resolution'] as ReturnItemView["resolution"],
-      restockDecision: i['restock_decision'] as RestockDecision,
-      restockedAt: (i['restocked_at'] as string) ?? null,
-      restockLocationId: (i['restock_location_id'] as string) ?? null,
-      refundAmountMinor: i['refund_amount_minor'] === null ? null : Number(i['refund_amount_minor']),
-      inspectionNote: (i['inspection_note'] as string) ?? null,
+      id: i["id"] as string,
+      orderItemId: i["order_item_id"] as string,
+      title: (oi?.["title_snapshot"] as string) ?? "Position",
+      variantTitle: (oi?.["variant_title_snapshot"] as string) ?? null,
+      sku: (oi?.["sku_snapshot"] as string) ?? null,
+      quantityOrdered: Number(oi?.["quantity"] ?? 0),
+      quantityRequested: Number(i["quantity_requested"] ?? 0),
+      quantityReceived: Number(i["quantity_received"] ?? 0),
+      quantityApproved: Number(i["quantity_approved"] ?? 0),
+      reasonCode: i["reason_code"] as ReturnReasonCode,
+      condition: i["condition"] as ReturnItemCondition,
+      resolution: i["resolution"] as ReturnItemView["resolution"],
+      restockDecision: i["restock_decision"] as RestockDecision,
+      restockedAt: (i["restocked_at"] as string) ?? null,
+      restockLocationId: (i["restock_location_id"] as string) ?? null,
+      refundAmountMinor:
+        i["refund_amount_minor"] === null ? null : Number(i["refund_amount_minor"]),
+      inspectionNote: (i["inspection_note"] as string) ?? null,
     };
   });
 
   const o = order.data as Row | null;
   return {
-    ...mapListItem(r, (o?.['order_number'] as string) ?? "—", (o?.['email'] as string) ?? null, itemRows.length),
-    shopId: r['shop_id'] as string,
-    customerNote: (r['customer_note'] as string) ?? null,
-    internalNote: (r['internal_note'] as string) ?? null,
-    rejectionReason: (r['rejection_reason'] as string) ?? null,
-    shippingRefundMode: r['shipping_refund_mode'] as ShippingRefundMode,
-    shippingRefundMinor: Number(r['shipping_refund_minor'] ?? 0),
-    authorizedAt: (r['authorized_at'] as string) ?? null,
-    receivedAt: (r['received_at'] as string) ?? null,
-    inspectedAt: (r['inspected_at'] as string) ?? null,
-    completedAt: (r['completed_at'] as string) ?? null,
-    cancelledAt: (r['cancelled_at'] as string) ?? null,
-    refundId: (r['refund_id'] as string) ?? null,
-    creditNoteId: (r['credit_note_id'] as string) ?? null,
+    ...mapListItem(
+      r,
+      (o?.["order_number"] as string) ?? "—",
+      (o?.["email"] as string) ?? null,
+      itemRows.length,
+    ),
+    shopId: r["shop_id"] as string,
+    customerNote: (r["customer_note"] as string) ?? null,
+    internalNote: (r["internal_note"] as string) ?? null,
+    rejectionReason: (r["rejection_reason"] as string) ?? null,
+    shippingRefundMode: r["shipping_refund_mode"] as ShippingRefundMode,
+    shippingRefundMinor: Number(r["shipping_refund_minor"] ?? 0),
+    authorizedAt: (r["authorized_at"] as string) ?? null,
+    receivedAt: (r["received_at"] as string) ?? null,
+    inspectedAt: (r["inspected_at"] as string) ?? null,
+    completedAt: (r["completed_at"] as string) ?? null,
+    cancelledAt: (r["cancelled_at"] as string) ?? null,
+    refundId: (r["refund_id"] as string) ?? null,
+    creditNoteId: (r["credit_note_id"] as string) ?? null,
     items: mappedItems,
     timeline: ((timeline.data ?? []) as Row[]).map((t) => ({
-      id: t['id'] as string,
-      action: t['action'] as string,
-      createdAt: t['created_at'] as string,
+      id: t["id"] as string,
+      action: t["action"] as string,
+      createdAt: t["created_at"] as string,
     })),
   };
 }
@@ -380,7 +426,12 @@ export async function requestReturn(input: {
       throw new Error("Rückgabemenge überschreitet die rückgabefähige Menge.");
     }
   }
-  const requested = await rpc<{ return_id: string; return_number: string; status: string; duplicate: boolean }>("ret_request", {
+  const requested = await rpc<{
+    return_id: string;
+    return_number: string;
+    status: string;
+    duplicate: boolean;
+  }>("ret_request", {
     _org: input.organizationId,
     _shop: input.shopId,
     _order: input.orderId,
@@ -465,7 +516,11 @@ export async function receiveReturn(input: {
   return received;
 }
 
-export async function startInspection(input: { organizationId: string; returnId: string; actorId: string }) {
+export async function startInspection(input: {
+  organizationId: string;
+  returnId: string;
+  actorId: string;
+}) {
   return await rpc<{ status: string }>("ret_start_inspection", {
     _org: input.organizationId,
     _return: input.returnId,
@@ -515,7 +570,7 @@ export async function inspectReturn(input: {
       .eq("organization_id", input.organizationId)
       .eq("shop_id", detail.shopId)
       .limit(1);
-    const locationId = ((locations ?? [])[0] as Row | undefined)?.['id'] as string | undefined;
+    const locationId = ((locations ?? [])[0] as Row | undefined)?.["id"] as string | undefined;
     if (locationId) {
       for (const item of detail.items) {
         if (item.restockDecision === "restock" && !item.restockedAt && item.quantityApproved > 0) {
@@ -546,7 +601,11 @@ export async function restockReturnItem(input: {
   });
 }
 
-export async function completeReturn(input: { organizationId: string; returnId: string; actorId: string }) {
+export async function completeReturn(input: {
+  organizationId: string;
+  returnId: string;
+  actorId: string;
+}) {
   return await rpc<{ status: string }>("ret_complete", {
     _org: input.organizationId,
     _return: input.returnId,
@@ -604,7 +663,10 @@ export async function settleReturn(input: {
     .eq("type", "charge")
     .order("created_at", { ascending: false })
     .limit(1);
-  const charge = ((tx ?? [])[0] ?? null) as { provider: string; provider_transaction_id: string | null } | null;
+  const charge = ((tx ?? [])[0] ?? null) as {
+    provider: string;
+    provider_transaction_id: string | null;
+  } | null;
 
   let status: "completed" | "processing" | "failed" = "processing";
   let providerRefundId: string | null = null;
@@ -652,7 +714,7 @@ export async function settleReturn(input: {
     if (invoice) {
       const cn = await rpc<{ credit_note_id: string }>("credit_note_create", {
         _org: input.organizationId,
-        _invoice: (invoice as Row)['id'] as string,
+        _invoice: (invoice as Row)["id"] as string,
         _actor: input.actorId,
         _amount_minor: amount,
         _reason: `Retoure ${detail.returnNumber}`,

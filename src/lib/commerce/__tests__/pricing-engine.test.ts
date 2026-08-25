@@ -29,7 +29,9 @@ function price(partial: Partial<PriceRow> & { amount_minor: number }): PriceRow 
   };
 }
 
-function promo(partial: Partial<PromotionRow> & { id: string; type: PromotionRow["type"] }): PromotionRow {
+function promo(
+  partial: Partial<PromotionRow> & { id: string; type: PromotionRow["type"] },
+): PromotionRow {
   return {
     organization_id: ORG,
     shop_id: SHOP,
@@ -109,9 +111,12 @@ describe("Mengenstaffel", () => {
     price({ id: "t2", type: "tier", amount_minor: 2390, min_quantity: 10 }),
   ]);
 
-  it("1 Stück", () => expect(resolvePricing(rules, ctx({ quantity: 1 })).resolvedUnitAmount).toBe(2990));
-  it("5 Stück", () => expect(resolvePricing(rules, ctx({ quantity: 5 })).resolvedUnitAmount).toBe(2690));
-  it("10 Stück", () => expect(resolvePricing(rules, ctx({ quantity: 10 })).resolvedUnitAmount).toBe(2390));
+  it("1 Stück", () =>
+    expect(resolvePricing(rules, ctx({ quantity: 1 })).resolvedUnitAmount).toBe(2990));
+  it("5 Stück", () =>
+    expect(resolvePricing(rules, ctx({ quantity: 5 })).resolvedUnitAmount).toBe(2690));
+  it("10 Stück", () =>
+    expect(resolvePricing(rules, ctx({ quantity: 10 })).resolvedUnitAmount).toBe(2390));
   it("Zwischensumme rechnet mit Menge", () =>
     expect(resolvePricing(rules, ctx({ quantity: 5 })).subtotal).toBe(2690 * 5));
 });
@@ -145,8 +150,18 @@ describe("Günstigster gültiger Preis statt First-Match", () => {
     const r = resolvePricing(
       snapshot([
         price({ amount_minor: 2990 }),
-        price({ id: "g-teuer", type: "customer_group", amount_minor: 2890, customer_group_id: "g" }),
-        price({ id: "g-guenstig", type: "customer_group", amount_minor: 2290, customer_group_id: "g" }),
+        price({
+          id: "g-teuer",
+          type: "customer_group",
+          amount_minor: 2890,
+          customer_group_id: "g",
+        }),
+        price({
+          id: "g-guenstig",
+          type: "customer_group",
+          amount_minor: 2290,
+          customer_group_id: "g",
+        }),
       ]),
       ctx({ customerGroupId: "g" }),
     );
@@ -157,7 +172,10 @@ describe("Günstigster gültiger Preis statt First-Match", () => {
 describe("Promotions", () => {
   it("Prozent-Rabatt", () => {
     const r = resolvePricing(
-      snapshot([price({ amount_minor: 10000 })], [promo({ id: "p", type: "percentage", value: 1000 })]),
+      snapshot(
+        [price({ amount_minor: 10000 })],
+        [promo({ id: "p", type: "percentage", value: 1000 })],
+      ),
       ctx(),
     );
     expect(r.total).toBe(9000);
@@ -165,7 +183,10 @@ describe("Promotions", () => {
 
   it("Fester Rabatt", () => {
     const r = resolvePricing(
-      snapshot([price({ amount_minor: 10000 })], [promo({ id: "p", type: "fixed_amount", value: 2000 })]),
+      snapshot(
+        [price({ amount_minor: 10000 })],
+        [promo({ id: "p", type: "fixed_amount", value: 2000 })],
+      ),
       ctx(),
     );
     expect(r.total).toBe(8000);
@@ -200,7 +221,13 @@ describe("Promotions", () => {
     const r = resolvePricing(
       snapshot(
         [price({ amount_minor: 10000 })],
-        [promo({ id: "fs", type: "free_shipping", conditions: [{ kind: "minimum_subtotal", value: 5000 }] })],
+        [
+          promo({
+            id: "fs",
+            type: "free_shipping",
+            conditions: [{ kind: "minimum_subtotal", value: 5000 }],
+          }),
+        ],
       ),
       ctx(),
     );
@@ -210,7 +237,10 @@ describe("Promotions", () => {
 
   it("Buy X Get Y ist nur vorbereitet, nicht angewendet", () => {
     const r = resolvePricing(
-      snapshot([price({ amount_minor: 10000 })], [promo({ id: "bxgy", type: "buy_x_get_y", value: 1 })]),
+      snapshot(
+        [price({ amount_minor: 10000 })],
+        [promo({ id: "bxgy", type: "buy_x_get_y", value: 1 })],
+      ),
       ctx(),
     );
     expect(r.appliedPromotions).toHaveLength(0);
@@ -222,7 +252,10 @@ describe("Promotions", () => {
 describe("Cross Tenant", () => {
   it("fremde Promotion und fremder Preis werden ignoriert", () => {
     const snap = snapshot(
-      [price({ amount_minor: 2990 }), price({ id: "fremd", organization_id: "org-b", type: "sale", amount_minor: 100 })],
+      [
+        price({ amount_minor: 2990 }),
+        price({ id: "fremd", organization_id: "org-b", type: "sale", amount_minor: 100 }),
+      ],
       [promo({ id: "fremd-promo", organization_id: "org-b", type: "percentage", value: 5000 })],
     );
     const r = resolvePricing(snap, ctx());

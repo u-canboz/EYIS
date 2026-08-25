@@ -6,8 +6,21 @@
  * publishable key.
  */
 import { z } from "zod";
-import { badRequest, forbidden, notFound, unauthorized, type RouteDef, type StoreCtx } from "./gateway.server";
-import { getProduct, listCategories, listCollections, listProducts, searchProducts } from "./catalog-public.server";
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  unauthorized,
+  type RouteDef,
+  type StoreCtx,
+} from "./gateway.server";
+import {
+  getProduct,
+  listCategories,
+  listCollections,
+  listProducts,
+  searchProducts,
+} from "./catalog-public.server";
 import { mapCart, mapCheckout, mapOrder } from "./mappers.server";
 import { getAdmin, generateToken, hashToken } from "../core.server";
 import type { StoreConfig } from "@/lib/store-sdk/types";
@@ -72,7 +85,9 @@ export const storeRoutes: RouteDef[] = [
         .eq("shop_id", ctx.key.shopId)
         .eq("status", "active");
       const countries = [
-        ...new Set(((methods ?? []) as { countries: string[] | null }[]).flatMap((m) => m.countries ?? [])),
+        ...new Set(
+          ((methods ?? []) as { countries: string[] | null }[]).flatMap((m) => m.countries ?? []),
+        ),
       ].sort();
       return {
         shop: {
@@ -83,7 +98,9 @@ export const storeRoutes: RouteDef[] = [
         },
         countries,
         taxDisplayMode:
-          ((tax as { calculation_mode?: string } | null)?.calculation_mode ?? "gross") === "net" ? "net" : "gross",
+          ((tax as { calculation_mode?: string } | null)?.calculation_mode ?? "gross") === "net"
+            ? "net"
+            : "gross",
         features: {
           search: true,
           promotions: true,
@@ -134,15 +151,28 @@ export const storeRoutes: RouteDef[] = [
         limit: intPage(ctx, "limit", 12, 40),
       }),
   },
-  { method: "GET", path: "/categories", profile: "catalog_read", handler: (ctx) => listCategories(ctx.key.shopId) },
-  { method: "GET", path: "/collections", profile: "catalog_read", handler: (ctx) => listCollections(ctx.key.shopId) },
+  {
+    method: "GET",
+    path: "/categories",
+    profile: "catalog_read",
+    handler: (ctx) => listCategories(ctx.key.shopId),
+  },
+  {
+    method: "GET",
+    path: "/collections",
+    profile: "catalog_read",
+    handler: (ctx) => listCollections(ctx.key.shopId),
+  },
 
   // ---------------------------------------------------------------- cart
   {
     method: "POST",
     path: "/cart",
     profile: "cart_write",
-    schema: z.object({ locale: z.string().max(10).optional(), regionCode: z.string().length(2).nullish() }),
+    schema: z.object({
+      locale: z.string().max(10).optional(),
+      regionCode: z.string().length(2).nullish(),
+    }),
     handler: async (ctx) => {
       const body = (ctx.body ?? {}) as { locale?: string; regionCode?: string | null };
       const { createCartFn } = await import("../cart.functions");
@@ -157,7 +187,9 @@ export const storeRoutes: RouteDef[] = [
       const cartApi = await import("../cart.server");
       const raw = created as unknown as Record<string, unknown>;
       const token = String(raw["token"] ?? "");
-      const cartId = String(raw["cartId"] ?? (raw["cart"] as { id?: string } | undefined)?.id ?? "");
+      const cartId = String(
+        raw["cartId"] ?? (raw["cart"] as { id?: string } | undefined)?.id ?? "",
+      );
       const cart = await cartApi.loadCartAuthorized(cartId, token);
       return { cart: mapCart(await cartApi.buildCartView(cart)), cartToken: token };
     },
@@ -178,9 +210,7 @@ export const storeRoutes: RouteDef[] = [
       const { token } = await ctx.requireCart(cartId);
       const body = ctx.body as { variantId: string; quantity: number };
       const { addCartItemFn } = await import("../cart.functions");
-      return mapCart(
-        (await addCartItemFn({ data: { cartId, token, ...body } })) as never,
-      );
+      return mapCart((await addCartItemFn({ data: { cartId, token, ...body } })) as never);
     },
   },
   {
@@ -210,7 +240,9 @@ export const storeRoutes: RouteDef[] = [
       const { token } = await ctx.requireCart(cartId);
       const { removeCartItemFn } = await import("../cart.functions");
       return mapCart(
-        (await removeCartItemFn({ data: { cartId, token, itemId: ctx.params["itemId"] ?? "" } })) as never,
+        (await removeCartItemFn({
+          data: { cartId, token, itemId: ctx.params["itemId"] ?? "" },
+        })) as never,
       );
     },
   },
@@ -224,7 +256,9 @@ export const storeRoutes: RouteDef[] = [
       const { token } = await ctx.requireCart(cartId);
       const { applyPromotionCodeFn } = await import("../cart.functions");
       return mapCart(
-        (await applyPromotionCodeFn({ data: { cartId, token, code: (ctx.body as { code: string }).code } })) as never,
+        (await applyPromotionCodeFn({
+          data: { cartId, token, code: (ctx.body as { code: string }).code },
+        })) as never,
       );
     },
   },
@@ -237,7 +271,9 @@ export const storeRoutes: RouteDef[] = [
       const { token } = await ctx.requireCart(cartId);
       const { removePromotionCodeFn } = await import("../cart.functions");
       return mapCart(
-        (await removePromotionCodeFn({ data: { cartId, token, code: ctx.params["code"] ?? "" } })) as never,
+        (await removePromotionCodeFn({
+          data: { cartId, token, code: ctx.params["code"] ?? "" },
+        })) as never,
       );
     },
   },
@@ -253,7 +289,9 @@ export const storeRoutes: RouteDef[] = [
       const { token } = await ctx.requireCart(body.cartId);
       const { startCheckoutFn } = await import("../checkout.functions");
       return mapCheckout(
-        (await startCheckoutFn({ data: { cartId: body.cartId, token, email: body.email ?? null } })) as never,
+        (await startCheckoutFn({
+          data: { cartId: body.cartId, token, email: body.email ?? null },
+        })) as never,
       );
     },
   },
@@ -281,7 +319,11 @@ export const storeRoutes: RouteDef[] = [
       const { setCheckoutEmailFn } = await import("../checkout.functions");
       return mapCheckout(
         (await setCheckoutEmailFn({
-          data: { sessionId, token: ctx.requireCartToken(), email: (ctx.body as { email: string }).email },
+          data: {
+            sessionId,
+            token: ctx.requireCartToken(),
+            email: (ctx.body as { email: string }).email,
+          },
         })) as never,
       );
     },
@@ -316,7 +358,13 @@ export const storeRoutes: RouteDef[] = [
       const { listShippingMethodsFn } = await import("../checkout.functions");
       const methods = (await listShippingMethodsFn({
         data: { sessionId, token: ctx.requireCartToken() },
-      })) as { id: string; name: string; description: string | null; amountMinor: number; currencyCode: string }[];
+      })) as {
+        id: string;
+        name: string;
+        description: string | null;
+        amountMinor: number;
+        currencyCode: string;
+      }[];
       return methods.map((m) => ({
         id: m.id,
         name: m.name,
@@ -373,7 +421,11 @@ export const storeRoutes: RouteDef[] = [
       await assertCheckoutOwnership(ctx, sessionId);
       // Extra bucket per checkout session, so one session cannot be hammered.
       await ctx.limit("payment_session", sessionId);
-      const body = ctx.body as { returnUrl: string; cancelUrl?: string | null; provider?: string | null };
+      const body = ctx.body as {
+        returnUrl: string;
+        cancelUrl?: string | null;
+        provider?: string | null;
+      };
       const { createPaymentSessionFn } = await import("../payments/payment.functions");
       const result = (await createPaymentSessionFn({
         data: {
@@ -434,7 +486,8 @@ export const storeRoutes: RouteDef[] = [
       if (!row) throw notFound("Bestätigungslink ist ungültig.");
       if (row["shop_id"] !== ctx.key.shopId || row["organization_id"] !== ctx.key.organizationId)
         throw forbidden("Bestätigungslink gehört nicht zu diesem Shop.");
-      if (Date.parse(row["expires_at"] as string) < Date.now()) throw forbidden("Bestätigungslink ist abgelaufen.");
+      if (Date.parse(row["expires_at"] as string) < Date.now())
+        throw forbidden("Bestätigungslink ist abgelaufen.");
       // Single use: the token dies with the first successful read.
       await admin
         .from("store_confirmation_tokens")
@@ -452,7 +505,10 @@ export const storeRoutes: RouteDef[] = [
     method: "POST",
     path: "/orders/guest-access",
     profile: "guest_lookup",
-    schema: z.object({ orderNumber: z.string().min(3).max(40), email: z.string().email().max(200) }),
+    schema: z.object({
+      orderNumber: z.string().min(3).max(40),
+      email: z.string().email().max(200),
+    }),
     handler: async (ctx) => {
       const body = ctx.body as { orderNumber: string; email: string };
       await ctx.limit("guest_lookup", body.email.toLowerCase());
@@ -496,7 +552,8 @@ export const storeRoutes: RouteDef[] = [
         .eq("id", orderId)
         .maybeSingle();
       const o = data as Record<string, unknown> | null;
-      if (!o || o["shop_id"] !== ctx.key.shopId) throw forbidden("Bestellung gehört nicht zu diesem Shop.");
+      if (!o || o["shop_id"] !== ctx.key.shopId)
+        throw forbidden("Bestellung gehört nicht zu diesem Shop.");
       const { getEligibility } = await import("../returns/return.server");
       const eligibility = await getEligibility(o["organization_id"] as string, orderId);
       return {
@@ -519,7 +576,9 @@ export const storeRoutes: RouteDef[] = [
     profile: "return_create",
     schema: z.object({
       items: z
-        .array(z.object({ orderItemId: z.string().uuid(), quantity: z.number().int().min(1).max(999) }))
+        .array(
+          z.object({ orderItemId: z.string().uuid(), quantity: z.number().int().min(1).max(999) }),
+        )
         .min(1)
         .max(50),
       reason: z.string().min(1).max(40),
@@ -542,7 +601,8 @@ export const storeRoutes: RouteDef[] = [
         .eq("id", orderId)
         .maybeSingle();
       const o = order as Record<string, unknown> | null;
-      if (!o || o["shop_id"] !== ctx.key.shopId) throw forbidden("Bestellung gehört nicht zu diesem Shop.");
+      if (!o || o["shop_id"] !== ctx.key.shopId)
+        throw forbidden("Bestellung gehört nicht zu diesem Shop.");
       const { requestReturn } = await import("../returns/return.server");
       const created = (await requestReturn({
         organizationId: o["organization_id"] as string,
@@ -609,9 +669,11 @@ export const storeRoutes: RouteDef[] = [
       const orderId = ctx.params["orderId"] ?? "";
       const { ownedOrderIds, loadPortalOrder } = await import("../portal/portal.server");
       const owned = await ownedOrderIds(me.userId);
-      if (!owned.orderIds.includes(orderId)) throw forbidden("Bestellung gehört nicht zu diesem Konto.");
+      if (!owned.orderIds.includes(orderId))
+        throw forbidden("Bestellung gehört nicht zu diesem Konto.");
       const order = await loadPortalOrder(orderId);
-      if (order.shopId !== ctx.key.shopId) throw forbidden("Bestellung gehört nicht zu diesem Shop.");
+      if (order.shopId !== ctx.key.shopId)
+        throw forbidden("Bestellung gehört nicht zu diesem Shop.");
       return mapOrder(order);
     },
   },
@@ -624,7 +686,8 @@ export const storeRoutes: RouteDef[] = [
       const orderId = ctx.params["orderId"] ?? "";
       const { ownedOrderIds } = await import("../portal/portal.server");
       const owned = await ownedOrderIds(me.userId);
-      if (!owned.orderIds.includes(orderId)) throw forbidden("Bestellung gehört nicht zu diesem Konto.");
+      if (!owned.orderIds.includes(orderId))
+        throw forbidden("Bestellung gehört nicht zu diesem Konto.");
       return signOrderDocument(orderId, ctx.params["documentId"] ?? "");
     },
   },
@@ -662,7 +725,12 @@ export const storeRoutes: RouteDef[] = [
       lastName: z.string().max(80).nullish(),
     }),
     handler: async (ctx) => {
-      const body = ctx.body as { email: string; password: string; firstName?: string | null; lastName?: string | null };
+      const body = ctx.body as {
+        email: string;
+        password: string;
+        firstName?: string | null;
+        lastName?: string | null;
+      };
       await ctx.limit("customer_login", body.email.toLowerCase());
       const auth = await authClient();
       const { data, error } = await auth.auth.signUp({
@@ -723,7 +791,10 @@ async function linkCustomer(ctx: StoreCtx, userId: string, email: string) {
     .maybeSingle();
   let row = existing as Record<string, unknown> | null;
   if (row && !row["auth_user_id"]) {
-    await admin.from("customers").update({ auth_user_id: userId, status: "active" } as never).eq("id", row["id"] as string);
+    await admin
+      .from("customers")
+      .update({ auth_user_id: userId, status: "active" } as never)
+      .eq("id", row["id"] as string);
   }
   if (!row) {
     const { data: created } = await admin
@@ -758,7 +829,6 @@ async function signOrderDocument(orderId: string, documentId: string) {
   if (!doc) throw notFound("Dokument gehört nicht zu dieser Bestellung.");
   return signPortalDocument(doc.kind, documentId);
 }
-
 
 async function mintConfirmationToken(ctx: StoreCtx, orderId: string) {
   const admin = await getAdmin();

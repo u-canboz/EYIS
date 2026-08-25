@@ -54,7 +54,12 @@ function scenarioOf(value: string | null | undefined): MockScenario {
 }
 
 function assertTestMode(testMode: boolean) {
-  if (!testMode) throw new CarrierError("not_supported", "Der Test-Carrier ist im Live-Betrieb nicht zulässig.", false);
+  if (!testMode)
+    throw new CarrierError(
+      "not_supported",
+      "Der Test-Carrier ist im Live-Betrieb nicht zulässig.",
+      false,
+    );
 }
 
 function buildEvents(shipmentRef: string, scenario: MockScenario): NormalizedTrackingEvent[] {
@@ -106,14 +111,26 @@ export const mockCarrier: CarrierProvider = {
   async createShipment(input: CreateCarrierShipmentInput): Promise<CreateCarrierShipmentResult> {
     assertTestMode(input.testMode);
     const scenario = scenarioOf(input.scenario);
-    if (!input.address.line1 || !input.address.postalCode || !input.address.city || !input.address.countryCode) {
+    if (
+      !input.address.line1 ||
+      !input.address.postalCode ||
+      !input.address.city ||
+      !input.address.countryCode
+    ) {
       throw new CarrierError("invalid_address", "Die Lieferadresse ist unvollständig.", false);
     }
     if ((input.parcel.weightGrams ?? 0) <= 0) {
-      throw new CarrierError("invalid_dimensions", "Für die Sendung wird ein Gewicht benötigt.", false);
+      throw new CarrierError(
+        "invalid_dimensions",
+        "Für die Sendung wird ein Gewicht benötigt.",
+        false,
+      );
     }
     if (scenario === "provider_failure") {
-      throw new CarrierError("provider_unavailable", "Der Versanddienstleister antwortet derzeit nicht.");
+      throw new CarrierError(
+        "provider_unavailable",
+        "Der Versanddienstleister antwortet derzeit nicht.",
+      );
     }
     const ref = `mock_${input.shipmentId.slice(0, 8)}_${input.parcel.packageNumber}`;
     return {
