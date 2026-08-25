@@ -39,6 +39,7 @@ import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/
 import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -207,6 +208,12 @@ const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   path: '/api/public/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksCarrierProviderRoute =
+  ApiPublicWebhooksCarrierProviderRouteImport.update({
+    id: '/api/public/webhooks/carrier/$provider',
+    path: '/api/public/webhooks/carrier/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
+  '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -269,6 +277,7 @@ export interface FileRoutesByTo {
   '/app/lager': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
+  '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -302,6 +311,7 @@ export interface FileRoutesById {
   '/_authenticated/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
+  '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/app/lager/'
     | '/app/preise/'
     | '/app/produkte/'
+    | '/api/public/webhooks/carrier/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/app/lager'
     | '/app/preise'
     | '/app/produkte'
+    | '/api/public/webhooks/carrier/$provider'
   id:
     | '__root__'
     | '/'
@@ -398,6 +410,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/lager/'
     | '/_authenticated/app/preise/'
     | '/_authenticated/app/produkte/'
+    | '/api/public/webhooks/carrier/$provider'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -406,6 +419,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   InviteRoute: typeof InviteRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
+  ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -620,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/carrier/$provider': {
+      id: '/api/public/webhooks/carrier/$provider'
+      path: '/api/public/webhooks/carrier/$provider'
+      fullPath: '/api/public/webhooks/carrier/$provider'
+      preLoaderRoute: typeof ApiPublicWebhooksCarrierProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -695,6 +716,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   InviteRoute: InviteRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
+  ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
