@@ -1,0 +1,14 @@
+REVOKE ALL ON FUNCTION public.ful_create(uuid,uuid,uuid,uuid,uuid,jsonb,text,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ful_start_picking(uuid,uuid,uuid,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ful_complete_picking(uuid,uuid,uuid,jsonb,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ful_pack(uuid,uuid,uuid,jsonb,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ful_cancel(uuid,uuid,uuid,text,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ful_recompute_order_status(uuid) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ship_create(uuid,uuid,uuid,text,text,uuid,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ship_record_label(uuid,uuid,uuid,text,text,text,text,text,text,text,bigint,text,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ship_mark_shipped(uuid,uuid,uuid,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.ship_cancel(uuid,uuid,uuid,text,text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.track_record_event(uuid,uuid,text,text,text,public.tracking_status,text,text,timestamptz,jsonb) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.track_status_rank(public.tracking_status) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.fulfillment_items_guard() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.tracking_events_immutable() FROM PUBLIC, anon, authenticated;
