@@ -28,6 +28,7 @@ import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/b
 import { Route as AuthenticatedAppAutomationenIndexRouteImport } from './routes/_authenticated/app/automationen/index'
 import { Route as AuthenticatedAppAutomationenAufgabenRouteImport } from './routes/_authenticated/app/automationen/aufgaben'
 import { Route as AuthenticatedAppAutomationenVerlaufRouteImport } from './routes/_authenticated/app/automationen/verlauf'
+import { Route as AuthenticatedAppAutomationenWebhooksRouteImport } from './routes/_authenticated/app/automationen/webhooks'
 import { Route as AuthenticatedAppBestellungenIndexRouteImport } from './routes/_authenticated/app/bestellungen/index'
 import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './routes/_authenticated/app/bestellungen/$orderId'
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
@@ -168,6 +169,12 @@ const AuthenticatedAppAutomationenVerlaufRoute =
   AuthenticatedAppAutomationenVerlaufRouteImport.update({
     id: '/app/automationen/verlauf',
     path: '/app/automationen/verlauf',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppAutomationenWebhooksRoute =
+  AuthenticatedAppAutomationenWebhooksRouteImport.update({
+    id: '/app/automationen/webhooks',
+    path: '/app/automationen/webhooks',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppBestellungenIndexRoute =
@@ -427,6 +434,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
+  '/app/automationen/webhooks': typeof AuthenticatedAppAutomationenWebhooksRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -487,6 +495,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
+  '/app/automationen/webhooks': typeof AuthenticatedAppAutomationenWebhooksRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -549,6 +558,7 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/_authenticated/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
+  '/_authenticated/app/automationen/webhooks': typeof AuthenticatedAppAutomationenWebhooksRoute
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -611,6 +621,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
+    | '/app/automationen/webhooks'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
@@ -671,6 +682,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
+    | '/app/automationen/webhooks'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
@@ -732,6 +744,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/app/automationen/aufgaben'
     | '/_authenticated/app/automationen/verlauf'
+    | '/_authenticated/app/automationen/webhooks'
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
@@ -923,6 +936,13 @@ declare module '@tanstack/react-router' {
       path: '/app/automationen/verlauf'
       fullPath: '/app/automationen/verlauf'
       preLoaderRoute: typeof AuthenticatedAppAutomationenVerlaufRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/automationen/webhooks': {
+      id: '/_authenticated/app/automationen/webhooks'
+      path: '/app/automationen/webhooks'
+      fullPath: '/app/automationen/webhooks'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenWebhooksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/bestellungen/': {
@@ -1220,6 +1240,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppAutomationenAufgabenRoute: typeof AuthenticatedAppAutomationenAufgabenRoute
   AuthenticatedAppAutomationenVerlaufRoute: typeof AuthenticatedAppAutomationenVerlaufRoute
+  AuthenticatedAppAutomationenWebhooksRoute: typeof AuthenticatedAppAutomationenWebhooksRoute
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
@@ -1272,6 +1293,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppAutomationenAufgabenRoute,
   AuthenticatedAppAutomationenVerlaufRoute:
     AuthenticatedAppAutomationenVerlaufRoute,
+  AuthenticatedAppAutomationenWebhooksRoute:
+    AuthenticatedAppAutomationenWebhooksRoute,
   AuthenticatedAppBestellungenOrderIdRoute:
     AuthenticatedAppBestellungenOrderIdRoute,
   AuthenticatedAppDokumenteInvoiceIdRoute:

@@ -49,6 +49,8 @@ const NAV = [
   { to: "/app/retouren", label: "Retouren" },
   { to: "/app/dokumente", label: "Dokumente" },
   { to: "/app/kommunikation", label: "Kommunikation" },
+  { to: "/app/automationen", label: "Automationen" },
+  { to: "/app/automationen/aufgaben", label: "Aufgaben" },
   { to: "/app/zahlungen", label: "Zahlungen" },
   { to: "/app/system/storefront-test", label: "Test-Storefront" },
   { to: "/app/medien", label: "Medien" },
