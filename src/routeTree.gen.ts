@@ -27,6 +27,7 @@ import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authenticated/app/warenkoerbe'
 import { Route as AuthenticatedAppZahlungenRouteImport } from './routes/_authenticated/app/zahlungen'
 import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/bestellungen/$orderId'
+import { Route as StoreProduktHandleRouteImport } from './routes/store/produkt.$handle'
 import { Route as AuthenticatedAppAutomationenIndexRouteImport } from './routes/_authenticated/app/automationen/index'
 import { Route as AuthenticatedAppAutomationenAufgabenRouteImport } from './routes/_authenticated/app/automationen/aufgaben'
 import { Route as AuthenticatedAppAutomationenVerlaufRouteImport } from './routes/_authenticated/app/automationen/verlauf'
@@ -168,6 +169,11 @@ const PortalBestellungenOrderIdRoute =
     path: '/portal/bestellungen/$orderId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const StoreProduktHandleRoute = StoreProduktHandleRouteImport.update({
+  id: '/produkt/$handle',
+  path: '/produkt/$handle',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
 const AuthenticatedAppAutomationenIndexRoute =
   AuthenticatedAppAutomationenIndexRouteImport.update({
     id: '/app/automationen/',
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
+  '/store/produkt/$handle': typeof StoreProduktHandleRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
@@ -530,6 +537,7 @@ export interface FileRoutesByTo {
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
+  '/store/produkt/$handle': typeof StoreProduktHandleRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
@@ -598,6 +606,7 @@ export interface FileRoutesById {
   '/_authenticated/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/_authenticated/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
+  '/store/produkt/$handle': typeof StoreProduktHandleRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/_authenticated/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
@@ -666,6 +675,7 @@ export interface FileRouteTypes {
     | '/app/warenkoerbe'
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
+    | '/store/produkt/$handle'
     | '/app/'
     | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
@@ -731,6 +741,7 @@ export interface FileRouteTypes {
     | '/app/warenkoerbe'
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
+    | '/store/produkt/$handle'
     | '/app'
     | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
@@ -798,6 +809,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/warenkoerbe'
     | '/_authenticated/app/zahlungen'
     | '/portal/bestellungen/$orderId'
+    | '/store/produkt/$handle'
     | '/_authenticated/app/'
     | '/_authenticated/app/automationen/aufgaben'
     | '/_authenticated/app/automationen/verlauf'
@@ -992,6 +1004,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/portal/bestellungen/$orderId'
       preLoaderRoute: typeof PortalBestellungenOrderIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/store/produkt/$handle': {
+      id: '/store/produkt/$handle'
+      path: '/produkt/$handle'
+      fullPath: '/store/produkt/$handle'
+      preLoaderRoute: typeof StoreProduktHandleRouteImport
+      parentRoute: typeof StoreRouteRoute
     }
     '/_authenticated/app/automationen/': {
       id: '/_authenticated/app/automationen/'
@@ -1462,10 +1481,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface StoreRouteRouteChildren {
   StoreIndexRoute: typeof StoreIndexRoute
+  StoreProduktHandleRoute: typeof StoreProduktHandleRoute
 }
 
 const StoreRouteRouteChildren: StoreRouteRouteChildren = {
   StoreIndexRoute: StoreIndexRoute,
+  StoreProduktHandleRoute: StoreProduktHandleRoute,
 }
 
 const StoreRouteRouteWithChildren = StoreRouteRoute._addFileChildren(
