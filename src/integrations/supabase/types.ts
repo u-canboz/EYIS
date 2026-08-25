@@ -179,6 +179,60 @@ export type Database = {
           },
         ]
       }
+      customer_groups: {
+        Row: {
+          created_at: string
+          description: string | null
+          handle: string
+          id: string
+          metadata: Json
+          name: string
+          organization_id: string
+          shop_id: string
+          status: Database["public"]["Enums"]["entity_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          handle: string
+          id?: string
+          metadata?: Json
+          name: string
+          organization_id: string
+          shop_id: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          handle?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          organization_id?: string
+          shop_id?: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_groups_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_groups_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idempotency_keys: {
         Row: {
           created_at: string
@@ -450,6 +504,163 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_sets: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json
+          organization_id: string
+          product_id: string | null
+          shop_id: string
+          status: Database["public"]["Enums"]["entity_status"]
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          product_id?: string | null
+          shop_id: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          product_id?: string | null
+          shop_id?: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_sets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_sets_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_sets_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_sets_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prices: {
+        Row: {
+          amount_minor: number
+          conditions: Json
+          created_at: string
+          currency_code: string
+          customer_group_id: string | null
+          ends_at: string | null
+          id: string
+          max_quantity: number | null
+          metadata: Json
+          min_quantity: number | null
+          organization_id: string
+          price_set_id: string
+          priority: number
+          shop_id: string
+          starts_at: string | null
+          status: Database["public"]["Enums"]["entity_status"]
+          type: Database["public"]["Enums"]["price_type"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          conditions?: Json
+          created_at?: string
+          currency_code: string
+          customer_group_id?: string | null
+          ends_at?: string | null
+          id?: string
+          max_quantity?: number | null
+          metadata?: Json
+          min_quantity?: number | null
+          organization_id: string
+          price_set_id: string
+          priority?: number
+          shop_id: string
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["entity_status"]
+          type?: Database["public"]["Enums"]["price_type"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          conditions?: Json
+          created_at?: string
+          currency_code?: string
+          customer_group_id?: string | null
+          ends_at?: string | null
+          id?: string
+          max_quantity?: number | null
+          metadata?: Json
+          min_quantity?: number | null
+          organization_id?: string
+          price_set_id?: string
+          priority?: number
+          shop_id?: string
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["entity_status"]
+          type?: Database["public"]["Enums"]["price_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prices_customer_group_id_fkey"
+            columns: ["customer_group_id"]
+            isOneToOne: false
+            referencedRelation: "customer_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prices_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prices_price_set_id_fkey"
+            columns: ["price_set_id"]
+            isOneToOne: false
+            referencedRelation: "price_sets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prices_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
         ]
@@ -897,6 +1108,93 @@ export type Database = {
         }
         Relationships: []
       }
+      promotions: {
+        Row: {
+          actions: Json
+          code: string | null
+          conditions: Json
+          created_at: string
+          currency_code: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          metadata: Json
+          name: string
+          organization_id: string
+          priority: number
+          shop_id: string
+          stackable: boolean
+          starts_at: string | null
+          status: Database["public"]["Enums"]["entity_status"]
+          type: Database["public"]["Enums"]["promotion_type"]
+          updated_at: string
+          usage_limit: number | null
+          usage_limit_per_customer: number | null
+          value: number
+        }
+        Insert: {
+          actions?: Json
+          code?: string | null
+          conditions?: Json
+          created_at?: string
+          currency_code?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          metadata?: Json
+          name: string
+          organization_id: string
+          priority?: number
+          shop_id: string
+          stackable?: boolean
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["entity_status"]
+          type: Database["public"]["Enums"]["promotion_type"]
+          updated_at?: string
+          usage_limit?: number | null
+          usage_limit_per_customer?: number | null
+          value?: number
+        }
+        Update: {
+          actions?: Json
+          code?: string | null
+          conditions?: Json
+          created_at?: string
+          currency_code?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          metadata?: Json
+          name?: string
+          organization_id?: string
+          priority?: number
+          shop_id?: string
+          stackable?: boolean
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["entity_status"]
+          type?: Database["public"]["Enums"]["promotion_type"]
+          updated_at?: string
+          usage_limit?: number | null
+          usage_limit_per_customer?: number | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           permission: string
@@ -1046,6 +1344,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bulk_update_prices: {
+        Args: {
+          _amount_minor: number
+          _mode: string
+          _org_id: string
+          _percent_bp: number
+          _price_ids: string[]
+        }
+        Returns: {
+          id: string
+          new_amount: number
+          old_amount: number
+        }[]
+      }
       current_org_ids: { Args: never; Returns: string[] }
       has_org_role: {
         Args: {
@@ -1084,7 +1396,14 @@ export type Database = {
       blueprint_status: "draft" | "active" | "deprecated"
       entity_status: "active" | "inactive" | "archived"
       invitation_status: "pending" | "accepted" | "revoked" | "expired"
+      price_type: "base" | "sale" | "tier" | "customer_group" | "override"
       product_status: "draft" | "active" | "archived"
+      promotion_type:
+        | "percentage"
+        | "fixed_amount"
+        | "fixed_price"
+        | "buy_x_get_y"
+        | "free_shipping"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1227,7 +1546,15 @@ export const Constants = {
       blueprint_status: ["draft", "active", "deprecated"],
       entity_status: ["active", "inactive", "archived"],
       invitation_status: ["pending", "accepted", "revoked", "expired"],
+      price_type: ["base", "sale", "tier", "customer_group", "override"],
       product_status: ["draft", "active", "archived"],
+      promotion_type: [
+        "percentage",
+        "fixed_amount",
+        "fixed_price",
+        "buy_x_get_y",
+        "free_shipping",
+      ],
     },
   },
 } as const
