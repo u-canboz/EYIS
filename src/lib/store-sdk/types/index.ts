@@ -155,12 +155,7 @@ export type StoreShippingOption = {
 };
 
 export type StoreCheckoutStatus =
-  | "open"
-  | "validated"
-  | "awaiting_payment"
-  | "completed"
-  | "expired"
-  | "cancelled";
+  "open" | "validated" | "awaiting_payment" | "completed" | "expired" | "cancelled";
 
 export type StoreCheckout = {
   id: string;

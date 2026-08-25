@@ -13,8 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as InviteRouteImport } from './routes/invite'
+import { Route as StoreRouteRouteImport } from './routes/store/route'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
 import { Route as PortalGastRouteImport } from './routes/portal/gast'
+import { Route as StoreIndexRouteImport } from './routes/store/index'
+import { Route as StoreBestaetigungRouteImport } from './routes/store/bestaetigung'
+import { Route as StoreCheckoutRouteImport } from './routes/store/checkout'
+import { Route as StoreKontoRouteImport } from './routes/store/konto'
+import { Route as StoreWarenkorbRouteImport } from './routes/store/warenkorb'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppAuditRouteImport } from './routes/_authenticated/app/audit'
 import { Route as AuthenticatedAppKategorienRouteImport } from './routes/_authenticated/app/kategorien'
@@ -25,6 +31,7 @@ import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authenticated/app/warenkoerbe'
 import { Route as AuthenticatedAppZahlungenRouteImport } from './routes/_authenticated/app/zahlungen'
 import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/bestellungen/$orderId'
+import { Route as StoreProduktHandleRouteImport } from './routes/store/produkt.$handle'
 import { Route as AuthenticatedAppAutomationenIndexRouteImport } from './routes/_authenticated/app/automationen/index'
 import { Route as AuthenticatedAppAutomationenAufgabenRouteImport } from './routes/_authenticated/app/automationen/aufgaben'
 import { Route as AuthenticatedAppAutomationenVerlaufRouteImport } from './routes/_authenticated/app/automationen/verlauf'
@@ -34,6 +41,8 @@ import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './route
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
 import { Route as AuthenticatedAppDokumenteInvoiceIdRouteImport } from './routes/_authenticated/app/dokumente/$invoiceId'
 import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './routes/_authenticated/app/dokumente/einstellungen'
+import { Route as AuthenticatedAppEntwicklerIndexRouteImport } from './routes/_authenticated/app/entwickler/index'
+import { Route as AuthenticatedAppEntwicklerProtokollRouteImport } from './routes/_authenticated/app/entwickler/protokoll'
 import { Route as AuthenticatedAppKommunikationIndexRouteImport } from './routes/_authenticated/app/kommunikation/index'
 import { Route as AuthenticatedAppKommunikationBrandingRouteImport } from './routes/_authenticated/app/kommunikation/branding'
 import { Route as AuthenticatedAppKommunikationRegelnRouteImport } from './routes/_authenticated/app/kommunikation/regeln'
@@ -90,6 +99,11 @@ const InviteRoute = InviteRouteImport.update({
   path: '/invite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoreRouteRoute = StoreRouteRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortalIndexRoute = PortalIndexRouteImport.update({
   id: '/portal/',
   path: '/portal/',
@@ -99,6 +113,31 @@ const PortalGastRoute = PortalGastRouteImport.update({
   id: '/portal/gast',
   path: '/portal/gast',
   getParentRoute: () => rootRouteImport,
+} as any)
+const StoreIndexRoute = StoreIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
+const StoreBestaetigungRoute = StoreBestaetigungRouteImport.update({
+  id: '/bestaetigung',
+  path: '/bestaetigung',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
+const StoreCheckoutRoute = StoreCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
+const StoreKontoRoute = StoreKontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
+const StoreWarenkorbRoute = StoreWarenkorbRouteImport.update({
+  id: '/warenkorb',
+  path: '/warenkorb',
+  getParentRoute: () => StoreRouteRoute,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/app/',
@@ -154,6 +193,11 @@ const PortalBestellungenOrderIdRoute =
     path: '/portal/bestellungen/$orderId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const StoreProduktHandleRoute = StoreProduktHandleRouteImport.update({
+  id: '/produkt/$handle',
+  path: '/produkt/$handle',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
 const AuthenticatedAppAutomationenIndexRoute =
   AuthenticatedAppAutomationenIndexRouteImport.update({
     id: '/app/automationen/',
@@ -206,6 +250,18 @@ const AuthenticatedAppDokumenteEinstellungenRoute =
   AuthenticatedAppDokumenteEinstellungenRouteImport.update({
     id: '/app/dokumente/einstellungen',
     path: '/app/dokumente/einstellungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppEntwicklerIndexRoute =
+  AuthenticatedAppEntwicklerIndexRouteImport.update({
+    id: '/app/entwickler/',
+    path: '/app/entwickler/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppEntwicklerProtokollRoute =
+  AuthenticatedAppEntwicklerProtokollRouteImport.update({
+    id: '/app/entwickler/protokoll',
+    path: '/app/entwickler/protokoll',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppKommunikationIndexRoute =
@@ -424,10 +480,16 @@ const ApiPublicWebhooksCommunicationsProviderRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/store': typeof StoreRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
+  '/store/bestaetigung': typeof StoreBestaetigungRoute
+  '/store/checkout': typeof StoreCheckoutRoute
+  '/store/konto': typeof StoreKontoRoute
+  '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal/': typeof PortalIndexRoute
+  '/store/': typeof StoreIndexRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
@@ -437,6 +499,7 @@ export interface FileRoutesByFullPath {
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
+  '/store/produkt/$handle': typeof StoreProduktHandleRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
@@ -444,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
@@ -468,6 +532,7 @@ export interface FileRoutesByFullPath {
   '/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/entwickler/': typeof AuthenticatedAppEntwicklerIndexRoute
   '/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
   '/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager/': typeof AuthenticatedAppLagerIndexRoute
@@ -489,7 +554,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
+  '/store/bestaetigung': typeof StoreBestaetigungRoute
+  '/store/checkout': typeof StoreCheckoutRoute
+  '/store/konto': typeof StoreKontoRoute
+  '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal': typeof PortalIndexRoute
+  '/store': typeof StoreIndexRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
@@ -499,6 +569,7 @@ export interface FileRoutesByTo {
   '/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
+  '/store/produkt/$handle': typeof StoreProduktHandleRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
@@ -506,6 +577,7 @@ export interface FileRoutesByTo {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
@@ -530,6 +602,7 @@ export interface FileRoutesByTo {
   '/app/automationen': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/entwickler': typeof AuthenticatedAppEntwicklerIndexRoute
   '/app/kommunikation': typeof AuthenticatedAppKommunikationIndexRoute
   '/app/kunden': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager': typeof AuthenticatedAppLagerIndexRoute
@@ -550,10 +623,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/store': typeof StoreRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
+  '/store/bestaetigung': typeof StoreBestaetigungRoute
+  '/store/checkout': typeof StoreCheckoutRoute
+  '/store/konto': typeof StoreKontoRoute
+  '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal/': typeof PortalIndexRoute
+  '/store/': typeof StoreIndexRoute
   '/_authenticated/app/audit': typeof AuthenticatedAppAuditRoute
   '/_authenticated/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/_authenticated/app/medien': typeof AuthenticatedAppMedienRoute
@@ -563,6 +642,7 @@ export interface FileRoutesById {
   '/_authenticated/app/warenkoerbe': typeof AuthenticatedAppWarenkoerbeRoute
   '/_authenticated/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
+  '/store/produkt/$handle': typeof StoreProduktHandleRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/_authenticated/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
@@ -570,6 +650,7 @@ export interface FileRoutesById {
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/_authenticated/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/_authenticated/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/_authenticated/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
@@ -594,6 +675,7 @@ export interface FileRoutesById {
   '/_authenticated/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/_authenticated/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/_authenticated/app/entwickler/': typeof AuthenticatedAppEntwicklerIndexRoute
   '/_authenticated/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
   '/_authenticated/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/_authenticated/app/lager/': typeof AuthenticatedAppLagerIndexRoute
@@ -614,10 +696,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/store'
     | '/auth'
     | '/invite'
     | '/portal/gast'
+    | '/store/bestaetigung'
+    | '/store/checkout'
+    | '/store/konto'
+    | '/store/warenkorb'
     | '/portal/'
+    | '/store/'
     | '/app/audit'
     | '/app/kategorien'
     | '/app/medien'
@@ -627,6 +715,7 @@ export interface FileRouteTypes {
     | '/app/warenkoerbe'
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
+    | '/store/produkt/$handle'
     | '/app/'
     | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
@@ -634,6 +723,7 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
     | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
@@ -658,6 +748,7 @@ export interface FileRouteTypes {
     | '/app/automationen/'
     | '/app/bestellungen/'
     | '/app/dokumente/'
+    | '/app/entwickler/'
     | '/app/kommunikation/'
     | '/app/kunden/'
     | '/app/lager/'
@@ -679,7 +770,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/portal/gast'
+    | '/store/bestaetigung'
+    | '/store/checkout'
+    | '/store/konto'
+    | '/store/warenkorb'
     | '/portal'
+    | '/store'
     | '/app/audit'
     | '/app/kategorien'
     | '/app/medien'
@@ -689,6 +785,7 @@ export interface FileRouteTypes {
     | '/app/warenkoerbe'
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
+    | '/store/produkt/$handle'
     | '/app'
     | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
@@ -696,6 +793,7 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
     | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
@@ -720,6 +818,7 @@ export interface FileRouteTypes {
     | '/app/automationen'
     | '/app/bestellungen'
     | '/app/dokumente'
+    | '/app/entwickler'
     | '/app/kommunikation'
     | '/app/kunden'
     | '/app/lager'
@@ -739,10 +838,16 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/store'
     | '/auth'
     | '/invite'
     | '/portal/gast'
+    | '/store/bestaetigung'
+    | '/store/checkout'
+    | '/store/konto'
+    | '/store/warenkorb'
     | '/portal/'
+    | '/store/'
     | '/_authenticated/app/audit'
     | '/_authenticated/app/kategorien'
     | '/_authenticated/app/medien'
@@ -752,6 +857,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/warenkoerbe'
     | '/_authenticated/app/zahlungen'
     | '/portal/bestellungen/$orderId'
+    | '/store/produkt/$handle'
     | '/_authenticated/app/'
     | '/_authenticated/app/automationen/aufgaben'
     | '/_authenticated/app/automationen/verlauf'
@@ -759,6 +865,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
+    | '/_authenticated/app/entwickler/protokoll'
     | '/_authenticated/app/kommunikation/branding'
     | '/_authenticated/app/kommunikation/regeln'
     | '/_authenticated/app/kunden/$customerId'
@@ -783,6 +890,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/automationen/'
     | '/_authenticated/app/bestellungen/'
     | '/_authenticated/app/dokumente/'
+    | '/_authenticated/app/entwickler/'
     | '/_authenticated/app/kommunikation/'
     | '/_authenticated/app/kunden/'
     | '/_authenticated/app/lager/'
@@ -803,6 +911,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  StoreRouteRoute: typeof StoreRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   InviteRoute: typeof InviteRoute
   PortalGastRoute: typeof PortalGastRoute
@@ -846,6 +955,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InviteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/store': {
+      id: '/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof StoreRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portal/': {
       id: '/portal/'
       path: '/portal'
@@ -859,6 +975,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/portal/gast'
       preLoaderRoute: typeof PortalGastRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/store/': {
+      id: '/store/'
+      path: '/'
+      fullPath: '/store/'
+      preLoaderRoute: typeof StoreIndexRouteImport
+      parentRoute: typeof StoreRouteRoute
+    }
+    '/store/bestaetigung': {
+      id: '/store/bestaetigung'
+      path: '/bestaetigung'
+      fullPath: '/store/bestaetigung'
+      preLoaderRoute: typeof StoreBestaetigungRouteImport
+      parentRoute: typeof StoreRouteRoute
+    }
+    '/store/checkout': {
+      id: '/store/checkout'
+      path: '/checkout'
+      fullPath: '/store/checkout'
+      preLoaderRoute: typeof StoreCheckoutRouteImport
+      parentRoute: typeof StoreRouteRoute
+    }
+    '/store/konto': {
+      id: '/store/konto'
+      path: '/konto'
+      fullPath: '/store/konto'
+      preLoaderRoute: typeof StoreKontoRouteImport
+      parentRoute: typeof StoreRouteRoute
+    }
+    '/store/warenkorb': {
+      id: '/store/warenkorb'
+      path: '/warenkorb'
+      fullPath: '/store/warenkorb'
+      preLoaderRoute: typeof StoreWarenkorbRouteImport
+      parentRoute: typeof StoreRouteRoute
     }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
@@ -930,6 +1081,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalBestellungenOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/store/produkt/$handle': {
+      id: '/store/produkt/$handle'
+      path: '/produkt/$handle'
+      fullPath: '/store/produkt/$handle'
+      preLoaderRoute: typeof StoreProduktHandleRouteImport
+      parentRoute: typeof StoreRouteRoute
+    }
     '/_authenticated/app/automationen/': {
       id: '/_authenticated/app/automationen/'
       path: '/app/automationen'
@@ -991,6 +1149,20 @@ declare module '@tanstack/react-router' {
       path: '/app/dokumente/einstellungen'
       fullPath: '/app/dokumente/einstellungen'
       preLoaderRoute: typeof AuthenticatedAppDokumenteEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/entwickler/': {
+      id: '/_authenticated/app/entwickler/'
+      path: '/app/entwickler'
+      fullPath: '/app/entwickler/'
+      preLoaderRoute: typeof AuthenticatedAppEntwicklerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/entwickler/protokoll': {
+      id: '/_authenticated/app/entwickler/protokoll'
+      path: '/app/entwickler/protokoll'
+      fullPath: '/app/entwickler/protokoll'
+      preLoaderRoute: typeof AuthenticatedAppEntwicklerProtokollRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/kommunikation/': {
@@ -1264,6 +1436,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
+  AuthenticatedAppEntwicklerProtokollRoute: typeof AuthenticatedAppEntwicklerProtokollRoute
   AuthenticatedAppKommunikationBrandingRoute: typeof AuthenticatedAppKommunikationBrandingRoute
   AuthenticatedAppKommunikationRegelnRoute: typeof AuthenticatedAppKommunikationRegelnRoute
   AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
@@ -1285,6 +1458,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppAutomationenIndexRoute: typeof AuthenticatedAppAutomationenIndexRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppDokumenteIndexRoute: typeof AuthenticatedAppDokumenteIndexRoute
+  AuthenticatedAppEntwicklerIndexRoute: typeof AuthenticatedAppEntwicklerIndexRoute
   AuthenticatedAppKommunikationIndexRoute: typeof AuthenticatedAppKommunikationIndexRoute
   AuthenticatedAppKundenIndexRoute: typeof AuthenticatedAppKundenIndexRoute
   AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
@@ -1321,6 +1495,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppDokumenteInvoiceIdRoute,
   AuthenticatedAppDokumenteEinstellungenRoute:
     AuthenticatedAppDokumenteEinstellungenRoute,
+  AuthenticatedAppEntwicklerProtokollRoute:
+    AuthenticatedAppEntwicklerProtokollRoute,
   AuthenticatedAppKommunikationBrandingRoute:
     AuthenticatedAppKommunikationBrandingRoute,
   AuthenticatedAppKommunikationRegelnRoute:
@@ -1355,6 +1531,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppBestellungenIndexRoute:
     AuthenticatedAppBestellungenIndexRoute,
   AuthenticatedAppDokumenteIndexRoute: AuthenticatedAppDokumenteIndexRoute,
+  AuthenticatedAppEntwicklerIndexRoute: AuthenticatedAppEntwicklerIndexRoute,
   AuthenticatedAppKommunikationIndexRoute:
     AuthenticatedAppKommunikationIndexRoute,
   AuthenticatedAppKundenIndexRoute: AuthenticatedAppKundenIndexRoute,
@@ -1378,9 +1555,32 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface StoreRouteRouteChildren {
+  StoreBestaetigungRoute: typeof StoreBestaetigungRoute
+  StoreCheckoutRoute: typeof StoreCheckoutRoute
+  StoreKontoRoute: typeof StoreKontoRoute
+  StoreWarenkorbRoute: typeof StoreWarenkorbRoute
+  StoreIndexRoute: typeof StoreIndexRoute
+  StoreProduktHandleRoute: typeof StoreProduktHandleRoute
+}
+
+const StoreRouteRouteChildren: StoreRouteRouteChildren = {
+  StoreBestaetigungRoute: StoreBestaetigungRoute,
+  StoreCheckoutRoute: StoreCheckoutRoute,
+  StoreKontoRoute: StoreKontoRoute,
+  StoreWarenkorbRoute: StoreWarenkorbRoute,
+  StoreIndexRoute: StoreIndexRoute,
+  StoreProduktHandleRoute: StoreProduktHandleRoute,
+}
+
+const StoreRouteRouteWithChildren = StoreRouteRoute._addFileChildren(
+  StoreRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  StoreRouteRoute: StoreRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   InviteRoute: InviteRoute,
   PortalGastRoute: PortalGastRoute,

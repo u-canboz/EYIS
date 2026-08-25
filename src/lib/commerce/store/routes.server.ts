@@ -6,7 +6,7 @@
  * publishable key.
  */
 import { z } from "zod";
-import { badRequest, forbidden, notFound, type RouteDef, type StoreCtx } from "./gateway.server";
+import { badRequest, forbidden, notFound, unauthorized, type RouteDef, type StoreCtx } from "./gateway.server";
 import { getProduct, listCategories, listCollections, listProducts, searchProducts } from "./catalog-public.server";
 import { mapCart, mapCheckout, mapOrder } from "./mappers.server";
 import { getAdmin, generateToken, hashToken } from "../core.server";
@@ -475,6 +475,45 @@ export const storeRoutes: RouteDef[] = [
     },
   },
   {
+    method: "GET",
+    path: "/orders/guest/documents/:documentId",
+    profile: "guest_lookup",
+    handler: async (ctx) => {
+      const { orderId } = await ctx.requireGuestOrder();
+      return signOrderDocument(orderId, ctx.params["documentId"] ?? "");
+    },
+  },
+  {
+    method: "GET",
+    path: "/returns/eligibility",
+    profile: "guest_lookup",
+    handler: async (ctx) => {
+      const { orderId } = await ctx.requireGuestOrder();
+      const admin = await getAdmin();
+      const { data } = await admin
+        .from("orders")
+        .select("organization_id, shop_id")
+        .eq("id", orderId)
+        .maybeSingle();
+      const o = data as Record<string, unknown> | null;
+      if (!o || o["shop_id"] !== ctx.key.shopId) throw forbidden("Bestellung gehört nicht zu diesem Shop.");
+      const { getEligibility } = await import("../returns/return.server");
+      const eligibility = await getEligibility(o["organization_id"] as string, orderId);
+      return {
+        eligible: eligibility.eligible,
+        reason: eligibility.reason,
+        items: eligibility.lines
+          .filter((l) => l.returnableQuantity > 0)
+          .map((l) => ({
+            orderItemId: l.orderItemId,
+            title: l.title,
+            returnableQuantity: l.returnableQuantity,
+          })),
+      };
+    },
+  },
+
+  {
     method: "POST",
     path: "/returns",
     profile: "return_create",
@@ -576,7 +615,150 @@ export const storeRoutes: RouteDef[] = [
       return mapOrder(order);
     },
   },
+  {
+    method: "GET",
+    path: "/customer/orders/:orderId/documents/:documentId",
+    profile: "customer_auth",
+    handler: async (ctx) => {
+      const me = await ctx.requireCustomer();
+      const orderId = ctx.params["orderId"] ?? "";
+      const { ownedOrderIds } = await import("../portal/portal.server");
+      const owned = await ownedOrderIds(me.userId);
+      if (!owned.orderIds.includes(orderId)) throw forbidden("Bestellung gehört nicht zu diesem Konto.");
+      return signOrderDocument(orderId, ctx.params["documentId"] ?? "");
+    },
+  },
+
+  // ------------------------------------------------- store auth wrapper
+  // Storefronts never embed an auth provider client: credentials are
+  // exchanged here and only an opaque session token leaves the API.
+  {
+    method: "POST",
+    path: "/customer/auth/login",
+    profile: "customer_login",
+    schema: z.object({ email: z.string().email().max(200), password: z.string().min(8).max(200) }),
+    handler: async (ctx) => {
+      const body = ctx.body as { email: string; password: string };
+      await ctx.limit("customer_login", body.email.toLowerCase());
+      const auth = await authClient();
+      const { data, error } = await auth.auth.signInWithPassword(body);
+      if (error || !data.session) throw unauthorized("E-Mail oder Passwort ist falsch.");
+      const customer = await linkCustomer(ctx, data.session.user.id, body.email);
+      return {
+        token: data.session.access_token,
+        expiresAt: new Date((data.session.expires_at ?? 0) * 1000).toISOString(),
+        customer,
+      };
+    },
+  },
+  {
+    method: "POST",
+    path: "/customer/auth/register",
+    profile: "customer_login",
+    schema: z.object({
+      email: z.string().email().max(200),
+      password: z.string().min(8).max(200),
+      firstName: z.string().max(80).nullish(),
+      lastName: z.string().max(80).nullish(),
+    }),
+    handler: async (ctx) => {
+      const body = ctx.body as { email: string; password: string; firstName?: string | null; lastName?: string | null };
+      await ctx.limit("customer_login", body.email.toLowerCase());
+      const auth = await authClient();
+      const { data, error } = await auth.auth.signUp({
+        email: body.email,
+        password: body.password,
+        options: { data: { first_name: body.firstName ?? null, last_name: body.lastName ?? null } },
+      });
+      if (error) throw badRequest(error.message);
+      if (!data.session) return { token: null, customer: null, confirmationRequired: true };
+      const customer = await linkCustomer(ctx, data.session.user.id, body.email);
+      return { token: data.session.access_token, customer, confirmationRequired: false };
+    },
+  },
+  {
+    method: "POST",
+    path: "/customer/auth/password-reset",
+    profile: "customer_login",
+    schema: z.object({ email: z.string().email().max(200) }),
+    handler: async (ctx) => {
+      const body = ctx.body as { email: string };
+      await ctx.limit("customer_login", body.email.toLowerCase());
+      const auth = await authClient();
+      // Never reveal whether the account exists.
+      await auth.auth.resetPasswordForEmail(body.email).catch(() => null);
+      return { requested: true };
+    },
+  },
 ];
+
+/** Server-side auth client (publishable key, no session persistence). */
+async function authClient() {
+  const { createClient } = await import("@supabase/supabase-js");
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+  const url = process.env["SUPABASE_URL"]!;
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input: RequestInfo | URL, init?: RequestInit) => {
+        const headers = new Headers(init?.headers);
+        if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`)
+          headers.delete("Authorization");
+        headers.set("apikey", key);
+        return fetch(input, { ...init, headers });
+      },
+    },
+  });
+}
+
+/** Makes sure the signed-in user has a customer record in THIS shop. */
+async function linkCustomer(ctx: StoreCtx, userId: string, email: string) {
+  const admin = await getAdmin();
+  const normalized = email.trim().toLowerCase();
+  const { data: existing } = await admin
+    .from("customers")
+    .select("id, email, first_name, last_name, kind, auth_user_id")
+    .eq("shop_id", ctx.key.shopId)
+    .ilike("email", normalized)
+    .maybeSingle();
+  let row = existing as Record<string, unknown> | null;
+  if (row && !row["auth_user_id"]) {
+    await admin.from("customers").update({ auth_user_id: userId, status: "active" } as never).eq("id", row["id"] as string);
+  }
+  if (!row) {
+    const { data: created } = await admin
+      .from("customers")
+      .insert({
+        organization_id: ctx.key.organizationId,
+        shop_id: ctx.key.shopId,
+        email: normalized,
+        auth_user_id: userId,
+        status: "active",
+      } as never)
+      .select("id, email, first_name, last_name, kind")
+      .maybeSingle();
+    row = created as Record<string, unknown> | null;
+  }
+  const { claimOrdersForUser } = await import("../customers/customer.server");
+  await claimOrdersForUser({ userId, email: normalized }).catch(() => null);
+  return {
+    id: String(row?.["id"] ?? ""),
+    email: String(row?.["email"] ?? normalized),
+    firstName: (row?.["first_name"] as string | null) ?? null,
+    lastName: (row?.["last_name"] as string | null) ?? null,
+    kind: ((row?.["kind"] as string | null) ?? "b2c") as "b2c" | "b2b",
+  };
+}
+
+/** Signs a document only after the caller proved access to its order. */
+async function signOrderDocument(orderId: string, documentId: string) {
+  const { loadPortalOrder, signPortalDocument } = await import("../portal/portal.server");
+  const order = await loadPortalOrder(orderId);
+  const doc = order.documents.find((d) => d.id === documentId);
+  if (!doc) throw notFound("Dokument gehört nicht zu dieser Bestellung.");
+  return signPortalDocument(doc.kind, documentId);
+}
+
 
 async function mintConfirmationToken(ctx: StoreCtx, orderId: string) {
   const admin = await getAdmin();

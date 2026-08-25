@@ -36,5 +36,30 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    // Storefront boundary: the reference storefront and the SDK itself may only
+    // talk to the public Store API — never to internal commerce modules or the
+    // backend client.
+    files: ["src/routes/store/**/*.{ts,tsx}", "src/lib/store-sdk/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/lib/commerce/*", "@/lib/commerce/**", "**/*.server", "**/*.server.*"],
+              message:
+                "Storefront-Code darf ausschließlich @/lib/store-sdk verwenden, keine internen Commerce-Module.",
+            },
+            {
+              group: ["@/integrations/supabase/*", "@supabase/*"],
+              message: "Die Reference Storefront darf keinen Supabase-Client importieren.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   eslintPluginPrettier,
 );
+
