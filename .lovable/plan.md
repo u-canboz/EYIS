@@ -18,7 +18,7 @@ Order-Snapshot → Return Request → Approval → Wareneingang → Prüfung →
 `customer_addresses` (shipping/billing/both, `is_default`) — reine Stammdaten, historische Order-Adressen bleiben unberührt.
 `customer_group_members` (customer_id, customer_group_id) — verbindet Phase-2-Gruppen real.
 `customer_notes` (intern, nie im Portal sichtbar).
-`guest_order_access_tokens` (order_id, `token_hash`, expires_at, used_at, revoked_at) — nur SHA-256-Hash, Rohtoken nur einmal zurückgegeben.
+`guest_order_access_tokens` (order_id, `token_hash`, expires_at, used_at, revoked_at) — Rohtoken aus 32 zufälligen Bytes (256 Bit, CSPRNG, base64url), niemals UUID; gespeichert wird nur der SHA-256-Hash, der Rohtoken wird genau einmal zurückgegeben.
 `returns` (return_number, status, reason_category, customer_note/internal_note, Zeitstempel je Statuswechsel, `refund_id`, `credit_note_id`, `return_shipment_id`).
 `return_items` (order_item_id, quantity_requested/received/approved, reason_code, condition, resolution, restock_decision, refund_amount_minor, metadata).
 `return_settings` (returns_enabled, default_return_window_days, approval_strategy, customer_pays_return_shipping, auto_refund_on_approval, auto_restock, instructions).
@@ -44,6 +44,7 @@ Alle Übergänge über `SECURITY DEFINER`-RPCs mit Row-Lock und Idempotenzschlü
 
 **Mengenregel (atomar):** je `order_item` gilt `Σ wirksame Retourenmengen ≤ bestellte Menge`. Prüfung unter `FOR UPDATE`-Lock auf Order-Item-Ebene innerhalb der Transaktion → zwei parallele Anträge auf dieselbe Restmenge: genau einer gewinnt. Teilretouren (3× Hoodie → 1, später 2, dritte Rückgabe abgelehnt) folgen daraus.
 **Nummernkreis:** `RMA-YYYY-000001` über die vorhandene Sequenzmechanik, concurrency-sicher, nie DB-ID.
+**Doppelte Anträge technisch ausgeschlossen:** `returns.idempotency_key NOT NULL` mit Unique `(organization_id, idempotency_key)` — ein wiederholter Submit liefert dieselbe RMA zurück statt einer zweiten. Zusätzlich ein partieller Unique-Index, der pro Order nur eine offene Retoure je Client-Request-Key zulässt; die Datenbank, nicht die Anwendungslogik, ist die Absicherung.
 
 ## Eligibility
 
@@ -62,7 +63,9 @@ Pro Position `restock | do_not_restock | manual_review`. Bei `restock` muss ein 
 
 `/konto/registrieren`, `/konto/anmelden`, `/konto` (Dashboard mit letzter Bestellung, offenen Retouren, Rechnungen, Adressen — eine klare nächste Aktion), `/konto/bestellungen`, `/konto/bestellungen/$orderId` (Status, Positionen, Zahlung, Versand + Tracking-Stufen, Rechnungen, Gutschriften, Retouren, Adressen), `/konto/bestellungen/$orderId/retoure` (6-Schritt-Wizard), `/konto/adressen`, `/konto/profil`, `/konto/bestellung/$token` (Gastzugriff).
 Order-Cards statt Tabellen, Touch-Ziele ≥ 44 px, Labels und Fehlertexte an Feldern, Fokusführung pro Wizard-Schritt, Status immer mit Text (nicht nur Farbe).
-Account Linking: nach verifizierter E-Mail kann der Kunde Bestellungen desselben Shops übernehmen, sofern sie noch keinem Customer gehören — nie automatisch durch bloße E-Mail-Eingabe.
+Account Linking: nach verifizierter E-Mail kann der Kunde Bestellungen desselben Shops übernehmen, sofern sie noch keinem Customer gehören — nie automatisch durch bloße E-Mail-Eingabe. **Jede einzelne übernommene Bestellung wird separat protokolliert** (Audit- und Security-Event `customer.order_claimed` je Order mit Order-ID, Customer-ID, Verifikationsweg, Zeitpunkt) — Besitzzuordnung ist sicherheitsrelevant und nie eine Sammelbuchung.
+
+Customer-Blocking: `blocked` ist eine Zugangs-, keine Datenregel. Blockierte Kunden können — je Shop-Policy — keinen neuen Checkout starten und optional sich nicht anmelden; der Lesezugriff auf bereits bestehende Bestellungen, Rechnungen und Gutschriften bleibt erhalten, sofern nicht ausdrücklich eine eigene Regel etwas anderes festlegt. Blockieren löscht und anonymisiert nichts.
 
 ## Backoffice
 
