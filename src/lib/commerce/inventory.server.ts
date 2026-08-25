@@ -734,8 +734,20 @@ export async function cancelTransfer(
   });
 }
 
+export type InventoryHealthProblem = {
+  level_id: string;
+  inventory_item_id: string;
+  location_id: string;
+  on_hand: number;
+  reserved: number;
+  damaged: number;
+  incoming: number;
+  available: number;
+  issue: string;
+};
+
 export async function inventoryHealth(ctx: Ctx, args: { organizationId: string }) {
-  return callRpc<{ healthy: boolean; problems: unknown[] }>("inv_health_check", {
+  return callRpc<{ healthy: boolean; problems: InventoryHealthProblem[] }>("inv_health_check", {
     _org: args.organizationId,
     _actor: ctx.userId,
   });
