@@ -116,7 +116,7 @@ function StoreConfirmationPage() {
       </ul>
 
       <p className="text-right font-medium">
-        Gesamt: {money(order.totals.totalMinor, order.currencyCode)}
+        Gesamt: {money(order.totalMinor, order.currencyCode)}
       </p>
 
       <Button asChild variant="outline">
