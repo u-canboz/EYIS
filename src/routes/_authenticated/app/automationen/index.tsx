@@ -304,7 +304,7 @@ function StatCard({
   label: string;
   value: number;
   loading: boolean;
-  tone?: "warn";
+  tone?: "warn" | undefined;
 }) {
   return (
     <div className="rounded-lg border bg-card p-4">

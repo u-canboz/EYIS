@@ -25,7 +25,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 
-type Search = { executionId?: string; status?: string };
+type Search = { executionId?: string | undefined; status?: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/app/automationen/verlauf")({
   validateSearch: (search: Record<string, unknown>): Search => ({
@@ -113,7 +113,7 @@ function ExecutionHistory() {
               size="sm"
               variant={(search.status ?? "") === f.value ? "default" : "outline"}
               onClick={() =>
-                void navigate({ search: (s) => ({ ...s, status: f.value || undefined }) })
+                void navigate({ search: (s: Search) => ({ ...s, status: f.value || undefined }) })
               }
             >
               {f.label}
@@ -153,7 +153,7 @@ function ExecutionHistory() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => void navigate({ search: (s) => ({ ...s, executionId: e.id }) })}
+                  onClick={() => void navigate({ search: (s: Search) => ({ ...s, executionId: e.id }) })}
                 >
                   Details
                 </Button>
@@ -166,7 +166,7 @@ function ExecutionHistory() {
       <Sheet
         open={!!search.executionId}
         onOpenChange={(open) => {
-          if (!open) void navigate({ search: (s) => ({ ...s, executionId: undefined }) });
+          if (!open) void navigate({ search: (s: Search) => ({ ...s, executionId: undefined }) });
         }}
       >
         <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
@@ -183,7 +183,7 @@ function ExecutionHistory() {
               <div>
                 <p className="font-medium">{detail.data.ruleName}</p>
                 <p className="text-muted-foreground">
-                  Version {detail.data.ruleVersion} ·{" "}
+                  Version {detail.data.version} ·{" "}
                   {EXECUTION_STATUS_LABELS[
                     detail.data.status as keyof typeof EXECUTION_STATUS_LABELS
                   ] ?? detail.data.status}
@@ -221,7 +221,7 @@ function ExecutionHistory() {
               <div>
                 <p className="mb-2 font-medium">Ausgangsdaten</p>
                 <pre className="max-h-64 overflow-auto rounded-md bg-muted p-3 text-xs">
-                  {JSON.stringify(detail.data.contextSnapshot, null, 2)}
+                  {JSON.stringify(detail.data.context, null, 2)}
                 </pre>
               </div>
               <Button

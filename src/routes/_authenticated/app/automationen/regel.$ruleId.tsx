@@ -218,7 +218,7 @@ function RuleEditor() {
     const out: Record<string, unknown> = {};
     for (const f of event?.fields ?? []) {
       out[f.path] =
-        f.type === "number" || f.type === "money" ? 10000 : f.type === "boolean" ? true : f.sample ?? "beispiel";
+        f.type === "number" || f.type === "money" ? 10000 : f.type === "boolean" ? true : "beispiel";
     }
     return out;
   }, [event]);
@@ -565,7 +565,7 @@ function RuleEditor() {
                               </SelectTrigger>
                               <SelectContent>
                                 {(templates.data ?? []).map((t) => (
-                                  <SelectItem key={t.templateKey} value={t.templateKey}>
+                                  <SelectItem key={t.key} value={t.key}>
                                     {t.name}
                                   </SelectItem>
                                 ))}
