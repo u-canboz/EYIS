@@ -19,6 +19,7 @@ import { Route as PortalGastRouteImport } from './routes/portal/gast'
 import { Route as StoreIndexRouteImport } from './routes/store/index'
 import { Route as StoreBestaetigungRouteImport } from './routes/store/bestaetigung'
 import { Route as StoreCheckoutRouteImport } from './routes/store/checkout'
+import { Route as StoreKontoRouteImport } from './routes/store/konto'
 import { Route as StoreWarenkorbRouteImport } from './routes/store/warenkorb'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppAuditRouteImport } from './routes/_authenticated/app/audit'
@@ -126,6 +127,11 @@ const StoreBestaetigungRoute = StoreBestaetigungRouteImport.update({
 const StoreCheckoutRoute = StoreCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => StoreRouteRoute,
+} as any)
+const StoreKontoRoute = StoreKontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
   getParentRoute: () => StoreRouteRoute,
 } as any)
 const StoreWarenkorbRoute = StoreWarenkorbRouteImport.update({
@@ -480,6 +486,7 @@ export interface FileRoutesByFullPath {
   '/portal/gast': typeof PortalGastRoute
   '/store/bestaetigung': typeof StoreBestaetigungRoute
   '/store/checkout': typeof StoreCheckoutRoute
+  '/store/konto': typeof StoreKontoRoute
   '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal/': typeof PortalIndexRoute
   '/store/': typeof StoreIndexRoute
@@ -549,6 +556,7 @@ export interface FileRoutesByTo {
   '/portal/gast': typeof PortalGastRoute
   '/store/bestaetigung': typeof StoreBestaetigungRoute
   '/store/checkout': typeof StoreCheckoutRoute
+  '/store/konto': typeof StoreKontoRoute
   '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal': typeof PortalIndexRoute
   '/store': typeof StoreIndexRoute
@@ -621,6 +629,7 @@ export interface FileRoutesById {
   '/portal/gast': typeof PortalGastRoute
   '/store/bestaetigung': typeof StoreBestaetigungRoute
   '/store/checkout': typeof StoreCheckoutRoute
+  '/store/konto': typeof StoreKontoRoute
   '/store/warenkorb': typeof StoreWarenkorbRoute
   '/portal/': typeof PortalIndexRoute
   '/store/': typeof StoreIndexRoute
@@ -693,6 +702,7 @@ export interface FileRouteTypes {
     | '/portal/gast'
     | '/store/bestaetigung'
     | '/store/checkout'
+    | '/store/konto'
     | '/store/warenkorb'
     | '/portal/'
     | '/store/'
@@ -762,6 +772,7 @@ export interface FileRouteTypes {
     | '/portal/gast'
     | '/store/bestaetigung'
     | '/store/checkout'
+    | '/store/konto'
     | '/store/warenkorb'
     | '/portal'
     | '/store'
@@ -833,6 +844,7 @@ export interface FileRouteTypes {
     | '/portal/gast'
     | '/store/bestaetigung'
     | '/store/checkout'
+    | '/store/konto'
     | '/store/warenkorb'
     | '/portal/'
     | '/store/'
@@ -983,6 +995,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/store/checkout'
       preLoaderRoute: typeof StoreCheckoutRouteImport
+      parentRoute: typeof StoreRouteRoute
+    }
+    '/store/konto': {
+      id: '/store/konto'
+      path: '/konto'
+      fullPath: '/store/konto'
+      preLoaderRoute: typeof StoreKontoRouteImport
       parentRoute: typeof StoreRouteRoute
     }
     '/store/warenkorb': {
@@ -1539,6 +1558,7 @@ const AuthenticatedRouteRouteWithChildren =
 interface StoreRouteRouteChildren {
   StoreBestaetigungRoute: typeof StoreBestaetigungRoute
   StoreCheckoutRoute: typeof StoreCheckoutRoute
+  StoreKontoRoute: typeof StoreKontoRoute
   StoreWarenkorbRoute: typeof StoreWarenkorbRoute
   StoreIndexRoute: typeof StoreIndexRoute
   StoreProduktHandleRoute: typeof StoreProduktHandleRoute
@@ -1547,6 +1567,7 @@ interface StoreRouteRouteChildren {
 const StoreRouteRouteChildren: StoreRouteRouteChildren = {
   StoreBestaetigungRoute: StoreBestaetigungRoute,
   StoreCheckoutRoute: StoreCheckoutRoute,
+  StoreKontoRoute: StoreKontoRoute,
   StoreWarenkorbRoute: StoreWarenkorbRoute,
   StoreIndexRoute: StoreIndexRoute,
   StoreProduktHandleRoute: StoreProduktHandleRoute,
