@@ -62,11 +62,25 @@ function OrderDetailPage() {
   const saveNote = useServerFn(setOrderNoteFn);
   const cancel = useServerFn(cancelOrderFn);
   const refund = useServerFn(createRefundFn);
+  const listOrderFulfillments = useServerFn(getOrderFulfillments);
+  const getTracking = useServerFn(getOrderTrackingFn);
 
   const order = useQuery({
     queryKey: ["order", organizationId, orderId],
     enabled: !!organizationId,
     queryFn: () => get({ data: { organizationId, orderId } }),
+  });
+
+  const fulfillments = useQuery({
+    queryKey: ["order-fulfillments", organizationId, orderId],
+    enabled: !!organizationId,
+    queryFn: () => listOrderFulfillments({ data: { organizationId, orderId } }),
+  });
+
+  const tracking = useQuery({
+    queryKey: ["order-tracking", organizationId, orderId],
+    enabled: !!organizationId,
+    queryFn: () => getTracking({ data: { organizationId, orderId } }),
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["order", organizationId, orderId] });
