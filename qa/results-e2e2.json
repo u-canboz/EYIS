@@ -1,0 +1,177 @@
+[
+  {
+    "name": "Concurrency: available = 1",
+    "ok": true,
+    "detail": "{\"onHand\":1,\"reserved\":0,\"damaged\":0}"
+  },
+  {
+    "name": "Concurrency: genau 1 Checkout mit Reservierung",
+    "ok": true,
+    "detail": "ok=1 rejected=Nicht genügend Bestand für „QA Testprodukt“ (verfügbar: 0)."
+  },
+  {
+    "name": "Concurrency: genau 1 Order",
+    "ok": true,
+    "detail": "ORD-000007"
+  },
+  {
+    "name": "Concurrency: kein Overselling (on_hand 0, reserved 0)",
+    "ok": true,
+    "detail": "{\"onHand\":0,\"reserved\":0,\"damaged\":0}"
+  },
+  {
+    "name": "Refund Idempotency: identische Refund-ID",
+    "ok": true,
+    "detail": "f75a8be0-7d7c-4f4a-952e-504bc158f2df"
+  },
+  {
+    "name": "Refund Idempotency: genau eine Rückerstattung",
+    "ok": true,
+    "detail": "refunds=1"
+  },
+  {
+    "name": "Teilerstattung: payment_status = partially_refunded",
+    "ok": true,
+    "detail": "partially_refunded"
+  },
+  {
+    "name": "Teilerstattung: refunded_minor = 1000",
+    "ok": true,
+    "detail": "1000"
+  },
+  {
+    "name": "Erstattbarer Restbetrag korrekt",
+    "ok": true,
+    "detail": "4480"
+  },
+  {
+    "name": "Refund Payment Transaction vorhanden",
+    "ok": true,
+    "detail": "tx=1"
+  },
+  {
+    "name": "Vollerstattung: payment_status = refunded",
+    "ok": true,
+    "detail": "refunded"
+  },
+  {
+    "name": "Weitere Erstattung abgelehnt",
+    "ok": true,
+    "detail": "Nur bezahlte Bestellungen können erstattet werden."
+  },
+  {
+    "name": "Refund erhöht Lagerbestand nicht",
+    "ok": true,
+    "detail": "{\"before\":{\"onHand\":10,\"reserved\":0,\"damaged\":0},\"after\":{\"onHand\":10,\"reserved\":0,\"damaged\":0}}"
+  },
+  {
+    "name": "Cancellation ausgeführt",
+    "ok": true,
+    "detail": "{\"status\":\"cancelled\",\"changed\":true,\"order_id\":\"0da70596-d520-4305-9554-c1e708f20f34\"}"
+  },
+  {
+    "name": "Cancellation: Status = cancelled",
+    "ok": true,
+    "detail": "cancelled"
+  },
+  {
+    "name": "Cancellation: Payment-Zustand unverändert (paid)",
+    "ok": true,
+    "detail": "paid"
+  },
+  {
+    "name": "Cancellation: Audit-Eintrag",
+    "ok": true,
+    "detail": "audit=1"
+  },
+  {
+    "name": "Cancellation: Outbox Event",
+    "ok": true,
+    "detail": "outbox=2"
+  },
+  {
+    "name": "Cancellation: keine automatische Bestandsrückbuchung",
+    "ok": true,
+    "detail": "{\"onHand\":9,\"reserved\":0,\"damaged\":0}"
+  },
+  {
+    "name": "Doppelstornierung ohne Wirkung",
+    "ok": true,
+    "detail": "{\"status\":\"cancelled\",\"changed\":false,\"order_id\":\"0da70596-d520-4305-9554-c1e708f20f34\"}"
+  },
+  {
+    "name": "Tenant B angemeldet",
+    "ok": true,
+    "detail": "ok"
+  },
+  {
+    "name": "Tenant Isolation: Order A nicht lesbar",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "Tenant Isolation: Payment A nicht lesbar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tenant Isolation: Refunds A nicht lesbar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tenant Isolation: Provider-Konfiguration A nicht lesbar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tenant Isolation: Checkout-Snapshots A nicht lesbar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tenant Isolation: keine Refund-Berechtigung in Org A",
+    "ok": true,
+    "detail": "false"
+  },
+  {
+    "name": "Tenant Isolation: refund_create A blockiert",
+    "ok": true,
+    "detail": "permission denied for function refund_create"
+  },
+  {
+    "name": "Tenant Isolation: order_cancel A blockiert",
+    "ok": true,
+    "detail": "permission denied for function order_cancel"
+  },
+  {
+    "name": "Tenant Isolation: Finalisierung A blockiert",
+    "ok": true,
+    "detail": "permission denied for function order_finalize_from_payment"
+  },
+  {
+    "name": "Tenant Isolation: Payment Session A nicht änderbar",
+    "ok": true,
+    "detail": "0 Zeilen"
+  },
+  {
+    "name": "Test-Provider im Live-Modus abgelehnt",
+    "ok": true,
+    "detail": "Der Test-Anbieter ist im Live-Betrieb nicht zulässig."
+  },
+  {
+    "name": "Kein Mock-Provider in Live-Umgebung konfiguriert",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "Test-Orders als environment=test erkennbar",
+    "ok": true,
+    "detail": "[\"test\"]"
+  },
+  {
+    "name": "Provider muss explizit aktiviert sein",
+    "ok": true,
+    "detail": "Zahlungsanbieter \"mock\" ist für diesen Shop nicht aktiv."
+  }
+]

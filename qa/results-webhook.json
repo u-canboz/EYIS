@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Webhook: gültige Signatur akzeptiert",
+    "ok": true,
+    "detail": "{\"id\":\"evt_qa_1\",\"outcome\":\"paid\"}"
+  },
+  {
+    "name": "Webhook: Payment Session aus Metadaten gelesen",
+    "ok": true,
+    "detail": "11111111-1111-1111-1111-111111111111"
+  },
+  {
+    "name": "Webhook: falsche Signatur abgelehnt",
+    "ok": true,
+    "detail": "Ungültige Signatur."
+  },
+  {
+    "name": "Webhook: manipulierter Body abgelehnt",
+    "ok": true,
+    "detail": "Ungültige Signatur."
+  },
+  {
+    "name": "Webhook: fremdes Signing Secret abgelehnt",
+    "ok": true,
+    "detail": "Ungültige Signatur."
+  },
+  {
+    "name": "Webhook: Replay außerhalb Zeitfenster abgelehnt",
+    "ok": true,
+    "detail": "Signatur ist abgelaufen."
+  },
+  {
+    "name": "Webhook: fehlender Header abgelehnt",
+    "ok": true,
+    "detail": "Signatur fehlt."
+  },
+  {
+    "name": "Webhook-Journal: erster Eintrag gespeichert",
+    "ok": true,
+    "detail": "ok"
+  },
+  {
+    "name": "Webhook-Journal: Duplikat abgewiesen (23505)",
+    "ok": true,
+    "detail": "23505"
+  },
+  {
+    "name": "Webhook-Journal: Payload unveränderlich",
+    "ok": true,
+    "detail": "Zahlungs-Events sind unveränderbar; nur der Verarbeitungsstatus darf sich ändern."
+  },
+  {
+    "name": "Webhook-Journal: nicht löschbar",
+    "ok": true,
+    "detail": "Zahlungs-Events dürfen nicht gelöscht werden."
+  },
+  {
+    "name": "Webhook: unbekannte Payment Session führt zu Fehler statt Order",
+    "ok": true,
+    "detail": "Zahlungssitzung nicht gefunden."
+  }
+]
