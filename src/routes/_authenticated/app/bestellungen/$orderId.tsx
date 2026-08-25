@@ -235,7 +235,7 @@ function OrderDetailPage() {
                         params={{ fulfillmentId: f.id }}
                         className="text-sm font-medium hover:underline"
                       >
-                        {f.reference ?? f.id.slice(0, 8)}
+                        {f.orderNumber} · {f.locationName ?? "ohne Lagerort"}
                       </Link>
                       <Badge variant="outline">{FULFILLMENT_STATE_LABELS[f.status]}</Badge>
                     </div>
@@ -243,7 +243,7 @@ function OrderDetailPage() {
                       {f.items.reduce((sum, i) => sum + i.quantity, 0)} Artikel ·{" "}
                       {f.packages.length} Paket(e)
                     </p>
-                    {f.shipments.map((s) => (
+                    {f.packages.map((p) => p.shipment).filter((s) => s !== null).map((s) => (
                       <div key={s.id} className="mt-2 border-t pt-2 text-sm">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <span>
