@@ -2,7 +2,7 @@
   {
     "name": "Keys für zwei Shops erstellt",
     "ok": true,
-    "detail": "pk_test_a0d302 / pk_test_b2d509"
+    "detail": "pk_test_ad77fe / pk_test_6ce4ed"
   },
   {
     "name": "GET /config",
@@ -12,7 +12,7 @@
   {
     "name": "Antwort trägt Request-ID",
     "ok": true,
-    "detail": "ef9345f4-1c1d-4227-a7d0-361353339857"
+    "detail": "cb1ed4ee-1bea-4f54-8d44-38cdf30a771f"
   },
   {
     "name": "GET /products",
@@ -116,18 +116,23 @@
   },
   {
     "name": "Mock-Zahlung finalisiert",
-    "ok": false,
-    "detail": "{\"error\":\"Error: Snapshots sind unveränderbar.\"}"
+    "ok": true,
+    "detail": "{\"created\":true,\"order_id\":\"f8520009-9b4c-4a24-ab52-283526ea81db\",\"order_number\":\"ORD-000010\",\"reservations_committed\":1"
   },
   {
     "name": "Zahlungsstatus lesbar",
     "ok": true,
-    "detail": "200 pending"
+    "detail": "200 paid"
   },
   {
-    "name": "Confirmation-Token",
-    "ok": false,
-    "detail": "kein Token (status=pending)"
+    "name": "Confirmation-Token einlösbar",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Confirmation-Token nur einmal gültig",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
   },
   {
     "name": "Login mit falschen Daten abgelehnt",
