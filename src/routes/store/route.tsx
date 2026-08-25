@@ -5,10 +5,12 @@
  * `@/components/ui/**` and React/Router. No `@/lib/commerce/**`, no Supabase.
  * The ESLint boundary rule in eslint.config.js fails the build on violations.
  */
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { CommerceProvider } from "@/lib/store-sdk/react/provider";
 import type { CommerceClientConfig } from "@/lib/store-sdk";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/store")({
   component: StoreLayout,
@@ -63,7 +65,6 @@ function StoreLayout() {
       </div>
     );
   }
-
 
   return (
     <CommerceProvider config={config}>
