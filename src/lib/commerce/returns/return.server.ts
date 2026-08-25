@@ -395,6 +395,8 @@ export async function requestReturn(input: {
     _note: input.note ?? null,
     _idem: input.idempotencyKey,
   });
+  if (!requested.duplicate) await publishReturnEvent(requested.return_id, "return.requested");
+  return requested;
 }
 
 export async function authorizeReturn(input: {
