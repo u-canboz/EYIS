@@ -20,6 +20,7 @@ import { Route as AuthenticatedAppMedienRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppShopsRouteImport } from './routes/_authenticated/app/shops'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppPreiseIndexRouteImport } from './routes/_authenticated/app/preise/index'
+import { Route as AuthenticatedAppPreiseTestenRouteImport } from './routes/_authenticated/app/preise/testen'
 import { Route as AuthenticatedAppProdukteIndexRouteImport } from './routes/_authenticated/app/produkte/index'
 import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/_authenticated/app/produkte/$productId'
 import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
@@ -80,6 +81,12 @@ const AuthenticatedAppPreiseIndexRoute =
     path: '/app/preise/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppPreiseTestenRoute =
+  AuthenticatedAppPreiseTestenRouteImport.update({
+    id: '/app/preise/testen',
+    path: '/app/preise/testen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppProdukteIndexRoute =
   AuthenticatedAppProdukteIndexRouteImport.update({
     id: '/app/produkte/',
@@ -109,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/app/shops': typeof AuthenticatedAppShopsRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
@@ -124,6 +132,7 @@ export interface FileRoutesByTo {
   '/app/shops': typeof AuthenticatedAppShopsRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
@@ -141,6 +150,7 @@ export interface FileRoutesById {
   '/_authenticated/app/shops': typeof AuthenticatedAppShopsRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/app/shops'
     | '/app/team'
     | '/app/'
+    | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
     | '/app/preise/'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/app/shops'
     | '/app/team'
     | '/app'
+    | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
     | '/app/preise'
@@ -189,6 +201,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/shops'
     | '/_authenticated/app/team'
     | '/_authenticated/app/'
+    | '/_authenticated/app/preise/testen'
     | '/_authenticated/app/produkte/$productId'
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/preise/'
@@ -281,6 +294,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppPreiseIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/preise/testen': {
+      id: '/_authenticated/app/preise/testen'
+      path: '/app/preise/testen'
+      fullPath: '/app/preise/testen'
+      preLoaderRoute: typeof AuthenticatedAppPreiseTestenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/produkte/': {
       id: '/_authenticated/app/produkte/'
       path: '/app/produkte'
@@ -312,6 +332,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppShopsRoute: typeof AuthenticatedAppShopsRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppPreiseTestenRoute: typeof AuthenticatedAppPreiseTestenRoute
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppPreiseIndexRoute: typeof AuthenticatedAppPreiseIndexRoute
@@ -325,6 +346,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppShopsRoute: AuthenticatedAppShopsRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppPreiseTestenRoute: AuthenticatedAppPreiseTestenRoute,
   AuthenticatedAppProdukteProductIdRoute:
     AuthenticatedAppProdukteProductIdRoute,
   AuthenticatedAppProdukteNeuRoute: AuthenticatedAppProdukteNeuRoute,
