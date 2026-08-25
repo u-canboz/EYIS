@@ -58,7 +58,7 @@ function CartsPage() {
         data: {
           organizationId,
           shopId,
-          status: status === "all" ? null : status,
+          status: status === "all" ? null : (status as CartStatus),
           search: search || null,
         },
       }),
