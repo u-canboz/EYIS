@@ -25,7 +25,11 @@ function toNumber(value: unknown): number | null {
 
 function toList(value: unknown): unknown[] {
   if (Array.isArray(value)) return value;
-  if (typeof value === "string") return value.split(",").map((s) => s.trim()).filter(Boolean);
+  if (typeof value === "string")
+    return value
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   return value === undefined || value === null ? [] : [value];
 }
 
@@ -37,7 +41,8 @@ function looseEquals(actual: unknown, expected: unknown) {
   if (typeof actual === "boolean" || typeof expected === "boolean") {
     return Boolean(actual) === (expected === true || expected === "true");
   }
-  if (actual === null || actual === undefined || expected === null || expected === undefined) return false;
+  if (actual === null || actual === undefined || expected === null || expected === undefined)
+    return false;
   return String(actual).toLowerCase() === String(expected).toLowerCase();
 }
 
@@ -68,9 +73,13 @@ export function evaluateCondition(condition: Condition, payload: Record<string, 
       return a <= b;
     }
     case "contains":
-      return String(actual ?? "").toLowerCase().includes(String(expected ?? "").toLowerCase());
+      return String(actual ?? "")
+        .toLowerCase()
+        .includes(String(expected ?? "").toLowerCase());
     case "not_contains":
-      return !String(actual ?? "").toLowerCase().includes(String(expected ?? "").toLowerCase());
+      return !String(actual ?? "")
+        .toLowerCase()
+        .includes(String(expected ?? "").toLowerCase());
     case "in":
       return toList(expected).some((v) => looseEquals(actual, v));
     case "not_in":

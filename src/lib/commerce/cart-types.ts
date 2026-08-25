@@ -10,12 +10,7 @@ export const PRICING_ENGINE_VERSION = "2026.1.0";
 export type CartStatus = "active" | "checkout" | "completed" | "abandoned" | "expired";
 
 export type CheckoutSessionStatus =
-  | "open"
-  | "validated"
-  | "awaiting_payment"
-  | "completed"
-  | "expired"
-  | "cancelled";
+  "open" | "validated" | "awaiting_payment" | "completed" | "expired" | "cancelled";
 
 export type ShippingPricingType = "fixed" | "free";
 

@@ -1,17 +1,13 @@
 /** Shared, client-safe types for the automation engine. */
 
-export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 export type JsonObject = { [key: string]: JsonValue };
 
 export type AutomationStatus = "draft" | "active" | "paused" | "archived";
 export type TriggerType = "domain_event" | "schedule" | "manual";
 export type ExecutionStatus =
-  | "queued"
-  | "running"
-  | "completed"
-  | "partially_completed"
-  | "failed"
-  | "cancelled";
+  "queued" | "running" | "completed" | "partially_completed" | "failed" | "cancelled";
 export type ActionStatus = "pending" | "running" | "succeeded" | "failed" | "skipped";
 
 export type ConditionOperator =
@@ -134,9 +130,21 @@ export type ExecutionView = {
 
 export type DryRunResult = {
   triggerMatched: boolean;
-  conditionResults: { field: string; operator: string; expected: JsonValue; actual: JsonValue; passed: boolean }[];
+  conditionResults: {
+    field: string;
+    operator: string;
+    expected: JsonValue;
+    actual: JsonValue;
+    passed: boolean;
+  }[];
   conditionsPassed: boolean;
-  plannedActions: { position: number; actionType: string; summary: string; delaySeconds: number; blocked?: string | null }[];
+  plannedActions: {
+    position: number;
+    actionType: string;
+    summary: string;
+    delaySeconds: number;
+    blocked?: string | null;
+  }[];
 };
 
 /* --------------------------------- tasks --------------------------------- */

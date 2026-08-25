@@ -102,20 +102,26 @@ export const getCartDetail = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!cart) throw new Error("Warenkorb nicht gefunden.");
 
-    const [{ data: items }, { data: snapshots }, { data: sessions }, { data: codes }] = await Promise.all([
-      context.supabase.from("cart_items").select("*").eq("cart_id", data.cartId),
-      context.supabase
-        .from("cart_price_snapshots")
-        .select("id, version, subtotal_minor, discount_minor, shipping_minor, tax_minor, total_minor, pricing_engine_version, created_at")
-        .eq("cart_id", data.cartId)
-        .order("version", { ascending: false }),
-      context.supabase
-        .from("checkout_sessions")
-        .select("id, status, email, expires_at, created_at, shipping_option_id")
-        .eq("cart_id", data.cartId)
-        .order("created_at", { ascending: false }),
-      context.supabase.from("cart_promotion_codes").select("code_snapshot").eq("cart_id", data.cartId),
-    ]);
+    const [{ data: items }, { data: snapshots }, { data: sessions }, { data: codes }] =
+      await Promise.all([
+        context.supabase.from("cart_items").select("*").eq("cart_id", data.cartId),
+        context.supabase
+          .from("cart_price_snapshots")
+          .select(
+            "id, version, subtotal_minor, discount_minor, shipping_minor, tax_minor, total_minor, pricing_engine_version, created_at",
+          )
+          .eq("cart_id", data.cartId)
+          .order("version", { ascending: false }),
+        context.supabase
+          .from("checkout_sessions")
+          .select("id, status, email, expires_at, created_at, shipping_option_id")
+          .eq("cart_id", data.cartId)
+          .order("created_at", { ascending: false }),
+        context.supabase
+          .from("cart_promotion_codes")
+          .select("code_snapshot")
+          .eq("cart_id", data.cartId),
+      ]);
 
     return {
       cart,
@@ -132,7 +138,12 @@ export const expireCheckoutSessions = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("./core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "checkout.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "checkout.manage",
+    );
     const checkout = await import("./checkout.server");
     return await checkout.expireDueSessions(data.organizationId);
   });

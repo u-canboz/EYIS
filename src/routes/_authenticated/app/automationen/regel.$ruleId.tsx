@@ -118,7 +118,9 @@ function RuleEditor() {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [triggerType, setTriggerType] = useState<"domain_event" | "schedule" | "manual">("domain_event");
+  const [triggerType, setTriggerType] = useState<"domain_event" | "schedule" | "manual">(
+    "domain_event",
+  );
   const [eventType, setEventType] = useState("order.paid");
   const [scheduleKind, setScheduleKind] = useState("unfulfilled_orders");
   const [everyMinutes, setEveryMinutes] = useState(60);
@@ -192,7 +194,8 @@ function RuleEditor() {
       toast.success("Entwurf gespeichert.");
       void qc.invalidateQueries({ queryKey: ["automations"] });
       void qc.invalidateQueries({ queryKey: ["automation"] });
-      if (isNew) void navigate({ to: "/app/automationen/regel/$ruleId", params: { ruleId: res.ruleId } });
+      if (isNew)
+        void navigate({ to: "/app/automationen/regel/$ruleId", params: { ruleId: res.ruleId } });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -218,7 +221,11 @@ function RuleEditor() {
     const out: Record<string, unknown> = {};
     for (const f of event?.fields ?? []) {
       out[f.path] =
-        f.type === "number" || f.type === "money" ? 10000 : f.type === "boolean" ? true : "beispiel";
+        f.type === "number" || f.type === "money"
+          ? 10000
+          : f.type === "boolean"
+            ? true
+            : "beispiel";
     }
     return out;
   }, [event]);
@@ -240,7 +247,13 @@ function RuleEditor() {
   const addAction = (type: string) =>
     setActions((a) => [
       ...a,
-      { position: a.length + 1, actionType: type, config: {}, delaySeconds: 0, continueOnFailure: false },
+      {
+        position: a.length + 1,
+        actionType: type,
+        config: {},
+        delaySeconds: 0,
+        continueOnFailure: false,
+      },
     ]);
 
   const updateAction = (i: number, patch: Partial<ActionDraft>) =>
@@ -276,13 +289,19 @@ function RuleEditor() {
               </Badge>
               <span>
                 Entwurf v{rule.data.draftVersion ?? 1}
-                {rule.data.activeVersion ? ` · aktiv v${rule.data.activeVersion}` : " · noch nie veröffentlicht"}
+                {rule.data.activeVersion
+                  ? ` · aktiv v${rule.data.activeVersion}`
+                  : " · noch nie veröffentlicht"}
               </span>
             </div>
           )}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+          <Button
+            variant="outline"
+            onClick={() => saveMutation.mutate()}
+            disabled={saveMutation.isPending}
+          >
             Entwurf speichern
           </Button>
           {!isNew && (
@@ -334,7 +353,10 @@ function RuleEditor() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Art</Label>
-                  <Select value={triggerType} onValueChange={(v) => setTriggerType(v as typeof triggerType)}>
+                  <Select
+                    value={triggerType}
+                    onValueChange={(v) => setTriggerType(v as typeof triggerType)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -431,7 +453,10 @@ function RuleEditor() {
                 const noValue = cond.operator === "exists" || cond.operator === "not_exists";
                 return (
                   <div key={i} className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]">
-                    <Select value={cond.field} onValueChange={(v) => updateCondition(i, { field: v })}>
+                    <Select
+                      value={cond.field}
+                      onValueChange={(v) => updateCondition(i, { field: v })}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Feld" />
                       </SelectTrigger>
@@ -445,7 +470,9 @@ function RuleEditor() {
                     </Select>
                     <Select
                       value={cond.operator}
-                      onValueChange={(v) => updateCondition(i, { operator: v as Condition["operator"] })}
+                      onValueChange={(v) =>
+                        updateCondition(i, { operator: v as Condition["operator"] })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -550,7 +577,9 @@ function RuleEditor() {
                               rows={2}
                               value={String(action.config[p.key] ?? "")}
                               onChange={(e) =>
-                                updateAction(i, { config: { ...action.config, [p.key]: e.target.value } })
+                                updateAction(i, {
+                                  config: { ...action.config, [p.key]: e.target.value },
+                                })
                               }
                             />
                           ) : p.type === "template" ? (
@@ -631,7 +660,9 @@ function RuleEditor() {
                           type="number"
                           min={0}
                           value={action.delaySeconds}
-                          onChange={(e) => updateAction(i, { delaySeconds: Number(e.target.value) })}
+                          onChange={(e) =>
+                            updateAction(i, { delaySeconds: Number(e.target.value) })
+                          }
                         />
                       </div>
                       <div className="flex items-center gap-2 pt-5">
@@ -744,12 +775,18 @@ function RuleEditor() {
                 {dryResult && (
                   <div className="space-y-2 rounded-md border p-3 text-sm">
                     <p className={dryResult.matched ? "text-primary" : "text-muted-foreground"}>
-                      {dryResult.matched ? "Automation würde laufen." : "Bedingungen nicht erfüllt."}
+                      {dryResult.matched
+                        ? "Automation würde laufen."
+                        : "Bedingungen nicht erfüllt."}
                     </p>
                     <ul className="space-y-1 text-xs">
                       {dryResult.trace.map((t, i) => (
-                        <li key={i} className={t.passed ? "text-muted-foreground" : "text-destructive"}>
-                          {t.field} {t.operator} {String(t.expected ?? "")} — ist {String(t.actual ?? "–")}
+                        <li
+                          key={i}
+                          className={t.passed ? "text-muted-foreground" : "text-destructive"}
+                        >
+                          {t.field} {t.operator} {String(t.expected ?? "")} — ist{" "}
+                          {String(t.actual ?? "–")}
                         </li>
                       ))}
                     </ul>

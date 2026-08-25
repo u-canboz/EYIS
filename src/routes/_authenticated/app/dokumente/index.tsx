@@ -9,7 +9,11 @@ import {
   getDocumentSetupFn,
   getDocumentUrlFn,
 } from "@/lib/commerce/documents/document.functions";
-import { INVOICE_STATUS_LABELS, SETUP_LABELS, type InvoiceStatus } from "@/lib/commerce/documents/document.types";
+import {
+  INVOICE_STATUS_LABELS,
+  SETUP_LABELS,
+  type InvoiceStatus,
+} from "@/lib/commerce/documents/document.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { formatMoney } from "@/lib/commerce/money";
 import { Button } from "@/components/ui/button";
@@ -17,7 +21,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/dokumente/")({
   head: () => ({
@@ -29,7 +39,10 @@ export const Route = createFileRoute("/_authenticated/app/dokumente/")({
           "Rechnungen, Gutschriften und Lieferscheine: Nummernkreise, Ausstellung, PDF-Download und revisionssichere Historie.",
       },
       { property: "og:title", content: "Dokumente – Commerce OS" },
-      { property: "og:description", content: "Rechnungs- und Dokumentenverwaltung für deinen Shop." },
+      {
+        property: "og:description",
+        content: "Rechnungs- und Dokumentenverwaltung für deinen Shop.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -91,7 +104,8 @@ function DocumentsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dokumente</h1>
           <p className="text-muted-foreground text-sm">
-            Rechnungen, Gutschriften und Lieferscheine — nummeriert, unveränderbar, als PDF archiviert.
+            Rechnungen, Gutschriften und Lieferscheine — nummeriert, unveränderbar, als PDF
+            archiviert.
           </p>
         </div>
         {can("documents.settings") && (

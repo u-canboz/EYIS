@@ -63,13 +63,18 @@ async function collectTargets(rule: Row): Promise<Record<string, unknown>[]> {
   if (kind === "unpaid_orders" || kind === "unfulfilled_orders") {
     let q = admin
       .from("orders")
-      .select("id, order_number, customer_id, email, total_minor, currency_code, payment_status, fulfillment_status")
+      .select(
+        "id, order_number, customer_id, email, total_minor, currency_code, payment_status, fulfillment_status",
+      )
       .eq("organization_id", orgId)
       .eq("shop_id", shopId)
       .neq("order_status", "cancelled")
       .lt("placed_at", cutoff)
       .limit(200);
-    q = kind === "unpaid_orders" ? q.eq("payment_status", "unpaid") : q.eq("payment_status", "paid").eq("fulfillment_status", "unfulfilled");
+    q =
+      kind === "unpaid_orders"
+        ? q.eq("payment_status", "unpaid")
+        : q.eq("payment_status", "paid").eq("fulfillment_status", "unfulfilled");
     const { data } = await q;
     return ((data ?? []) as Row[]).map((o) => ({
       order_id: o["id"],
@@ -97,7 +102,10 @@ async function collectTargets(rule: Row): Promise<Record<string, unknown>[]> {
     .from("inventory_levels")
     .select("inventory_item_id, location_id, on_hand, reserved")
     .eq("organization_id", orgId)
-    .in("inventory_item_id", rules.map((r) => r["inventory_item_id"] as string))
+    .in(
+      "inventory_item_id",
+      rules.map((r) => r["inventory_item_id"] as string),
+    )
     .limit(1000);
   const levelRows = (levels ?? []) as unknown as Row[];
   const out: Record<string, unknown>[] = [];
@@ -154,7 +162,9 @@ export async function enqueueDueSchedules() {
   for (const rule of (data ?? []) as Row[]) {
     const cfg = (rule["trigger_config"] as Row) ?? {};
     const everyMinutes = Math.max(15, Number(cfg["everyMinutes"] ?? 60));
-    const last = rule["last_executed_at"] ? new Date(rule["last_executed_at"] as string).getTime() : 0;
+    const last = rule["last_executed_at"]
+      ? new Date(rule["last_executed_at"] as string).getTime()
+      : 0;
     if (now - last < everyMinutes * 60_000) continue;
     const bucket = Math.floor(now / (everyMinutes * 60_000));
     const { error } = await admin.from("automation_jobs").insert({

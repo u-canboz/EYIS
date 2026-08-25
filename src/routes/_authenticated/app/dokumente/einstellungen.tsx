@@ -25,7 +25,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/dokumente/einstellungen")({
   head: () => ({
@@ -37,7 +43,10 @@ export const Route = createFileRoute("/_authenticated/app/dokumente/einstellunge
           "Unternehmensdaten, Bankverbindung, Zahlungsziel, Nummernkreise und Layout für Rechnungen und Lieferscheine.",
       },
       { property: "og:title", content: "Dokumenteinstellungen – Commerce OS" },
-      { property: "og:description", content: "Rechnungsdaten, Nummernkreise und Dokumentlayout einrichten." },
+      {
+        property: "og:description",
+        content: "Rechnungsdaten, Nummernkreise und Dokumentlayout einrichten.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -116,7 +125,8 @@ function DocumentSettingsPage() {
   }, [setup.data]);
 
   const fail = (e: Error) => toast.error(e.message);
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["document-setup", organizationId, shopId] });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["document-setup", organizationId, shopId] });
 
   const settingsMutation = useMutation({
     mutationFn: () => saveSettings({ data: { organizationId, shopId, values: settings } }),
@@ -243,7 +253,7 @@ function DocumentSettingsPage() {
               <Input
                 type="number"
                 min={0}
-                value={String(settings['payment_terms_days'] ?? 14)}
+                value={String(settings["payment_terms_days"] ?? 14)}
                 disabled={disabled}
                 onChange={(e) =>
                   setSettings((p) => ({ ...p, payment_terms_days: Number(e.target.value || 0) }))
@@ -252,7 +262,10 @@ function DocumentSettingsPage() {
             </div>
           </section>
 
-          <Button disabled={disabled || settingsMutation.isPending} onClick={() => settingsMutation.mutate()}>
+          <Button
+            disabled={disabled || settingsMutation.isPending}
+            onClick={() => settingsMutation.mutate()}
+          >
             Rechnungsdaten speichern
           </Button>
         </TabsContent>
@@ -265,7 +278,9 @@ function DocumentSettingsPage() {
                 key={type}
                 type={type}
                 disabled={disabled || sequenceMutation.isPending}
-                prefix={seq?.prefix ?? (type === "invoice" ? "RE" : type === "credit_note" ? "GS" : "LS")}
+                prefix={
+                  seq?.prefix ?? (type === "invoice" ? "RE" : type === "credit_note" ? "GS" : "LS")
+                }
                 suffix={seq?.suffix ?? ""}
                 padding={seq?.padding ?? 6}
                 resetPolicy={seq?.resetPolicy ?? "yearly"}
@@ -282,7 +297,7 @@ function DocumentSettingsPage() {
             <div className="grid gap-1.5 sm:max-w-xs">
               <Label className="text-xs">Akzentfarbe</Label>
               <Input
-                value={String(branding['primary_color'] ?? "#1F2937")}
+                value={String(branding["primary_color"] ?? "#1F2937")}
                 disabled={disabled}
                 onChange={(e) => setBranding((p) => ({ ...p, primary_color: e.target.value }))}
               />
@@ -290,7 +305,7 @@ function DocumentSettingsPage() {
             <div className="grid gap-1.5">
               <Label className="text-xs">Absenderzeile über der Anschrift</Label>
               <Input
-                value={String(branding['sender_block'] ?? "")}
+                value={String(branding["sender_block"] ?? "")}
                 disabled={disabled}
                 placeholder="Muster GmbH · Musterstraße 1 · 10115 Berlin"
                 onChange={(e) => setBranding((p) => ({ ...p, sender_block: e.target.value }))}
@@ -300,7 +315,7 @@ function DocumentSettingsPage() {
               <Label className="text-xs">Zahlungshinweis</Label>
               <Textarea
                 rows={2}
-                value={String(branding['payment_details'] ?? "")}
+                value={String(branding["payment_details"] ?? "")}
                 disabled={disabled}
                 onChange={(e) => setBranding((p) => ({ ...p, payment_details: e.target.value }))}
               />
@@ -309,7 +324,7 @@ function DocumentSettingsPage() {
               <Label className="text-xs">Fußzeile</Label>
               <Textarea
                 rows={2}
-                value={String(branding['legal_footer'] ?? "")}
+                value={String(branding["legal_footer"] ?? "")}
                 disabled={disabled}
                 onChange={(e) => setBranding((p) => ({ ...p, legal_footer: e.target.value }))}
               />
@@ -317,7 +332,7 @@ function DocumentSettingsPage() {
             <div className="flex flex-wrap gap-6">
               <label className="flex items-center gap-2 text-sm">
                 <Switch
-                  checked={branding['show_product_sku'] !== false}
+                  checked={branding["show_product_sku"] !== false}
                   disabled={disabled}
                   onCheckedChange={(v) => setBranding((p) => ({ ...p, show_product_sku: v }))}
                 />
@@ -325,7 +340,7 @@ function DocumentSettingsPage() {
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <Switch
-                  checked={branding['show_tax_breakdown'] !== false}
+                  checked={branding["show_tax_breakdown"] !== false}
                   disabled={disabled}
                   onCheckedChange={(v) => setBranding((p) => ({ ...p, show_tax_breakdown: v }))}
                 />
@@ -333,7 +348,10 @@ function DocumentSettingsPage() {
               </label>
             </div>
           </section>
-          <Button disabled={disabled || brandingMutation.isPending} onClick={() => brandingMutation.mutate()}>
+          <Button
+            disabled={disabled || brandingMutation.isPending}
+            onClick={() => brandingMutation.mutate()}
+          >
             Layout speichern
           </Button>
         </TabsContent>
@@ -343,7 +361,7 @@ function DocumentSettingsPage() {
             <div className="grid gap-1.5 sm:max-w-sm">
               <Label className="text-xs">Wann soll eine Rechnung entstehen?</Label>
               <Select
-                value={String(settings['invoice_creation_strategy'] ?? "on_order_paid")}
+                value={String(settings["invoice_creation_strategy"] ?? "on_order_paid")}
                 disabled={disabled}
                 onValueChange={(v) => setSettings((p) => ({ ...p, invoice_creation_strategy: v }))}
               >
@@ -386,7 +404,10 @@ function DocumentSettingsPage() {
             )}
             {field("leitweg_id", "Leitweg-ID (öffentliche Auftraggeber)")}
           </section>
-          <Button disabled={disabled || settingsMutation.isPending} onClick={() => settingsMutation.mutate()}>
+          <Button
+            disabled={disabled || settingsMutation.isPending}
+            onClick={() => settingsMutation.mutate()}
+          >
             Automatisierung speichern
           </Button>
         </TabsContent>
@@ -435,7 +456,11 @@ function SequenceCard(props: {
       </div>
       <div className="grid gap-1.5">
         <Label className="text-xs">Präfix</Label>
-        <Input value={prefix} disabled={props.disabled} onChange={(e) => setPrefix(e.target.value)} />
+        <Input
+          value={prefix}
+          disabled={props.disabled}
+          onChange={(e) => setPrefix(e.target.value)}
+        />
       </div>
       <div className="grid gap-1.5">
         <Label className="text-xs">Stellen</Label>
@@ -479,7 +504,11 @@ function SequenceCard(props: {
       </div>
       <div className="flex items-end gap-3">
         <label className="flex items-center gap-2 pb-2 text-xs">
-          <Switch checked={includePeriod} disabled={props.disabled} onCheckedChange={setIncludePeriod} />
+          <Switch
+            checked={includePeriod}
+            disabled={props.disabled}
+            onCheckedChange={setIncludePeriod}
+          />
           Zeitraum
         </label>
         <Button

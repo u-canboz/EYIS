@@ -137,7 +137,8 @@ function StorefrontTest() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Test-Storefront</h1>
         <p className="text-muted-foreground text-sm">
-          Interne Oberfläche zum Prüfen von Cart- und Checkout-Engine. Gast-Warenkorb per Token, keine Zahlung.
+          Interne Oberfläche zum Prüfen von Cart- und Checkout-Engine. Gast-Warenkorb per Token,
+          keine Zahlung.
         </p>
       </header>
 
@@ -152,15 +153,22 @@ function StorefrontTest() {
               <h2 className="mb-3 font-medium">Produkte hinzufügen</h2>
               <div className="max-h-64 space-y-2 overflow-y-auto">
                 {(variants.data ?? []).map((v) => (
-                  <div key={v.variantId} className="flex items-center justify-between gap-3 text-sm">
+                  <div
+                    key={v.variantId}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
                     <span>
-                      {v.productName} · <span className="text-muted-foreground">{v.variantTitle}</span>
+                      {v.productName} ·{" "}
+                      <span className="text-muted-foreground">{v.variantTitle}</span>
                     </span>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() =>
-                        run(add({ data: { ...auth(), variantId: v.variantId, quantity: 1 } }), setCart)
+                        run(
+                          add({ data: { ...auth(), variantId: v.variantId, quantity: 1 } }),
+                          setCart,
+                        )
                       }
                     >
                       + In den Warenkorb
@@ -168,7 +176,9 @@ function StorefrontTest() {
                   </div>
                 ))}
                 {!variants.data?.length && (
-                  <p className="text-muted-foreground text-sm">Keine aktiven Varianten in diesem Shop.</p>
+                  <p className="text-muted-foreground text-sm">
+                    Keine aktiven Varianten in diesem Shop.
+                  </p>
                 )}
               </div>
             </section>
@@ -200,11 +210,15 @@ function StorefrontTest() {
                             )
                           }
                         />
-                        <span className="w-24 text-right">{formatMoney(i.lineTotalMinor, cart.currencyCode)}</span>
+                        <span className="w-24 text-right">
+                          {formatMoney(i.lineTotalMinor, cart.currencyCode)}
+                        </span>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => run(removeItem({ data: { ...auth(), itemId: i.id } }), setCart)}
+                          onClick={() =>
+                            run(removeItem({ data: { ...auth(), itemId: i.id } }), setCart)
+                          }
                         >
                           ×
                         </Button>
@@ -217,13 +231,19 @@ function StorefrontTest() {
               <Separator className="my-4" />
 
               <div className="flex gap-2">
-                <Input placeholder="Aktionscode" value={code} onChange={(e) => setCode(e.target.value)} />
+                <Input
+                  placeholder="Aktionscode"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
                 <Button
                   variant="outline"
-                  onClick={() => run(applyCode({ data: { ...auth(), code } }), (v) => {
-                    setCart(v);
-                    setCode("");
-                  })}
+                  onClick={() =>
+                    run(applyCode({ data: { ...auth(), code } }), (v) => {
+                      setCart(v);
+                      setCode("");
+                    })
+                  }
                 >
                   Anwenden
                 </Button>
@@ -275,7 +295,10 @@ function StorefrontTest() {
                       <Button
                         variant="outline"
                         onClick={() =>
-                          run(setEmailFn({ data: { sessionId: checkout.id, token, email } }), setCheckout)
+                          run(
+                            setEmailFn({ data: { sessionId: checkout.id, token, email } }),
+                            setCheckout,
+                          )
                         }
                       >
                         OK
@@ -285,10 +308,22 @@ function StorefrontTest() {
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-3">
-                  {(["firstName", "lastName", "street", "postalCode", "city", "countryCode"] as const).map((k) => (
+                  {(
+                    [
+                      "firstName",
+                      "lastName",
+                      "street",
+                      "postalCode",
+                      "city",
+                      "countryCode",
+                    ] as const
+                  ).map((k) => (
                     <div key={k} className="grid gap-1">
                       <Label className="text-xs">{k}</Label>
-                      <Input value={address[k]} onChange={(e) => setAddress({ ...address, [k]: e.target.value })} />
+                      <Input
+                        value={address[k]}
+                        onChange={(e) => setAddress({ ...address, [k]: e.target.value })}
+                      />
                     </div>
                   ))}
                 </div>
@@ -316,7 +351,9 @@ function StorefrontTest() {
                   <Button
                     variant="outline"
                     onClick={() =>
-                      run(listMethods({ data: { sessionId: checkout.id, token } }), (m) => setMethods(m))
+                      run(listMethods({ data: { sessionId: checkout.id, token } }), (m) =>
+                        setMethods(m),
+                      )
                     }
                   >
                     Versandarten laden
@@ -329,7 +366,9 @@ function StorefrontTest() {
                         variant={checkout.shippingMethod?.id === m.id ? "default" : "outline"}
                         onClick={() =>
                           run(
-                            chooseMethod({ data: { sessionId: checkout.id, token, shippingMethodId: m.id } }),
+                            chooseMethod({
+                              data: { sessionId: checkout.id, token, shippingMethodId: m.id },
+                            }),
                             setCheckout,
                           )
                         }
@@ -351,7 +390,9 @@ function StorefrontTest() {
                 <div className="flex flex-wrap gap-2">
                   <Button
                     disabled={!checkout.ready}
-                    onClick={() => run(validate({ data: { sessionId: checkout.id, token } }), setCheckout)}
+                    onClick={() =>
+                      run(validate({ data: { sessionId: checkout.id, token } }), setCheckout)
+                    }
                   >
                     Checkout validieren
                   </Button>
@@ -408,9 +449,8 @@ function StorefrontTest() {
                             size="sm"
                             variant="outline"
                             onClick={() =>
-                              run(
-                                mockConfirm({ data: { paymentSessionId, token } }),
-                                (r) => toast.success(`Bestellung ${r.order_number} erstellt.`),
+                              run(mockConfirm({ data: { paymentSessionId, token } }), (r) =>
+                                toast.success(`Bestellung ${r.order_number} erstellt.`),
                               )
                             }
                           >
@@ -420,7 +460,10 @@ function StorefrontTest() {
                             size="sm"
                             variant="ghost"
                             onClick={() =>
-                              run(paymentStatusFn({ data: { paymentSessionId, token } }), setPayment)
+                              run(
+                                paymentStatusFn({ data: { paymentSessionId, token } }),
+                                setPayment,
+                              )
                             }
                           >
                             Zahlungsstatus prüfen
@@ -447,9 +490,18 @@ function StorefrontTest() {
           <aside className="space-y-4 rounded-lg border p-4">
             <h2 className="font-medium">Summen</h2>
             <dl className="space-y-1 text-sm">
-              <Row label="Zwischensumme" value={formatMoney(cart.totals.subtotalMinor, cart.currencyCode)} />
-              <Row label="Rabatt" value={`−${formatMoney(cart.totals.discountMinor, cart.currencyCode)}`} />
-              <Row label="Versand" value={formatMoney(cart.totals.shippingMinor, cart.currencyCode)} />
+              <Row
+                label="Zwischensumme"
+                value={formatMoney(cart.totals.subtotalMinor, cart.currencyCode)}
+              />
+              <Row
+                label="Rabatt"
+                value={`−${formatMoney(cart.totals.discountMinor, cart.currencyCode)}`}
+              />
+              <Row
+                label="Versand"
+                value={formatMoney(cart.totals.shippingMinor, cart.currencyCode)}
+              />
               <Row label="Netto" value={formatMoney(cart.tax.netTotalMinor, cart.currencyCode)} />
               {cart.tax.breakdown.map((b) => (
                 <Row
@@ -458,9 +510,16 @@ function StorefrontTest() {
                   value={formatMoney(b.taxMinor, cart.currencyCode)}
                 />
               ))}
-              <Row label="Steuer gesamt" value={formatMoney(cart.tax.taxMinor, cart.currencyCode)} />
+              <Row
+                label="Steuer gesamt"
+                value={formatMoney(cart.tax.taxMinor, cart.currencyCode)}
+              />
               <Separator className="my-2" />
-              <Row label="Gesamt" value={formatMoney(cart.totals.totalMinor, cart.currencyCode)} strong />
+              <Row
+                label="Gesamt"
+                value={formatMoney(cart.totals.totalMinor, cart.currencyCode)}
+                strong
+              />
             </dl>
             <p className="text-muted-foreground text-xs">
               Snapshot v{cart.snapshotVersion} · Engine {cart.pricingEngineVersion} · Steuer{" "}

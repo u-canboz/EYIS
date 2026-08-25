@@ -150,7 +150,10 @@ function ShopsPage() {
               </div>
 
               {canManage && (
-                <Button onClick={() => saveMutation.mutate(merged)} disabled={saveMutation.isPending}>
+                <Button
+                  onClick={() => saveMutation.mutate(merged)}
+                  disabled={saveMutation.isPending}
+                >
                   Speichern
                 </Button>
               )}

@@ -351,10 +351,13 @@ export async function updateRule(input: {
 /** Creates the default branding, provider and rule set for a shop. */
 export async function ensureShopDefaults(organizationId: string, shopId: string) {
   const admin = await getAdmin();
-  const { error } = await admin.rpc("comm_ensure_shop_defaults" as never, {
-    _org: organizationId,
-    _shop: shopId,
-  } as never);
+  const { error } = await admin.rpc(
+    "comm_ensure_shop_defaults" as never,
+    {
+      _org: organizationId,
+      _shop: shopId,
+    } as never,
+  );
   if (error) throw new Error(error.message);
   return { ok: true };
 }
@@ -564,7 +567,10 @@ export async function saveSenderIdentity(input: {
     is_default: input.isDefault,
   };
   const query = input.id
-    ? admin.from("sender_identities").update(payload as never).eq("id", input.id)
+    ? admin
+        .from("sender_identities")
+        .update(payload as never)
+        .eq("id", input.id)
     : admin.from("sender_identities").insert(payload as never);
   const { error } = await query;
   if (error) throw new Error(error.message);

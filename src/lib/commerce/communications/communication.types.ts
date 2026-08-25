@@ -3,14 +3,7 @@
 export type CommunicationChannel = "email" | "sms" | "push" | "whatsapp";
 
 export type CommunicationStatus =
-  | "draft"
-  | "queued"
-  | "sending"
-  | "sent"
-  | "delivered"
-  | "failed"
-  | "cancelled"
-  | "suppressed";
+  "draft" | "queued" | "sending" | "sent" | "delivered" | "failed" | "cancelled" | "suppressed";
 
 export type DeliveryStatus =
   | "accepted"

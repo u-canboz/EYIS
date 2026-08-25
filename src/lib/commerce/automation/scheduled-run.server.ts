@@ -16,10 +16,13 @@ export async function dispatchScheduledExecution(rule: Row, payload: Record<stri
   const admin = await getAdmin();
   const ruleId = rule["id"] as string;
 
-  const { data: verdict } = await admin.rpc("automation_check_limits" as never, {
-    _rule_id: ruleId,
-    _entity_key: targetKey(payload),
-  } as never);
+  const { data: verdict } = await admin.rpc(
+    "automation_check_limits" as never,
+    {
+      _rule_id: ruleId,
+      _entity_key: targetKey(payload),
+    } as never,
+  );
   if (verdict !== "allow") return null;
 
   const { data: version } = await admin

@@ -6,7 +6,8 @@
  * `system_automation` runtime actor. Anything not listed here is rejected.
  */
 
-export type ActionParamType = "text" | "textarea" | "number" | "select" | "template" | "group" | "endpoint" | "priority";
+export type ActionParamType =
+  "text" | "textarea" | "number" | "select" | "template" | "group" | "endpoint" | "priority";
 
 export type ActionParam = {
   key: string;

@@ -41,7 +41,9 @@ function Overview() {
   return (
     <div className="space-y-8">
       <header>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Phase 0 · Fundament</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+          Phase 0 · Fundament
+        </p>
         <h1 className="mt-1 text-3xl font-semibold">{org?.name ?? "Organisation"}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Mandanten, Shops und Rollen sind eingerichtet. Alle Änderungen werden revisionssicher

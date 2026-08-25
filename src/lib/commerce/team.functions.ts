@@ -86,7 +86,8 @@ export const createInvitation = createServerFn({ method: "POST" })
 
     const email = data.email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Ungültige E-Mail-Adresse.");
-    if (data.role === "owner") throw new Error("Die Inhaber-Rolle kann nicht per Einladung vergeben werden.");
+    if (data.role === "owner")
+      throw new Error("Die Inhaber-Rolle kann nicht per Einladung vergeben werden.");
 
     const admin = await getAdmin();
 

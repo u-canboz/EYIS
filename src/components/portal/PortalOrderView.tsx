@@ -2,7 +2,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import type { PortalOrderDetail } from "@/lib/commerce/portal/portal.server";
 import type { ReturnEligibility, ReturnReasonCode } from "@/lib/commerce/returns/return.types";
-import { RETURN_REASON_LABELS, RETURN_STATUS_LABELS, type ReturnStatus } from "@/lib/commerce/returns/return.types";
+import {
+  RETURN_REASON_LABELS,
+  RETURN_STATUS_LABELS,
+  type ReturnStatus,
+} from "@/lib/commerce/returns/return.types";
 import { formatMoney } from "@/lib/commerce/money";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +14,21 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Props = {
   order: PortalOrderDetail;
   eligibility?: ReturnEligibility | null;
-  onDocument: (kind: "invoice" | "credit_note" | "delivery_note", documentId: string) => Promise<{ url: string }>;
+  onDocument: (
+    kind: "invoice" | "credit_note" | "delivery_note",
+    documentId: string,
+  ) => Promise<{ url: string }>;
   onCreateReturn: (input: {
     items: { orderItemId: string; quantity: number }[];
     reason: ReturnReasonCode;
@@ -93,7 +106,10 @@ export function PortalOrderView({ order, eligibility, onDocument, onCreateReturn
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           {order.items.map((it) => (
-            <div key={it.id} className="flex items-center justify-between border-b pb-2 last:border-none">
+            <div
+              key={it.id}
+              className="flex items-center justify-between border-b pb-2 last:border-none"
+            >
               <div>
                 <p className="font-medium">
                   {it.title} {it.variantTitle ? `· ${it.variantTitle}` : ""}
@@ -109,7 +125,9 @@ export function PortalOrderView({ order, eligibility, onDocument, onCreateReturn
               {formatMoney(order.shippingMinor, order.currencyCode)} · Steuer{" "}
               {formatMoney(order.taxMinor, order.currencyCode)}
             </p>
-            <p className="font-semibold">Gesamt {formatMoney(order.totalMinor, order.currencyCode)}</p>
+            <p className="font-semibold">
+              Gesamt {formatMoney(order.totalMinor, order.currencyCode)}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -161,7 +179,10 @@ export function PortalOrderView({ order, eligibility, onDocument, onCreateReturn
             <p className="text-muted-foreground">Noch keine Dokumente verfügbar.</p>
           ) : (
             order.documents.map((d) => (
-              <div key={d.id} className="flex items-center justify-between border-b pb-2 last:border-none">
+              <div
+                key={d.id}
+                className="flex items-center justify-between border-b pb-2 last:border-none"
+              >
                 <div>
                   <p className="font-medium">
                     {DOC_LABELS[d.kind]} {d.number ?? ""}
@@ -188,7 +209,10 @@ export function PortalOrderView({ order, eligibility, onDocument, onCreateReturn
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             {order.returns.map((r) => (
-              <div key={r.id} className="flex items-center justify-between border-b pb-2 last:border-none">
+              <div
+                key={r.id}
+                className="flex items-center justify-between border-b pb-2 last:border-none"
+              >
                 <span className="font-medium">{r.returnNumber}</span>
                 <Badge variant="secondary">
                   {RETURN_STATUS_LABELS[r.status as ReturnStatus] ?? r.status}
@@ -214,7 +238,8 @@ export function PortalOrderView({ order, eligibility, onDocument, onCreateReturn
             <div className="space-y-2">
               {eligibility.windowEndsAt && (
                 <p className="text-muted-foreground">
-                  Rückgabe möglich bis {new Date(eligibility.windowEndsAt).toLocaleDateString("de-DE")}.
+                  Rückgabe möglich bis{" "}
+                  {new Date(eligibility.windowEndsAt).toLocaleDateString("de-DE")}.
                 </p>
               )}
               <Button onClick={() => setWizardOpen(true)}>Rücksendung anmelden</Button>
@@ -222,7 +247,10 @@ export function PortalOrderView({ order, eligibility, onDocument, onCreateReturn
           ) : (
             <div className="space-y-4">
               {eligibility.lines.map((l) => (
-                <div key={l.orderItemId} className="grid gap-2 rounded-md border p-3 sm:grid-cols-[1fr,auto]">
+                <div
+                  key={l.orderItemId}
+                  className="grid gap-2 rounded-md border p-3 sm:grid-cols-[1fr,auto]"
+                >
                   <div>
                     <p className="font-medium">
                       {l.title} {l.variantTitle ? `· ${l.variantTitle}` : ""}
@@ -243,7 +271,10 @@ export function PortalOrderView({ order, eligibility, onDocument, onCreateReturn
                     onChange={(e) =>
                       setQuantities({
                         ...quantities,
-                        [l.orderItemId]: Math.max(0, Math.min(l.returnableQuantity, Number(e.target.value))),
+                        [l.orderItemId]: Math.max(
+                          0,
+                          Math.min(l.returnableQuantity, Number(e.target.value)),
+                        ),
                       })
                     }
                   />

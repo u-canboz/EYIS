@@ -113,7 +113,8 @@ function InvoiceDetailPage() {
   });
 
   const regenerateMutation = useMutation({
-    mutationFn: () => regenerate({ data: { organizationId, documentType: "invoice", documentId: invoiceId } }),
+    mutationFn: () =>
+      regenerate({ data: { organizationId, documentType: "invoice", documentId: invoiceId } }),
     onSuccess: () => {
       toast.success("PDF neu erzeugt.");
       invalidate();
@@ -134,7 +135,8 @@ function InvoiceDetailPage() {
     }
   };
 
-  if (invoice.error) return <p className="text-destructive text-sm">{(invoice.error as Error).message}</p>;
+  if (invoice.error)
+    return <p className="text-destructive text-sm">{(invoice.error as Error).message}</p>;
   if (!invoice.data) return <Skeleton className="h-64 w-full" />;
   const inv = invoice.data;
   const currency = inv.currencyCode;
@@ -159,7 +161,9 @@ function InvoiceDetailPage() {
                 {inv.orderNumber}
               </Link>
             )}
-            {inv.issueDate ? ` · Rechnungsdatum ${new Date(inv.issueDate).toLocaleDateString("de-DE")}` : " · Entwurf"}
+            {inv.issueDate
+              ? ` · Rechnungsdatum ${new Date(inv.issueDate).toLocaleDateString("de-DE")}`
+              : " · Entwurf"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -181,7 +185,12 @@ function InvoiceDetailPage() {
             </Button>
           )}
           {can("invoices.manage") && (
-            <Button size="sm" variant="ghost" onClick={() => regenerateMutation.mutate()} disabled={regenerateMutation.isPending}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => regenerateMutation.mutate()}
+              disabled={regenerateMutation.isPending}
+            >
               PDF neu erzeugen
             </Button>
           )}
@@ -197,7 +206,9 @@ function InvoiceDetailPage() {
                 <li key={i.position} className="flex justify-between gap-3">
                   <span>
                     {i.quantity} × {i.productName}
-                    {i.variantName && <span className="text-muted-foreground"> · {i.variantName}</span>}
+                    {i.variantName && (
+                      <span className="text-muted-foreground"> · {i.variantName}</span>
+                    )}
                     {i.sku && <span className="text-muted-foreground"> · {i.sku}</span>}
                     <span className="text-muted-foreground"> · {rate(i.taxRateBasisPoints)}</span>
                   </span>
@@ -207,7 +218,10 @@ function InvoiceDetailPage() {
             </ul>
             <Separator className="my-3" />
             <dl className="space-y-1 text-sm">
-              <Row label="Zwischensumme netto" value={formatMoney(inv.subtotalNetMinor, currency)} />
+              <Row
+                label="Zwischensumme netto"
+                value={formatMoney(inv.subtotalNetMinor, currency)}
+              />
               {inv.shippingNetMinor > 0 && (
                 <Row label="Versand netto" value={formatMoney(inv.shippingNetMinor, currency)} />
               )}
@@ -219,10 +233,17 @@ function InvoiceDetailPage() {
                 />
               ))}
               <Row label="Umsatzsteuer" value={formatMoney(inv.taxTotalMinor, currency)} />
-              <Row label="Gesamt brutto" value={formatMoney(inv.totalGrossMinor, currency)} strong />
+              <Row
+                label="Gesamt brutto"
+                value={formatMoney(inv.totalGrossMinor, currency)}
+                strong
+              />
               <Row label="Bezahlt" value={formatMoney(inv.paidMinor, currency)} />
               {inv.creditedMinor > 0 && (
-                <Row label="Gutgeschrieben" value={`−${formatMoney(inv.creditedMinor, currency)}`} />
+                <Row
+                  label="Gutgeschrieben"
+                  value={`−${formatMoney(inv.creditedMinor, currency)}`}
+                />
               )}
             </dl>
           </section>
@@ -263,14 +284,18 @@ function InvoiceDetailPage() {
           <section className="rounded-lg border p-4">
             <h2 className="mb-3 font-medium">Gutschriften</h2>
             {!inv.creditNotes.length ? (
-              <p className="text-muted-foreground text-sm">Keine Gutschriften zu dieser Rechnung.</p>
+              <p className="text-muted-foreground text-sm">
+                Keine Gutschriften zu dieser Rechnung.
+              </p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {inv.creditNotes.map((cn) => (
                   <li key={cn.id} className="flex flex-wrap items-center justify-between gap-2">
                     <span>
                       {cn.creditNoteNumber ?? "Entwurf"} ·{" "}
-                      <span className="text-muted-foreground">{CREDIT_NOTE_STATUS_LABELS[cn.status]}</span>
+                      <span className="text-muted-foreground">
+                        {CREDIT_NOTE_STATUS_LABELS[cn.status]}
+                      </span>
                       {cn.reason && <span className="text-muted-foreground"> · {cn.reason}</span>}
                     </span>
                     <span className="flex items-center gap-2">
@@ -343,12 +368,18 @@ function InvoiceDetailPage() {
           </section>
 
           <section className="space-y-2 rounded-lg border p-4">
-            <h2 className="font-medium">{inv.status === "draft" ? "Entwurf verwerfen" : "Rechnung stornieren"}</h2>
+            <h2 className="font-medium">
+              {inv.status === "draft" ? "Entwurf verwerfen" : "Rechnung stornieren"}
+            </h2>
             <p className="text-muted-foreground text-xs">
               Ausgestellte Rechnungen bleiben erhalten und werden nur als storniert markiert.
             </p>
             {inv.status !== "draft" && (
-              <Input value={voidReason} onChange={(e) => setVoidReason(e.target.value)} placeholder="Grund" />
+              <Input
+                value={voidReason}
+                onChange={(e) => setVoidReason(e.target.value)}
+                placeholder="Grund"
+              />
             )}
             <Button
               size="sm"
@@ -364,7 +395,9 @@ function InvoiceDetailPage() {
             >
               {inv.status === "draft" ? "Entwurf löschen" : "Stornieren"}
             </Button>
-            {inv.voidReason && <p className="text-muted-foreground text-xs">Storniert: {inv.voidReason}</p>}
+            {inv.voidReason && (
+              <p className="text-muted-foreground text-xs">Storniert: {inv.voidReason}</p>
+            )}
           </section>
         </aside>
       </div>

@@ -4,7 +4,13 @@
  * orchestrates and snapshots.
  */
 import { getAdmin } from "./core.server";
-import { buildCartView, loadCartAuthorized, mergeTaxIntoLines, repriceCart, type CartRow } from "./cart.server";
+import {
+  buildCartView,
+  loadCartAuthorized,
+  mergeTaxIntoLines,
+  repriceCart,
+  type CartRow,
+} from "./cart.server";
 import type { AddressInput, CheckoutView, ShippingMethodView } from "./cart-types";
 import { writeTaxSnapshot } from "./tax/tax.server";
 import { isVatValidationValid } from "./tax/vat.server";
@@ -45,7 +51,11 @@ export async function loadSession(sessionId: string) {
 }
 
 /** Authorises through the cart: same guest token / customer rules. */
-export async function loadSessionAuthorized(sessionId: string, token: string | null, customerId?: string | null) {
+export async function loadSessionAuthorized(
+  sessionId: string,
+  token: string | null,
+  customerId?: string | null,
+) {
   const session = await loadSession(sessionId);
   const cart = await loadCartAuthorized(session.cart_id, token, customerId ?? null);
   return { session, cart };
@@ -53,9 +63,12 @@ export async function loadSessionAuthorized(sessionId: string, token: string | n
 
 export async function expireDueSessions(organizationId: string | null = null) {
   const admin = await getAdmin();
-  const { data, error } = await admin.rpc("cart_expire_checkout_sessions" as never, {
-    _org: organizationId,
-  } as never);
+  const { data, error } = await admin.rpc(
+    "cart_expire_checkout_sessions" as never,
+    {
+      _org: organizationId,
+    } as never,
+  );
   if (error) throw new Error(error.message);
   return (data ?? { expired_sessions: 0 }) as { expired_sessions: number };
 }
@@ -65,16 +78,19 @@ export async function startCheckout(cart: CartRow, email: string | null, ttlMinu
   await expireDueSessions(cart.organization_id);
   const { snapshotId } = await repriceCart(cart, { persist: true });
 
-  const { data, error } = await admin.rpc("cart_start_checkout" as never, {
-    _org: cart.organization_id,
-    _shop: cart.shop_id,
-    _cart: cart.id,
-    _snapshot: snapshotId,
-    _actor: cart.customer_id,
-    _email: email ?? cart.customer_email,
-    _ttl_minutes: ttlMinutes,
-    _idem: null,
-  } as never);
+  const { data, error } = await admin.rpc(
+    "cart_start_checkout" as never,
+    {
+      _org: cart.organization_id,
+      _shop: cart.shop_id,
+      _cart: cart.id,
+      _snapshot: snapshotId,
+      _actor: cart.customer_id,
+      _email: email ?? cart.customer_email,
+      _ttl_minutes: ttlMinutes,
+      _idem: null,
+    } as never,
+  );
   if (error) throw new Error(error.message);
   const result = data as { checkout_session_id: string; reservations: number };
   return result;
@@ -87,13 +103,16 @@ export async function cancelCheckout(
   status: "cancelled" | "expired" = "cancelled",
 ) {
   const admin = await getAdmin();
-  const { data, error } = await admin.rpc("cart_cancel_checkout" as never, {
-    _org: organizationId,
-    _session: sessionId,
-    _actor: actorId,
-    _status: status,
-    _idem: null,
-  } as never);
+  const { data, error } = await admin.rpc(
+    "cart_cancel_checkout" as never,
+    {
+      _org: organizationId,
+      _session: sessionId,
+      _actor: actorId,
+      _status: status,
+      _idem: null,
+    } as never,
+  );
   if (error) throw new Error(error.message);
   return data as { checkout_session_id: string; status: string; released: number };
 }
@@ -123,7 +142,8 @@ export async function saveAddress(
   for (const key of ["first_name", "last_name", "street", "postal_code", "city"] as const) {
     if (!payload[key]) throw new Error("Bitte alle Pflichtfelder der Adresse ausfüllen.");
   }
-  if (!/^[A-Z]{2}$/.test(payload.country_code)) throw new Error("Ungültiges Land (ISO-2 erwartet).");
+  if (!/^[A-Z]{2}$/.test(payload.country_code))
+    throw new Error("Ungültiges Land (ISO-2 erwartet).");
 
   const { data, error } = await admin
     .from("checkout_addresses")
@@ -154,31 +174,30 @@ export async function listShippingMethods(
     .eq("status", "active")
     .order("position", { ascending: true });
   if (error) throw new Error(error.message);
-  return ((data ?? []) as Record<string, unknown>[])
-    .map(mapShippingMethod)
-    .filter((m) => {
-      if (m.countries.length && countryCode && !m.countries.includes(countryCode.toUpperCase())) return false;
-      if (m.minSubtotalMinor !== null && subtotalMinor < m.minSubtotalMinor) return false;
-      if (m.maxSubtotalMinor !== null && subtotalMinor > m.maxSubtotalMinor) return false;
-      return true;
-    });
+  return ((data ?? []) as Record<string, unknown>[]).map(mapShippingMethod).filter((m) => {
+    if (m.countries.length && countryCode && !m.countries.includes(countryCode.toUpperCase()))
+      return false;
+    if (m.minSubtotalMinor !== null && subtotalMinor < m.minSubtotalMinor) return false;
+    if (m.maxSubtotalMinor !== null && subtotalMinor > m.maxSubtotalMinor) return false;
+    return true;
+  });
 }
 
 export function mapShippingMethod(row: Record<string, unknown>): ShippingMethodView {
   return {
-    id: row['id'] as string,
-    name: row['name'] as string,
-    code: row['code'] as string,
-    description: (row['description'] as string) ?? null,
-    pricingType: row['pricing_type'] as "fixed" | "free",
-    amountMinor: Number(row['amount_minor'] ?? 0),
-    currencyCode: row['currency_code'] as string,
-    countries: (row['countries'] as string[]) ?? [],
-    minSubtotalMinor: row['min_subtotal_minor'] === null ? null : Number(row['min_subtotal_minor']),
-    maxSubtotalMinor: row['max_subtotal_minor'] === null ? null : Number(row['max_subtotal_minor']),
-    freeAboveMinor: row['free_above_minor'] === null ? null : Number(row['free_above_minor']),
-    position: Number(row['position'] ?? 0),
-    status: row['status'] as string,
+    id: row["id"] as string,
+    name: row["name"] as string,
+    code: row["code"] as string,
+    description: (row["description"] as string) ?? null,
+    pricingType: row["pricing_type"] as "fixed" | "free",
+    amountMinor: Number(row["amount_minor"] ?? 0),
+    currencyCode: row["currency_code"] as string,
+    countries: (row["countries"] as string[]) ?? [],
+    minSubtotalMinor: row["min_subtotal_minor"] === null ? null : Number(row["min_subtotal_minor"]),
+    maxSubtotalMinor: row["max_subtotal_minor"] === null ? null : Number(row["max_subtotal_minor"]),
+    freeAboveMinor: row["free_above_minor"] === null ? null : Number(row["free_above_minor"]),
+    position: Number(row["position"] ?? 0),
+    status: row["status"] as string,
   };
 }
 
@@ -189,17 +208,17 @@ async function loadAddress(id: string | null) {
   if (!data) return null;
   const r = data as Record<string, unknown>;
   return {
-    id: r['id'] as string,
-    firstName: r['first_name'] as string,
-    lastName: r['last_name'] as string,
-    company: (r['company'] as string) ?? null,
-    street: r['street'] as string,
-    street2: (r['street2'] as string) ?? null,
-    postalCode: r['postal_code'] as string,
-    city: r['city'] as string,
-    state: (r['state'] as string) ?? null,
-    countryCode: r['country_code'] as string,
-    phone: (r['phone'] as string) ?? null,
+    id: r["id"] as string,
+    firstName: r["first_name"] as string,
+    lastName: r["last_name"] as string,
+    company: (r["company"] as string) ?? null,
+    street: r["street"] as string,
+    street2: (r["street2"] as string) ?? null,
+    postalCode: r["postal_code"] as string,
+    city: r["city"] as string,
+    state: (r["state"] as string) ?? null,
+    countryCode: r["country_code"] as string,
+    phone: (r["phone"] as string) ?? null,
   };
 }
 
@@ -229,7 +248,8 @@ export async function buildCheckoutView(session: SessionRow, cart: CartRow): Pro
 
   const issues: string[] = [];
   if (!OPEN_STATES.includes(session.status)) issues.push(`Sitzung ist ${session.status}.`);
-  if (Date.parse(session.expires_at) <= Date.now()) issues.push("Die Checkout-Sitzung ist abgelaufen.");
+  if (Date.parse(session.expires_at) <= Date.now())
+    issues.push("Die Checkout-Sitzung ist abgelaufen.");
   if (!cartView.items.length) issues.push("Der Warenkorb ist leer.");
   if (!session.email) issues.push("E-Mail-Adresse fehlt.");
   if (!shippingAddress) issues.push("Lieferadresse fehlt.");
@@ -256,7 +276,11 @@ export async function buildCheckoutView(session: SessionRow, cart: CartRow): Pro
 }
 
 /** Final, immutable checkout snapshot — the handover point to phase 5. */
-export async function writeCheckoutSnapshot(session: SessionRow, cart: CartRow, view: CheckoutView) {
+export async function writeCheckoutSnapshot(
+  session: SessionRow,
+  cart: CartRow,
+  view: CheckoutView,
+) {
   const admin = await getAdmin();
   const vatIdValid = await isVatValidationValid(session.vat_validation_id);
   const { snapshotId, calculation, tax } = await repriceCart(cart, {
@@ -309,7 +333,11 @@ export async function writeCheckoutSnapshot(session: SessionRow, cart: CartRow, 
 
   await admin
     .from("checkout_sessions")
-    .update({ status: "validated", validated_at: new Date().toISOString(), price_snapshot_id: snapshotId })
+    .update({
+      status: "validated",
+      validated_at: new Date().toISOString(),
+      price_snapshot_id: snapshotId,
+    })
     .eq("id", session.id);
 
   return { version, totals: calculation.totals, taxSnapshotId };

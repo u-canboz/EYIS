@@ -26,7 +26,11 @@ export type PaymentSessionRow = {
 
 export async function loadPaymentSession(id: string) {
   const admin = await getAdmin();
-  const { data, error } = await admin.from("payment_sessions").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await admin
+    .from("payment_sessions")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Zahlungssitzung nicht gefunden.");
   return data as unknown as PaymentSessionRow;
@@ -49,7 +53,11 @@ export async function loadLatestSnapshot(checkoutSessionId: string) {
   return row;
 }
 
-export async function resolveProviderId(organizationId: string, shopId: string, requested?: string | null) {
+export async function resolveProviderId(
+  organizationId: string,
+  shopId: string,
+  requested?: string | null,
+) {
   const admin = await getAdmin();
   const { data } = await admin
     .from("payment_provider_configs")
@@ -80,10 +88,14 @@ export async function createPaymentSession(input: {
 }) {
   const admin = await getAdmin();
   const snapshot = await loadLatestSnapshot(input.checkoutSessionId);
-  const amountMinor = Number((snapshot.totals as Record<string, unknown>)['totalMinor'] ?? 0);
+  const amountMinor = Number((snapshot.totals as Record<string, unknown>)["totalMinor"] ?? 0);
   if (!Number.isFinite(amountMinor) || amountMinor <= 0) throw new Error("Ungültiger Zahlbetrag.");
 
-  const config = await resolveProviderId(input.organizationId, input.shopId, input.provider ?? null);
+  const config = await resolveProviderId(
+    input.organizationId,
+    input.shopId,
+    input.provider ?? null,
+  );
 
   const { data: inserted, error } = await admin
     .from("payment_sessions")
@@ -181,15 +193,18 @@ export async function finalizeFromPayment(args: {
   idempotencyKey?: string | null;
 }) {
   const admin = await getAdmin();
-  const { data, error } = await admin.rpc("order_finalize_from_payment" as never, {
-    _org: args.organizationId,
-    _payment_session: args.paymentSessionId,
-    _provider_payment_id: args.providerPaymentId,
-    _amount_minor: args.amountMinor,
-    _currency: args.currencyCode,
-    _actor: args.actorId ?? null,
-    _idem: args.idempotencyKey ?? `finalize:${args.paymentSessionId}`,
-  } as never);
+  const { data, error } = await admin.rpc(
+    "order_finalize_from_payment" as never,
+    {
+      _org: args.organizationId,
+      _payment_session: args.paymentSessionId,
+      _provider_payment_id: args.providerPaymentId,
+      _amount_minor: args.amountMinor,
+      _currency: args.currencyCode,
+      _actor: args.actorId ?? null,
+      _idem: args.idempotencyKey ?? `finalize:${args.paymentSessionId}`,
+    } as never,
+  );
   if (error) throw new Error(error.message);
   const result = data as unknown as { order_id: string; order_number: string; created: boolean };
   if (result.created) {
@@ -202,7 +217,11 @@ export async function finalizeFromPayment(args: {
   return result;
 }
 
-export async function markPaymentFailed(paymentSessionId: string, message: string, cancelled = false) {
+export async function markPaymentFailed(
+  paymentSessionId: string,
+  message: string,
+  cancelled = false,
+) {
   const admin = await getAdmin();
   const ps = await loadPaymentSession(paymentSessionId);
   await admin
@@ -247,9 +266,13 @@ export async function paymentStatus(paymentSessionId: string): Promise<PaymentSt
     .select("id, order_number, total_minor, currency_code, email")
     .eq("checkout_session_id", fresh.checkout_session_id)
     .maybeSingle();
-  const o = order as
-    | { id: string; order_number: string; total_minor: number; currency_code: string; email: string | null }
-    | null;
+  const o = order as {
+    id: string;
+    order_number: string;
+    total_minor: number;
+    currency_code: string;
+    email: string | null;
+  } | null;
 
   return {
     paymentSessionId: fresh.id,

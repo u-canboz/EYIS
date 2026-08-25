@@ -115,7 +115,7 @@ export async function buildContext(req: ContextRequest): Promise<BuiltContext> {
       orderId = order["id"] as string;
       currency = (order["currency_code"] as string) ?? currency;
       recipient = recipient || ((order["email"] as string) ?? "");
-      customerId = customerId ?? ((order["customer_id"] as string) ?? null);
+      customerId = customerId ?? (order["customer_id"] as string) ?? null;
 
       const { data: itemRows } = await admin
         .from("order_items")
@@ -124,10 +124,7 @@ export async function buildContext(req: ContextRequest): Promise<BuiltContext> {
       const items: ContextLineItem[] = ((itemRows ?? []) as Row[]).map((i) => ({
         name: [i["title_snapshot"], i["variant_title_snapshot"]].filter(Boolean).join(" – "),
         quantity: Number(i["quantity"] ?? 0),
-        line_total: formatMoney(
-          Number(i["gross_minor"] ?? i["line_total_minor"] ?? 0),
-          currency,
-        ),
+        line_total: formatMoney(Number(i["gross_minor"] ?? i["line_total_minor"] ?? 0), currency),
       }));
 
       const { data: addressRows } = await admin
@@ -145,7 +142,10 @@ export async function buildContext(req: ContextRequest): Promise<BuiltContext> {
           : "",
         shipping: formatMoney(Number(order["shipping_minor"] ?? 0), currency),
         tax: formatMoney(Number(order["tax_total_minor"] ?? order["tax_minor"] ?? 0), currency),
-        total: formatMoney(Number(order["total_minor"] ?? order["gross_total_minor"] ?? 0), currency),
+        total: formatMoney(
+          Number(order["total_minor"] ?? order["gross_total_minor"] ?? 0),
+          currency,
+        ),
         currency,
         items,
         shipping_address: addressLines((shippingAddress?.["address"] as Row) ?? null),
@@ -211,7 +211,10 @@ export async function buildContext(req: ContextRequest): Promise<BuiltContext> {
       ctx.invoice = {
         number: (i["invoice_number"] as string) ?? "",
         date: formatDate(i["issue_date"] as string),
-        total: formatMoney(Number(i["total_gross_minor"] ?? 0), (i["currency_code"] as string) ?? currency),
+        total: formatMoney(
+          Number(i["total_gross_minor"] ?? 0),
+          (i["currency_code"] as string) ?? currency,
+        ),
       };
       recipient = recipient || ((i["customer_email"] as string) ?? "");
     }
@@ -227,7 +230,10 @@ export async function buildContext(req: ContextRequest): Promise<BuiltContext> {
       ctx.credit_note = {
         number: (c["credit_note_number"] as string) ?? "",
         date: formatDate(c["issued_at"] as string),
-        total: formatMoney(Number(c["total_gross_minor"] ?? 0), (c["currency_code"] as string) ?? currency),
+        total: formatMoney(
+          Number(c["total_gross_minor"] ?? 0),
+          (c["currency_code"] as string) ?? currency,
+        ),
       };
     }
   }
@@ -279,7 +285,10 @@ export async function buildContext(req: ContextRequest): Promise<BuiltContext> {
     const rf = row as Row | null;
     if (rf) {
       ctx.refund = {
-        amount: formatMoney(Number(rf["amount_minor"] ?? 0), (rf["currency_code"] as string) ?? currency),
+        amount: formatMoney(
+          Number(rf["amount_minor"] ?? 0),
+          (rf["currency_code"] as string) ?? currency,
+        ),
         reason: (rf["reason"] as string) ?? "",
       };
     }

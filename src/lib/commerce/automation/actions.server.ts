@@ -32,7 +32,10 @@ export type ActionOutcome = {
   retryable?: boolean;
 };
 
-const ok = (output: Record<string, unknown> = {}): ActionOutcome => ({ status: "succeeded", output });
+const ok = (output: Record<string, unknown> = {}): ActionOutcome => ({
+  status: "succeeded",
+  output,
+});
 const skip = (reason: string): ActionOutcome => ({ status: "skipped", reason });
 const fail = (errorCode: string, errorMessage: string, retryable = false): ActionOutcome => ({
   status: "failed",
@@ -86,7 +89,11 @@ export async function runAction(
     return fail("permission_denied", `Die Automation darf „${definition.label}" nicht ausführen.`);
 
   if (ctx.dryRun) {
-    return { status: "skipped", reason: "dry_run", output: { would_run: action.actionType, config: action.config } };
+    return {
+      status: "skipped",
+      reason: "dry_run",
+      output: { would_run: action.actionType, config: action.config },
+    };
   }
 
   const cfg = action.config ?? {};
@@ -99,9 +106,8 @@ export async function runAction(
       case "communication.send": {
         const templateKey = str(cfg["templateKey"]);
         if (!templateKey) return fail("invalid_configuration", "Es ist keine Vorlage ausgewählt.");
-        const { queueCommunication, dispatchCommunication } = await import(
-          "../communications/communication.server"
-        );
+        const { queueCommunication, dispatchCommunication } =
+          await import("../communications/communication.server");
         const result = await queueCommunication({
           organizationId: ctx.organizationId,
           shopId: ctx.shopId,
@@ -137,9 +143,7 @@ export async function runAction(
           actorId: ctx.ruleId,
           idempotencyKey: idem(ctx, action.position),
         });
-        return res.created
-          ? ok({ invoice_id: res.invoice_id })
-          : skip("invoice_already_exists");
+        return res.created ? ok({ invoice_id: res.invoice_id }) : skip("invoice_already_exists");
       }
 
       case "invoice.issue": {
@@ -174,9 +178,8 @@ export async function runAction(
         if (!order) return fail("entity_not_found", "Bestellung nicht gefunden.");
         if (order["order_status"] === "cancelled") return skip("order_cancelled");
         if (order["fulfillment_status"] === "fulfilled") return skip("already_fulfilled");
-        const { suggestAllocation, createFulfillment } = await import(
-          "../fulfillment/fulfillment.server"
-        );
+        const { suggestAllocation, createFulfillment } =
+          await import("../fulfillment/fulfillment.server");
         const suggestion = await suggestAllocation(ctx.organizationId, orderId);
         const items = (suggestion.lines ?? [])
           .map((i) => ({ orderItemId: i.orderItemId, quantity: i.openQuantity }))
@@ -204,16 +207,14 @@ export async function runAction(
         if (!groupId) return fail("invalid_configuration", "Es ist keine Kundengruppe ausgewählt.");
         const admin = await getAdmin();
         if (action.actionType === "customer.add_to_group") {
-          const { error } = await admin
-            .from("customer_group_members")
-            .upsert(
-              {
-                organization_id: ctx.organizationId,
-                customer_id: customerId,
-                customer_group_id: groupId,
-              } as never,
-              { onConflict: "customer_id,customer_group_id", ignoreDuplicates: true },
-            );
+          const { error } = await admin.from("customer_group_members").upsert(
+            {
+              organization_id: ctx.organizationId,
+              customer_id: customerId,
+              customer_group_id: groupId,
+            } as never,
+            { onConflict: "customer_id,customer_group_id", ignoreDuplicates: true },
+          );
           if (error) return fail("engine_error", error.message);
         } else {
           const { error } = await admin
@@ -238,7 +239,9 @@ export async function runAction(
         const admin = await getAdmin();
         const { error } = await admin
           .from("orders")
-          .update({ internal_note: `${existing}${existing ? "\n" : ""}[Automation ${stamp}] ${note}` } as never)
+          .update({
+            internal_note: `${existing}${existing ? "\n" : ""}[Automation ${stamp}] ${note}`,
+          } as never)
           .eq("id", orderId)
           .eq("organization_id", ctx.organizationId);
         if (error) return fail("engine_error", error.message);
@@ -272,7 +275,8 @@ export async function runAction(
                   description: str(cfg["description"]),
                   entityType: orderId ? "order" : null,
                   entityId: orderId,
-                  priority: (str(cfg["priority"]) as "low" | "normal" | "high" | "urgent") ?? "normal",
+                  priority:
+                    (str(cfg["priority"]) as "low" | "normal" | "high" | "urgent") ?? "normal",
                   dedupe: null as string | null,
                 };
         const dueInHours = Number(cfg["dueInHours"] ?? 0);
@@ -285,7 +289,8 @@ export async function runAction(
           entityType: preset.entityType,
           entityId: preset.entityId,
           assignedTo: str(cfg["assignedTo"]),
-          dueAt: dueInHours > 0 ? new Date(Date.now() + dueInHours * 3_600_000).toISOString() : null,
+          dueAt:
+            dueInHours > 0 ? new Date(Date.now() + dueInHours * 3_600_000).toISOString() : null,
           source: "automation",
           executionId: ctx.executionId,
           dedupeKey: preset.dedupe,
@@ -295,7 +300,8 @@ export async function runAction(
 
       case "webhook.send": {
         const endpointId = str(cfg["endpointId"]);
-        if (!endpointId) return fail("invalid_configuration", "Es ist kein Webhook-Ziel ausgewählt.");
+        if (!endpointId)
+          return fail("invalid_configuration", "Es ist kein Webhook-Ziel ausgewählt.");
         const res = await sendWebhook({
           endpointId,
           organizationId: ctx.organizationId,
@@ -311,7 +317,10 @@ export async function runAction(
       }
 
       default:
-        return fail("invalid_configuration", `Aktion ${action.actionType} ist nicht implementiert.`);
+        return fail(
+          "invalid_configuration",
+          `Aktion ${action.actionType} ist nicht implementiert.`,
+        );
     }
   } catch (error) {
     if (error instanceof WebhookError) return fail(error.code, error.message, error.retryable);

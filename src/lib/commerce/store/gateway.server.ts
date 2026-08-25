@@ -24,7 +24,12 @@ export class StoreApiError extends Error {
   code: StoreErrorCode;
   status: number;
   fieldErrors?: Record<string, string>;
-  constructor(code: StoreErrorCode, message: string, status: number, fieldErrors?: Record<string, string>) {
+  constructor(
+    code: StoreErrorCode,
+    message: string,
+    status: number,
+    fieldErrors?: Record<string, string>,
+  ) {
     super(message);
     this.code = code;
     this.status = status;
@@ -57,7 +62,11 @@ export type StoreCtx = {
   requireCartToken: () => string;
   requireCart: (cartId: string) => Promise<CartAuth>;
   /** Customer session (Supabase bearer token) mapped to this shop's customer. */
-  requireCustomer: () => Promise<{ userId: string; customerId: string | null; email: string | null }>;
+  requireCustomer: () => Promise<{
+    userId: string;
+    customerId: string | null;
+    email: string | null;
+  }>;
   /** Scoped guest access token, bound to exactly one order of this shop. */
   requireGuestOrder: () => Promise<{ orderId: string }>;
   limit: (profile: RateProfile, bucket?: string) => Promise<void>;
@@ -155,7 +164,9 @@ export async function handleStoreRequest(
   const requestId = crypto.randomUUID();
   const origin = request.headers.get("origin");
   const url = new URL(request.url);
-  const path = url.pathname.startsWith(basePath) ? url.pathname.slice(basePath.length) || "/" : url.pathname;
+  const path = url.pathname.startsWith(basePath)
+    ? url.pathname.slice(basePath.length) || "/"
+    : url.pathname;
 
   const respond = (status: number, payload: unknown, allowOrigin: string | null) =>
     new Response(JSON.stringify(payload), {
@@ -220,7 +231,8 @@ export async function handleStoreRequest(
         const parsed = matched.route.schema.safeParse(body ?? {});
         if (!parsed.success) {
           const fields: Record<string, string> = {};
-          for (const issue of parsed.error.issues) fields[issue.path.join(".") || "_"] = issue.message;
+          for (const issue of parsed.error.issues)
+            fields[issue.path.join(".") || "_"] = issue.message;
           throw badRequest("Eingabe ist ungültig.", fields);
         }
         body = parsed.data;

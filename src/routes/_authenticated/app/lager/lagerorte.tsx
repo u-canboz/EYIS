@@ -25,7 +25,8 @@ export const Route = createFileRoute("/_authenticated/app/lager/lagerorte")({
       { title: "Lagerorte – Commerce OS" },
       {
         name: "description",
-        content: "Lager, Filialen und Fulfillment-Center mit Priorität für die spätere Bestandszuteilung.",
+        content:
+          "Lager, Filialen und Fulfillment-Center mit Priorität für die spätere Bestandszuteilung.",
       },
       { property: "og:title", content: "Lagerorte – Commerce OS" },
       { property: "og:description", content: "Multi-Location von Anfang an." },
@@ -163,7 +164,11 @@ function LocationsPage() {
           </div>
           <div className="space-y-2">
             <Label>Code</Label>
-            <Input value={code} onChange={(event) => setCode(event.target.value)} placeholder="BER" />
+            <Input
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              placeholder="BER"
+            />
           </div>
           <div className="space-y-2">
             <Label>Typ</Label>

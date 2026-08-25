@@ -3,7 +3,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listReturnsFn } from "@/lib/commerce/returns/return.functions";
-import { RETURN_REASON_LABELS, RETURN_STATUS_LABELS, type ReturnStatus } from "@/lib/commerce/returns/return.types";
+import {
+  RETURN_REASON_LABELS,
+  RETURN_STATUS_LABELS,
+  type ReturnStatus,
+} from "@/lib/commerce/returns/return.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { formatMoney } from "@/lib/commerce/money";
 import { Button } from "@/components/ui/button";
@@ -15,7 +19,10 @@ export const Route = createFileRoute("/_authenticated/app/retouren/")({
   head: () => ({
     meta: [
       { title: "Retouren – Commerce OS" },
-      { name: "description", content: "RMA-Workspace: Retouren genehmigen, Wareneingang buchen, prüfen und erstatten." },
+      {
+        name: "description",
+        content: "RMA-Workspace: Retouren genehmigen, Wareneingang buchen, prüfen und erstatten.",
+      },
       { property: "og:title", content: "Retouren – Commerce OS" },
       { property: "og:description", content: "Retourenprozess von Antrag bis Erstattung steuern." },
       { property: "og:type", content: "website" },
@@ -26,11 +33,19 @@ export const Route = createFileRoute("/_authenticated/app/retouren/")({
 });
 
 const FILTERS: { key: string; label: string; statuses: ReturnStatus[] | null }[] = [
-  { key: "open", label: "Offen", statuses: ["requested", "authorized", "in_transit", "received", "inspection"] },
+  {
+    key: "open",
+    label: "Offen",
+    statuses: ["requested", "authorized", "in_transit", "received", "inspection"],
+  },
   { key: "requested", label: "Neu beantragt", statuses: ["requested"] },
   { key: "inspection", label: "In Prüfung", statuses: ["received", "inspection"] },
   { key: "settle", label: "Zu erstatten", statuses: ["approved", "partially_approved"] },
-  { key: "done", label: "Abgeschlossen", statuses: ["completed", "refunded", "rejected", "cancelled"] },
+  {
+    key: "done",
+    label: "Abgeschlossen",
+    statuses: ["completed", "refunded", "rejected", "cancelled"],
+  },
   { key: "all", label: "Alle", statuses: null },
 ];
 
@@ -45,7 +60,9 @@ function ReturnsPage() {
     queryKey: ["returns", organizationId, shopId, tab, search],
     enabled: !!organizationId,
     queryFn: () =>
-      fetchReturns({ data: { organizationId, shopId: shopId || null, statuses, search: search || null } }),
+      fetchReturns({
+        data: { organizationId, shopId: shopId || null, statuses, search: search || null },
+      }),
   });
 
   return (
@@ -64,7 +81,12 @@ function ReturnsPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         {FILTERS.map((f) => (
-          <Button key={f.key} size="sm" variant={tab === f.key ? "default" : "outline"} onClick={() => setTab(f.key)}>
+          <Button
+            key={f.key}
+            size="sm"
+            variant={tab === f.key ? "default" : "outline"}
+            onClick={() => setTab(f.key)}
+          >
             {f.label}
           </Button>
         ))}
@@ -127,7 +149,9 @@ function ReturnsPage() {
                     <Badge variant="secondary">{RETURN_STATUS_LABELS[r.status]}</Badge>
                   </td>
                   <td className="px-4 py-3 text-right">{r.itemCount}</td>
-                  <td className="px-4 py-3 text-right">{formatMoney(r.refundTotalMinor, r.currencyCode)}</td>
+                  <td className="px-4 py-3 text-right">
+                    {formatMoney(r.refundTotalMinor, r.currencyCode)}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {new Date(r.requestedAt).toLocaleDateString("de-DE")}
                   </td>

@@ -1,0 +1,262 @@
+[
+  {
+    "name": "Keys für zwei Shops erstellt",
+    "ok": true,
+    "detail": "pk_test_ad77fe / pk_test_6ce4ed"
+  },
+  {
+    "name": "GET /config",
+    "ok": true,
+    "detail": "200 QA Shop A"
+  },
+  {
+    "name": "Antwort trägt Request-ID",
+    "ok": true,
+    "detail": "cb1ed4ee-1bea-4f54-8d44-38cdf30a771f"
+  },
+  {
+    "name": "GET /products",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Produktliste ohne interne Felder",
+    "ok": true,
+    "detail": "keine internen Felder"
+  },
+  {
+    "name": "GET /products/:handle",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Produktdetail ohne interne Felder",
+    "ok": true,
+    "detail": "keine internen Felder"
+  },
+  {
+    "name": "GET /search",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "GET /categories",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "POST /cart",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Cart ohne Token abgelehnt",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Cart mit Token lesbar",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Position hinzufügen",
+    "ok": true,
+    "detail": "200 "
+  },
+  {
+    "name": "Menge ändern",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Summen konsistent",
+    "ok": true,
+    "detail": "{\"subtotalMinor\":4990,\"discountMinor\":0,\"shippingMinor\":0,\"taxMinor\":797,\"totalMinor\":4990}"
+  },
+  {
+    "name": "Unbekannter Promo-Code ohne Wirkung",
+    "ok": true,
+    "detail": "200 kein Rabatt"
+  },
+  {
+    "name": "Position entfernen",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Checkout starten",
+    "ok": true,
+    "detail": "200 "
+  },
+  {
+    "name": "Adresse setzen",
+    "ok": true,
+    "detail": "200 "
+  },
+  {
+    "name": "Versandarten laden",
+    "ok": true,
+    "detail": "200 [{\"id\":\"6205076f-a2fb-4a1b-af0e-2ad30715c143\",\"name\":\"Standardversand\",\"descript"
+  },
+  {
+    "name": "Versandart wählen",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Checkout validieren",
+    "ok": true,
+    "detail": "200 "
+  },
+  {
+    "name": "Payment-Session anlegen",
+    "ok": true,
+    "detail": "200 "
+  },
+  {
+    "name": "Mock-Zahlung finalisiert",
+    "ok": true,
+    "detail": "{\"created\":true,\"order_id\":\"f8520009-9b4c-4a24-ab52-283526ea81db\",\"order_number\":\"ORD-000010\",\"reservations_committed\":1"
+  },
+  {
+    "name": "Zahlungsstatus lesbar",
+    "ok": true,
+    "detail": "200 paid"
+  },
+  {
+    "name": "Confirmation-Token einlösbar",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Confirmation-Token nur einmal gültig",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Login mit falschen Daten abgelehnt",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Konto ohne Session abgelehnt",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Gastzugang antwortet neutral",
+    "ok": true,
+    "detail": "{\"requested\":true}"
+  },
+  {
+    "name": "Gastbestellung ohne Token abgelehnt",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Gefälschter Guest-Token abgelehnt",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Retouren-Eligibility ohne gültigen Token abgelehnt",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Retoure ohne gültigen Token abgelehnt",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Shop B Warenkorb angelegt",
+    "ok": true,
+    "detail": "200"
+  },
+  {
+    "name": "Cross-Tenant: GET /cart/:id (B-ID, A-Key)",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Cross-Tenant: POST /cart/:id/items (B-ID + B-Token, A-Key)",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Cross-Tenant: PATCH /cart/:id/items (B-ID + B-Token, A-Key)",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Cross-Tenant: GET /checkout/:id (fremde ID)",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Cross-Tenant: GET /orders/confirmation/:token (fremder Shop)",
+    "ok": true,
+    "detail": "404 NOT_FOUND"
+  },
+  {
+    "name": "Cross-Tenant: GET /customer/orders/:id (fremder Shop)",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Cross-Tenant: GET /customer/orders/:id/documents/:doc (fremder Shop)",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Cross-Tenant: GET /orders/guest/documents/:doc (fremder Token)",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Cross-Tenant: POST /returns (fremder Shop)",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Fehlerform einheitlich (kein Existenz-Leak)",
+    "ok": true,
+    "detail": "code,message"
+  },
+  {
+    "name": "Widerrufener Key abgelehnt",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Unbekannter Key abgelehnt",
+    "ok": true,
+    "detail": "401 UNAUTHORIZED"
+  },
+  {
+    "name": "Fremder Origin abgelehnt",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Fremder Cart-Token abgelehnt",
+    "ok": true,
+    "detail": "403 FORBIDDEN"
+  },
+  {
+    "name": "Unbekannter Endpunkt = 404",
+    "ok": true,
+    "detail": "404"
+  },
+  {
+    "name": "Rate-Limit greift (customer_login)",
+    "ok": true,
+    "detail": "429 erhalten"
+  },
+  {
+    "name": "Idempotente Wiederholung identisch",
+    "ok": true,
+    "detail": "403/403"
+  }
+]

@@ -80,7 +80,8 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
   {
     key: "abandoned_cart",
     name: "Liegengebliebene Warenkörbe erinnern",
-    description: "Schickt nach 24 Stunden eine Erinnerung an Kundinnen mit einem offenen Warenkorb.",
+    description:
+      "Schickt nach 24 Stunden eine Erinnerung an Kundinnen mit einem offenen Warenkorb.",
     triggerType: "schedule",
     triggerConfig: { scheduleKind: "abandoned_carts", olderThanHours: 24, everyMinutes: 60 },
     conditions: { mode: "all", conditions: [] },
@@ -103,7 +104,8 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
   {
     key: "low_stock",
     name: "Niedriger Bestand melden",
-    description: "Prüft stündlich alle Bestände und erstellt Aufgaben für Artikel unter der Meldegrenze.",
+    description:
+      "Prüft stündlich alle Bestände und erstellt Aufgaben für Artikel unter der Meldegrenze.",
     triggerType: "schedule",
     triggerConfig: { scheduleKind: "low_stock", everyMinutes: 60 },
     conditions: { mode: "all", conditions: [] },

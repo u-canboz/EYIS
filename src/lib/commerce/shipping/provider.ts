@@ -141,12 +141,18 @@ export interface CarrierProvider {
     testMode: boolean;
   }): Promise<CarrierRate[]>;
   createShipment(input: CreateCarrierShipmentInput): Promise<CreateCarrierShipmentResult>;
-  createLabel(input: CreateCarrierShipmentInput & { providerShipmentId: string }): Promise<CarrierLabel>;
+  createLabel(
+    input: CreateCarrierShipmentInput & { providerShipmentId: string },
+  ): Promise<CarrierLabel>;
   cancelShipment?(providerShipmentId: string): Promise<void>;
   getTracking?(input: {
     providerShipmentId: string | null;
     trackingNumber: string | null;
   }): Promise<CarrierTrackingSnapshot>;
   /** Verifies the signature and maps the payload. Throws when the signature is invalid. */
-  parseTrackingWebhook?(rawBody: string, headers: Headers, secret: string | null): Promise<CarrierWebhookResult>;
+  parseTrackingWebhook?(
+    rawBody: string,
+    headers: Headers,
+    secret: string | null,
+  ): Promise<CarrierWebhookResult>;
 }

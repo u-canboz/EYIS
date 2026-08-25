@@ -96,7 +96,11 @@ export async function listProducts(input: {
       .eq("shop_id", input.shopId)
       .eq("handle", input.categoryHandle)
       .maybeSingle();
-    if (!cat) return { data: [], pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false } };
+    if (!cat)
+      return {
+        data: [],
+        pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false },
+      };
     const { data: links } = await admin
       .from("product_categories")
       .select("product_id")
@@ -110,7 +114,11 @@ export async function listProducts(input: {
       .eq("shop_id", input.shopId)
       .eq("handle", input.collectionHandle)
       .maybeSingle();
-    if (!col) return { data: [], pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false } };
+    if (!col)
+      return {
+        data: [],
+        pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false },
+      };
     const { data: links } = await admin
       .from("product_collections")
       .select("product_id")
@@ -119,11 +127,16 @@ export async function listProducts(input: {
     productIdFilter = productIdFilter ? productIdFilter.filter((id) => ids.includes(id)) : ids;
   }
   if (productIdFilter && productIdFilter.length === 0)
-    return { data: [], pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false } };
+    return {
+      data: [],
+      pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false },
+    };
 
   let query = admin
     .from("products")
-    .select("id, handle, name, subtitle, status, archived_at, created_at, featured", { count: "exact" })
+    .select("id, handle, name, subtitle, status, archived_at, created_at, featured", {
+      count: "exact",
+    })
     .eq("shop_id", input.shopId)
     .eq("organization_id", input.organizationId)
     .eq("status", "active")
@@ -162,10 +175,12 @@ async function primaryImage(productId: string): Promise<StoreImage | null> {
     .eq("product_id", productId)
     .order("position", { ascending: true })
     .limit(1);
-  const first = ((data ?? []) as unknown as {
-    position: number;
-    media_assets: { storage_path: string; alt_text: string | null } | null;
-  }[])[0];
+  const first = (
+    (data ?? []) as unknown as {
+      position: number;
+      media_assets: { storage_path: string; alt_text: string | null } | null;
+    }[]
+  )[0];
   if (!first?.media_assets) return null;
   const signed = await signPaths([first.media_assets.storage_path]);
   const url = signed.get(first.media_assets.storage_path);
@@ -238,27 +253,38 @@ export async function getProduct(input: {
   const productId = product["id"] as string;
   const taxIncluded = await shopTaxIncluded(input.shopId);
 
-  const [{ data: mediaRows }, { data: optionRows }, { data: variantRows }, { data: catRows }, { data: colRows }] =
-    await Promise.all([
-      admin
-        .from("product_media")
-        .select("position, media_assets(storage_path, alt_text)")
-        .eq("product_id", productId)
-        .order("position", { ascending: true }),
-      admin
-        .from("product_options")
-        .select("id, key, name, position, product_option_values(value, label, position)")
-        .eq("product_id", productId)
-        .order("position", { ascending: true }),
-      admin
-        .from("product_variants")
-        .select("id, title, sku, position, status, variant_option_values(option_id, option_value_id)")
-        .eq("product_id", productId)
-        .eq("status", "active")
-        .order("position", { ascending: true }),
-      admin.from("product_categories").select("categories(id, handle, name)").eq("product_id", productId),
-      admin.from("product_collections").select("collections(id, handle, name)").eq("product_id", productId),
-    ]);
+  const [
+    { data: mediaRows },
+    { data: optionRows },
+    { data: variantRows },
+    { data: catRows },
+    { data: colRows },
+  ] = await Promise.all([
+    admin
+      .from("product_media")
+      .select("position, media_assets(storage_path, alt_text)")
+      .eq("product_id", productId)
+      .order("position", { ascending: true }),
+    admin
+      .from("product_options")
+      .select("id, key, name, position, product_option_values(value, label, position)")
+      .eq("product_id", productId)
+      .order("position", { ascending: true }),
+    admin
+      .from("product_variants")
+      .select("id, title, sku, position, status, variant_option_values(option_id, option_value_id)")
+      .eq("product_id", productId)
+      .eq("status", "active")
+      .order("position", { ascending: true }),
+    admin
+      .from("product_categories")
+      .select("categories(id, handle, name)")
+      .eq("product_id", productId),
+    admin
+      .from("product_collections")
+      .select("collections(id, handle, name)")
+      .eq("product_id", productId),
+  ]);
 
   const mediaList = (mediaRows ?? []) as unknown as {
     position: number;
@@ -282,12 +308,14 @@ export async function getProduct(input: {
   const optionValueLabel = new Map<string, { key: string; value: string }>();
 
   const variants = await Promise.all(
-    ((variantRows ?? []) as unknown as {
-      id: string;
-      title: string;
-      sku: string | null;
-      variant_option_values: { option_id: string; option_value_id: string }[];
-    }[]).map(async (v) => {
+    (
+      (variantRows ?? []) as unknown as {
+        id: string;
+        title: string;
+        sku: string | null;
+        variant_option_values: { option_id: string; option_value_id: string }[];
+      }[]
+    ).map(async (v) => {
       const [price, availability] = await Promise.all([
         priceFor({
           organizationId: input.organizationId,
@@ -320,10 +348,11 @@ export async function getProduct(input: {
     .map((c) => c.collections)
     .filter((c): c is StoreCategoryRef => !!c);
 
-  const cheapest = variants
-    .map((v) => v.price)
-    .filter((p): p is StorePrice => !!p)
-    .sort((a, b) => a.unitAmountMinor - b.unitAmountMinor)[0] ?? null;
+  const cheapest =
+    variants
+      .map((v) => v.price)
+      .filter((p): p is StorePrice => !!p)
+      .sort((a, b) => a.unitAmountMinor - b.unitAmountMinor)[0] ?? null;
   const bestAvailability = variants.some((v) => v.availability === "in_stock")
     ? "in_stock"
     : variants.some((v) => v.availability === "low_stock")
@@ -376,7 +405,9 @@ export async function searchProducts(input: {
     .is("archived_at", null)
     .or(`name.ilike.%${term.replace(/[%,]/g, "")}%,subtitle.ilike.%${term.replace(/[%,]/g, "")}%`)
     .limit(input.limit);
-  return Promise.all(((data ?? []) as Row[]).map((r) => summarizeProduct(r, input.organizationId, input.shopId)));
+  return Promise.all(
+    ((data ?? []) as Row[]).map((r) => summarizeProduct(r, input.organizationId, input.shopId)),
+  );
 }
 
 export async function listCategories(shopId: string): Promise<StoreCategory[]> {

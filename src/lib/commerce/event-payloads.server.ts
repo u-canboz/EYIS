@@ -110,18 +110,16 @@ export async function publishShipmentEvent(
       )
       .eq("id", shipmentId)
       .maybeSingle();
-    const row = data as
-      | {
-          id: string;
-          organization_id: string;
-          shop_id: string;
-          carrier_provider: string;
-          tracking_number: string | null;
-          tracking_url: string | null;
-          normalized_tracking_status: string | null;
-          fulfillments: { order_id: string } | { order_id: string }[] | null;
-        }
-      | null;
+    const row = data as {
+      id: string;
+      organization_id: string;
+      shop_id: string;
+      carrier_provider: string;
+      tracking_number: string | null;
+      tracking_url: string | null;
+      normalized_tracking_status: string | null;
+      fulfillments: { order_id: string } | { order_id: string }[] | null;
+    } | null;
     if (!row) return;
     const ful = Array.isArray(row.fulfillments) ? row.fulfillments[0] : row.fulfillments;
     const orderId = ful?.order_id ?? null;
@@ -162,18 +160,16 @@ export async function publishInvoiceEvent(
       )
       .eq("id", invoiceId)
       .maybeSingle();
-    const row = data as
-      | {
-          id: string;
-          organization_id: string;
-          shop_id: string;
-          order_id: string | null;
-          invoice_number: string | null;
-          total_gross_minor: number;
-          currency_code: string;
-          customer_email: string | null;
-        }
-      | null;
+    const row = data as {
+      id: string;
+      organization_id: string;
+      shop_id: string;
+      order_id: string | null;
+      invoice_number: string | null;
+      total_gross_minor: number;
+      currency_code: string;
+      customer_email: string | null;
+    } | null;
     if (!row) return;
     await publishDomainEvent({
       organizationId: row.organization_id,
@@ -209,19 +205,17 @@ export async function publishReturnEvent(
       )
       .eq("id", returnId)
       .maybeSingle();
-    const row = data as
-      | {
-          id: string;
-          organization_id: string;
-          shop_id: string;
-          order_id: string;
-          return_number: string;
-          status: string;
-          reason_category: string | null;
-          refund_total_minor: number | null;
-          currency_code: string;
-        }
-      | null;
+    const row = data as {
+      id: string;
+      organization_id: string;
+      shop_id: string;
+      order_id: string;
+      return_number: string;
+      status: string;
+      reason_category: string | null;
+      refund_total_minor: number | null;
+      currency_code: string;
+    } | null;
     if (!row) return;
     const { count } = await admin
       .from("return_items")
@@ -264,18 +258,16 @@ export async function publishCustomerEvent(
       .select("id, organization_id, shop_id, email, first_name, last_name, customer_type, status")
       .eq("id", customerId)
       .maybeSingle();
-    const row = data as
-      | {
-          id: string;
-          organization_id: string;
-          shop_id: string;
-          email: string | null;
-          first_name: string | null;
-          last_name: string | null;
-          customer_type: string;
-          status: string;
-        }
-      | null;
+    const row = data as {
+      id: string;
+      organization_id: string;
+      shop_id: string;
+      email: string | null;
+      first_name: string | null;
+      last_name: string | null;
+      customer_type: string;
+      status: string;
+    } | null;
     if (!row) return;
     await publishDomainEvent({
       organizationId: row.organization_id,

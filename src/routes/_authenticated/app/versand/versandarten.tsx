@@ -17,7 +17,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/versand/versandarten")({
   head: () => ({
@@ -25,7 +31,8 @@ export const Route = createFileRoute("/_authenticated/app/versand/versandarten")
       { title: "Versandarten – Commerce OS" },
       {
         name: "description",
-        content: "Versandarten je Shop pflegen: Festpreis oder gratis, Länder, Mindestbestellwert und Gratis-ab-Grenze.",
+        content:
+          "Versandarten je Shop pflegen: Festpreis oder gratis, Länder, Mindestbestellwert und Gratis-ab-Grenze.",
       },
       { property: "og:title", content: "Versandarten – Commerce OS" },
       { property: "og:description", content: "Versandoptionen für den Checkout verwalten." },
@@ -93,7 +100,10 @@ function ShippingPage() {
           pricingType: d.pricingType,
           amountMinor: parseMoneyToMinor(d.amount || "0", currency) ?? 0,
           currencyCode: currency,
-          countries: d.countries.split(",").map((c) => c.trim()).filter(Boolean),
+          countries: d.countries
+            .split(",")
+            .map((c) => c.trim())
+            .filter(Boolean),
           freeAboveMinor: d.freeAbove ? parseMoneyToMinor(d.freeAbove, currency) : null,
           minSubtotalMinor: d.minSubtotal ? parseMoneyToMinor(d.minSubtotal, currency) : null,
           position: Number(d.position) || 0,
@@ -126,7 +136,8 @@ function ShippingPage() {
     amount: minorToInput(m.amountMinor, m.currencyCode),
     countries: m.countries.join(", "),
     freeAbove: m.freeAboveMinor === null ? "" : minorToInput(m.freeAboveMinor, m.currencyCode),
-    minSubtotal: m.minSubtotalMinor === null ? "" : minorToInput(m.minSubtotalMinor, m.currencyCode),
+    minSubtotal:
+      m.minSubtotalMinor === null ? "" : minorToInput(m.minSubtotalMinor, m.currencyCode),
     position: String(m.position),
     status: m.status as Draft["status"],
   });
@@ -171,14 +182,20 @@ function ShippingPage() {
                   <td className="p-3 font-medium">{m.name}</td>
                   <td className="text-muted-foreground p-3 font-mono text-xs">{m.code}</td>
                   <td className="p-3">
-                    {m.pricingType === "free" ? "Gratis" : formatMoney(m.amountMinor, m.currencyCode)}
+                    {m.pricingType === "free"
+                      ? "Gratis"
+                      : formatMoney(m.amountMinor, m.currencyCode)}
                   </td>
                   <td className="p-3">
-                    {m.freeAboveMinor === null ? "—" : formatMoney(m.freeAboveMinor, m.currencyCode)}
+                    {m.freeAboveMinor === null
+                      ? "—"
+                      : formatMoney(m.freeAboveMinor, m.currencyCode)}
                   </td>
                   <td className="p-3">{m.countries.length ? m.countries.join(", ") : "Alle"}</td>
                   <td className="p-3">
-                    <Badge variant={m.status === "active" ? "default" : "secondary"}>{m.status}</Badge>
+                    <Badge variant={m.status === "active" ? "default" : "secondary"}>
+                      {m.status}
+                    </Badge>
                   </td>
                   <td className="p-3 text-right">
                     {can("shipping_methods.manage") && (
@@ -186,7 +203,11 @@ function ShippingPage() {
                         <Button variant="outline" size="sm" onClick={() => setDraft(toDraft(m))}>
                           Bearbeiten
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => removeMutation.mutate(m.id)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeMutation.mutate(m.id)}
+                        >
                           Archivieren
                         </Button>
                       </div>
@@ -208,18 +229,26 @@ function ShippingPage() {
             <div className="grid gap-3">
               <div className="grid gap-2">
                 <Label>Name</Label>
-                <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+                <Input
+                  value={draft.name}
+                  onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-2">
                   <Label>Code</Label>
-                  <Input value={draft.code} onChange={(e) => setDraft({ ...draft, code: e.target.value })} />
+                  <Input
+                    value={draft.code}
+                    onChange={(e) => setDraft({ ...draft, code: e.target.value })}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label>Art</Label>
                   <Select
                     value={draft.pricingType}
-                    onValueChange={(v) => setDraft({ ...draft, pricingType: v as "fixed" | "free" })}
+                    onValueChange={(v) =>
+                      setDraft({ ...draft, pricingType: v as "fixed" | "free" })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -258,12 +287,18 @@ function ShippingPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label>Position</Label>
-                  <Input value={draft.position} onChange={(e) => setDraft({ ...draft, position: e.target.value })} />
+                  <Input
+                    value={draft.position}
+                    onChange={(e) => setDraft({ ...draft, position: e.target.value })}
+                  />
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label>Länder (ISO-2, leer = alle)</Label>
-                <Input value={draft.countries} onChange={(e) => setDraft({ ...draft, countries: e.target.value })} />
+                <Input
+                  value={draft.countries}
+                  onChange={(e) => setDraft({ ...draft, countries: e.target.value })}
+                />
               </div>
               <div className="grid gap-2">
                 <Label>Beschreibung</Label>

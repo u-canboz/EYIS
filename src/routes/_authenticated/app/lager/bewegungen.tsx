@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_authenticated/app/lager/bewegungen")({
       { title: "Bestandsbewegungen – Commerce OS" },
       {
         name: "description",
-        content: "Unveränderbares Journal aller Bestandsbewegungen mit Grund, Referenz und Benutzer.",
+        content:
+          "Unveränderbares Journal aller Bestandsbewegungen mit Grund, Referenz und Benutzer.",
       },
       { property: "og:title", content: "Bestandsbewegungen – Commerce OS" },
       { property: "og:description", content: "Jede Bestandsänderung bleibt nachvollziehbar." },
@@ -66,7 +67,17 @@ function MovementsPage() {
   });
 
   const movementsQuery = useQuery({
-    queryKey: ["inventory-movements", organizationId, shopId, search, locationId, movementType, from, to, reference],
+    queryKey: [
+      "inventory-movements",
+      organizationId,
+      shopId,
+      search,
+      locationId,
+      movementType,
+      from,
+      to,
+      reference,
+    ],
     enabled: Boolean(organizationId && shopId),
     queryFn: () =>
       fetchMovements({
@@ -184,7 +195,9 @@ function MovementsPage() {
                   </td>
                   <td className="text-muted-foreground p-3">{row.reason ?? "—"}</td>
                   <td className="text-muted-foreground p-3">
-                    {row.reference_type ? `${row.reference_type}${row.reference_id ? ` · ${row.reference_id.slice(0, 8)}` : ""}` : "—"}
+                    {row.reference_type
+                      ? `${row.reference_type}${row.reference_id ? ` · ${row.reference_id.slice(0, 8)}` : ""}`
+                      : "—"}
                   </td>
                   <td className="text-muted-foreground p-3">{row.actor_email ?? "System"}</td>
                 </tr>

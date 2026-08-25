@@ -75,7 +75,12 @@ function ExecutionHistory() {
     enabled,
     queryFn: () =>
       fetchList({
-        data: { organizationId, shopId, status: search.status ? [search.status] : null, limit: 100 },
+        data: {
+          organizationId,
+          shopId,
+          status: search.status ? [search.status] : null,
+          limit: 100,
+        },
       }),
   });
 
@@ -131,7 +136,10 @@ function ExecutionHistory() {
       ) : (
         <ul className="divide-y rounded-lg border bg-card">
           {(executions.data ?? []).map((e) => (
-            <li key={e.id} className="flex flex-wrap items-center justify-between gap-3 p-3 text-sm">
+            <li
+              key={e.id}
+              className="flex flex-wrap items-center justify-between gap-3 p-3 text-sm"
+            >
               <div className="min-w-0">
                 <p className="font-medium">{e.ruleName}</p>
                 <p className="text-muted-foreground">
@@ -148,12 +156,15 @@ function ExecutionHistory() {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={e.status === "failed" ? "destructive" : "secondary"}>
-                  {EXECUTION_STATUS_LABELS[e.status as keyof typeof EXECUTION_STATUS_LABELS] ?? e.status}
+                  {EXECUTION_STATUS_LABELS[e.status as keyof typeof EXECUTION_STATUS_LABELS] ??
+                    e.status}
                 </Badge>
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => void navigate({ search: (s: Search) => ({ ...s, executionId: e.id }) })}
+                  onClick={() =>
+                    void navigate({ search: (s: Search) => ({ ...s, executionId: e.id }) })
+                  }
                 >
                   Details
                 </Button>

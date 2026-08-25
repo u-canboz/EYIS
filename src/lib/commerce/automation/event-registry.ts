@@ -14,13 +14,7 @@ export type EventField = {
 };
 
 export type EventCategory =
-  | "order"
-  | "payment"
-  | "shipping"
-  | "document"
-  | "return"
-  | "customer"
-  | "inventory";
+  "order" | "payment" | "shipping" | "document" | "return" | "customer" | "inventory";
 
 export type EventDefinition = {
   type: string;
@@ -91,10 +85,15 @@ const ORDER_FIELDS: EventField[] = [
   { path: "currency", label: "Währung", type: "string" },
   { path: "item_count", label: "Anzahl Positionen", type: "number" },
   { path: "customer_email", label: "E-Mail des Kunden", type: "string" },
-  { path: "customer_kind", label: "Kundentyp", type: "enum", options: [
-    { value: "b2c", label: "Privatkunde" },
-    { value: "b2b", label: "Geschäftskunde" },
-  ] },
+  {
+    path: "customer_kind",
+    label: "Kundentyp",
+    type: "enum",
+    options: [
+      { value: "b2c", label: "Privatkunde" },
+      { value: "b2b", label: "Geschäftskunde" },
+    ],
+  },
   { path: "shipping_country", label: "Lieferland", type: "string" },
   { path: "payment_status", label: "Zahlungsstatus", type: "string" },
 ];
@@ -129,7 +128,12 @@ export const EVENT_REGISTRY: EventDefinition[] = [
       { path: "payment_provider", label: "Zahlungsanbieter", type: "string" },
       { path: "amount_minor", label: "Zahlbetrag (Cent)", type: "money" },
     ],
-    recommendedActions: ["invoice.create", "invoice.issue", "communication.send", "fulfillment.create"],
+    recommendedActions: [
+      "invoice.create",
+      "invoice.issue",
+      "communication.send",
+      "fulfillment.create",
+    ],
   },
   {
     type: "payment.failed",
@@ -244,10 +248,15 @@ export const EVENT_REGISTRY: EventDefinition[] = [
     entityKeyField: "customer_id",
     fields: [
       { path: "email", label: "E-Mail", type: "string" },
-      { path: "customer_kind", label: "Kundentyp", type: "enum", options: [
-        { value: "b2c", label: "Privatkunde" },
-        { value: "b2b", label: "Geschäftskunde" },
-      ] },
+      {
+        path: "customer_kind",
+        label: "Kundentyp",
+        type: "enum",
+        options: [
+          { value: "b2c", label: "Privatkunde" },
+          { value: "b2b", label: "Geschäftskunde" },
+        ],
+      },
     ],
     recommendedActions: ["communication.send", "customer.add_to_group"],
   },

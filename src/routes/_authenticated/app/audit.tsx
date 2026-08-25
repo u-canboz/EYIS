@@ -40,7 +40,8 @@ function AuditPage() {
       <header>
         <h1 className="text-3xl font-semibold">Audit-Log</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Nur Einfügen – Einträge können weder geändert noch gelöscht werden, auch nicht serverseitig.
+          Nur Einfügen – Einträge können weder geändert noch gelöscht werden, auch nicht
+          serverseitig.
         </p>
       </header>
 

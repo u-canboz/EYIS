@@ -14,7 +14,9 @@ type Org = { organizationId: string };
 export const listInvoicesFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Org & { shopId?: string | null; status?: InvoiceStatus | null; search?: string | null }) => data,
+    (
+      data: Org & { shopId?: string | null; status?: InvoiceStatus | null; search?: string | null },
+    ) => data,
   )
   .handler(async ({ data, context }): Promise<InvoiceListItem[]> => {
     const { assertPermission } = await import("../core.server");
@@ -68,7 +70,12 @@ export const saveInvoiceSettingsFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { shopId: string; values: Record<string, unknown> }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "documents.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "documents.settings",
+    );
     const { saveInvoiceSettings } = await import("./document.server");
     return await saveInvoiceSettings({ ...data, actorId: context.userId });
   });
@@ -78,7 +85,12 @@ export const saveBrandingFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { shopId: string; values: Record<string, unknown> }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "documents.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "documents.settings",
+    );
     const { saveBranding } = await import("./document.server");
     return await saveBranding({ ...data, actorId: context.userId });
   });
@@ -101,7 +113,12 @@ export const saveSequenceFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "documents.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "documents.settings",
+    );
     const { saveSequence } = await import("./document.server");
     return await saveSequence({ ...data, actorId: context.userId });
   });
@@ -111,7 +128,12 @@ export const createInvoiceFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { orderId: string; idempotencyKey?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "invoices.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "invoices.manage",
+    );
     const { createInvoiceFromOrder } = await import("./document.server");
     return await createInvoiceFromOrder({ ...data, actorId: context.userId });
   });
@@ -131,7 +153,12 @@ export const voidInvoiceFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { invoiceId: string; reason?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "invoices.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "invoices.manage",
+    );
     const { voidInvoice } = await import("./document.server");
     return await voidInvoice({ ...data, actorId: context.userId });
   });
@@ -152,7 +179,12 @@ export const createCreditNoteFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "invoices.credit");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "invoices.credit",
+    );
     const { createCreditNote, issueCreditNote } = await import("./document.server");
     const created = await createCreditNote({ ...data, actorId: context.userId });
     if (data.issueImmediately) {
@@ -171,27 +203,50 @@ export const issueCreditNoteFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { creditNoteId: string; idempotencyKey?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "invoices.credit");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "invoices.credit",
+    );
     const { issueCreditNote } = await import("./document.server");
     return await issueCreditNote({ ...data, actorId: context.userId });
   });
 
 export const createDeliveryNoteFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { fulfillmentId: string; notes?: string | null; idempotencyKey?: string | null }) => data)
+  .inputValidator(
+    (
+      data: Org & { fulfillmentId: string; notes?: string | null; idempotencyKey?: string | null },
+    ) => data,
+  )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "invoices.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "invoices.manage",
+    );
     const { createDeliveryNote } = await import("./document.server");
     return await createDeliveryNote({ ...data, actorId: context.userId });
   });
 
 export const regenerateDocumentPdfFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { documentType: "invoice" | "credit_note" | "delivery_note"; documentId: string }) => data)
+  .inputValidator(
+    (
+      data: Org & { documentType: "invoice" | "credit_note" | "delivery_note"; documentId: string },
+    ) => data,
+  )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "invoices.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "invoices.manage",
+    );
     const server = await import("./document.server");
     if (data.documentType === "invoice") {
       return await server.generateInvoicePdf({

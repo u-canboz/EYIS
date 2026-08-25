@@ -15,7 +15,13 @@ const BOTTOM = 90;
 
 function hexToRgb(hex: string | null | undefined) {
   const value = (hex ?? "#1F2937").replace("#", "");
-  const full = value.length === 3 ? value.split("").map((c) => c + c).join("") : value;
+  const full =
+    value.length === 3
+      ? value
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : value;
   const n = Number.parseInt(full.slice(0, 6) || "1F2937", 16);
   if (Number.isNaN(n)) return rgb(0.12, 0.16, 0.22);
   return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
@@ -96,7 +102,14 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const ctx: Ctx = { pdf, regular, bold, accent: hexToRgb(doc.branding.primary_color), doc, pages: [] };
+  const ctx: Ctx = {
+    pdf,
+    regular,
+    bold,
+    accent: hexToRgb(doc.branding.primary_color),
+    doc,
+    pages: [],
+  };
 
   pdf.setTitle(safe(`${doc.title} ${doc.number}`));
   pdf.setProducer("Commerce OS");
@@ -198,11 +211,24 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
   const showAmounts = doc.showAmounts;
   // Column values are the RIGHT edge of each right-aligned column.
   const cols = showAmounts
-    ? { pos: MARGIN, desc: MARGIN + 26, qty: MARGIN + 292, unit: MARGIN + 374, tax: MARGIN + 414, total: width - MARGIN - 2 }
+    ? {
+        pos: MARGIN,
+        desc: MARGIN + 26,
+        qty: MARGIN + 292,
+        unit: MARGIN + 374,
+        tax: MARGIN + 414,
+        total: width - MARGIN - 2,
+      }
     : { pos: MARGIN, desc: MARGIN + 26, qty: width - MARGIN - 2, unit: 0, tax: 0, total: 0 };
 
   const drawTableHeader = (p: PDFPage, yy: number) => {
-    p.drawRectangle({ x: MARGIN, y: yy - 5, width: contentWidth, height: 18, color: rgb(0.95, 0.96, 0.97) });
+    p.drawRectangle({
+      x: MARGIN,
+      y: yy - 5,
+      width: contentWidth,
+      height: 18,
+      color: rgb(0.95, 0.96, 0.97),
+    });
     text(p, "Pos", cols.pos + 4, yy, { size: 8, font: bold, color: grey });
     text(p, "Beschreibung", cols.desc + 4, yy, { size: 8, font: bold, color: grey });
     const right = (label: string, x: number) => {
@@ -248,7 +274,9 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
       subY -= 9.5;
     }
 
-    const qty = Number.isInteger(line.quantity) ? String(line.quantity) : String(line.quantity).replace(".", ",");
+    const qty = Number.isInteger(line.quantity)
+      ? String(line.quantity)
+      : String(line.quantity).replace(".", ",");
     const right = (value: string, x: number, size = 9) => {
       const w = regular.widthOfTextAtSize(safe(value), size);
       page.drawText(safe(value), { x: x - w, y, size, font: regular, color: black });
@@ -261,7 +289,6 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
     } else {
       right(qty, cols.qty);
     }
-
 
     y -= rowHeight;
     page.drawLine({
@@ -292,11 +319,18 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
       y -= size + 5;
     };
 
-    row("Zwischensumme netto", money(doc.totals.netMinor - doc.totals.shippingNetMinor, doc.currencyCode));
-    if (doc.totals.shippingNetMinor > 0) row("Versand netto", money(doc.totals.shippingNetMinor, doc.currencyCode));
+    row(
+      "Zwischensumme netto",
+      money(doc.totals.netMinor - doc.totals.shippingNetMinor, doc.currencyCode),
+    );
+    if (doc.totals.shippingNetMinor > 0)
+      row("Versand netto", money(doc.totals.shippingNetMinor, doc.currencyCode));
     if (doc.branding.show_tax_breakdown !== false) {
       for (const t of doc.taxRows) {
-        row(`USt ${rate(t.rateBasisPoints)} auf ${money(t.netMinor, doc.currencyCode)}`, money(t.taxMinor, doc.currencyCode));
+        row(
+          `USt ${rate(t.rateBasisPoints)} auf ${money(t.netMinor, doc.currencyCode)}`,
+          money(t.taxMinor, doc.currencyCode),
+        );
       }
     }
     row("Umsatzsteuer gesamt", money(doc.totals.taxMinor, doc.currencyCode));
@@ -307,7 +341,11 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
       color: ctx.accent,
     });
     y -= 4;
-    row(doc.kind === "credit_note" ? "Gutschriftbetrag" : "Gesamtbetrag", money(doc.totals.grossMinor, doc.currencyCode), true);
+    row(
+      doc.kind === "credit_note" ? "Gutschriftbetrag" : "Gesamtbetrag",
+      money(doc.totals.grossMinor, doc.currencyCode),
+      true,
+    );
     y -= 10;
   }
 
@@ -336,7 +374,9 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
   const footerCols = [
     [
       seller.company_name ?? "",
-      [seller.address_line1, `${seller.postal_code ?? ""} ${seller.city ?? ""}`.trim()].filter(Boolean).join(", "),
+      [seller.address_line1, `${seller.postal_code ?? ""} ${seller.city ?? ""}`.trim()]
+        .filter(Boolean)
+        .join(", "),
       seller.managing_director ? `Geschäftsführung: ${seller.managing_director}` : "",
     ],
     [

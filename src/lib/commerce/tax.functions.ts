@@ -90,7 +90,9 @@ export const saveTaxSettings = createServerFn({ method: "POST" })
       tax_number: data.taxNumber,
       vat_id: data.vatId,
     };
-    const { error } = await supabase.from("tax_settings").upsert(payload as never, { onConflict: "shop_id" });
+    const { error } = await supabase
+      .from("tax_settings")
+      .upsert(payload as never, { onConflict: "shop_id" });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -98,8 +100,14 @@ export const saveTaxSettings = createServerFn({ method: "POST" })
 export const saveTaxClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { id?: string; organizationId: string; shopId: string | null; name: string; code: string; description: string | null }) =>
-      data,
+    (data: {
+      id?: string;
+      organizationId: string;
+      shopId: string | null;
+      name: string;
+      code: string;
+      description: string | null;
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -107,11 +115,17 @@ export const saveTaxClass = createServerFn({ method: "POST" })
       organization_id: data.organizationId,
       shop_id: data.shopId,
       name: data.name.trim(),
-      code: data.code.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-"),
+      code: data.code
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, "-"),
       description: data.description,
     };
     const query = data.id
-      ? supabase.from("tax_classes").update(payload as never).eq("id", data.id)
+      ? supabase
+          .from("tax_classes")
+          .update(payload as never)
+          .eq("id", data.id)
       : supabase.from("tax_classes").insert(payload as never);
     const { error } = await query;
     if (error) throw new Error(error.message);
@@ -140,7 +154,10 @@ export const saveTaxRate = createServerFn({ method: "POST" })
       source: "manual",
     };
     const query = data.id
-      ? supabase.from("tax_rates").update(payload as never).eq("id", data.id)
+      ? supabase
+          .from("tax_rates")
+          .update(payload as never)
+          .eq("id", data.id)
       : supabase.from("tax_rates").insert(payload as never);
     const { error } = await query;
     if (error) throw new Error(error.message);

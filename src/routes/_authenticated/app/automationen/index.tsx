@@ -9,7 +9,10 @@ import {
   resetCircuitFn,
   installAutomationTemplateFn,
 } from "@/lib/commerce/automation/automation.functions";
-import { AUTOMATION_STATUS_LABELS, EXECUTION_STATUS_LABELS } from "@/lib/commerce/automation/automation.types";
+import {
+  AUTOMATION_STATUS_LABELS,
+  EXECUTION_STATUS_LABELS,
+} from "@/lib/commerce/automation/automation.types";
 import { AUTOMATION_TEMPLATES } from "@/lib/commerce/automation/templates";
 import { describeTrigger } from "@/lib/commerce/automation/summary";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
@@ -133,9 +136,17 @@ function AutomationOverview() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Aktive Automationen" value={data?.activeCount ?? 0} loading={inbox.isLoading} />
+        <StatCard
+          label="Aktive Automationen"
+          value={data?.activeCount ?? 0}
+          loading={inbox.isLoading}
+        />
         <StatCard label="Läufe (24 h)" value={data?.runs24h ?? 0} loading={inbox.isLoading} />
-        <StatCard label="Offene Aufgaben" value={data?.tasks.length ?? 0} loading={inbox.isLoading} />
+        <StatCard
+          label="Offene Aufgaben"
+          value={data?.tasks.length ?? 0}
+          loading={inbox.isLoading}
+        />
         <StatCard
           label="Fehlgeschlagene Läufe"
           value={data?.failures.length ?? 0}
@@ -200,7 +211,8 @@ function AutomationOverview() {
                       {rule.autoPausedAt && <Badge variant="destructive">Notbremse</Badge>}
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {describeTrigger(rule.triggerType, rule.triggerConfig)} · {rule.actionCount} Aktion
+                      {describeTrigger(rule.triggerType, rule.triggerConfig)} · {rule.actionCount}{" "}
+                      Aktion
                       {rule.actionCount === 1 ? "" : "en"}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -277,7 +289,8 @@ function AutomationOverview() {
                 <div className="min-w-0">
                   <p className="font-medium">{f.ruleName}</p>
                   <p className="text-muted-foreground">
-                    {EXECUTION_STATUS_LABELS[f.status as keyof typeof EXECUTION_STATUS_LABELS] ?? f.status}
+                    {EXECUTION_STATUS_LABELS[f.status as keyof typeof EXECUTION_STATUS_LABELS] ??
+                      f.status}
                     {f.error ? ` · ${f.error}` : ""}
                   </p>
                 </div>

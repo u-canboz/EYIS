@@ -43,7 +43,12 @@ export function describeTrigger(triggerType: string, config: Record<string, unkn
       pending_returns: "offene Retouren",
     };
     const label = kinds[kind] ?? "passende Datensätze";
-    const rhythm = every % 1440 === 0 ? `alle ${every / 1440} Tage` : every >= 60 ? `alle ${Math.round(every / 60)} Stunden` : `alle ${every} Minuten`;
+    const rhythm =
+      every % 1440 === 0
+        ? `alle ${every / 1440} Tage`
+        : every >= 60
+          ? `alle ${Math.round(every / 60)} Stunden`
+          : `alle ${every} Minuten`;
     return `Prüft ${rhythm} auf ${label}`;
   }
   return `Wenn „${eventLabel(String(config["eventType"] ?? ""))}“ passiert`;

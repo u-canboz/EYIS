@@ -18,8 +18,7 @@ export async function previewTaxCalculation(input: {
     loadTaxRates(input.organizationId),
     loadTaxClasses(input.organizationId),
   ]);
-  const fallback: TaxClassRef =
-    classes.find((c) => c.id === settings.defaultTaxClassId) ??
+  const fallback: TaxClassRef = classes.find((c) => c.id === settings.defaultTaxClassId) ??
     classes.find((c) => c.code === "standard") ?? { id: null, code: "standard", name: "Standard" };
   const shippingClass =
     (settings.shippingTaxClassId

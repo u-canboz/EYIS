@@ -28,7 +28,12 @@ export const listFulfillments = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<FulfillmentQueueItem[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.read",
+    );
     const { listFulfillmentQueue } = await import("./fulfillment.server");
     return await listFulfillmentQueue(data);
   });
@@ -36,20 +41,35 @@ export const listFulfillments = createServerFn({ method: "POST" })
 export const getFulfillment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: Org & { fulfillmentId: string }) => data)
-  .handler(async ({ data, context }): Promise<{ fulfillment: FulfillmentView; nextAction: NextAction }> => {
-    const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.read");
-    const { loadFulfillment, nextAction } = await import("./fulfillment.server");
-    const fulfillment = await loadFulfillment(data.organizationId, data.fulfillmentId);
-    return { fulfillment, nextAction: nextAction(fulfillment) };
-  });
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{ fulfillment: FulfillmentView; nextAction: NextAction }> => {
+      const { assertPermission } = await import("../core.server");
+      await assertPermission(
+        context.supabase,
+        context.userId,
+        data.organizationId,
+        "fulfillment.read",
+      );
+      const { loadFulfillment, nextAction } = await import("./fulfillment.server");
+      const fulfillment = await loadFulfillment(data.organizationId, data.fulfillmentId);
+      return { fulfillment, nextAction: nextAction(fulfillment) };
+    },
+  );
 
 export const getOrderFulfillments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: Org & { orderId: string }) => data)
   .handler(async ({ data, context }): Promise<FulfillmentView[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.read",
+    );
     const { loadOrderFulfillments } = await import("./fulfillment.server");
     return await loadOrderFulfillments(data.organizationId, data.orderId);
   });
@@ -59,7 +79,12 @@ export const getAllocationSuggestion = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { orderId: string }) => data)
   .handler(async ({ data, context }): Promise<AllocationSuggestion> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.manage",
+    );
     const { suggestAllocation } = await import("./fulfillment.server");
     return await suggestAllocation(data.organizationId, data.orderId);
   });
@@ -80,7 +105,12 @@ export const createFulfillmentFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.manage",
+    );
     const { createFulfillment } = await import("./fulfillment.server");
     return await createFulfillment({ ...data, actorId: context.userId });
   });
@@ -90,7 +120,12 @@ export const startPickingFn = createServerFn({ method: "POST" })
   .inputValidator((data: Org & { fulfillmentId: string; idempotencyKey?: string | null }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.pick");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.pick",
+    );
     const { startPicking } = await import("./fulfillment.server");
     return await startPicking({ ...data, actorId: context.userId });
   });
@@ -108,7 +143,12 @@ export const completePickingFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.pick");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.pick",
+    );
     const { completePicking } = await import("./fulfillment.server");
     return await completePicking({ ...data, actorId: context.userId });
   });
@@ -133,17 +173,31 @@ export const packFulfillmentFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.pack");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.pack",
+    );
     const { packFulfillment } = await import("./fulfillment.server");
     return await packFulfillment({ ...data, actorId: context.userId });
   });
 
 export const cancelFulfillmentFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { fulfillmentId: string; reason?: string | null; idempotencyKey?: string | null }) => data)
+  .inputValidator(
+    (
+      data: Org & { fulfillmentId: string; reason?: string | null; idempotencyKey?: string | null },
+    ) => data,
+  )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "fulfillment.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "fulfillment.manage",
+    );
     const { cancelFulfillment } = await import("./fulfillment.server");
     return await cancelFulfillment({ ...data, actorId: context.userId });
   });

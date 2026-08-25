@@ -175,8 +175,11 @@ function InventoryPage() {
   });
 
   const settingsMutation = useMutation({
-    mutationFn: (input: { inventoryItemId: string; trackInventory?: boolean; allowBackorder?: boolean }) =>
-      runSettings({ data: { organizationId, ...input } }),
+    mutationFn: (input: {
+      inventoryItemId: string;
+      trackInventory?: boolean;
+      allowBackorder?: boolean;
+    }) => runSettings({ data: { organizationId, ...input } }),
     onSuccess: () => {
       toast.success("Einstellung gespeichert.");
       invalidate();
@@ -195,7 +198,8 @@ function InventoryPage() {
   const parsedQuantity = Number(quantity);
   const consequence = (() => {
     if (!Number.isInteger(parsedQuantity)) return null;
-    if (mode === "receive") return `Commerce OS bucht: +${parsedQuantity} (physischer Bestand ${currentOnHand} → ${currentOnHand + parsedQuantity})`;
+    if (mode === "receive")
+      return `Commerce OS bucht: +${parsedQuantity} (physischer Bestand ${currentOnHand} → ${currentOnHand + parsedQuantity})`;
     if (mode === "adjust") {
       const delta = parsedQuantity - currentOnHand;
       return `Commerce OS bucht: ${delta >= 0 ? "+" : ""}${delta} (physischer Bestand ${currentOnHand} → ${parsedQuantity})`;
@@ -209,7 +213,8 @@ function InventoryPage() {
         <div>
           <h1 className="font-display text-2xl font-semibold">Lagerbestand</h1>
           <p className="text-muted-foreground text-sm">
-            Physischer Bestand abzüglich beschädigter Ware und Reservierungen ergibt die verfügbare Menge.
+            Physischer Bestand abzüglich beschädigter Ware und Reservierungen ergibt die verfügbare
+            Menge.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -274,7 +279,8 @@ function InventoryPage() {
         <div className="rounded-lg border border-dashed p-10 text-center">
           <p className="text-sm font-medium">Noch keine Bestandsdaten</p>
           <p className="text-muted-foreground mt-1 text-sm">
-            Öffne ein Produkt und aktiviere dort den Tab „Bestand“, oder buche direkt einen Wareneingang.
+            Öffne ein Produkt und aktiviere dort den Tab „Bestand“, oder buche direkt einen
+            Wareneingang.
           </p>
         </div>
       ) : (
@@ -316,13 +322,21 @@ function InventoryPage() {
                     )}
                   </td>
                   <td className="text-muted-foreground p-3">{row.sku ?? "—"}</td>
-                  <td className="p-3 text-right">{row.track_inventory ? row.totals.on_hand : "—"}</td>
-                  <td className="p-3 text-right">{row.track_inventory ? row.totals.damaged : "—"}</td>
-                  <td className="p-3 text-right">{row.track_inventory ? row.totals.reserved : "—"}</td>
+                  <td className="p-3 text-right">
+                    {row.track_inventory ? row.totals.on_hand : "—"}
+                  </td>
+                  <td className="p-3 text-right">
+                    {row.track_inventory ? row.totals.damaged : "—"}
+                  </td>
+                  <td className="p-3 text-right">
+                    {row.track_inventory ? row.totals.reserved : "—"}
+                  </td>
                   <td className="p-3 text-right font-medium">
                     {row.track_inventory ? row.available : "∞"}
                   </td>
-                  <td className="p-3 text-right">{row.track_inventory ? row.totals.incoming : "—"}</td>
+                  <td className="p-3 text-right">
+                    {row.track_inventory ? row.totals.incoming : "—"}
+                  </td>
                   <td className="p-3">
                     <Badge
                       variant={
@@ -470,7 +484,9 @@ function InventoryPage() {
             </div>
 
             {consequence && (
-              <p className="border-primary/40 bg-primary/5 rounded-md border p-3 text-sm">{consequence}</p>
+              <p className="border-primary/40 bg-primary/5 rounded-md border p-3 text-sm">
+                {consequence}
+              </p>
             )}
 
             <div className="flex justify-end gap-2">

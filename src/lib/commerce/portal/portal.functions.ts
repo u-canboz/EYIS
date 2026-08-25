@@ -30,7 +30,8 @@ export const linkMyOrdersFn = createServerFn({ method: "POST" })
 async function assertOwnedOrder(userId: string, orderId: string) {
   const { ownedOrderIds } = await import("./portal.server");
   const { orderIds } = await ownedOrderIds(userId);
-  if (!orderIds.includes(orderId)) throw new Error("Diese Bestellung gehört nicht zu deinem Konto.");
+  if (!orderIds.includes(orderId))
+    throw new Error("Diese Bestellung gehört nicht zu deinem Konto.");
 }
 
 export const getPortalOrderFn = createServerFn({ method: "POST" })
@@ -45,7 +46,11 @@ export const getPortalOrderFn = createServerFn({ method: "POST" })
 export const getPortalDocumentUrlFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { orderId: string; documentId: string; kind: "invoice" | "credit_note" | "delivery_note" }) => data,
+    (data: {
+      orderId: string;
+      documentId: string;
+      kind: "invoice" | "credit_note" | "delivery_note";
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     await assertOwnedOrder(context.userId, data.orderId);
@@ -93,7 +98,9 @@ export const createPortalReturnFn = createServerFn({ method: "POST" })
       .maybeSingle();
     const status = (customer as { status?: string } | null)?.status;
     if (status === "blocked") {
-      throw new Error("Für dieses Konto sind neue Retouren gesperrt. Bitte wende dich an den Support.");
+      throw new Error(
+        "Für dieses Konto sind neue Retouren gesperrt. Bitte wende dich an den Support.",
+      );
     }
     const { requestReturn } = await import("../returns/return.server");
     return await requestReturn({
@@ -143,7 +150,12 @@ export const requestGuestAccessFn = createServerFn({ method: "POST" })
       .select("id, organization_id, shop_id, email")
       .eq("order_number", data.orderNumber.trim())
       .maybeSingle();
-    const row = order as { id: string; organization_id: string; shop_id: string; email: string | null } | null;
+    const row = order as {
+      id: string;
+      organization_id: string;
+      shop_id: string;
+      email: string | null;
+    } | null;
     if (!row || (row.email ?? "").toLowerCase() !== data.email.trim().toLowerCase()) {
       return { token: null as string | null };
     }
@@ -174,7 +186,11 @@ export const getGuestOrderFn = createServerFn({ method: "POST" })
 
 export const getGuestDocumentUrlFn = createServerFn({ method: "POST" })
   .inputValidator(
-    (data: { token: string; documentId: string; kind: "invoice" | "credit_note" | "delivery_note" }) => data,
+    (data: {
+      token: string;
+      documentId: string;
+      kind: "invoice" | "credit_note" | "delivery_note";
+    }) => data,
   )
   .handler(async ({ data }) => {
     const access = await resolveGuest(data.token);

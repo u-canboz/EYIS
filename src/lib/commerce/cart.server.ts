@@ -49,7 +49,11 @@ const CART_TTL_DAYS = 30;
 
 export { generateToken, hashToken };
 
-export async function loadCartAuthorized(cartId: string, token: string | null, customerId?: string | null) {
+export async function loadCartAuthorized(
+  cartId: string,
+  token: string | null,
+  customerId?: string | null,
+) {
   const admin = await getAdmin();
   const { data, error } = await admin
     .from("carts")
@@ -70,7 +74,10 @@ export async function loadCartAuthorized(cartId: string, token: string | null, c
   }
   if (!byCustomer && !byToken) throw new Error("Kein Zugriff auf diesen Warenkorb.");
 
-  if (cart.status === "expired" || (cart.status === "active" && Date.parse(cart.expires_at) <= Date.now())) {
+  if (
+    cart.status === "expired" ||
+    (cart.status === "active" && Date.parse(cart.expires_at) <= Date.now())
+  ) {
     if (cart.status !== "expired") {
       await admin.from("carts").update({ status: "expired" }).eq("id", cart.id);
       cart.status = "expired";
@@ -81,8 +88,11 @@ export async function loadCartAuthorized(cartId: string, token: string | null, c
 
 export function assertMutable(cart: CartRow) {
   if (cart.status === "checkout")
-    throw new Error("Der Warenkorb ist im Checkout gesperrt. Bitte den Checkout abbrechen, um ihn zu ändern.");
-  if (cart.status !== "active") throw new Error(`Der Warenkorb ist nicht änderbar (Status: ${cart.status}).`);
+    throw new Error(
+      "Der Warenkorb ist im Checkout gesperrt. Bitte den Checkout abbrechen, um ihn zu ändern.",
+    );
+  if (cart.status !== "active")
+    throw new Error(`Der Warenkorb ist nicht änderbar (Status: ${cart.status}).`);
 }
 
 export async function createCart(args: {
@@ -150,10 +160,9 @@ export async function getAvailability(organizationId: string, shopId: string, va
     .eq("organization_id", organizationId)
     .eq("shop_id", shopId)
     .eq("inventory_item_id", row.id);
-  const available = ((levels ?? []) as { on_hand: number; reserved: number; damaged: number }[]).reduce(
-    (sum, l) => sum + (l.on_hand - l.damaged - l.reserved),
-    0,
-  );
+  const available = (
+    (levels ?? []) as { on_hand: number; reserved: number; damaged: number }[]
+  ).reduce((sum, l) => sum + (l.on_hand - l.damaged - l.reserved), 0);
   return { tracked: true, available: Math.max(0, available), allowBackorder: row.allow_backorder };
 }
 
@@ -171,11 +180,17 @@ export async function assertAvailable(
 }
 
 /** Loads product + variant data and builds the immutable line snapshot fields. */
-export async function loadVariantSnapshot(organizationId: string, shopId: string, variantId: string) {
+export async function loadVariantSnapshot(
+  organizationId: string,
+  shopId: string,
+  variantId: string,
+) {
   const admin = await getAdmin();
   const { data, error } = await admin
     .from("product_variants")
-    .select("id, title, sku, status, product_id, organization_id, products(id, name, shop_id, status)")
+    .select(
+      "id, title, sku, status, product_id, organization_id, products(id, name, shop_id, status)",
+    )
     .eq("id", variantId)
     .eq("organization_id", organizationId)
     .maybeSingle();
@@ -189,7 +204,8 @@ export async function loadVariantSnapshot(organizationId: string, shopId: string
     product_id: string;
     products: { id: string; name: string; shop_id: string; status: string } | null;
   };
-  if (!v.products || v.products.shop_id !== shopId) throw new Error("Variante gehört nicht zu diesem Shop.");
+  if (!v.products || v.products.shop_id !== shopId)
+    throw new Error("Variante gehört nicht zu diesem Shop.");
   if (v.products.status !== "active") throw new Error("Produkt ist nicht verkäuflich.");
   if (v.status !== "active") throw new Error("Variante ist nicht verkäuflich.");
 
@@ -200,8 +216,8 @@ export async function loadVariantSnapshot(organizationId: string, shopId: string
     .order("position", { ascending: true })
     .limit(1);
   const image =
-    ((media ?? [])[0] as unknown as { media_assets: { storage_path: string } | null } | undefined)?.media_assets
-      ?.storage_path ?? null;
+    ((media ?? [])[0] as unknown as { media_assets: { storage_path: string } | null } | undefined)
+      ?.media_assets?.storage_path ?? null;
 
   return {
     productId: v.product_id,
@@ -223,11 +239,11 @@ async function loadPromotions(organizationId: string, shopId: string): Promise<P
     .eq("status", "active");
   return ((data ?? []) as Record<string, unknown>[]).map((p) => ({
     ...(p as object),
-    value: Number(p['value']),
-    conditions: Array.isArray(p['conditions']) ? p['conditions'] : [],
-    actions: Array.isArray(p['actions']) ? p['actions'] : [],
-    usageLimit: p['usage_limit'] as number | null,
-    usageLimitPerCustomer: p['usage_limit_per_customer'] as number | null,
+    value: Number(p["value"]),
+    conditions: Array.isArray(p["conditions"]) ? p["conditions"] : [],
+    actions: Array.isArray(p["actions"]) ? p["actions"] : [],
+    usageLimit: p["usage_limit"] as number | null,
+    usageLimitPerCustomer: p["usage_limit_per_customer"] as number | null,
   })) as unknown as PromotionRow[];
 }
 
@@ -235,7 +251,9 @@ export async function loadItems(cartId: string): Promise<ItemRow[]> {
   const admin = await getAdmin();
   const { data, error } = await admin
     .from("cart_items")
-    .select("id, product_id, variant_id, quantity, title_snapshot, variant_title_snapshot, sku_snapshot, image_snapshot")
+    .select(
+      "id, product_id, variant_id, quantity, title_snapshot, variant_title_snapshot, sku_snapshot, image_snapshot",
+    )
     .eq("cart_id", cartId)
     .order("created_at", { ascending: true });
   if (error) throw new Error(error.message);
@@ -244,7 +262,10 @@ export async function loadItems(cartId: string): Promise<ItemRow[]> {
 
 export async function loadPromotionCodes(cartId: string) {
   const admin = await getAdmin();
-  const { data } = await admin.from("cart_promotion_codes").select("code_snapshot").eq("cart_id", cartId);
+  const { data } = await admin
+    .from("cart_promotion_codes")
+    .select("code_snapshot")
+    .eq("cart_id", cartId);
   return ((data ?? []) as { code_snapshot: string }[]).map((r) => r.code_snapshot);
 }
 
@@ -305,7 +326,8 @@ export async function repriceCart(cart: CartRow, options: RepriceOptions = {}) {
     });
   }
 
-  let shipping: { methodId: string; amountMinor: number; freeAboveMinor: number | null } | null = null;
+  let shipping: { methodId: string; amountMinor: number; freeAboveMinor: number | null } | null =
+    null;
   if (options.shippingMethodId) {
     const { data: method } = await admin
       .from("shipping_methods")
@@ -313,17 +335,15 @@ export async function repriceCart(cart: CartRow, options: RepriceOptions = {}) {
       .eq("id", options.shippingMethodId)
       .eq("organization_id", cart.organization_id)
       .maybeSingle();
-    const m = method as
-      | {
-          id: string;
-          amount_minor: number;
-          pricing_type: string;
-          free_above_minor: number | null;
-          currency_code: string;
-          status: string;
-          shop_id: string;
-        }
-      | null;
+    const m = method as {
+      id: string;
+      amount_minor: number;
+      pricing_type: string;
+      free_above_minor: number | null;
+      currency_code: string;
+      status: string;
+      shop_id: string;
+    } | null;
     if (m && m.shop_id === cart.shop_id && m.status === "active") {
       shipping = {
         methodId: m.id,
@@ -389,7 +409,13 @@ export async function repriceCart(cart: CartRow, options: RepriceOptions = {}) {
   let version = 0;
   let snapshotId: string | null = null;
   if (options.persist !== false) {
-    const written = await writeSnapshot(cart, calculation, codes, options.shippingMethodId ?? null, tax);
+    const written = await writeSnapshot(
+      cart,
+      calculation,
+      codes,
+      options.shippingMethodId ?? null,
+      tax,
+    );
     version = written.version;
     snapshotId = written.id;
   }
@@ -482,7 +508,10 @@ export async function writeSnapshot(
   return snapshot;
 }
 
-export async function buildCartView(cart: CartRow, options: RepriceOptions = {}): Promise<CartView> {
+export async function buildCartView(
+  cart: CartRow,
+  options: RepriceOptions = {},
+): Promise<CartView> {
   const { calculation, items, codes, warnings, version, tax } = await repriceCart(cart, options);
   const byLine = new Map(calculation.lines.map((l) => [l.lineId, l]));
   const viewItems: CartItemView[] = items.map((item) => {

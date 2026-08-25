@@ -2,9 +2,19 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { listProductPricing, savePrice, deletePrice, resolvePrice } from "@/lib/commerce/pricing.functions";
+import {
+  listProductPricing,
+  savePrice,
+  deletePrice,
+  resolvePrice,
+} from "@/lib/commerce/pricing.functions";
 import { listCustomerGroups } from "@/lib/commerce/customer-groups.functions";
-import { formatMoney, minorToInput, parseMoneyToMinor, PRICE_TYPE_LABELS } from "@/lib/commerce/money";
+import {
+  formatMoney,
+  minorToInput,
+  parseMoneyToMinor,
+  PRICE_TYPE_LABELS,
+} from "@/lib/commerce/money";
 import type { PricingResult, PriceType } from "@/lib/commerce/pricing-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,7 +180,9 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
                 {prices.map((price) => (
                   <tr key={price.id} className="border-b">
                     <td className="py-2">
-                      <Badge variant="secondary">{PRICE_TYPE_LABELS[price.type] ?? price.type}</Badge>
+                      <Badge variant="secondary">
+                        {PRICE_TYPE_LABELS[price.type] ?? price.type}
+                      </Badge>
                     </td>
                     <td className="py-2 text-muted-foreground">
                       {price.variant_id
@@ -189,7 +201,9 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
                     <td className="py-2 text-xs text-muted-foreground">
                       {price.starts_at || price.ends_at
                         ? `${price.starts_at ? new Date(price.starts_at).toLocaleDateString("de-DE") : "…"} – ${
-                            price.ends_at ? new Date(price.ends_at).toLocaleDateString("de-DE") : "…"
+                            price.ends_at
+                              ? new Date(price.ends_at).toLocaleDateString("de-DE")
+                              : "…"
                           }`
                         : "dauerhaft"}
                     </td>

@@ -22,7 +22,12 @@ export const listTemplatesFn = createServerFn({ method: "POST" })
   .inputValidator((data: Scope) => data)
   .handler(async ({ data, context }): Promise<TemplateListItem[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { listTemplates, ensureShopDefaults } = await import("./studio.server");
     await ensureShopDefaults(data.organizationId, data.shopId);
     return await listTemplates(data);
@@ -33,7 +38,12 @@ export const getTemplateFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string; templateId: string }) => data)
   .handler(async ({ data, context }): Promise<TemplateDetail> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { loadTemplate } = await import("./studio.server");
     return await loadTemplate(data.organizationId, data.templateId);
   });
@@ -43,7 +53,12 @@ export const forkTemplateFn = createServerFn({ method: "POST" })
   .inputValidator((data: Scope & { templateId: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.manage",
+    );
     const { forkTemplate } = await import("./studio.server");
     return await forkTemplate({
       organizationId: data.organizationId,
@@ -67,7 +82,12 @@ export const saveTemplateDraftFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.manage",
+    );
     const { saveDraftVersion } = await import("./studio.server");
     return await saveDraftVersion({ ...data, actorId: context.userId });
   });
@@ -77,7 +97,12 @@ export const publishTemplateVersionFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string; templateId: string; versionId: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.manage",
+    );
     const { publishVersion } = await import("./studio.server");
     return await publishVersion({ ...data, actorId: context.userId });
   });
@@ -89,7 +114,12 @@ export const setTemplateStatusFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.manage",
+    );
     const { setTemplateStatus } = await import("./studio.server");
     return await setTemplateStatus({ ...data, actorId: context.userId });
   });
@@ -97,17 +127,24 @@ export const setTemplateStatusFn = createServerFn({ method: "POST" })
 export const previewTemplateFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Scope & {
-      templateKey?: string;
-      subject?: string;
-      preheader?: string | null;
-      blocks?: Block[];
-      orderId?: string | null;
-    }) => data,
+    (
+      data: Scope & {
+        templateKey?: string;
+        subject?: string;
+        preheader?: string | null;
+        blocks?: Block[];
+        orderId?: string | null;
+      },
+    ) => data,
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { previewTemplate } = await import("./communication.server");
     return await previewTemplate(data);
   });
@@ -134,18 +171,25 @@ export const sendTestCommunicationFn = createServerFn({ method: "POST" })
 export const listCommunicationsFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Scope & {
-      status?: string | null;
-      templateKey?: string | null;
-      search?: string | null;
-      orderId?: string | null;
-      customerId?: string | null;
-      limit?: number;
-    }) => data,
+    (
+      data: Scope & {
+        status?: string | null;
+        templateKey?: string | null;
+        search?: string | null;
+        orderId?: string | null;
+        customerId?: string | null;
+        limit?: number;
+      },
+    ) => data,
   )
   .handler(async ({ data, context }): Promise<CommunicationListItem[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { listCommunications } = await import("./communication.server");
     return await listCommunications(data);
   });
@@ -155,7 +199,12 @@ export const getCommunicationFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string; communicationId: string }) => data)
   .handler(async ({ data, context }): Promise<CommunicationDetail> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { loadCommunication } = await import("./communication.server");
     return await loadCommunication(data.organizationId, data.communicationId);
   });
@@ -163,12 +212,20 @@ export const getCommunicationFn = createServerFn({ method: "POST" })
 export const resendCommunicationFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { organizationId: string; communicationId: string; recipientOverride?: string | null }) =>
-      data,
+    (data: {
+      organizationId: string;
+      communicationId: string;
+      recipientOverride?: string | null;
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.manage",
+    );
     const { resendCommunication } = await import("./communication.server");
     return await resendCommunication({ ...data, actorId: context.userId });
   });
@@ -180,7 +237,12 @@ export const listRulesFn = createServerFn({ method: "POST" })
   .inputValidator((data: Scope) => data)
   .handler(async ({ data, context }): Promise<RuleRow[]> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { listRules, ensureShopDefaults } = await import("./studio.server");
     await ensureShopDefaults(data.organizationId, data.shopId);
     return await listRules(data.organizationId, data.shopId);
@@ -194,7 +256,12 @@ export const updateRuleFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.settings",
+    );
     const { updateRule } = await import("./studio.server");
     return await updateRule({ ...data, actorId: context.userId });
   });
@@ -204,7 +271,12 @@ export const getBrandingFn = createServerFn({ method: "POST" })
   .inputValidator((data: Scope) => data)
   .handler(async ({ data, context }): Promise<BrandingSettings> => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { loadBrandingSettings, ensureShopDefaults } = await import("./studio.server");
     await ensureShopDefaults(data.organizationId, data.shopId);
     return await loadBrandingSettings(data.organizationId, data.shopId);
@@ -215,7 +287,12 @@ export const saveBrandingFn = createServerFn({ method: "POST" })
   .inputValidator((data: Scope & { settings: BrandingSettings }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.settings",
+    );
     const { saveBrandingSettings } = await import("./studio.server");
     return await saveBrandingSettings({ ...data, actorId: context.userId });
   });
@@ -233,10 +310,14 @@ export const listProvidersFn = createServerFn({ method: "POST" })
       senders: SenderIdentityRow[];
     }> => {
       const { assertPermission } = await import("../core.server");
-      await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
-      const { listProviderConfigs, listSenderIdentities, ensureShopDefaults } = await import(
-        "./studio.server"
+      await assertPermission(
+        context.supabase,
+        context.userId,
+        data.organizationId,
+        "communications.read",
       );
+      const { listProviderConfigs, listSenderIdentities, ensureShopDefaults } =
+        await import("./studio.server");
       const { AVAILABLE_PROVIDERS } = await import("./registry.server");
       await ensureShopDefaults(data.organizationId, data.shopId);
       return {
@@ -254,17 +335,24 @@ export const listProvidersFn = createServerFn({ method: "POST" })
 export const saveProviderFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Scope & {
-      provider: string;
-      displayName: string;
-      status: "active" | "inactive";
-      testMode: boolean;
-      priority: number;
-    }) => data,
+    (
+      data: Scope & {
+        provider: string;
+        displayName: string;
+        status: "active" | "inactive";
+        testMode: boolean;
+        priority: number;
+      },
+    ) => data,
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.settings",
+    );
     const { upsertProviderConfig } = await import("./studio.server");
     return await upsertProviderConfig({ ...data, actorId: context.userId });
   });
@@ -272,18 +360,25 @@ export const saveProviderFn = createServerFn({ method: "POST" })
 export const saveSenderIdentityFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Scope & {
-      id?: string | null;
-      displayName: string;
-      senderName: string;
-      senderAddress: string;
-      replyTo: string | null;
-      isDefault: boolean;
-    }) => data,
+    (
+      data: Scope & {
+        id?: string | null;
+        displayName: string;
+        senderName: string;
+        senderAddress: string;
+        replyTo: string | null;
+        isDefault: boolean;
+      },
+    ) => data,
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.settings",
+    );
     const { saveSenderIdentity } = await import("./studio.server");
     return await saveSenderIdentity({ ...data, actorId: context.userId });
   });
@@ -293,7 +388,12 @@ export const listSuppressionsFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.read",
+    );
     const { listSuppressions } = await import("./studio.server");
     return await listSuppressions(data.organizationId);
   });
@@ -303,7 +403,12 @@ export const removeSuppressionFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string; suppressionId: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.settings");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.settings",
+    );
     const { removeSuppression } = await import("./studio.server");
     return await removeSuppression({ ...data, actorId: context.userId });
   });
@@ -313,7 +418,12 @@ export const processCommunicationQueueFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "communications.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.manage",
+    );
     const { processQueue } = await import("./communication.server");
     return await processQueue(50);
   });

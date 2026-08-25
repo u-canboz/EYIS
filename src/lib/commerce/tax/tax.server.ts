@@ -33,11 +33,18 @@ export type TaxSettings = {
   vatId: string | null;
 };
 
-export type TaxClassRow = TaxClassRef & { id: string; isSystem: boolean; organizationId: string | null };
+export type TaxClassRow = TaxClassRef & {
+  id: string;
+  isSystem: boolean;
+  organizationId: string | null;
+};
 
 const FALLBACK_CLASS: TaxClassRef = { id: null, code: "standard", name: "Standard" };
 
-export async function loadTaxSettings(organizationId: string, shopId: string): Promise<TaxSettings> {
+export async function loadTaxSettings(
+  organizationId: string,
+  shopId: string,
+): Promise<TaxSettings> {
   const admin = await getAdmin();
   const { data } = await admin
     .from("tax_settings")
@@ -66,21 +73,21 @@ export async function loadTaxSettings(organizationId: string, shopId: string): P
     };
   }
   return {
-    id: r['id'] as string,
+    id: r["id"] as string,
     organizationId,
     shopId,
-    calculationMode: r['calculation_mode'] as TaxCalculationMode,
-    homeCountryCode: (r['home_country_code'] as string) ?? "DE",
-    defaultTaxClassId: (r['default_tax_class_id'] as string) ?? null,
-    pricesIncludeTax: r['prices_include_tax'] as boolean,
-    displayPricesIncludingTax: r['display_prices_including_tax'] as boolean,
-    shippingTaxStrategy: r['shipping_tax_strategy'] as ShippingTaxStrategy,
-    shippingTaxClassId: (r['shipping_tax_class_id'] as string) ?? null,
-    b2bEnabled: r['b2b_enabled'] as boolean,
-    euOssEnabled: r['eu_oss_enabled'] as boolean,
-    smallBusinessExemptionEnabled: r['small_business_exemption_enabled'] as boolean,
-    taxNumber: (r['tax_number'] as string) ?? null,
-    vatId: (r['vat_id'] as string) ?? null,
+    calculationMode: r["calculation_mode"] as TaxCalculationMode,
+    homeCountryCode: (r["home_country_code"] as string) ?? "DE",
+    defaultTaxClassId: (r["default_tax_class_id"] as string) ?? null,
+    pricesIncludeTax: r["prices_include_tax"] as boolean,
+    displayPricesIncludingTax: r["display_prices_including_tax"] as boolean,
+    shippingTaxStrategy: r["shipping_tax_strategy"] as ShippingTaxStrategy,
+    shippingTaxClassId: (r["shipping_tax_class_id"] as string) ?? null,
+    b2bEnabled: r["b2b_enabled"] as boolean,
+    euOssEnabled: r["eu_oss_enabled"] as boolean,
+    smallBusinessExemptionEnabled: r["small_business_exemption_enabled"] as boolean,
+    taxNumber: (r["tax_number"] as string) ?? null,
+    vatId: (r["vat_id"] as string) ?? null,
   };
 }
 
@@ -92,11 +99,11 @@ export async function loadTaxClasses(organizationId: string): Promise<TaxClassRo
     .or(`organization_id.is.null,organization_id.eq.${organizationId}`)
     .eq("status", "active");
   return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
-    id: r['id'] as string,
-    code: r['code'] as string,
-    name: r['name'] as string,
-    isSystem: r['is_system'] as boolean,
-    organizationId: (r['organization_id'] as string) ?? null,
+    id: r["id"] as string,
+    code: r["code"] as string,
+    name: r["name"] as string,
+    isSystem: r["is_system"] as boolean,
+    organizationId: (r["organization_id"] as string) ?? null,
   }));
 }
 
@@ -110,17 +117,17 @@ export async function loadTaxRates(organizationId: string): Promise<TaxRateRule[
     .or(`organization_id.is.null,organization_id.eq.${organizationId}`)
     .eq("status", "active");
   return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
-    id: r['id'] as string,
-    organizationId: (r['organization_id'] as string) ?? null,
-    taxClassId: r['tax_class_id'] as string,
-    countryCode: r['country_code'] as string,
-    regionCode: (r['region_code'] as string) ?? null,
-    rateBasisPoints: Number(r['rate_basis_points']),
-    customerType: r['customer_type'] as TaxRateRule["customerType"],
-    transactionType: r['transaction_type'] as string,
-    priority: Number(r['priority']),
-    validFrom: r['valid_from'] as string,
-    validUntil: (r['valid_until'] as string) ?? null,
+    id: r["id"] as string,
+    organizationId: (r["organization_id"] as string) ?? null,
+    taxClassId: r["tax_class_id"] as string,
+    countryCode: r["country_code"] as string,
+    regionCode: (r["region_code"] as string) ?? null,
+    rateBasisPoints: Number(r["rate_basis_points"]),
+    customerType: r["customer_type"] as TaxRateRule["customerType"],
+    transactionType: r["transaction_type"] as string,
+    priority: Number(r["priority"]),
+    validFrom: r["valid_from"] as string,
+    validUntil: (r["valid_until"] as string) ?? null,
   }));
 }
 
@@ -134,10 +141,14 @@ export async function resolveLineTaxClasses(
   const admin = await getAdmin();
   const cfg = settings ?? (await loadTaxSettings(organizationId, shopId));
   const classes = await loadTaxClasses(organizationId);
-  const byId = new Map(classes.map((c) => [c.id, { id: c.id, code: c.code, name: c.name } as TaxClassRef]));
+  const byId = new Map(
+    classes.map((c) => [c.id, { id: c.id, code: c.code, name: c.name } as TaxClassRef]),
+  );
   const fallback =
     (cfg.defaultTaxClassId ? byId.get(cfg.defaultTaxClassId) : undefined) ??
-    classes.filter((c) => c.code === "standard").map((c) => ({ id: c.id, code: c.code, name: c.name }))[0] ??
+    classes
+      .filter((c) => c.code === "standard")
+      .map((c) => ({ id: c.id, code: c.code, name: c.name }))[0] ??
     FALLBACK_CLASS;
 
   const productIds = [...new Set(refs.map((r) => r.productId))];
@@ -148,20 +159,25 @@ export async function resolveLineTaxClasses(
   if (productIds.length) {
     const { data } = await admin.from("products").select("id, tax_class_id").in("id", productIds);
     for (const r of (data ?? []) as Record<string, unknown>[]) {
-      productClass.set(r['id'] as string, (r['tax_class_id'] as string) ?? null);
+      productClass.set(r["id"] as string, (r["tax_class_id"] as string) ?? null);
     }
   }
   if (variantIds.length) {
-    const { data } = await admin.from("product_variants").select("id, tax_class_id").in("id", variantIds);
+    const { data } = await admin
+      .from("product_variants")
+      .select("id, tax_class_id")
+      .in("id", variantIds);
     for (const r of (data ?? []) as Record<string, unknown>[]) {
-      variantClass.set(r['id'] as string, (r['tax_class_id'] as string) ?? null);
+      variantClass.set(r["id"] as string, (r["tax_class_id"] as string) ?? null);
     }
   }
 
   const out = new Map<string, TaxClassRef>();
   for (const ref of refs) {
     const id =
-      (ref.variantId ? variantClass.get(ref.variantId) : null) ?? productClass.get(ref.productId) ?? null;
+      (ref.variantId ? variantClass.get(ref.variantId) : null) ??
+      productClass.get(ref.productId) ??
+      null;
     out.set(ref.lineId, (id ? byId.get(id) : undefined) ?? fallback);
   }
   return out;
@@ -176,11 +192,19 @@ export type CartTaxInput = {
   customerType: "consumer" | "business";
   vatIdValid: boolean;
   shippingMinor: number;
-  lines: { lineId: string; productId: string; variantId: string; quantity: number; lineTotalMinor: number }[];
+  lines: {
+    lineId: string;
+    productId: string;
+    variantId: string;
+    quantity: number;
+    lineTotalMinor: number;
+  }[];
 };
 
 /** Loads everything the engine needs and calculates the tax for a cart. */
-export async function computeCartTax(input: CartTaxInput): Promise<{ result: TaxResult; settings: TaxSettings }> {
+export async function computeCartTax(
+  input: CartTaxInput,
+): Promise<{ result: TaxResult; settings: TaxSettings }> {
   const settings = await loadTaxSettings(input.organizationId, input.shopId);
   const [rates, classes, classByLine] = await Promise.all([
     loadTaxRates(input.organizationId),
@@ -188,7 +212,11 @@ export async function computeCartTax(input: CartTaxInput): Promise<{ result: Tax
     resolveLineTaxClasses(
       input.organizationId,
       input.shopId,
-      input.lines.map((l) => ({ lineId: l.lineId, productId: l.productId, variantId: l.variantId })),
+      input.lines.map((l) => ({
+        lineId: l.lineId,
+        productId: l.productId,
+        variantId: l.variantId,
+      })),
       settings,
     ),
   ]);
@@ -212,7 +240,9 @@ export async function computeCartTax(input: CartTaxInput): Promise<{ result: Tax
     smallBusinessExemption: settings.smallBusinessExemptionEnabled,
     shippingMinor: input.shippingMinor,
     shippingTaxStrategy: settings.shippingTaxStrategy,
-    shippingTaxClass: shippingClass ? { id: shippingClass.id, code: shippingClass.code, name: shippingClass.name } : null,
+    shippingTaxClass: shippingClass
+      ? { id: shippingClass.id, code: shippingClass.code, name: shippingClass.name }
+      : null,
     lines: input.lines.map((l) => ({
       lineId: l.lineId,
       variantId: l.variantId,

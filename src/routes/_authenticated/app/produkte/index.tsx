@@ -296,7 +296,12 @@ function ProductsPage() {
 
       {total > pageSize && (
         <div className="flex items-center justify-between">
-          <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
             Zurück
           </Button>
           <span className="text-sm text-muted-foreground">

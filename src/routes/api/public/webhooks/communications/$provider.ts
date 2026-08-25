@@ -13,9 +13,8 @@ export const Route = createFileRoute("/api/public/webhooks/communications/$provi
         const body = await request.text();
 
         const { getProvider } = await import("@/lib/commerce/communications/registry.server");
-        const { ingestProviderEvent } = await import(
-          "@/lib/commerce/communications/communication.server"
-        );
+        const { ingestProviderEvent } =
+          await import("@/lib/commerce/communications/communication.server");
 
         const provider = getProvider(providerKey);
         if (provider.key !== providerKey || !provider.parseWebhook) {

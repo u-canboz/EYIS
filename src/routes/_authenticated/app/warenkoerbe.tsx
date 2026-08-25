@@ -3,7 +3,11 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { listCarts, getCartDetail, expireCheckoutSessions } from "@/lib/commerce/carts-admin.functions";
+import {
+  listCarts,
+  getCartDetail,
+  expireCheckoutSessions,
+} from "@/lib/commerce/carts-admin.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { formatMoney } from "@/lib/commerce/money";
 import type { CartStatus } from "@/lib/commerce/cart-types";
@@ -12,7 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/app/warenkoerbe")({
   head: () => ({
@@ -86,11 +96,16 @@ function CartsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Warenkörbe & Checkouts</h1>
           <p className="text-muted-foreground text-sm">
-            Jeder Warenkorb hat unveränderbare, versionierte Preis-Snapshots inklusive Engine-Version.
+            Jeder Warenkorb hat unveränderbare, versionierte Preis-Snapshots inklusive
+            Engine-Version.
           </p>
         </div>
         {can("checkout.manage") && (
-          <Button variant="outline" onClick={() => expireMutation.mutate()} disabled={expireMutation.isPending}>
+          <Button
+            variant="outline"
+            onClick={() => expireMutation.mutate()}
+            disabled={expireMutation.isPending}
+          >
             Abgelaufene Sitzungen aufräumen
           </Button>
         )}
@@ -183,11 +198,11 @@ function CartsPage() {
                 <h3 className="mb-2 font-medium">Positionen</h3>
                 <ul className="space-y-1">
                   {(cartDetail.data.items as Record<string, unknown>[]).map((i) => (
-                    <li key={i['id'] as string} className="flex justify-between">
+                    <li key={i["id"] as string} className="flex justify-between">
                       <span>
-                        {i['title_snapshot'] as string} · {i['variant_title_snapshot'] as string}
+                        {i["title_snapshot"] as string} · {i["variant_title_snapshot"] as string}
                       </span>
-                      <span className="text-muted-foreground">× {i['quantity'] as number}</span>
+                      <span className="text-muted-foreground">× {i["quantity"] as number}</span>
                     </li>
                   ))}
                   {!(cartDetail.data.items as unknown[]).length && (
@@ -213,14 +228,18 @@ function CartsPage() {
                     </thead>
                     <tbody>
                       {(cartDetail.data.snapshots as Record<string, unknown>[]).map((s) => (
-                        <tr key={s['id'] as string} className="border-t">
-                          <td className="p-2">v{s['version'] as number}</td>
-                          <td className="p-2">{formatMoney(Number(s['subtotal_minor']))}</td>
-                          <td className="p-2">−{formatMoney(Number(s['discount_minor']))}</td>
-                          <td className="p-2">{formatMoney(Number(s['shipping_minor']))}</td>
-                          <td className="p-2">{formatMoney(Number(s['tax_minor']))}</td>
-                          <td className="p-2 font-medium">{formatMoney(Number(s['total_minor']))}</td>
-                          <td className="text-muted-foreground p-2">{s['pricing_engine_version'] as string}</td>
+                        <tr key={s["id"] as string} className="border-t">
+                          <td className="p-2">v{s["version"] as number}</td>
+                          <td className="p-2">{formatMoney(Number(s["subtotal_minor"]))}</td>
+                          <td className="p-2">−{formatMoney(Number(s["discount_minor"]))}</td>
+                          <td className="p-2">{formatMoney(Number(s["shipping_minor"]))}</td>
+                          <td className="p-2">{formatMoney(Number(s["tax_minor"]))}</td>
+                          <td className="p-2 font-medium">
+                            {formatMoney(Number(s["total_minor"]))}
+                          </td>
+                          <td className="text-muted-foreground p-2">
+                            {s["pricing_engine_version"] as string}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -232,11 +251,11 @@ function CartsPage() {
                 <h3 className="mb-2 font-medium">Checkout-Sitzungen</h3>
                 <ul className="space-y-1">
                   {(cartDetail.data.sessions as Record<string, unknown>[]).map((s) => (
-                    <li key={s['id'] as string} className="flex justify-between">
-                      <span className="font-mono text-xs">{(s['id'] as string).slice(0, 8)}…</span>
+                    <li key={s["id"] as string} className="flex justify-between">
+                      <span className="font-mono text-xs">{(s["id"] as string).slice(0, 8)}…</span>
                       <span>
-                        {s['status'] as string} · gültig bis{" "}
-                        {new Date(s['expires_at'] as string).toLocaleString("de-DE")}
+                        {s["status"] as string} · gültig bis{" "}
+                        {new Date(s["expires_at"] as string).toLocaleString("de-DE")}
                       </span>
                     </li>
                   ))}

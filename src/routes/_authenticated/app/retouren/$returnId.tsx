@@ -35,14 +35,23 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/_authenticated/app/retouren/$returnId")({
   head: () => ({
     meta: [
       { title: "Retoure bearbeiten – Commerce OS" },
-      { name: "description", content: "Retoure prüfen, Wareneingang buchen, einlagern und Erstattung auslösen." },
+      {
+        name: "description",
+        content: "Retoure prüfen, Wareneingang buchen, einlagern und Erstattung auslösen.",
+      },
       { property: "og:title", content: "Retoure bearbeiten – Commerce OS" },
       { property: "og:description", content: "Der komplette RMA-Prozess in einer Ansicht." },
       { property: "og:type", content: "website" },
@@ -57,7 +66,10 @@ export const Route = createFileRoute("/_authenticated/app/retouren/$returnId")({
 });
 
 type ReceiveDraft = Record<string, { qty: number; condition: ReturnItemCondition }>;
-type InspectDraft = Record<string, { qty: number; condition: ReturnItemCondition; restock: RestockDecision; note: string }>;
+type InspectDraft = Record<
+  string,
+  { qty: number; condition: ReturnItemCondition; restock: RestockDecision; note: string }
+>;
 
 function ReturnDetailPage() {
   const { returnId } = Route.useParams();
@@ -94,7 +106,8 @@ function ReturnDetailPage() {
     queryFn: () => fetchLocations({ data: { organizationId, shopId } }),
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["return", organizationId, returnId] });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["return", organizationId, returnId] });
   const run = <T,>(fn: () => Promise<T>, message: string) =>
     ({
       mutationFn: fn,
@@ -108,11 +121,18 @@ function ReturnDetailPage() {
   const r = detail.data;
   const action = useMemo(() => (r ? nextReturnAction(r.status) : null), [r]);
 
-  const authorizeM = useMutation(run(() => authorize({ data: { organizationId, returnId } }), "Retoure genehmigt."));
-  const rejectM = useMutation(
-    run(() => reject({ data: { organizationId, returnId, reason: rejectReason } }), "Retoure abgelehnt."),
+  const authorizeM = useMutation(
+    run(() => authorize({ data: { organizationId, returnId } }), "Retoure genehmigt."),
   );
-  const transitM = useMutation(run(() => inTransit({ data: { organizationId, returnId } }), "Als unterwegs markiert."));
+  const rejectM = useMutation(
+    run(
+      () => reject({ data: { organizationId, returnId, reason: rejectReason } }),
+      "Retoure abgelehnt.",
+    ),
+  );
+  const transitM = useMutation(
+    run(() => inTransit({ data: { organizationId, returnId } }), "Als unterwegs markiert."),
+  );
   const receiveM = useMutation(
     run(
       () =>
@@ -155,10 +175,17 @@ function ReturnDetailPage() {
     ),
   );
   const settleM = useMutation(
-    run(() => settle({ data: { organizationId, returnId, createCreditNote } }), "Erstattung ausgelöst."),
+    run(
+      () => settle({ data: { organizationId, returnId, createCreditNote } }),
+      "Erstattung ausgelöst.",
+    ),
   );
-  const completeM = useMutation(run(() => complete({ data: { organizationId, returnId } }), "Retoure abgeschlossen."));
-  const cancelM = useMutation(run(() => cancel({ data: { organizationId, returnId } }), "Retoure storniert."));
+  const completeM = useMutation(
+    run(() => complete({ data: { organizationId, returnId } }), "Retoure abgeschlossen."),
+  );
+  const cancelM = useMutation(
+    run(() => cancel({ data: { organizationId, returnId } }), "Retoure storniert."),
+  );
   const restockM = useMutation({
     mutationFn: (returnItemId: string) => {
       if (!locationId) throw new Error("Bitte zuerst einen Lagerort wählen.");
@@ -193,7 +220,11 @@ function ReturnDetailPage() {
           <h1 className="font-display text-2xl font-semibold">{r.returnNumber}</h1>
           <p className="text-sm text-muted-foreground">
             Bestellung{" "}
-            <Link to="/app/bestellungen/$orderId" params={{ orderId: r.orderId }} className="hover:underline">
+            <Link
+              to="/app/bestellungen/$orderId"
+              params={{ orderId: r.orderId }}
+              className="hover:underline"
+            >
               {r.orderNumber}
             </Link>{" "}
             · {RETURN_REASON_LABELS[r.reasonCategory]} · {r.customerEmail ?? "Gast"}
@@ -228,7 +259,11 @@ function ReturnDetailPage() {
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
                       />
-                      <Button variant="destructive" disabled={!rejectReason.trim()} onClick={() => rejectM.mutate()}>
+                      <Button
+                        variant="destructive"
+                        disabled={!rejectReason.trim()}
+                        onClick={() => rejectM.mutate()}
+                      >
                         Ablehnen
                       </Button>
                     </div>
@@ -244,10 +279,15 @@ function ReturnDetailPage() {
                     {r.items.map((it) => {
                       const d = receiveDraft(it.id, it.quantityRequested);
                       return (
-                        <div key={it.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-3">
+                        <div
+                          key={it.id}
+                          className="grid gap-2 rounded-md border p-3 sm:grid-cols-3"
+                        >
                           <div className="text-sm">
                             <p className="font-medium">{it.title}</p>
-                            <p className="text-xs text-muted-foreground">beantragt: {it.quantityRequested}</p>
+                            <p className="text-xs text-muted-foreground">
+                              beantragt: {it.quantityRequested}
+                            </p>
                           </div>
                           <Input
                             type="number"
@@ -255,13 +295,19 @@ function ReturnDetailPage() {
                             max={it.quantityRequested}
                             value={d.qty}
                             onChange={(e) =>
-                              setReceive({ ...receive, [it.id]: { ...d, qty: Number(e.target.value) } })
+                              setReceive({
+                                ...receive,
+                                [it.id]: { ...d, qty: Number(e.target.value) },
+                              })
                             }
                           />
                           <Select
                             value={d.condition}
                             onValueChange={(v) =>
-                              setReceive({ ...receive, [it.id]: { ...d, condition: v as ReturnItemCondition } })
+                              setReceive({
+                                ...receive,
+                                [it.id]: { ...d, condition: v as ReturnItemCondition },
+                              })
                             }
                           >
                             <SelectTrigger>
@@ -285,7 +331,10 @@ function ReturnDetailPage() {
                             Object.fromEntries(
                               r.items.map((it) => [
                                 it.id,
-                                { qty: it.quantityRequested, condition: "unopened" as ReturnItemCondition },
+                                {
+                                  qty: it.quantityRequested,
+                                  condition: "unopened" as ReturnItemCondition,
+                                },
                               ]),
                             ),
                           );
@@ -308,22 +357,35 @@ function ReturnDetailPage() {
                     {r.items.map((it) => {
                       const d = inspectDraft(it.id, it.quantityReceived || it.quantityRequested);
                       return (
-                        <div key={it.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-4">
+                        <div
+                          key={it.id}
+                          className="grid gap-2 rounded-md border p-3 sm:grid-cols-4"
+                        >
                           <div className="text-sm">
                             <p className="font-medium">{it.title}</p>
-                            <p className="text-xs text-muted-foreground">erhalten: {it.quantityReceived}</p>
+                            <p className="text-xs text-muted-foreground">
+                              erhalten: {it.quantityReceived}
+                            </p>
                           </div>
                           <Input
                             type="number"
                             min={0}
                             max={it.quantityReceived || it.quantityRequested}
                             value={d.qty}
-                            onChange={(e) => setInspect({ ...inspect, [it.id]: { ...d, qty: Number(e.target.value) } })}
+                            onChange={(e) =>
+                              setInspect({
+                                ...inspect,
+                                [it.id]: { ...d, qty: Number(e.target.value) },
+                              })
+                            }
                           />
                           <Select
                             value={d.condition}
                             onValueChange={(v) =>
-                              setInspect({ ...inspect, [it.id]: { ...d, condition: v as ReturnItemCondition } })
+                              setInspect({
+                                ...inspect,
+                                [it.id]: { ...d, condition: v as ReturnItemCondition },
+                              })
                             }
                           >
                             <SelectTrigger>
@@ -340,7 +402,10 @@ function ReturnDetailPage() {
                           <Select
                             value={d.restock}
                             onValueChange={(v) =>
-                              setInspect({ ...inspect, [it.id]: { ...d, restock: v as RestockDecision } })
+                              setInspect({
+                                ...inspect,
+                                [it.id]: { ...d, restock: v as RestockDecision },
+                              })
                             }
                           >
                             <SelectTrigger>
@@ -431,14 +496,18 @@ function ReturnDetailPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           {r.items.map((it) => (
-            <div key={it.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3 text-sm">
+            <div
+              key={it.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3 text-sm"
+            >
               <div>
                 <p className="font-medium">
                   {it.title} {it.variantTitle ? `· ${it.variantTitle}` : ""}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  beantragt {it.quantityRequested} · erhalten {it.quantityReceived} · genehmigt {it.quantityApproved} ·{" "}
-                  {CONDITION_LABELS[it.condition]} · {RESTOCK_LABELS[it.restockDecision]}
+                  beantragt {it.quantityRequested} · erhalten {it.quantityReceived} · genehmigt{" "}
+                  {it.quantityApproved} · {CONDITION_LABELS[it.condition]} ·{" "}
+                  {RESTOCK_LABELS[it.restockDecision]}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -469,7 +538,9 @@ function ReturnDetailPage() {
                 <Textarea readOnly value={r.customerNote} className="mt-1" />
               </div>
             )}
-            {r.rejectionReason && <p className="text-destructive">Ablehnung: {r.rejectionReason}</p>}
+            {r.rejectionReason && (
+              <p className="text-destructive">Ablehnung: {r.rejectionReason}</p>
+            )}
           </CardContent>
         </Card>
 
@@ -482,7 +553,10 @@ function ReturnDetailPage() {
               <p className="text-muted-foreground">Noch keine Ereignisse.</p>
             ) : (
               r.timeline.map((t) => (
-                <div key={t.id} className="flex items-center justify-between border-b py-1 last:border-none">
+                <div
+                  key={t.id}
+                  className="flex items-center justify-between border-b py-1 last:border-none"
+                >
                   <span>{t.action}</span>
                   <span className="text-xs text-muted-foreground">
                     {new Date(t.createdAt).toLocaleString("de-DE")}

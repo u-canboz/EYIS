@@ -60,8 +60,8 @@ function StoreApiLogs() {
         </Link>
         <h1 className="font-display text-2xl font-semibold">Store-API-Protokoll</h1>
         <p className="text-sm text-muted-foreground">
-          Jede Anfrage erhält eine Request-ID. IP-Adressen werden nur als täglich neu gesalzener Hash
-          gespeichert und nie angezeigt.
+          Jede Anfrage erhält eine Request-ID. IP-Adressen werden nur als täglich neu gesalzener
+          Hash gespeichert und nie angezeigt.
         </p>
       </header>
 
@@ -78,7 +78,11 @@ function StoreApiLogs() {
             </option>
           ))}
         </select>
-        <Button variant={onlyErrors ? "default" : "outline"} size="sm" onClick={() => setOnlyErrors((v) => !v)}>
+        <Button
+          variant={onlyErrors ? "default" : "outline"}
+          size="sm"
+          onClick={() => setOnlyErrors((v) => !v)}
+        >
           Nur Fehler
         </Button>
       </div>

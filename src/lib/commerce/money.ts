@@ -9,7 +9,11 @@ export function fractionDigits(currency: string) {
   return ZERO_DECIMAL.has(currency.toUpperCase()) ? 0 : 2;
 }
 
-export function formatMoney(amountMinor: number | null | undefined, currency = "EUR", locale = "de-DE") {
+export function formatMoney(
+  amountMinor: number | null | undefined,
+  currency = "EUR",
+  locale = "de-DE",
+) {
   if (amountMinor === null || amountMinor === undefined) return "—";
   const digits = fractionDigits(currency);
   const value = amountMinor / 10 ** digits;

@@ -10,7 +10,12 @@ export const listShippingMethodsAdmin = createServerFn({ method: "POST" })
   .inputValidator((data: Base) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("./core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_methods.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_methods.read",
+    );
     const { mapShippingMethod } = await import("./checkout.server");
     const { data: rows, error } = await context.supabase
       .from("shipping_methods")
@@ -19,7 +24,9 @@ export const listShippingMethodsAdmin = createServerFn({ method: "POST" })
       .eq("shop_id", data.shopId)
       .order("position", { ascending: true });
     if (error) throw new Error(error.message);
-    return ((rows ?? []) as Record<string, unknown>[]).map(mapShippingMethod) as ShippingMethodView[];
+    return ((rows ?? []) as Record<string, unknown>[]).map(
+      mapShippingMethod,
+    ) as ShippingMethodView[];
   });
 
 export const saveShippingMethod = createServerFn({ method: "POST" })
@@ -45,9 +52,15 @@ export const saveShippingMethod = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission, writeAudit } = await import("./core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_methods.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_methods.manage",
+    );
     if (!data.name.trim()) throw new Error("Name ist erforderlich.");
-    if (!/^[a-z0-9_-]+$/i.test(data.code)) throw new Error("Der Code darf nur Buchstaben, Ziffern, - und _ enthalten.");
+    if (!/^[a-z0-9_-]+$/i.test(data.code))
+      throw new Error("Der Code darf nur Buchstaben, Ziffern, - und _ enthalten.");
     if (!Number.isInteger(data.amountMinor) || data.amountMinor < 0)
       throw new Error("Der Betrag muss eine ganze Zahl ≥ 0 sein.");
 
@@ -79,7 +92,11 @@ export const saveShippingMethod = createServerFn({ method: "POST" })
         .eq("organization_id", data.organizationId);
       if (error) throw new Error(error.message);
     } else {
-      const { data: created, error } = await admin.from("shipping_methods").insert(payload).select("id").single();
+      const { data: created, error } = await admin
+        .from("shipping_methods")
+        .insert(payload)
+        .select("id")
+        .single();
       if (error) throw new Error(error.message);
       id = (created as { id: string }).id;
     }
@@ -100,7 +117,12 @@ export const deleteShippingMethod = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string; id: string }) => data)
   .handler(async ({ data, context }) => {
     const { assertPermission, getAdmin, writeAudit } = await import("./core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "shipping_methods.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "shipping_methods.manage",
+    );
     const admin = await getAdmin();
     const { error } = await admin
       .from("shipping_methods")

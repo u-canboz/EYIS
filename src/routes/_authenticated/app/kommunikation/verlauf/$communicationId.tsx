@@ -7,18 +7,13 @@ import {
   getCommunicationFn,
   resendCommunicationFn,
 } from "@/lib/commerce/communications/communication.functions";
-import {
-  DELIVERY_LABELS,
-  STATUS_LABELS,
-} from "@/lib/commerce/communications/communication.types";
+import { DELIVERY_LABELS, STATUS_LABELS } from "@/lib/commerce/communications/communication.types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Route = createFileRoute(
-  "/_authenticated/app/kommunikation/verlauf/$communicationId",
-)({
+export const Route = createFileRoute("/_authenticated/app/kommunikation/verlauf/$communicationId")({
   head: () => ({
     meta: [
       { title: "Nachricht – Commerce OS" },
@@ -82,7 +77,9 @@ function CommunicationDetailPage() {
                 toast.success("Neue Nachricht wurde erzeugt und versendet.");
                 await detail.refetch();
               } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Erneutes Senden fehlgeschlagen.");
+                toast.error(
+                  error instanceof Error ? error.message : "Erneutes Senden fehlgeschlagen.",
+                );
               } finally {
                 setBusy(false);
               }
@@ -95,7 +92,10 @@ function CommunicationDetailPage() {
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Vorlage", value: `${c.templateKey}${c.templateVersion ? ` v${c.templateVersion}` : ""}` },
+          {
+            label: "Vorlage",
+            value: `${c.templateKey}${c.templateVersion ? ` v${c.templateVersion}` : ""}`,
+          },
           { label: "Anbieter", value: c.provider ?? "–" },
           { label: "Absender", value: c.senderAddress ?? c.senderName ?? "–" },
           { label: "Auslöser", value: c.sourceEventType ?? (c.isTestSend ? "Testversand" : "–") },
@@ -165,7 +165,8 @@ function CommunicationDetailPage() {
                   {e.eventType} · {new Date(e.receivedAt).toLocaleString("de-DE")}
                 </span>
                 <span className="text-muted-foreground">
-                  {e.signatureVerified ? "Signatur geprüft" : "ohne Signatur"} · {e.processingStatus}
+                  {e.signatureVerified ? "Signatur geprüft" : "ohne Signatur"} ·{" "}
+                  {e.processingStatus}
                 </span>
               </li>
             ))}

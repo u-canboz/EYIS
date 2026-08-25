@@ -6,11 +6,7 @@
 export type PriceType = "base" | "sale" | "tier" | "customer_group" | "override";
 
 export type PromotionType =
-  | "percentage"
-  | "fixed_amount"
-  | "fixed_price"
-  | "buy_x_get_y"
-  | "free_shipping";
+  "percentage" | "fixed_amount" | "fixed_price" | "buy_x_get_y" | "free_shipping";
 
 export type PriceScope = "product" | "variant";
 
@@ -97,11 +93,7 @@ export type PricingContext = {
 };
 
 export type PriceRuleStage =
-  | "variant_override"
-  | "customer_group"
-  | "quantity_tier"
-  | "sale"
-  | "base";
+  "variant_override" | "customer_group" | "quantity_tier" | "sale" | "base";
 
 export type AppliedPriceRule = {
   priceId: string;

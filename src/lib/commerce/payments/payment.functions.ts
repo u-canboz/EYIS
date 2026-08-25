@@ -10,7 +10,13 @@ type SessionAuth = { sessionId: string; token: string };
 
 export const createPaymentSessionFn = createServerFn({ method: "POST" })
   .inputValidator(
-    (data: SessionAuth & { provider?: string | null; returnUrl: string; cancelUrl?: string | null }) => data,
+    (
+      data: SessionAuth & {
+        provider?: string | null;
+        returnUrl: string;
+        cancelUrl?: string | null;
+      },
+    ) => data,
   )
   .handler(async ({ data }) => {
     const checkout = await import("../checkout.server");
@@ -19,7 +25,8 @@ export const createPaymentSessionFn = createServerFn({ method: "POST" })
 
     if (!["validated", "awaiting_payment"].includes(session.status))
       throw new Error(`Checkout ist nicht zahlungsbereit (${session.status}).`);
-    if (Date.parse(session.expires_at) <= Date.now()) throw new Error("Die Checkout-Sitzung ist abgelaufen.");
+    if (Date.parse(session.expires_at) <= Date.now())
+      throw new Error("Die Checkout-Sitzung ist abgelaufen.");
 
     const view = await checkout.buildCheckoutView(session, cart);
     if (!view.ready) throw new Error(view.issues[0] ?? "Checkout ist unvollständig.");
@@ -100,7 +107,12 @@ export const listProviderConfigsFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string; shopId: string }) => data)
   .handler(async ({ data, context }): Promise<ProviderConfigView[]> => {
     const { assertPermission, getAdmin } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "payment_settings.read");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "payment_settings.read",
+    );
     const admin = await getAdmin();
     const { data: rows, error } = await admin
       .from("payment_provider_configs")
@@ -110,13 +122,13 @@ export const listProviderConfigsFn = createServerFn({ method: "POST" })
       .order("priority", { ascending: true });
     if (error) throw new Error(error.message);
     return ((rows ?? []) as Record<string, unknown>[]).map((r) => ({
-      id: r['id'] as string,
-      provider: r['provider'] as string,
-      displayName: r['display_name'] as string,
-      environment: r['environment'] as "test" | "live",
-      status: r['status'] as "active" | "inactive" | "archived",
-      priority: Number(r['priority'] ?? 100),
-      secretRef: (r['secret_ref'] as string) ?? null,
+      id: r["id"] as string,
+      provider: r["provider"] as string,
+      displayName: r["display_name"] as string,
+      environment: r["environment"] as "test" | "live",
+      status: r["status"] as "active" | "inactive" | "archived",
+      priority: Number(r["priority"] ?? 100),
+      secretRef: (r["secret_ref"] as string) ?? null,
     }));
   });
 
@@ -135,7 +147,12 @@ export const upsertProviderConfigFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission, getAdmin, writeAudit } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "payment_settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "payment_settings.manage",
+    );
     if (data.provider === "mock" && data.environment === "live")
       throw new Error("Der Test-Anbieter darf nicht im Live-Betrieb aktiviert werden.");
 

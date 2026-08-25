@@ -84,7 +84,8 @@ function DeveloperKeys() {
   });
 
   const revoke = useMutation({
-    mutationFn: (keyId: string) => updateKey({ data: { organizationId, keyId, status: "revoked" } }),
+    mutationFn: (keyId: string) =>
+      updateKey({ data: { organizationId, keyId, status: "revoked" } }),
     onSuccess: () => {
       toast.success("Key widerrufen.");
       invalidate();
@@ -98,13 +99,18 @@ function DeveloperKeys() {
         <h1 className="font-display text-2xl font-semibold">Entwickler</h1>
         <p className="text-sm text-muted-foreground">
           Publishable Keys identifizieren einen Shop gegenüber der Store API. Sie sind{" "}
-          <strong>kein Geheimnis</strong> und dürfen im Browser-Bundle stehen. Jeder sensible Zugriff
-          braucht zusätzlich einen echten Zugriffsnachweis (Cart-Token, Kunden-Session oder
+          <strong>kein Geheimnis</strong> und dürfen im Browser-Bundle stehen. Jeder sensible
+          Zugriff braucht zusätzlich einen echten Zugriffsnachweis (Cart-Token, Kunden-Session oder
           Guest-Token).
         </p>
-        <Link to="/app/entwickler/protokoll" className="text-sm text-primary hover:underline">
-          Anfrage-Protokoll ansehen →
-        </Link>
+        <div className="flex flex-wrap gap-3 text-sm">
+          <Link to="/app/entwickler/api" className="text-primary hover:underline">
+            API-Referenz
+          </Link>
+          <Link to="/app/entwickler/protokoll" className="text-primary hover:underline">
+            Anfrage-Protokoll
+          </Link>
+        </div>
       </header>
 
       {freshKey ? (
@@ -113,10 +119,12 @@ function DeveloperKeys() {
             <CardTitle className="text-base">Neuer Key</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <code className="block break-all rounded-md bg-muted p-3 font-mono text-sm">{freshKey}</code>
+            <code className="block break-all rounded-md bg-muted p-3 font-mono text-sm">
+              {freshKey}
+            </code>
             <p className="text-xs text-muted-foreground">
-              Für Storefronts als <code>VITE_COMMERCE_PUBLISHABLE_KEY</code> hinterlegen. Wird nach dem
-              Verlassen der Seite nicht erneut angezeigt.
+              Für Storefronts als <code>VITE_COMMERCE_PUBLISHABLE_KEY</code> hinterlegen. Wird nach
+              dem Verlassen der Seite nicht erneut angezeigt.
             </p>
             <Button variant="secondary" size="sm" onClick={() => setFreshKey(null)}>
               Verstanden
@@ -143,12 +151,14 @@ function DeveloperKeys() {
                       <Badge variant={key.environment === "live" ? "default" : "secondary"}>
                         {key.environment}
                       </Badge>
-                      {key.status !== "active" ? <Badge variant="destructive">widerrufen</Badge> : null}
+                      {key.status !== "active" ? (
+                        <Badge variant="destructive">widerrufen</Badge>
+                      ) : null}
                     </div>
                     <code className="font-mono text-xs text-muted-foreground">{key.prefix}…</code>
                     <p className="text-xs text-muted-foreground">
-                      Origins: {key.allowedOrigins.length ? key.allowedOrigins.join(", ") : "keine"} ·
-                      zuletzt genutzt:{" "}
+                      Origins: {key.allowedOrigins.length ? key.allowedOrigins.join(", ") : "keine"}{" "}
+                      · zuletzt genutzt:{" "}
                       {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString("de-DE") : "nie"}
                     </p>
                   </div>

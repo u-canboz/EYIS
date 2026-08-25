@@ -45,7 +45,11 @@ export function normalizeVatId(input: string): string {
   return input.replace(/[\s.\-/]/g, "").toUpperCase();
 }
 
-export function parseVatId(input: string): { normalized: string; countryCode: string; structurallyValid: boolean } {
+export function parseVatId(input: string): {
+  normalized: string;
+  countryCode: string;
+  structurallyValid: boolean;
+} {
   const normalized = normalizeVatId(input);
   const countryCode = normalized.slice(0, 2);
   const rest = normalized.slice(2);
@@ -85,7 +89,11 @@ export async function validateAndRecordVatId(params: {
 export async function isVatValidationValid(validationId: string | null): Promise<boolean> {
   if (!validationId) return false;
   const admin = await getAdmin();
-  const { data } = await admin.from("vat_validations").select("status, expires_at").eq("id", validationId).maybeSingle();
+  const { data } = await admin
+    .from("vat_validations")
+    .select("status, expires_at")
+    .eq("id", validationId)
+    .maybeSingle();
   const r = data as { status: string; expires_at: string | null } | null;
   if (!r || r.status !== "valid") return false;
   if (r.expires_at && Date.parse(r.expires_at) <= Date.now()) return false;

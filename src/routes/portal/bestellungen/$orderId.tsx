@@ -15,7 +15,10 @@ export const Route = createFileRoute("/portal/bestellungen/$orderId")({
   head: () => ({
     meta: [
       { title: "Bestelldetails – Mein Konto" },
-      { name: "description", content: "Artikel, Sendungsverfolgung, Rechnungen und Rücksendung zu deiner Bestellung." },
+      {
+        name: "description",
+        content: "Artikel, Sendungsverfolgung, Rechnungen und Rücksendung zu deiner Bestellung.",
+      },
       { property: "og:title", content: "Bestelldetails – Mein Konto" },
       { property: "og:description", content: "Alle Informationen zu deiner Bestellung." },
       { property: "og:type", content: "website" },
@@ -28,7 +31,9 @@ export const Route = createFileRoute("/portal/bestellungen/$orderId")({
       <p className="rounded-lg border p-6 text-sm text-destructive">{(error as Error).message}</p>
     </main>
   ),
-  notFoundComponent: () => <main className="mx-auto max-w-3xl p-6 text-sm">Bestellung nicht gefunden.</main>,
+  notFoundComponent: () => (
+    <main className="mx-auto max-w-3xl p-6 text-sm">Bestellung nicht gefunden.</main>
+  ),
 });
 
 function PortalOrderPage() {

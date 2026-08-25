@@ -48,7 +48,9 @@ export async function loadBranding(
       .maybeSingle();
     const path = (media as Row | null)?.["storage_path"] as string | undefined;
     if (path) {
-      const { data: signed } = await admin.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 30);
+      const { data: signed } = await admin.storage
+        .from("media")
+        .createSignedUrl(path, 60 * 60 * 24 * 30);
       logoUrl = signed?.signedUrl ?? null;
     }
   }
@@ -102,9 +104,7 @@ export async function resolveTemplate(
     .eq("channel", "email")
     .or(`organization_id.eq.${organizationId},organization_id.is.null`);
 
-  const rows = ((data ?? []) as Row[]).filter(
-    (r) => !r["shop_id"] || r["shop_id"] === shopId,
-  );
+  const rows = ((data ?? []) as Row[]).filter((r) => !r["shop_id"] || r["shop_id"] === shopId);
   if (!rows.length) return null;
   const score = (r: Row) => (r["shop_id"] ? 3 : r["organization_id"] ? 2 : 1);
   rows.sort((a, b) => score(b) - score(a));
@@ -245,7 +245,8 @@ export async function queueCommunication(input: QueueInput): Promise<QueueResult
 
   if (error) throw new Error(error.message);
   const id = (data as Row)["id"] as string;
-  if (suppression) return { queued: false, reason: `suppressed_${suppression.reason}`, communicationId: id };
+  if (suppression)
+    return { queued: false, reason: `suppressed_${suppression.reason}`, communicationId: id };
   return { queued: true, communicationId: id };
 }
 
@@ -381,10 +382,12 @@ export async function processQueue(limit = 25) {
 
 function conditionsMatch(conditions: Row, payload: Row) {
   return Object.entries(conditions ?? {}).every(([key, expected]) => {
-    const actual = key.split(".").reduce<unknown>(
-      (acc, k) => (acc && typeof acc === "object" ? (acc as Row)[k] : undefined),
-      payload,
-    );
+    const actual = key
+      .split(".")
+      .reduce<unknown>(
+        (acc, k) => (acc && typeof acc === "object" ? (acc as Row)[k] : undefined),
+        payload,
+      );
     if (Array.isArray(expected)) return expected.includes(actual as never);
     return actual === expected;
   });
@@ -703,25 +706,26 @@ export async function ingestProviderEvent(input: {
     patch["last_error"] = input.eventType;
   }
   if (Object.keys(patch).length) {
-    await admin.from("communications").update(patch as never).eq("id", communication["id"] as string);
+    await admin
+      .from("communications")
+      .update(patch as never)
+      .eq("id", communication["id"] as string);
   }
 
   const address = input.recipient ?? (communication["recipient_address"] as string);
   if ((next === "hard_bounce" || next === "complained") && address) {
-    await admin
-      .from("communication_suppressions")
-      .upsert(
-        {
-          organization_id: communication["organization_id"] as string,
-          shop_id: null,
-          channel: "email",
-          address: address.toLowerCase(),
-          reason: next === "complained" ? "complaint" : "hard_bounce",
-          source: input.provider,
-          note: input.eventType,
-        } as never,
-        { onConflict: "organization_id,channel,address" },
-      );
+    await admin.from("communication_suppressions").upsert(
+      {
+        organization_id: communication["organization_id"] as string,
+        shop_id: null,
+        channel: "email",
+        address: address.toLowerCase(),
+        reason: next === "complained" ? "complaint" : "hard_bounce",
+        source: input.provider,
+        note: input.eventType,
+      } as never,
+      { onConflict: "organization_id,channel,address" },
+    );
   }
 
   await admin
@@ -786,7 +790,8 @@ export async function listCommunications(input: {
       .from("orders")
       .select("id, order_number")
       .in("id", orderIds);
-    for (const o of (orders ?? []) as Row[]) numbers.set(o["id"] as string, o["order_number"] as string);
+    for (const o of (orders ?? []) as Row[])
+      numbers.set(o["id"] as string, o["order_number"] as string);
   }
   return rows.map((r) => ({
     ...mapListItem(r),

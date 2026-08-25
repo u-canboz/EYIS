@@ -219,9 +219,7 @@ function PricingOverviewPage() {
                     </td>
                     <td className="py-2 text-muted-foreground">{item.variantTitle ?? "—"}</td>
                     <td className="py-2">
-                      <Badge variant="secondary">
-                        {PRICE_TYPE_LABELS[item.type] ?? item.type}
-                      </Badge>
+                      <Badge variant="secondary">{PRICE_TYPE_LABELS[item.type] ?? item.type}</Badge>
                     </td>
                     <td className="py-2 text-xs text-muted-foreground">
                       {item.starts_at || item.ends_at
@@ -235,7 +233,9 @@ function PricingOverviewPage() {
                       {item.max_quantity ? ` bis ${item.max_quantity}` : ""}
                     </td>
                     <td className="py-2 text-xs text-muted-foreground">
-                      {item.customer_group_id ? (groupName_.get(item.customer_group_id) ?? "Gruppe") : "—"}
+                      {item.customer_group_id
+                        ? (groupName_.get(item.customer_group_id) ?? "Gruppe")
+                        : "—"}
                     </td>
                     <td className="py-2 text-right font-medium">
                       {formatMoney(item.amount_minor, item.currency_code)}

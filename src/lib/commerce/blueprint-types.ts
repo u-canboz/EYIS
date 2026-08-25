@@ -83,6 +83,9 @@ export function isFieldVisible(field: BlueprintField, data: BlueprintData) {
 /** Groups blueprints for the "Was möchten Sie verkaufen?" step. */
 export const BLUEPRINT_GROUPS: { label: string; keys: string[] }[] = [
   { label: "Allgemein", keys: ["standard"] },
-  { label: "Physische Waren", keys: ["textil", "lebensmittel", "kosmetik", "elektronik", "moebel", "schmuck"] },
+  {
+    label: "Physische Waren",
+    keys: ["textil", "lebensmittel", "kosmetik", "elektronik", "moebel", "schmuck"],
+  },
   { label: "Ohne Versand", keys: ["digital", "dienstleistung"] },
 ];

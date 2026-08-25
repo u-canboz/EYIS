@@ -97,7 +97,9 @@ export const authorizeReturnFn = createServerFn({ method: "POST" })
 
 export const rejectReturnFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { returnId: string; reason: string; internalNote?: string | null }) => data)
+  .inputValidator(
+    (data: Org & { returnId: string; reason: string; internalNote?: string | null }) => data,
+  )
   .handler(async ({ data, context }) => {
     const { rejectReturn } = await import("./return.server");
     return await rejectReturn({ ...data, actorId: context.userId });
@@ -117,7 +119,11 @@ export const receiveReturnFn = createServerFn({ method: "POST" })
     (
       data: Org & {
         returnId: string;
-        items: { returnItemId: string; quantityReceived: number; condition?: ReturnItemCondition }[];
+        items: {
+          returnItemId: string;
+          quantityReceived: number;
+          condition?: ReturnItemCondition;
+        }[];
         idempotencyKey?: string | null;
       },
     ) => data,
@@ -170,11 +176,17 @@ export const restockReturnItemFn = createServerFn({ method: "POST" })
 export const settleReturnFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: Org & { returnId: string; amountMinor?: number | null; createCreditNote?: boolean }) => data,
+    (data: Org & { returnId: string; amountMinor?: number | null; createCreditNote?: boolean }) =>
+      data,
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "payments.refund");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "payments.refund",
+    );
     const { settleReturn } = await import("./return.server");
     return await settleReturn({ ...data, actorId: context.userId });
   });
@@ -207,7 +219,9 @@ export const getReturnSettingsFn = createServerFn({ method: "POST" })
 
 export const saveReturnSettingsFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: Org & { shopId: string; settings: Omit<ReturnSettings, "shopId"> }) => data)
+  .inputValidator(
+    (data: Org & { shopId: string; settings: Omit<ReturnSettings, "shopId"> }) => data,
+  )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
     await assertPermission(context.supabase, context.userId, data.organizationId, "returns.manage");

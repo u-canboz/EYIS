@@ -5,9 +5,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 async function run() {
-  const { processAutomationJobs, reclaimStuckJobs } = await import(
-    "@/lib/commerce/automation/queue.server"
-  );
+  const { processAutomationJobs, reclaimStuckJobs } =
+    await import("@/lib/commerce/automation/queue.server");
   const { enqueueDueSchedules } = await import("@/lib/commerce/automation/schedule.server");
   const reclaimed = await reclaimStuckJobs();
   const scheduled = await enqueueDueSchedules();
