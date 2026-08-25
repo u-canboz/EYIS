@@ -41,7 +41,7 @@ export const forbidden = (msg = "Kein Zugriff auf diese Ressource.") =>
   new StoreApiError("FORBIDDEN", msg, 403);
 
 export type CartAuth = {
-  cart: Record<string, unknown> & { id: string; organization_id: string; shop_id: string };
+  cart: import("../cart.server").CartRow;
   token: string;
 };
 
