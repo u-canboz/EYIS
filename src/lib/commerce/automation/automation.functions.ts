@@ -277,10 +277,10 @@ export const installAutomationTemplateFn = createServerFn({ method: "POST" })
       const admin = await getAdmin();
       const { data: settings } = await admin
         .from("invoice_settings")
-        .select("creation_strategy")
+        .select("invoice_creation_strategy")
         .eq("shop_id", data.shopId)
         .maybeSingle();
-      const strategy = (settings as { creation_strategy?: string } | null)?.creation_strategy ?? "manual";
+      const strategy = (settings as unknown as { invoice_creation_strategy?: string } | null)?.invoice_creation_strategy ?? "manual";
       if (strategy !== "manual") {
         actions = [];
         note =

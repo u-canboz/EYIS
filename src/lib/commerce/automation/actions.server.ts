@@ -65,14 +65,14 @@ async function invoiceStrategy(organizationId: string, shopId: string) {
   const admin = await getAdmin();
   const { data } = await admin
     .from("invoice_settings")
-    .select("invoice_creation_strategy, auto_issue")
+    .select("invoice_creation_strategy, automatically_issue_invoice")
     .eq("organization_id", organizationId)
     .eq("shop_id", shopId)
     .maybeSingle();
-  const row = (data as Record<string, unknown>) ?? {};
+  const row = (data as unknown as Record<string, unknown>) ?? {};
   return {
     strategy: (row["invoice_creation_strategy"] as string) ?? "manual",
-    autoIssue: Boolean(row["auto_issue"]),
+    autoIssue: Boolean(row["automatically_issue_invoice"]),
   };
 }
 

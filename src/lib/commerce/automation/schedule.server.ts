@@ -44,19 +44,18 @@ async function collectTargets(rule: Row): Promise<Record<string, unknown>[]> {
   if (kind === "abandoned_carts") {
     const { data } = await admin
       .from("carts")
-      .select("id, customer_id, email, total_minor, currency_code, updated_at")
+      .select("id, customer_id, customer_email, currency_code, last_activity_at")
       .eq("organization_id", orgId)
       .eq("shop_id", shopId)
       .eq("status", "active")
-      .lt("updated_at", cutoff)
+      .lt("last_activity_at", cutoff)
       .limit(200);
-    return ((data ?? []) as Row[])
-      .filter((c) => c["email"])
+    return ((data ?? []) as unknown as Row[])
+      .filter((c) => c["customer_email"])
       .map((c) => ({
         cart_id: c["id"],
         customer_id: c["customer_id"],
-        email: c["email"],
-        total_minor: c["total_minor"],
+        email: c["customer_email"],
         currency_code: c["currency_code"],
       }));
   }
@@ -84,19 +83,41 @@ async function collectTargets(rule: Row): Promise<Record<string, unknown>[]> {
     }));
   }
 
-  const { data } = await admin
-    .from("inventory_levels")
-    .select("inventory_item_id, location_id, on_hand, reserved, reorder_point")
+  // Low stock uses the merchant-configured alert rules from the inventory engine.
+  const { data: alertRules } = await admin
+    .from("stock_alert_rules")
+    .select("inventory_item_id, location_id, threshold")
     .eq("organization_id", orgId)
-    .limit(200);
-  return ((data ?? []) as Row[])
-    .filter((l) => l["reorder_point"] != null && Number(l["on_hand"]) - Number(l["reserved"] ?? 0) <= Number(l["reorder_point"]))
-    .map((l) => ({
-      inventory_item_id: l["inventory_item_id"],
-      location_id: l["location_id"],
-      available: Number(l["on_hand"]) - Number(l["reserved"] ?? 0),
-      threshold: l["reorder_point"],
-    }));
+    .eq("shop_id", shopId)
+    .eq("enabled", true)
+    .limit(500);
+  const rules = (alertRules ?? []) as unknown as Row[];
+  if (rules.length === 0) return [];
+  const { data: levels } = await admin
+    .from("inventory_levels")
+    .select("inventory_item_id, location_id, on_hand, reserved")
+    .eq("organization_id", orgId)
+    .in("inventory_item_id", rules.map((r) => r["inventory_item_id"] as string))
+    .limit(1000);
+  const levelRows = (levels ?? []) as unknown as Row[];
+  const out: Record<string, unknown>[] = [];
+  for (const rule of rules) {
+    const level = levelRows.find(
+      (l) =>
+        l["inventory_item_id"] === rule["inventory_item_id"] &&
+        (!rule["location_id"] || l["location_id"] === rule["location_id"]),
+    );
+    if (!level) continue;
+    const available = Number(level["on_hand"] ?? 0) - Number(level["reserved"] ?? 0);
+    if (available <= Number(rule["threshold"] ?? 0))
+      out.push({
+        inventory_item_id: rule["inventory_item_id"],
+        location_id: level["location_id"],
+        available,
+        threshold: rule["threshold"],
+      });
+  }
+  return out;
 }
 
 /** Executes one scheduled rule against its current target set. */

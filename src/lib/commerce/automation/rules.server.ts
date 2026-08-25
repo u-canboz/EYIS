@@ -174,17 +174,17 @@ export async function validateRule(input: {
     const admin = await getAdmin();
     const { data } = await admin
       .from("invoice_settings")
-      .select("invoice_creation_strategy, auto_issue")
+      .select("invoice_creation_strategy, automatically_issue_invoice")
       .eq("organization_id", input.organizationId)
       .eq("shop_id", input.shopId)
       .maybeSingle();
-    const settings = (data as Row) ?? {};
+    const settings = (data as unknown as Row) ?? {};
     const strategy = (settings["invoice_creation_strategy"] as string) ?? "manual";
     if (strategy !== "manual")
       warnings.push(
         `Der Shop erstellt Rechnungen bereits automatisch (${strategy}). Die Rechnungs-Aktionen werden bei der Ausführung übersprungen.`,
       );
-    if (settings["auto_issue"] && input.actions.some((a) => a.actionType === "invoice.issue"))
+    if (settings["automatically_issue_invoice"] && input.actions.some((a) => a.actionType === "invoice.issue"))
       warnings.push("Rechnungen werden bereits automatisch festgeschrieben. Die Aktion wird übersprungen.");
   }
 
@@ -402,7 +402,7 @@ export async function listExecutions(input: {
     .order("created_at", { ascending: false })
     .limit(input.limit ?? 100);
   if (input.ruleId) q = q.eq("rule_id", input.ruleId);
-  if (input.status?.length) q = q.in("status", input.status);
+  if (input.status?.length) q = q.in("status", input.status as never[]);
   const { data, error } = await q;
   if (error) throw new Error(error.message);
   return ((data ?? []) as Row[]).map((r) => ({
