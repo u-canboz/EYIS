@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const Route = createFileRoute("/_authenticated/app/versand")({
+export const Route = createFileRoute("/_authenticated/app/versand/versandarten")({
   head: () => ({
     meta: [
       { title: "Versandarten – Commerce OS" },
