@@ -65,6 +65,8 @@ Cross-Tenant: Promotion, Preis und Kundengruppe müssen zu Shop und Organisation
 
 Bulk-Operationen (alle Varianten auf Betrag setzen, +10 %, −5 €) laufen serverseitig atomar über eine SECURITY-DEFINER-DB-Funktion, mit `idempotency_keys` gegen doppelte Ausführung bei Retry. Default atomar; Fehler in einer Zeile rollt alles zurück.
 
+Bulk-Basis ist eindeutig definiert: mutiert werden ausschließlich explizit ausgewählte, gespeicherte Preiszeilen eines bestimmten Typs (z. B. „alle `base`-Preise dieser Varianten in EUR“). Relative Änderungen rechnen immer vom gespeicherten `amount_minor` dieser Zeilen — niemals vom aufgelösten Endpreis. Damit verändert `+10 %` nie versehentlich Sale- oder Staffelergebnisse. Vor dem Ausführen zeigt die UI eine Vorschau alt → neu je betroffener Zeile.
+
 ## Permissions & RLS
 
 Neu in `role_permissions`: `pricing.read`, `pricing.manage`, `promotions.read`, `promotions.manage`, `customer_groups.read`, `customer_groups.manage`.
