@@ -35,13 +35,23 @@ Ziel dieser Phase: das Mandanten- und Rechte-Fundament aus dem Konzeptpaket, lau
 - Admin-Shell mit Sidebar, Organisations- und Shop-Umschalter
 - Dashboard mit Status der Einrichtung ("Nächste Schritte" statt Kachelwüste)
 - `/einstellungen/shop` — Shopdaten, Domains
-- `/einstellungen/team` — Mitglieder einladen, Rollen zuweisen, entfernen
+- `/einstellungen/team` — Mitglieder, Rollen ändern, entfernen; Einladungen erstellen, Einladungslink kopieren, widerrufen, Status und Ablauf sichtbar
+- `/einladung/$token` — öffentliche Annahmeseite: Token prüfen, bei fehlendem Login auf `/auth` mit Rücksprung, danach Annahme
 - `/einstellungen/audit` — Audit-Log-Ansicht
+
+## Einladungsablauf
+
+1. Berechtigtes Mitglied lädt E-Mail + Rolle ein. Server erzeugt Zufallstoken, speichert nur den Hash, `status = pending`, `expires_at = jetzt + 7 Tage`.
+2. Der Einladungslink wird einmalig im Admin angezeigt (Kopierbutton). E-Mail-Versand folgt in einer späteren Phase.
+3. Annahme nur durch eingeloggten Nutzer, dessen E-Mail zur Einladung passt, nur bei `pending` und nicht abgelaufen. Dann wird atomar das Membership angelegt und die Einladung auf `accepted` gesetzt.
+4. Widerruf setzt `revoked`; abgelaufene Einladungen gelten als `expired` und sind nicht mehr einlösbar. Ein Token ist genau einmal verwendbar.
 
 ## Abnahmekriterien (aus dem Konzept)
 
 - Zwei Testorganisationen können sich gegenseitig keine Daten lesen
 - Rollen greifen: Read-Only kann keine Shopdaten ändern
+- Ein Membership entsteht ausschließlich über eine angenommene, gültige Einladung (oder die erste Registrierung als Owner)
+- Ein abgelaufener, widerrufener oder bereits genutzter Token wird abgelehnt
 - Jede Änderung erscheint im Audit-Log
 - Kein Service-Role-Key im Client-Bundle
 
