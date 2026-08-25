@@ -62,7 +62,7 @@ Status: PASS.
 
 ### Phase 10 — Communication Studio
 Vorlagen mit Versionen, Regeln, Branding, Absenderidentitäten, Zustellstatus, Unterdrückungsliste, Provider-Events, Warteschlange über `/api/public/jobs/communications`.
-Status: PASS für Test-Provider. Echter E-Mail-Versand: BLOCKED (kein Versand-Provider konfiguriert, `COMMUNICATION_JOB_SECRET` und `COMMUNICATION_WEBHOOK_SECRET` nicht gesetzt).
+Status: PASS für Test-Provider. Echter E-Mail-Versand: BLOCKED (kein Versand-Provider konfiguriert, `COMMUNICATION_WEBHOOK_SECRET` nicht gesetzt). Job-Auslösung seit A2 über `LOVABLE_CRON_SECRET`.
 
 ### Phase 11 — Automation Engine
 Regeln mit Versionen, Bedingungen, Aktionen, Ausführungen, Job-Queue mit `SKIP LOCKED` (`automation_claim_jobs`), ausgehende Webhooks mit SSRF-Schutz, Aufgaben-Inbox.

@@ -1,12 +1,14 @@
 /**
  * Background worker endpoint for the automation engine.
- * Called by the scheduler; authenticated with the project's publishable key.
+ * Authentication: the platform-managed cron secret (Bearer token).
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 
 async function run() {
-  const { processAutomationJobs, reclaimStuckJobs } =
-    await import("@/lib/commerce/automation/queue.server");
+  const { processAutomationJobs, reclaimStuckJobs } = await import(
+    "@/lib/commerce/automation/queue.server"
+  );
   const { enqueueDueSchedules } = await import("@/lib/commerce/automation/schedule.server");
   const reclaimed = await reclaimStuckJobs();
   const scheduled = await enqueueDueSchedules();
@@ -14,25 +16,12 @@ async function run() {
   return { ...reclaimed, ...scheduled, ...processed };
 }
 
-function unauthorized() {
-  return new Response(JSON.stringify({ error: "unauthorized" }), {
-    status: 401,
-    headers: { "content-type": "application/json" },
-  });
-}
-
-function authorized(request: Request) {
-  const expected = process.env["SUPABASE_PUBLISHABLE_KEY"];
-  const provided =
-    request.headers.get("apikey") ?? request.headers.get("authorization")?.replace(/^Bearer /, "");
-  return Boolean(expected) && provided === expected;
-}
-
 export const Route = createFileRoute("/api/public/jobs/automation")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        if (!authorized(request)) return unauthorized();
+        const denied = await authenticateCronRequest(request);
+        if (denied) return denied;
         try {
           const result = await run();
           return new Response(JSON.stringify({ ok: true, ...result }), {

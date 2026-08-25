@@ -8244,6 +8244,7 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      ops_expire_due: { Args: never; Returns: Json }
       order_cancel: {
         Args: {
           _actor: string

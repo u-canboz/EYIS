@@ -71,6 +71,7 @@ import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './rout
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
+import { Route as ApiPublicJobsExpirationRouteImport } from './routes/api/public/jobs/expiration'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as AuthenticatedAppAutomationenRegelRuleIdRouteImport } from './routes/_authenticated/app/automationen/regel.$ruleId'
 import { Route as AuthenticatedAppKommunikationVerlaufIndexRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/index'
@@ -432,6 +433,11 @@ const ApiPublicJobsCommunicationsRoute =
     path: '/api/public/jobs/communications',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsExpirationRoute = ApiPublicJobsExpirationRouteImport.update({
+  id: '/api/public/jobs/expiration',
+  path: '/api/public/jobs/expiration',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
@@ -536,6 +542,7 @@ export interface FileRoutesByFullPath {
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
+  '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -607,6 +614,7 @@ export interface FileRoutesByTo {
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
+  '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/automationen': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
@@ -681,6 +689,7 @@ export interface FileRoutesById {
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
+  '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/_authenticated/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -755,6 +764,7 @@ export interface FileRouteTypes {
     | '/app/versand/versandarten'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
+    | '/api/public/jobs/expiration'
     | '/api/public/webhooks/stripe'
     | '/app/automationen/'
     | '/app/bestellungen/'
@@ -826,6 +836,7 @@ export interface FileRouteTypes {
     | '/app/versand/versandarten'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
+    | '/api/public/jobs/expiration'
     | '/api/public/webhooks/stripe'
     | '/app/automationen'
     | '/app/bestellungen'
@@ -899,6 +910,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/versand/versandarten'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
+    | '/api/public/jobs/expiration'
     | '/api/public/webhooks/stripe'
     | '/_authenticated/app/automationen/'
     | '/_authenticated/app/bestellungen/'
@@ -932,6 +944,7 @@ export interface RootRouteChildren {
   PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
+  ApiPublicJobsExpirationRoute: typeof ApiPublicJobsExpirationRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicStoreV1SplatRoute: typeof ApiPublicStoreV1SplatRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
@@ -1374,6 +1387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsCommunicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/expiration': {
+      id: '/api/public/jobs/expiration'
+      path: '/api/public/jobs/expiration'
+      fullPath: '/api/public/jobs/expiration'
+      preLoaderRoute: typeof ApiPublicJobsExpirationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -1610,6 +1630,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
+  ApiPublicJobsExpirationRoute: ApiPublicJobsExpirationRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicStoreV1SplatRoute: ApiPublicStoreV1SplatRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,

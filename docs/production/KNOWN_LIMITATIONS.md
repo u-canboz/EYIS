@@ -9,7 +9,7 @@ Stand: 2026-08-25. Jede Einschränkung ist belegt; Vermutungen sind als `UNGEPR�
 | Stripe Live-Zahlungen | BLOCKED | Secret-Inventur: nur `LOVABLE_API_KEY` und `LOVABLE_CRON_SECRET` vorhanden; `STRIPE_SECRET_KEY` und `STRIPE_WEBHOOK_SECRET` werden im Code gelesen, sind aber nicht gesetzt | Zahlungen laufen nur über den Mock-Provider |
 | Echter E-Mail-Versand | BLOCKED | kein Versand-Provider in `communication_provider_configs` produktiv aktiv; `COMMUNICATION_WEBHOOK_SECRET` nicht gesetzt | Kommunikation nur über den Test-Provider |
 | Carrier-Labels (DHL, DPD, GLS, UPS, Sendcloud) | BLOCKED | keine Provider-Zugangsdaten hinterlegt | Labels nur über den Mock-Carrier |
-| Kommunikations- und Automations-Warteschlange im Betrieb | BLOCKED | `COMMUNICATION_JOB_SECRET` nicht gesetzt; die Route lehnt ohne Secret jede Anfrage mit 401 ab (`src/routes/api/public/jobs/communications.ts`) | Warteschlange wird nicht automatisch abgearbeitet |
+| Kommunikations- und Automations-Warteschlange im Betrieb | BEHOBEN in A2 | alle Job-Endpunkte nutzen jetzt `LOVABLE_CRON_SECRET` (`src/integrations/supabase/cron-auth.ts`); Testläufe liefern HTTP 200, ohne Secret 401 | Warteschlange ist auslösbar; ein Zeitplan ist noch einzurichten (A8) |
 
 ## Funktional nicht enthalten
 
