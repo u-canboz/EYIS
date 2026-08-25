@@ -63,7 +63,7 @@ async function orderPayload(order: OrderRow) {
   return {
     order_id: order.id,
     order_number: order.order_number,
-    total_gross_minor: Number(order.gross_total_minor ?? order.total_minor),
+    total_gross_minor: Number(order.gross_total_minor || order.total_minor),
     currency: order.currency_code,
     item_count: count ?? 0,
     customer_email: order.email,
