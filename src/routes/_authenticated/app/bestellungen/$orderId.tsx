@@ -154,8 +154,8 @@ function OrderDetailPage() {
               {(o.taxBreakdown as Array<Record<string, number | string>>).map((b, idx) => (
                 <Row
                   key={idx}
-                  label={`USt ${(Number(b['rateBp'] ?? 0) / 100).toFixed(
-                    Number(b['rateBp'] ?? 0) % 100 === 0 ? 0 : 2,
+                  label={`USt ${(Number(b['rateBasisPoints'] ?? 0) / 100).toFixed(
+                    Number(b['rateBasisPoints'] ?? 0) % 100 === 0 ? 0 : 2,
                   )} %`}
                   value={formatMoney(Number(b['taxMinor'] ?? 0), currency)}
                 />

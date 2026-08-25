@@ -453,8 +453,8 @@ function StorefrontTest() {
               <Row label="Netto" value={formatMoney(cart.tax.netTotalMinor, cart.currencyCode)} />
               {cart.tax.breakdown.map((b) => (
                 <Row
-                  key={`${b.rateBp}-${b.reason}`}
-                  label={`USt ${(b.rateBp / 100).toFixed(b.rateBp % 100 === 0 ? 0 : 2)} %`}
+                  key={`${b.rateBasisPoints}-${b.reasonCode}`}
+                  label={b.label}
                   value={formatMoney(b.taxMinor, cart.currencyCode)}
                 />
               ))}
