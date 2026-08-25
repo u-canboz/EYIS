@@ -77,6 +77,63 @@ export async function resolveProviderId(
   return first;
 }
 
+/**
+ * Redirect targets come from the browser. Without validation an attacker could
+ * craft a checkout link that sends the shopper to a phishing page after
+ * payment (open redirect). Only origins the merchant configured for the shop
+ * (shop domains, API key origins) or the app's own origin are accepted.
+ */
+export async function assertAllowedRedirect(
+  organizationId: string,
+  shopId: string,
+  rawUrl: string,
+): Promise<string> {
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    throw new Error("Die Rücksprungadresse ist keine gültige URL.");
+  }
+  if (url.protocol !== "https:" && url.hostname !== "localhost" && url.hostname !== "127.0.0.1")
+    throw new Error("Die Rücksprungadresse muss HTTPS verwenden.");
+
+  const admin = await getAdmin();
+  const allowed = new Set<string>();
+  const add = (value: string | null | undefined) => {
+    if (!value) return;
+    try {
+      allowed.add(new URL(value.includes("://") ? value : `https://${value}`).origin.toLowerCase());
+    } catch {
+      /* ignore malformed configuration */
+    }
+  };
+
+  const { data: domains } = await admin
+    .from("shop_domains")
+    .select("domain")
+    .eq("shop_id", shopId);
+  for (const row of (domains ?? []) as { domain: string }[]) add(row.domain);
+
+  const { data: keys } = await admin
+    .from("store_api_keys")
+    .select("allowed_origins, status")
+    .eq("organization_id", organizationId)
+    .eq("shop_id", shopId);
+  for (const row of (keys ?? []) as { allowed_origins: string[] | null; status: string }[]) {
+    if (row.status !== "active") continue;
+    for (const origin of row.allowed_origins ?? []) if (origin !== "*") add(origin);
+  }
+
+  add(process.env["APP_ORIGIN"]);
+  add(process.env["VITE_PUBLIC_APP_ORIGIN"]);
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") add(url.origin);
+  if (url.hostname.endsWith(".lovable.app")) add(url.origin);
+
+  if (!allowed.has(url.origin.toLowerCase()))
+    throw new Error("Diese Rücksprungadresse ist für den Shop nicht freigegeben.");
+  return url.toString();
+}
+
 export async function createPaymentSession(input: {
   organizationId: string;
   shopId: string;
@@ -87,6 +144,16 @@ export async function createPaymentSession(input: {
   cancelUrl: string;
 }) {
   const admin = await getAdmin();
+  const returnUrlSafe = await assertAllowedRedirect(
+    input.organizationId,
+    input.shopId,
+    input.returnUrl,
+  );
+  const cancelUrlSafe = await assertAllowedRedirect(
+    input.organizationId,
+    input.shopId,
+    input.cancelUrl,
+  );
   const snapshot = await loadLatestSnapshot(input.checkoutSessionId);
   const amountMinor = Number((snapshot.totals as Record<string, unknown>)["totalMinor"] ?? 0);
   if (!Number.isFinite(amountMinor) || amountMinor <= 0) throw new Error("Ungültiger Zahlbetrag.");
@@ -127,8 +194,8 @@ export async function createPaymentSession(input: {
   } as never);
 
   const provider = await getProvider(config.provider);
-  const successUrl = `${input.returnUrl}${input.returnUrl.includes("?") ? "&" : "?"}ps=${paymentSessionId}`;
-  const cancelUrl = `${input.cancelUrl}${input.cancelUrl.includes("?") ? "&" : "?"}ps=${paymentSessionId}&cancelled=1`;
+  const successUrl = `${returnUrlSafe}${returnUrlSafe.includes("?") ? "&" : "?"}ps=${paymentSessionId}`;
+  const cancelUrl = `${cancelUrlSafe}${cancelUrlSafe.includes("?") ? "&" : "?"}ps=${paymentSessionId}&cancelled=1`;
 
   try {
     const created = await provider.createSession({

@@ -1,0 +1,168 @@
+{
+  "ranAt": "2026-08-25T23:33:53.822Z",
+  "base": "http://localhost:8080",
+  "total": 32,
+  "passed": 32,
+  "results": [
+    {
+      "name": "Store API ohne Key -> 401",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Store API mit erfundenem Key -> 401",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Publishable Key erlaubt Katalog-Read",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Fremde Origin wird abgelehnt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Erlaubte Origin wird akzeptiert",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Widerrufener Key -> 401",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Cart anlegen liefert Token",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Cart ohne Token -> 401/403",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Cart mit falschem Token -> 403",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Cross-Tenant: Shop-B-Key auf Cart von Shop A -> 403/404",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Manipulierte Cart-ID -> 403/404",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Guest-Endpunkt ohne Token -> 401",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Erfundener Guest-Token -> 403",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Filter-Injection in Suche wird neutralisiert",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Übergroßer Payload -> 400",
+      "ok": true,
+      "detail": "status 400"
+    },
+    {
+      "name": "Ungültiges JSON -> 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mass Assignment (fremde Felder) wird nicht übernommen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Path Traversal im Dokumentpfad -> kein 200",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Keine Stack Traces / internen Details in Fehlern",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Guest-Lookup wird ratenbegrenzt (429)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Job communications ohne Cron-Secret -> 401",
+      "ok": true,
+      "detail": "status 401"
+    },
+    {
+      "name": "Job communications akzeptiert Publishable Key NICHT",
+      "ok": true,
+      "detail": "status 401"
+    },
+    {
+      "name": "Job automation ohne Cron-Secret -> 401",
+      "ok": true,
+      "detail": "status 401"
+    },
+    {
+      "name": "Job automation akzeptiert Publishable Key NICHT",
+      "ok": true,
+      "detail": "status 401"
+    },
+    {
+      "name": "Job expiration ohne Cron-Secret -> 401",
+      "ok": true,
+      "detail": "status 401"
+    },
+    {
+      "name": "Job expiration akzeptiert Publishable Key NICHT",
+      "ok": true,
+      "detail": "status 401"
+    },
+    {
+      "name": "X-Content-Type-Options: nosniff",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Referrer-Policy gesetzt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Permissions-Policy gesetzt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "CSP zunächst nur im Report-Only-Modus",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Store API: no-store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service-Rolle erreichbar (Kontrollabfrage)",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

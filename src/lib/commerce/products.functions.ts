@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { safeSearchTerm } from "./search";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { BlueprintData } from "./blueprint-types";
 
@@ -52,8 +53,9 @@ export const listProducts = createServerFn({ method: "POST" })
     if (data.status && data.status !== "all") query = query.eq("status", data.status);
     if (data.blueprintKey && data.blueprintKey !== "all")
       query = query.eq("blueprint_key", data.blueprintKey);
-    if (data.search?.trim()) {
-      const term = `%${data.search.trim()}%`;
+    const search = safeSearchTerm(data.search);
+    if (search) {
+      const term = `%${search}%`;
       query = query.or(`name.ilike.${term},handle.ilike.${term}`);
     }
 

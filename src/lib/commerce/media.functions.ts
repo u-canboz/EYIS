@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { safeSearchTerm } from "./search";
 
 export type MediaItem = {
   id: string;
@@ -31,8 +32,9 @@ export const listMedia = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 100);
 
-    if (data.search?.trim()) {
-      const term = `%${data.search.trim()}%`;
+    const search = safeSearchTerm(data.search);
+    if (search) {
+      const term = `%${search}%`;
       query = query.or(`filename.ilike.${term},title.ilike.${term},alt_text.ilike.${term}`);
     }
 
@@ -89,6 +91,26 @@ export const registerMedia = createServerFn({ method: "POST" })
 
     if (!data.storagePath.startsWith(`${data.organizationId}/`)) {
       throw new Error("Ungültiger Speicherpfad für diese Organisation.");
+    }
+    // Path traversal: a crafted path could otherwise point outside the tenant folder.
+    if (data.storagePath.includes("..") || /[\\\u0000]/.test(data.storagePath)) {
+      throw new Error("Ungültiger Speicherpfad.");
+    }
+    // MIME allowlist. SVG is rejected on purpose: it can carry script and would
+    // execute in the browser when opened from a signed URL.
+    const allowedMime = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "image/avif",
+      "application/pdf",
+    ];
+    if (!allowedMime.includes(data.mimeType)) {
+      throw new Error("Dieser Dateityp ist nicht erlaubt.");
+    }
+    if (!Number.isFinite(data.sizeBytes) || data.sizeBytes <= 0 || data.sizeBytes > 25_000_000) {
+      throw new Error("Die Datei ist zu groß.");
     }
 
     const { data: asset, error } = await supabase

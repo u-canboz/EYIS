@@ -2,6 +2,7 @@
  * Server-only customer reads and writes.
  * Guest order access uses 256-bit tokens; only the SHA-256 hash is stored.
  */
+import { safeSearchTerm } from "../search";
 import { emitEvent, generateToken, getAdmin, hashToken, writeAudit } from "../core.server";
 import type {
   CustomerAddress,
@@ -97,7 +98,7 @@ export async function listCustomers(input: {
     .limit(Math.min(input.limit ?? 100, 200));
   if (input.shopId) query = query.eq("shop_id", input.shopId);
   if (input.status) query = query.eq("status", input.status as never);
-  const term = (input.search ?? "").trim();
+  const term = safeSearchTerm(input.search);
   if (term) {
     query = query.or(
       [`email.ilike.%${term}%`, `first_name.ilike.%${term}%`, `last_name.ilike.%${term}%`].join(
