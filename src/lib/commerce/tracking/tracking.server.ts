@@ -2,6 +2,7 @@
 import { getAdmin } from "../core.server";
 import type { NormalizedTrackingEvent, TrackingStatusCode } from "../shipping/provider";
 import type { OrderTrackingView, TrackingEventView } from "./tracking.types";
+import { publishShipmentEvent } from "../event-payloads.server";
 
 type Row = Record<string, unknown>;
 
@@ -39,6 +40,14 @@ export async function recordTrackingEvents(
     if (result.duplicate) duplicates += 1;
     else stored += 1;
     if (result.advanced) advanced = true;
+    if (result.advanced && !result.duplicate) {
+      if (event.status === "delivered") await publishShipmentEvent(shipmentId, "shipment.delivered");
+      else if (event.status === "exception") {
+        await publishShipmentEvent(shipmentId, "shipment.exception", {
+          message: event.description ?? null,
+        });
+      }
+    }
   }
   return { stored, duplicates, advanced };
 }

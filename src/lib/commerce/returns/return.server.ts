@@ -450,7 +450,7 @@ export async function receiveReturn(input: {
   items: { returnItemId: string; quantityReceived: number; condition?: ReturnItemCondition }[];
   idempotencyKey?: string | null;
 }) {
-  return await rpc<{ status: string }>("ret_receive", {
+  const received = await rpc<{ status: string }>("ret_receive", {
     _org: input.organizationId,
     _return: input.returnId,
     _actor: input.actorId,
