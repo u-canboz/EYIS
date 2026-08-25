@@ -45,7 +45,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
     triggerConfig: { eventType: "order.created" },
     conditions: {
       mode: "all",
-      conditions: [{ field: "total_minor", operator: "greater_than", value: 50000 }],
+      conditions: [{ field: "total_gross_minor", operator: "greater_than", value: 50000 }],
     },
     actions: [
       {
