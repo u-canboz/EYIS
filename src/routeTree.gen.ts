@@ -27,6 +27,8 @@ import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './route
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
 import { Route as AuthenticatedAppDokumenteInvoiceIdRouteImport } from './routes/_authenticated/app/dokumente/$invoiceId'
 import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './routes/_authenticated/app/dokumente/einstellungen'
+import { Route as AuthenticatedAppKundenIndexRouteImport } from './routes/_authenticated/app/kunden/index'
+import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app/kunden/$customerId'
 import { Route as AuthenticatedAppLagerIndexRouteImport } from './routes/_authenticated/app/lager/index'
 import { Route as AuthenticatedAppLagerBewegungenRouteImport } from './routes/_authenticated/app/lager/bewegungen'
 import { Route as AuthenticatedAppLagerLagerorteRouteImport } from './routes/_authenticated/app/lager/lagerorte'
@@ -142,6 +144,18 @@ const AuthenticatedAppDokumenteEinstellungenRoute =
   AuthenticatedAppDokumenteEinstellungenRouteImport.update({
     id: '/app/dokumente/einstellungen',
     path: '/app/dokumente/einstellungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKundenIndexRoute =
+  AuthenticatedAppKundenIndexRouteImport.update({
+    id: '/app/kunden/',
+    path: '/app/kunden/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKundenCustomerIdRoute =
+  AuthenticatedAppKundenCustomerIdRouteImport.update({
+    id: '/app/kunden/$customerId',
+    path: '/app/kunden/$customerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppLagerIndexRoute =
@@ -274,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
@@ -290,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
@@ -312,6 +328,7 @@ export interface FileRoutesByTo {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
@@ -328,6 +345,7 @@ export interface FileRoutesByTo {
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente': typeof AuthenticatedAppDokumenteIndexRoute
+  '/app/kunden': typeof AuthenticatedAppKundenIndexRoute
   '/app/lager': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
@@ -352,6 +370,7 @@ export interface FileRoutesById {
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/_authenticated/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/_authenticated/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
   '/_authenticated/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
@@ -368,6 +387,7 @@ export interface FileRoutesById {
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/_authenticated/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
+  '/_authenticated/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/_authenticated/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
@@ -392,6 +412,7 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
     | '/app/lager/reservierungen'
@@ -408,6 +429,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen/'
     | '/app/dokumente/'
+    | '/app/kunden/'
     | '/app/lager/'
     | '/app/preise/'
     | '/app/produkte/'
@@ -430,6 +452,7 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
     | '/app/lager/reservierungen'
@@ -446,6 +469,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen'
     | '/app/dokumente'
+    | '/app/kunden'
     | '/app/lager'
     | '/app/preise'
     | '/app/produkte'
@@ -469,6 +493,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
+    | '/_authenticated/app/kunden/$customerId'
     | '/_authenticated/app/lager/bewegungen'
     | '/_authenticated/app/lager/lagerorte'
     | '/_authenticated/app/lager/reservierungen'
@@ -485,6 +510,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/stripe'
     | '/_authenticated/app/bestellungen/'
     | '/_authenticated/app/dokumente/'
+    | '/_authenticated/app/kunden/'
     | '/_authenticated/app/lager/'
     | '/_authenticated/app/preise/'
     | '/_authenticated/app/produkte/'
@@ -627,6 +653,20 @@ declare module '@tanstack/react-router' {
       path: '/app/dokumente/einstellungen'
       fullPath: '/app/dokumente/einstellungen'
       preLoaderRoute: typeof AuthenticatedAppDokumenteEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kunden/': {
+      id: '/_authenticated/app/kunden/'
+      path: '/app/kunden'
+      fullPath: '/app/kunden/'
+      preLoaderRoute: typeof AuthenticatedAppKundenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kunden/$customerId': {
+      id: '/_authenticated/app/kunden/$customerId'
+      path: '/app/kunden/$customerId'
+      fullPath: '/app/kunden/$customerId'
+      preLoaderRoute: typeof AuthenticatedAppKundenCustomerIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/lager/': {
@@ -778,6 +818,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
+  AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
   AuthenticatedAppLagerBewegungenRoute: typeof AuthenticatedAppLagerBewegungenRoute
   AuthenticatedAppLagerLagerorteRoute: typeof AuthenticatedAppLagerLagerorteRoute
   AuthenticatedAppLagerReservierungenRoute: typeof AuthenticatedAppLagerReservierungenRoute
@@ -793,6 +834,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppDokumenteIndexRoute: typeof AuthenticatedAppDokumenteIndexRoute
+  AuthenticatedAppKundenIndexRoute: typeof AuthenticatedAppKundenIndexRoute
   AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
   AuthenticatedAppPreiseIndexRoute: typeof AuthenticatedAppPreiseIndexRoute
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
@@ -815,6 +857,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppDokumenteInvoiceIdRoute,
   AuthenticatedAppDokumenteEinstellungenRoute:
     AuthenticatedAppDokumenteEinstellungenRoute,
+  AuthenticatedAppKundenCustomerIdRoute: AuthenticatedAppKundenCustomerIdRoute,
   AuthenticatedAppLagerBewegungenRoute: AuthenticatedAppLagerBewegungenRoute,
   AuthenticatedAppLagerLagerorteRoute: AuthenticatedAppLagerLagerorteRoute,
   AuthenticatedAppLagerReservierungenRoute:
@@ -839,6 +882,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppBestellungenIndexRoute:
     AuthenticatedAppBestellungenIndexRoute,
   AuthenticatedAppDokumenteIndexRoute: AuthenticatedAppDokumenteIndexRoute,
+  AuthenticatedAppKundenIndexRoute: AuthenticatedAppKundenIndexRoute,
   AuthenticatedAppLagerIndexRoute: AuthenticatedAppLagerIndexRoute,
   AuthenticatedAppPreiseIndexRoute: AuthenticatedAppPreiseIndexRoute,
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
