@@ -58,6 +58,366 @@ export type Database = {
           },
         ]
       }
+      cart_item_price_snapshots: {
+        Row: {
+          applied_promotions: Json
+          applied_rules: Json
+          cart_item_id: string
+          created_at: string
+          id: string
+          line_discount_minor: number
+          line_subtotal_minor: number
+          line_total_minor: number
+          organization_id: string
+          quantity: number
+          snapshot_id: string
+          unit_base_minor: number
+          unit_resolved_minor: number
+          variant_id: string
+        }
+        Insert: {
+          applied_promotions?: Json
+          applied_rules?: Json
+          cart_item_id: string
+          created_at?: string
+          id?: string
+          line_discount_minor?: number
+          line_subtotal_minor?: number
+          line_total_minor?: number
+          organization_id: string
+          quantity: number
+          snapshot_id: string
+          unit_base_minor?: number
+          unit_resolved_minor?: number
+          variant_id: string
+        }
+        Update: {
+          applied_promotions?: Json
+          applied_rules?: Json
+          cart_item_id?: string
+          created_at?: string
+          id?: string
+          line_discount_minor?: number
+          line_subtotal_minor?: number
+          line_total_minor?: number
+          organization_id?: string
+          quantity?: number
+          snapshot_id?: string
+          unit_base_minor?: number
+          unit_resolved_minor?: number
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_item_price_snapshots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_item_price_snapshots_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "cart_price_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_items: {
+        Row: {
+          cart_id: string
+          created_at: string
+          id: string
+          image_snapshot: string | null
+          organization_id: string
+          product_id: string
+          quantity: number
+          shop_id: string
+          sku_snapshot: string | null
+          title_snapshot: string
+          updated_at: string
+          variant_id: string
+          variant_title_snapshot: string
+        }
+        Insert: {
+          cart_id: string
+          created_at?: string
+          id?: string
+          image_snapshot?: string | null
+          organization_id: string
+          product_id: string
+          quantity: number
+          shop_id: string
+          sku_snapshot?: string | null
+          title_snapshot: string
+          updated_at?: string
+          variant_id: string
+          variant_title_snapshot: string
+        }
+        Update: {
+          cart_id?: string
+          created_at?: string
+          id?: string
+          image_snapshot?: string | null
+          organization_id?: string
+          product_id?: string
+          quantity?: number
+          shop_id?: string
+          sku_snapshot?: string | null
+          title_snapshot?: string
+          updated_at?: string
+          variant_id?: string
+          variant_title_snapshot?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_price_snapshots: {
+        Row: {
+          calculation_result: Json
+          cart_id: string
+          created_at: string
+          currency_code: string
+          discount_minor: number
+          id: string
+          organization_id: string
+          pricing_context: Json
+          pricing_engine_version: string
+          shipping_minor: number
+          shop_id: string
+          subtotal_minor: number
+          tax_minor: number
+          total_minor: number
+          version: number
+        }
+        Insert: {
+          calculation_result?: Json
+          cart_id: string
+          created_at?: string
+          currency_code: string
+          discount_minor?: number
+          id?: string
+          organization_id: string
+          pricing_context?: Json
+          pricing_engine_version: string
+          shipping_minor?: number
+          shop_id: string
+          subtotal_minor?: number
+          tax_minor?: number
+          total_minor?: number
+          version: number
+        }
+        Update: {
+          calculation_result?: Json
+          cart_id?: string
+          created_at?: string
+          currency_code?: string
+          discount_minor?: number
+          id?: string
+          organization_id?: string
+          pricing_context?: Json
+          pricing_engine_version?: string
+          shipping_minor?: number
+          shop_id?: string
+          subtotal_minor?: number
+          tax_minor?: number
+          total_minor?: number
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_price_snapshots_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_price_snapshots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_price_snapshots_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_promotion_codes: {
+        Row: {
+          cart_id: string
+          code_snapshot: string
+          created_at: string
+          id: string
+          organization_id: string
+          promotion_id: string | null
+          shop_id: string
+        }
+        Insert: {
+          cart_id: string
+          code_snapshot: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          promotion_id?: string | null
+          shop_id: string
+        }
+        Update: {
+          cart_id?: string
+          code_snapshot?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          promotion_id?: string | null
+          shop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_promotion_codes_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_promotion_codes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_promotion_codes_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_promotion_codes_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carts: {
+        Row: {
+          abandoned_at: string | null
+          anonymous_token_hash: string | null
+          completed_at: string | null
+          created_at: string
+          currency_code: string
+          customer_email: string | null
+          customer_id: string | null
+          expires_at: string
+          id: string
+          last_activity_at: string
+          locale: string
+          metadata: Json
+          organization_id: string
+          region_code: string | null
+          shop_id: string
+          status: Database["public"]["Enums"]["cart_status"]
+          updated_at: string
+        }
+        Insert: {
+          abandoned_at?: string | null
+          anonymous_token_hash?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency_code: string
+          customer_email?: string | null
+          customer_id?: string | null
+          expires_at?: string
+          id?: string
+          last_activity_at?: string
+          locale?: string
+          metadata?: Json
+          organization_id: string
+          region_code?: string | null
+          shop_id: string
+          status?: Database["public"]["Enums"]["cart_status"]
+          updated_at?: string
+        }
+        Update: {
+          abandoned_at?: string | null
+          anonymous_token_hash?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency_code?: string
+          customer_email?: string | null
+          customer_id?: string | null
+          expires_at?: string
+          id?: string
+          last_activity_at?: string
+          locale?: string
+          metadata?: Json
+          organization_id?: string
+          region_code?: string | null
+          shop_id?: string
+          status?: Database["public"]["Enums"]["cart_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carts_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -118,6 +478,356 @@ export type Database = {
           },
           {
             foreignKeyName: "categories_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkout_addresses: {
+        Row: {
+          checkout_session_id: string
+          city: string
+          company: string | null
+          country_code: string
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          organization_id: string
+          phone: string | null
+          postal_code: string
+          shop_id: string
+          state: string | null
+          street: string
+          street2: string | null
+          type: Database["public"]["Enums"]["checkout_address_type"]
+          updated_at: string
+        }
+        Insert: {
+          checkout_session_id: string
+          city: string
+          company?: string | null
+          country_code: string
+          created_at?: string
+          first_name: string
+          id?: string
+          last_name: string
+          organization_id: string
+          phone?: string | null
+          postal_code: string
+          shop_id: string
+          state?: string | null
+          street: string
+          street2?: string | null
+          type: Database["public"]["Enums"]["checkout_address_type"]
+          updated_at?: string
+        }
+        Update: {
+          checkout_session_id?: string
+          city?: string
+          company?: string | null
+          country_code?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          organization_id?: string
+          phone?: string | null
+          postal_code?: string
+          shop_id?: string
+          state?: string | null
+          street?: string
+          street2?: string | null
+          type?: Database["public"]["Enums"]["checkout_address_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_addresses_checkout_session_id_fkey"
+            columns: ["checkout_session_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_addresses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_addresses_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkout_reservations: {
+        Row: {
+          cart_id: string
+          cart_item_id: string
+          checkout_session_id: string
+          created_at: string
+          id: string
+          inventory_reservation_id: string
+          organization_id: string
+          quantity: number
+          shop_id: string
+        }
+        Insert: {
+          cart_id: string
+          cart_item_id: string
+          checkout_session_id: string
+          created_at?: string
+          id?: string
+          inventory_reservation_id: string
+          organization_id: string
+          quantity: number
+          shop_id: string
+        }
+        Update: {
+          cart_id?: string
+          cart_item_id?: string
+          checkout_session_id?: string
+          created_at?: string
+          id?: string
+          inventory_reservation_id?: string
+          organization_id?: string
+          quantity?: number
+          shop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_reservations_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_reservations_checkout_session_id_fkey"
+            columns: ["checkout_session_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_reservations_inventory_reservation_id_fkey"
+            columns: ["inventory_reservation_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_reservations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_reservations_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkout_sessions: {
+        Row: {
+          billing_address_id: string | null
+          billing_same_as_shipping: boolean
+          cart_id: string
+          completed_at: string | null
+          created_at: string
+          customer_id: string | null
+          email: string | null
+          expires_at: string
+          id: string
+          metadata: Json
+          organization_id: string
+          price_snapshot_id: string | null
+          shipping_address_id: string | null
+          shipping_option_id: string | null
+          shop_id: string
+          status: Database["public"]["Enums"]["checkout_session_status"]
+          updated_at: string
+          validated_at: string | null
+        }
+        Insert: {
+          billing_address_id?: string | null
+          billing_same_as_shipping?: boolean
+          cart_id: string
+          completed_at?: string | null
+          created_at?: string
+          customer_id?: string | null
+          email?: string | null
+          expires_at?: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          price_snapshot_id?: string | null
+          shipping_address_id?: string | null
+          shipping_option_id?: string | null
+          shop_id: string
+          status?: Database["public"]["Enums"]["checkout_session_status"]
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Update: {
+          billing_address_id?: string | null
+          billing_same_as_shipping?: boolean
+          cart_id?: string
+          completed_at?: string | null
+          created_at?: string
+          customer_id?: string | null
+          email?: string | null
+          expires_at?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          price_snapshot_id?: string | null
+          shipping_address_id?: string | null
+          shipping_option_id?: string | null
+          shop_id?: string
+          status?: Database["public"]["Enums"]["checkout_session_status"]
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_sessions_billing_address_fk"
+            columns: ["billing_address_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_sessions_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_sessions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_sessions_price_snapshot_id_fkey"
+            columns: ["price_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "cart_price_snapshots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_sessions_shipping_address_fk"
+            columns: ["shipping_address_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_sessions_shipping_option_id_fkey"
+            columns: ["shipping_option_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_sessions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checkout_snapshots: {
+        Row: {
+          billing_address: Json
+          cart_snapshot_id: string | null
+          checkout_session_id: string
+          created_at: string
+          currency_code: string
+          email: string | null
+          id: string
+          lines: Json
+          organization_id: string
+          promotions: Json
+          shipping_address: Json
+          shipping_method: Json
+          shop_id: string
+          totals: Json
+          version: number
+        }
+        Insert: {
+          billing_address?: Json
+          cart_snapshot_id?: string | null
+          checkout_session_id: string
+          created_at?: string
+          currency_code: string
+          email?: string | null
+          id?: string
+          lines?: Json
+          organization_id: string
+          promotions?: Json
+          shipping_address?: Json
+          shipping_method?: Json
+          shop_id: string
+          totals?: Json
+          version: number
+        }
+        Update: {
+          billing_address?: Json
+          cart_snapshot_id?: string | null
+          checkout_session_id?: string
+          created_at?: string
+          currency_code?: string
+          email?: string | null
+          id?: string
+          lines?: Json
+          organization_id?: string
+          promotions?: Json
+          shipping_address?: Json
+          shipping_method?: Json
+          shop_id?: string
+          totals?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_snapshots_cart_snapshot_id_fkey"
+            columns: ["cart_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "cart_price_snapshots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_snapshots_checkout_session_id_fkey"
+            columns: ["checkout_session_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_snapshots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_snapshots_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
             referencedRelation: "shops"
@@ -1671,6 +2381,84 @@ export type Database = {
         }
         Relationships: []
       }
+      shipping_methods: {
+        Row: {
+          amount_minor: number
+          code: string
+          countries: string[]
+          created_at: string
+          currency_code: string
+          description: string | null
+          free_above_minor: number | null
+          id: string
+          max_subtotal_minor: number | null
+          metadata: Json
+          min_subtotal_minor: number | null
+          name: string
+          organization_id: string
+          position: number
+          pricing_type: Database["public"]["Enums"]["shipping_pricing_type"]
+          shop_id: string
+          status: Database["public"]["Enums"]["entity_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor?: number
+          code: string
+          countries?: string[]
+          created_at?: string
+          currency_code: string
+          description?: string | null
+          free_above_minor?: number | null
+          id?: string
+          max_subtotal_minor?: number | null
+          metadata?: Json
+          min_subtotal_minor?: number | null
+          name: string
+          organization_id: string
+          position?: number
+          pricing_type?: Database["public"]["Enums"]["shipping_pricing_type"]
+          shop_id: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          code?: string
+          countries?: string[]
+          created_at?: string
+          currency_code?: string
+          description?: string | null
+          free_above_minor?: number | null
+          id?: string
+          max_subtotal_minor?: number | null
+          metadata?: Json
+          min_subtotal_minor?: number | null
+          name?: string
+          organization_id?: string
+          position?: number
+          pricing_type?: Database["public"]["Enums"]["shipping_pricing_type"]
+          shop_id?: string
+          status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_methods_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipping_methods_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shop_domains: {
         Row: {
           created_at: string
@@ -1883,6 +2671,38 @@ export type Database = {
           new_amount: number
           old_amount: number
         }[]
+      }
+      cart_cancel_checkout: {
+        Args: {
+          _actor: string
+          _idem?: string
+          _org: string
+          _session: string
+          _status?: Database["public"]["Enums"]["checkout_session_status"]
+        }
+        Returns: Json
+      }
+      cart_expire_checkout_sessions: { Args: { _org?: string }; Returns: Json }
+      cart_pick_location: {
+        Args: { _item: string; _org: string; _qty: number; _shop: string }
+        Returns: string
+      }
+      cart_release_session_reservations: {
+        Args: { _org: string; _session: string }
+        Returns: number
+      }
+      cart_start_checkout: {
+        Args: {
+          _actor: string
+          _cart: string
+          _email?: string
+          _idem?: string
+          _org: string
+          _shop: string
+          _snapshot: string
+          _ttl_minutes?: number
+        }
+        Returns: Json
       }
       current_org_ids: { Args: never; Returns: string[] }
       has_org_role: {
@@ -2111,6 +2931,15 @@ export type Database = {
         | "developer"
         | "read_only"
       blueprint_status: "draft" | "active" | "deprecated"
+      cart_status: "active" | "checkout" | "completed" | "abandoned" | "expired"
+      checkout_address_type: "shipping" | "billing"
+      checkout_session_status:
+        | "open"
+        | "validated"
+        | "awaiting_payment"
+        | "completed"
+        | "expired"
+        | "cancelled"
       entity_status: "active" | "inactive" | "archived"
       inventory_movement_type:
         | "initial_stock"
@@ -2135,6 +2964,7 @@ export type Database = {
         | "buy_x_get_y"
         | "free_shipping"
       reservation_status: "active" | "released" | "committed" | "expired"
+      shipping_pricing_type: "fixed" | "free"
       transfer_status: "draft" | "in_transit" | "completed" | "cancelled"
     }
     CompositeTypes: {
@@ -2276,6 +3106,16 @@ export const Constants = {
         "read_only",
       ],
       blueprint_status: ["draft", "active", "deprecated"],
+      cart_status: ["active", "checkout", "completed", "abandoned", "expired"],
+      checkout_address_type: ["shipping", "billing"],
+      checkout_session_status: [
+        "open",
+        "validated",
+        "awaiting_payment",
+        "completed",
+        "expired",
+        "cancelled",
+      ],
       entity_status: ["active", "inactive", "archived"],
       inventory_movement_type: [
         "initial_stock",
@@ -2302,6 +3142,7 @@ export const Constants = {
         "free_shipping",
       ],
       reservation_status: ["active", "released", "committed", "expired"],
+      shipping_pricing_type: ["fixed", "free"],
       transfer_status: ["draft", "in_transit", "completed", "cancelled"],
     },
   },

@@ -48,6 +48,9 @@ export type PromotionRow = {
   ends_at: string | null;
   priority: number;
   stackable: boolean;
+  /** Modelled in phase 2/4, enforced once customers and orders exist. */
+  usageLimit?: number | null;
+  usageLimitPerCustomer?: number | null;
   conditions: PromotionCondition[];
   actions: PromotionAction[];
 };
