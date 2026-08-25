@@ -38,6 +38,7 @@ import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/
 import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
+import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
@@ -205,6 +206,12 @@ const AuthenticatedAppVersandIndexRoute =
     path: '/app/versand/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppVersandFulfillmentIdRoute =
+  AuthenticatedAppVersandFulfillmentIdRouteImport.update({
+    id: '/app/versand/$fulfillmentId',
+    path: '/app/versand/$fulfillmentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppVersandVersandartenRoute =
   AuthenticatedAppVersandVersandartenRouteImport.update({
     id: '/app/versand/versandarten',
@@ -247,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
+  '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -280,6 +288,7 @@ export interface FileRoutesByTo {
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
+  '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
@@ -315,6 +324,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
+  '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -350,6 +360,7 @@ export interface FileRouteTypes {
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
     | '/app/system/storefront-test'
+    | '/app/versand/$fulfillmentId'
     | '/app/versand/versandarten'
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen/'
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
     | '/app/system/storefront-test'
+    | '/app/versand/$fulfillmentId'
     | '/app/versand/versandarten'
     | '/api/public/webhooks/stripe'
     | '/app/bestellungen'
@@ -417,6 +429,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/$productId'
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/system/storefront-test'
+    | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/versandarten'
     | '/api/public/webhooks/stripe'
     | '/_authenticated/app/bestellungen/'
@@ -641,6 +654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppVersandIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/versand/$fulfillmentId': {
+      id: '/_authenticated/app/versand/$fulfillmentId'
+      path: '/app/versand/$fulfillmentId'
+      fullPath: '/app/versand/$fulfillmentId'
+      preLoaderRoute: typeof AuthenticatedAppVersandFulfillmentIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/versand/versandarten': {
       id: '/_authenticated/app/versand/versandarten'
       path: '/app/versand/versandarten'
@@ -686,6 +706,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
+  AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
@@ -721,6 +742,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppProdukteNeuRoute: AuthenticatedAppProdukteNeuRoute,
   AuthenticatedAppSystemStorefrontTestRoute:
     AuthenticatedAppSystemStorefrontTestRoute,
+  AuthenticatedAppVersandFulfillmentIdRoute:
+    AuthenticatedAppVersandFulfillmentIdRoute,
   AuthenticatedAppVersandVersandartenRoute:
     AuthenticatedAppVersandVersandartenRoute,
   AuthenticatedAppBestellungenIndexRoute:

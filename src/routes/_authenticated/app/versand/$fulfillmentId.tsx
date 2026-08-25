@@ -70,6 +70,7 @@ function FulfillmentDetail() {
   const markShipped = useServerFn(markShippedFn);
   const cancelShip = useServerFn(cancelShipmentFn);
   const refresh = useServerFn(refreshTrackingFn);
+  const listEventsFn = useServerFn(listTrackingEventsFn);
 
   const [picked, setPicked] = useState<Record<string, string>>({});
   const [packWeight, setPackWeight] = useState("");
@@ -99,7 +100,6 @@ function FulfillmentDetail() {
     enabled: !!organizationId && !!openEvents,
     queryFn: () => listEventsFn({ data: { organizationId, shipmentId: openEvents! } }),
   });
-  const listEventsFn = useServerFn(listTrackingEventsFn);
 
   const view = detail.data?.fulfillment;
   const next = detail.data?.nextAction;
