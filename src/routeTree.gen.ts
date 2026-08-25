@@ -37,6 +37,7 @@ import { Route as AuthenticatedAppProdukteIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/_authenticated/app/produkte/$productId'
 import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
+import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
@@ -198,6 +199,12 @@ const AuthenticatedAppSystemStorefrontTestRoute =
     path: '/app/system/storefront-test',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppVersandIndexRoute =
+  AuthenticatedAppVersandIndexRouteImport.update({
+    id: '/app/versand/',
+    path: '/app/versand/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppVersandVersandartenRoute =
   AuthenticatedAppVersandVersandartenRouteImport.update({
     id: '/app/versand/versandarten',
@@ -246,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
+  '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
 export interface FileRoutesByTo {
@@ -278,6 +286,7 @@ export interface FileRoutesByTo {
   '/app/lager': typeof AuthenticatedAppLagerIndexRoute
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
+  '/app/versand': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
 export interface FileRoutesById {
@@ -312,6 +321,7 @@ export interface FileRoutesById {
   '/_authenticated/app/lager/': typeof AuthenticatedAppLagerIndexRoute
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
+  '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
 }
 export interface FileRouteTypes {
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/app/lager/'
     | '/app/preise/'
     | '/app/produkte/'
+    | '/app/versand/'
     | '/api/public/webhooks/carrier/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -378,6 +389,7 @@ export interface FileRouteTypes {
     | '/app/lager'
     | '/app/preise'
     | '/app/produkte'
+    | '/app/versand'
     | '/api/public/webhooks/carrier/$provider'
   id:
     | '__root__'
@@ -411,6 +423,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/lager/'
     | '/_authenticated/app/preise/'
     | '/_authenticated/app/produkte/'
+    | '/_authenticated/app/versand/'
     | '/api/public/webhooks/carrier/$provider'
   fileRoutesById: FileRoutesById
 }
@@ -621,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSystemStorefrontTestRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/versand/': {
+      id: '/_authenticated/app/versand/'
+      path: '/app/versand'
+      fullPath: '/app/versand/'
+      preLoaderRoute: typeof AuthenticatedAppVersandIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/versand/versandarten': {
       id: '/_authenticated/app/versand/versandarten'
       path: '/app/versand/versandarten'
@@ -671,6 +691,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppLagerIndexRoute: typeof AuthenticatedAppLagerIndexRoute
   AuthenticatedAppPreiseIndexRoute: typeof AuthenticatedAppPreiseIndexRoute
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
+  AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -707,6 +728,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppLagerIndexRoute: AuthenticatedAppLagerIndexRoute,
   AuthenticatedAppPreiseIndexRoute: AuthenticatedAppPreiseIndexRoute,
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
+  AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
