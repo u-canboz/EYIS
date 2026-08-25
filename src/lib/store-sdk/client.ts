@@ -29,6 +29,7 @@ import type {
   StorePaymentStatus,
   StoreProduct,
   StoreProductSummary,
+  StoreShippingOption,
   StoreReturn,
   StoreReturnEligibility,
 } from "./types";
@@ -166,7 +167,7 @@ export function createCommerceClient(input: CommerceClientConfig) {
       input: { type: "shipping" | "billing"; address: Record<string, unknown>; billingSameAsShipping?: boolean },
     ) => withCartToken<StoreCheckout>(`/checkout/${sessionId}/address`, { method: "POST", body: input }),
     shippingOptions: (sessionId: string) =>
-      withCartToken<StoreCheckout["shippingOption"][]>(`/checkout/${sessionId}/shipping-options`, {}),
+      withCartToken<StoreShippingOption[]>(`/checkout/${sessionId}/shipping-options`, {}),
     setShippingOption: (sessionId: string, shippingMethodId: string) =>
       withCartToken<StoreCheckout>(`/checkout/${sessionId}/shipping-option`, {
         method: "POST",

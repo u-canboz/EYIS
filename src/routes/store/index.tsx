@@ -57,13 +57,13 @@ function StoreCatalog() {
         <p className="rounded-lg border border-destructive/40 p-4 text-sm text-destructive">
           {(active.error as Error).message}
         </p>
-      ) : (active.data?.items ?? []).length === 0 ? (
+      ) : (active.data?.data ?? []).length === 0 ? (
         <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
           Keine Produkte gefunden.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {(active.data?.items ?? []).map((product) => (
+          {(active.data?.data ?? []).map((product) => (
             <Link key={product.id} to="/store/produkt/$handle" params={{ handle: product.handle }}>
               <Card className="h-full transition hover:border-primary">
                 <CardContent className="space-y-2 pt-6">
@@ -77,7 +77,7 @@ function StoreCatalog() {
                   ) : null}
                   <h2 className="font-medium">{product.title}</h2>
                   <p className="text-sm text-muted-foreground">
-                    {price(product.price.amountMinor, product.price.currencyCode)}
+                    {price(product.price?.unitAmountMinor ?? 0, product.price?.currencyCode ?? "EUR")}
                   </p>
                 </CardContent>
               </Card>
