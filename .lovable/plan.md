@@ -61,7 +61,9 @@ Fehlende Events werden an den bestehenden Stellen ausschließlich als zusätzlic
 
 ## Outgoing Webhooks
 
-`webhook.send` nur über HTTPS, mit SSRF-Schutz (Blockliste für localhost, 127.0.0.0/8, private Bereiche, link-local und Metadaten-Endpunkte, Auflösung vor Verbindung, keine Redirects in gesperrte Ziele), HMAC-Signatur `X-Commerce-Signature`, Timeout, begrenzte Responsegröße, Retry und Logs ohne Secrets. Payload strukturiert: `event`, `id`, `created_at`, `shop_id`, `data` — ohne unnötige personenbezogene Daten.
+`webhook.send` nur über HTTPS, HMAC-Signatur `X-Commerce-Signature`, Timeout, begrenzte Responsegröße, Retry und Logs ohne Secrets. Payload strukturiert: `event`, `id`, `created_at`, `shop_id`, `data` — ohne unnötige personenbezogene Daten.
+
+SSRF- und DNS-Rebinding-Schutz: Der Hostname wird unmittelbar vor jedem Request aufgelöst, jede zurückgelieferte IP gegen die Blockliste geprüft (localhost, 127.0.0.0/8, 0.0.0.0/8, 10/8, 172.16/12, 192.168/16, 169.254/16 inkl. Metadaten-Endpunkte, IPv6-Loopback/ULA/link-local, IPv4-mapped IPv6) und die Verbindung genau gegen die geprüfte IP aufgebaut (Pinning über Connect-Hook bzw. IP-Ziel mit `Host`-Header), damit zwischen Prüfung und Verbindung keine zweite Auflösung stattfindet. Redirects sind vollständig deaktiviert (`redirect: 'manual'`); eine 3xx-Antwort gilt als Fehler `invalid_configuration`, wird nicht verfolgt und nicht erneut versucht. Jeder Retry durchläuft die Auflösung und Validierung erneut — ein zuvor erfolgreiches Ziel gilt nie als dauerhaft vertrauenswürdig.
 
 ## Consent-Grenze
 
