@@ -237,3 +237,56 @@ export const automationInboxFn = createServerFn({ method: "POST" })
       runs24h: rules.reduce((sum, r) => sum + r.runs24h, 0),
     };
   });
+
+/* ------------------------------- templates -------------------------------- */
+
+export const installAutomationTemplateFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: Scope & { templateKey: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    await assertPermission(context.supabase, context.userId, data.organizationId, "automations.manage");
+    const { findTemplate } = await import("./templates");
+    const template = findTemplate(data.templateKey);
+    if (!template) throw new Error("Vorlage nicht gefunden.");
+
+    // Invoice templates must never bypass the shop's invoicing strategy.
+    let actions = template.actions;
+    let note: string | null = null;
+    if (template.requiresManualInvoicing) {
+      const { getAdmin } = await import("../core.server");
+      const admin = await getAdmin();
+      const { data: settings } = await admin
+        .from("invoice_settings")
+        .select("creation_strategy")
+        .eq("shop_id", data.shopId)
+        .maybeSingle();
+      const strategy = (settings as { creation_strategy?: string } | null)?.creation_strategy ?? "manual";
+      if (strategy !== "manual") {
+        actions = [];
+        note =
+          "Dieser Shop erstellt Rechnungen bereits automatisch. Die Rechnungs-Aktionen wurden deshalb nicht übernommen.";
+      }
+    }
+
+    const { saveRule } = await import("./rules.server");
+    const result = await saveRule({
+      organizationId: data.organizationId,
+      shopId: data.shopId,
+      name: template.name,
+      description: template.description,
+      triggerType: template.triggerType,
+      triggerConfig: template.triggerConfig,
+      conditions: template.conditions,
+      actions: actions.map((a, i) => ({
+        position: i + 1,
+        actionType: a.actionType,
+        config: a.config,
+        delaySeconds: a.delaySeconds ?? 0,
+        continueOnFailure: false,
+      })),
+      templateKey: template.key,
+      actorId: context.userId,
+    });
+    return { ...result, note };
+  });
