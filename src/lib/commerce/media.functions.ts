@@ -92,6 +92,26 @@ export const registerMedia = createServerFn({ method: "POST" })
     if (!data.storagePath.startsWith(`${data.organizationId}/`)) {
       throw new Error("Ungültiger Speicherpfad für diese Organisation.");
     }
+    // Path traversal: a crafted path could otherwise point outside the tenant folder.
+    if (data.storagePath.includes("..") || /[\\\u0000]/.test(data.storagePath)) {
+      throw new Error("Ungültiger Speicherpfad.");
+    }
+    // MIME allowlist. SVG is rejected on purpose: it can carry script and would
+    // execute in the browser when opened from a signed URL.
+    const allowedMime = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "image/avif",
+      "application/pdf",
+    ];
+    if (!allowedMime.includes(data.mimeType)) {
+      throw new Error("Dieser Dateityp ist nicht erlaubt.");
+    }
+    if (!Number.isFinite(data.sizeBytes) || data.sizeBytes <= 0 || data.sizeBytes > 25_000_000) {
+      throw new Error("Die Datei ist zu groß.");
+    }
 
     const { data: asset, error } = await supabase
       .from("media_assets")
