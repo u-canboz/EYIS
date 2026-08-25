@@ -96,6 +96,8 @@ export type OrderDetailView = OrderListItem & {
   discountMinor: number;
   shippingMinor: number;
   taxMinor: number;
+  netTotalMinor: number;
+  taxBreakdown: JsonValue[];
   internalNote: string | null;
   cancelReason: string | null;
   shippingMethod: Record<string, JsonValue>;

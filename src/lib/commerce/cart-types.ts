@@ -64,6 +64,8 @@ export type CartEngineInput = {
   } | null;
   promotions: import("./pricing-types").PromotionRow[];
   taxMinor: number;
+  /** True when line prices already contain tax (gross shops) — tax is not added on top. */
+  taxIncluded?: boolean;
   now: string;
 };
 
@@ -132,6 +134,17 @@ export type CartView = {
   snapshotVersion: number;
   pricingEngineVersion: string;
   warnings: string[];
+  /** Tax breakdown of the current calculation (phase 6). */
+  tax: {
+    engineVersion: string;
+    calculationMode: "gross" | "net";
+    netTotalMinor: number;
+    taxMinor: number;
+    grossTotalMinor: number;
+    reverseCharge: boolean;
+    breakdown: import("./tax/tax.types").TaxBreakdownEntry[];
+    notes: string[];
+  };
 };
 
 export type AddressInput = {

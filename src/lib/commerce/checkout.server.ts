@@ -4,8 +4,10 @@
  * orchestrates and snapshots.
  */
 import { getAdmin } from "./core.server";
-import { buildCartView, loadCartAuthorized, repriceCart, type CartRow } from "./cart.server";
+import { buildCartView, loadCartAuthorized, mergeTaxIntoLines, repriceCart, type CartRow } from "./cart.server";
 import type { AddressInput, CheckoutView, ShippingMethodView } from "./cart-types";
+import { writeTaxSnapshot } from "./tax/tax.server";
+import { isVatValidationValid } from "./tax/vat.server";
 
 export type SessionRow = {
   id: string;
@@ -20,6 +22,10 @@ export type SessionRow = {
   shipping_option_id: string | null;
   price_snapshot_id: string | null;
   expires_at: string;
+  customer_type: "consumer" | "business";
+  company_name: string | null;
+  customer_vat_id: string | null;
+  vat_validation_id: string | null;
 };
 
 const OPEN_STATES = ["open", "validated", "awaiting_payment"];
@@ -29,7 +35,7 @@ export async function loadSession(sessionId: string) {
   const { data, error } = await admin
     .from("checkout_sessions")
     .select(
-      "id, organization_id, shop_id, cart_id, status, email, shipping_address_id, billing_address_id, billing_same_as_shipping, shipping_option_id, price_snapshot_id, expires_at",
+      "id, organization_id, shop_id, cart_id, status, email, shipping_address_id, billing_address_id, billing_same_as_shipping, shipping_option_id, price_snapshot_id, expires_at, customer_type, company_name, customer_vat_id, vat_validation_id",
     )
     .eq("id", sessionId)
     .maybeSingle();
@@ -212,9 +218,12 @@ export async function buildCheckoutView(session: SessionRow, cart: CartRow): Pro
     if (data) shippingMethod = mapShippingMethod(data as Record<string, unknown>);
   }
 
+  const vatIdValid = await isVatValidationValid(session.vat_validation_id);
   const cartView = await buildCartView(cart, {
     shippingMethodId: session.shipping_option_id,
     countryCode: shippingAddress?.countryCode ?? null,
+    customerType: session.customer_type,
+    vatIdValid,
     persist: false,
   });
 
@@ -249,10 +258,21 @@ export async function buildCheckoutView(session: SessionRow, cart: CartRow): Pro
 /** Final, immutable checkout snapshot — the handover point to phase 5. */
 export async function writeCheckoutSnapshot(session: SessionRow, cart: CartRow, view: CheckoutView) {
   const admin = await getAdmin();
-  const { snapshotId, calculation } = await repriceCart(cart, {
+  const vatIdValid = await isVatValidationValid(session.vat_validation_id);
+  const { snapshotId, calculation, tax } = await repriceCart(cart, {
     shippingMethodId: session.shipping_option_id,
     countryCode: view.shippingAddress?.countryCode ?? null,
+    customerType: session.customer_type,
+    vatIdValid,
     persist: true,
+  });
+
+  const taxSnapshotId = await writeTaxSnapshot({
+    organizationId: session.organization_id,
+    shopId: session.shop_id,
+    cartId: session.cart_id,
+    checkoutSessionId: session.id,
+    result: tax,
   });
 
   const { data: last } = await admin
@@ -273,8 +293,15 @@ export async function writeCheckoutSnapshot(session: SessionRow, cart: CartRow, 
     shipping_address: (view.shippingAddress ?? {}) as never,
     billing_address: (view.billingAddress ?? {}) as never,
     shipping_method: (view.shippingMethod ?? {}) as never,
-    totals: calculation.totals as never,
-    lines: calculation.lines as never,
+    totals: {
+      ...calculation.totals,
+      netTotalMinor: tax.netTotalMinor,
+      taxMinor: tax.taxMinor,
+      grossTotalMinor: calculation.totals.totalMinor,
+    } as never,
+    lines: mergeTaxIntoLines(calculation, tax) as never,
+    tax_breakdown: tax.breakdown as never,
+    tax_engine_version: tax.engineVersion,
     promotions: calculation.appliedPromotions as never,
     currency_code: calculation.currencyCode,
   });
@@ -285,5 +312,5 @@ export async function writeCheckoutSnapshot(session: SessionRow, cart: CartRow, 
     .update({ status: "validated", validated_at: new Date().toISOString(), price_snapshot_id: snapshotId })
     .eq("id", session.id);
 
-  return { version, totals: calculation.totals };
+  return { version, totals: calculation.totals, taxSnapshotId };
 }
