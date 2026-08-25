@@ -16,7 +16,7 @@ Domain Event -> Rule -> Template Version -> Context -> Render (HTML+Text)
 - `communication_branding` — je Shop: Logo, Farben, Schrift, Buttonstil, Radius, Footer, Support, Social Links. Vorbelegung aus Shop-/Document-Branding als expliziter Kopiervorgang.
 - `communications` — vollständiger Snapshot je Sendung (Template-Version, Locale, Subject, HTML, Text, Empfänger, Sender, Quell-Event, Status, Zeitstempel).
 - `communication_attempts` — Versuchsnummer, Provider, `provider_message_id`, Fehlercode, Zeiten.
-- `communication_provider_events` — unveränderbares Journal, Unique `(provider, provider_event_id)`, `signature_verified`, `processing_status`.
+- `communication_provider_events` — unveränderbares Journal, Unique `(provider, provider_event_id)`, `signature_verified`, `processing_status`. Ein Trigger sperrt jedes UPDATE außer auf `processing_status` und `processed_at`; Payload, Signaturflag, Event-ID und Empfangszeit sind nach dem Insert unveränderbar, DELETE ist ausgeschlossen.
 - `communication_suppressions` — Adresse + Grund (`hard_bounce | complaint | manual`), Quelle, optionales Ablaufdatum. Marketing-Abmeldung unterdrückt niemals notwendige transaktionale Mails; das wird über den Grund fachlich getrennt.
 - `communication_rules` — Event-Typ → Template, Kanal, `enabled`, `delay_seconds`, `conditions` (JSONB, kontrollierte Felder), Priorität.
 
