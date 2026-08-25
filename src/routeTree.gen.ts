@@ -25,6 +25,7 @@ import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authenticated/app/warenkoerbe'
 import { Route as AuthenticatedAppZahlungenRouteImport } from './routes/_authenticated/app/zahlungen'
 import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/bestellungen/$orderId'
+import { Route as AuthenticatedAppAutomationenIndexRouteImport } from './routes/_authenticated/app/automationen/index'
 import { Route as AuthenticatedAppBestellungenIndexRouteImport } from './routes/_authenticated/app/bestellungen/index'
 import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './routes/_authenticated/app/bestellungen/$orderId'
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
@@ -147,6 +148,12 @@ const PortalBestellungenOrderIdRoute =
     id: '/portal/bestellungen/$orderId',
     path: '/portal/bestellungen/$orderId',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedAppAutomationenIndexRoute =
+  AuthenticatedAppAutomationenIndexRouteImport.update({
+    id: '/app/automationen/',
+    path: '/app/automationen/',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppBestellungenIndexRoute =
   AuthenticatedAppBestellungenIndexRouteImport.update({
@@ -421,6 +428,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
   '/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
@@ -477,6 +485,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/app/automationen': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
   '/app/dokumente': typeof AuthenticatedAppDokumenteIndexRoute
   '/app/kommunikation': typeof AuthenticatedAppKommunikationIndexRoute
@@ -535,6 +544,7 @@ export interface FileRoutesById {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
+  '/_authenticated/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
   '/_authenticated/app/dokumente/': typeof AuthenticatedAppDokumenteIndexRoute
   '/_authenticated/app/kommunikation/': typeof AuthenticatedAppKommunikationIndexRoute
@@ -593,6 +603,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
+    | '/app/automationen/'
     | '/app/bestellungen/'
     | '/app/dokumente/'
     | '/app/kommunikation/'
@@ -649,6 +660,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
+    | '/app/automationen'
     | '/app/bestellungen'
     | '/app/dokumente'
     | '/app/kommunikation'
@@ -706,6 +718,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/webhooks/stripe'
+    | '/_authenticated/app/automationen/'
     | '/_authenticated/app/bestellungen/'
     | '/_authenticated/app/dokumente/'
     | '/_authenticated/app/kommunikation/'
@@ -851,6 +864,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/portal/bestellungen/$orderId'
       preLoaderRoute: typeof PortalBestellungenOrderIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/app/automationen/': {
+      id: '/_authenticated/app/automationen/'
+      path: '/app/automationen'
+      fullPath: '/app/automationen/'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/bestellungen/': {
       id: '/_authenticated/app/bestellungen/'
@@ -1159,6 +1179,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
+  AuthenticatedAppAutomationenIndexRoute: typeof AuthenticatedAppAutomationenIndexRoute
   AuthenticatedAppBestellungenIndexRoute: typeof AuthenticatedAppBestellungenIndexRoute
   AuthenticatedAppDokumenteIndexRoute: typeof AuthenticatedAppDokumenteIndexRoute
   AuthenticatedAppKommunikationIndexRoute: typeof AuthenticatedAppKommunikationIndexRoute
@@ -1219,6 +1240,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppVersandDienstleisterRoute,
   AuthenticatedAppVersandVersandartenRoute:
     AuthenticatedAppVersandVersandartenRoute,
+  AuthenticatedAppAutomationenIndexRoute:
+    AuthenticatedAppAutomationenIndexRoute,
   AuthenticatedAppBestellungenIndexRoute:
     AuthenticatedAppBestellungenIndexRoute,
   AuthenticatedAppDokumenteIndexRoute: AuthenticatedAppDokumenteIndexRoute,
