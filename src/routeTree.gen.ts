@@ -32,6 +32,7 @@ import { Route as AuthenticatedAppDokumenteInvoiceIdRouteImport } from './routes
 import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './routes/_authenticated/app/dokumente/einstellungen'
 import { Route as AuthenticatedAppKommunikationIndexRouteImport } from './routes/_authenticated/app/kommunikation/index'
 import { Route as AuthenticatedAppKommunikationBrandingRouteImport } from './routes/_authenticated/app/kommunikation/branding'
+import { Route as AuthenticatedAppKommunikationRegelnRouteImport } from './routes/_authenticated/app/kommunikation/regeln'
 import { Route as AuthenticatedAppKundenIndexRouteImport } from './routes/_authenticated/app/kunden/index'
 import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app/kunden/$customerId'
 import { Route as AuthenticatedAppLagerIndexRouteImport } from './routes/_authenticated/app/lager/index'
@@ -186,6 +187,12 @@ const AuthenticatedAppKommunikationBrandingRoute =
   AuthenticatedAppKommunikationBrandingRouteImport.update({
     id: '/app/kommunikation/branding',
     path: '/app/kommunikation/branding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppKommunikationRegelnRoute =
+  AuthenticatedAppKommunikationRegelnRouteImport.update({
+    id: '/app/kommunikation/regeln',
+    path: '/app/kommunikation/regeln',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppKundenIndexRoute =
@@ -388,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
@@ -442,6 +450,7 @@ export interface FileRoutesByTo {
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
@@ -498,6 +507,7 @@ export interface FileRoutesById {
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/_authenticated/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/_authenticated/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/_authenticated/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/_authenticated/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
@@ -554,6 +564,7 @@ export interface FileRouteTypes {
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
     | '/app/kommunikation/branding'
+    | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
@@ -608,6 +619,7 @@ export interface FileRouteTypes {
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
     | '/app/kommunikation/branding'
+    | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
@@ -663,6 +675,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
     | '/_authenticated/app/kommunikation/branding'
+    | '/_authenticated/app/kommunikation/regeln'
     | '/_authenticated/app/kunden/$customerId'
     | '/_authenticated/app/lager/bewegungen'
     | '/_authenticated/app/lager/lagerorte'
@@ -873,6 +886,13 @@ declare module '@tanstack/react-router' {
       path: '/app/kommunikation/branding'
       fullPath: '/app/kommunikation/branding'
       preLoaderRoute: typeof AuthenticatedAppKommunikationBrandingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/kommunikation/regeln': {
+      id: '/_authenticated/app/kommunikation/regeln'
+      path: '/app/kommunikation/regeln'
+      fullPath: '/app/kommunikation/regeln'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationRegelnRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/kunden/': {
@@ -1102,6 +1122,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
   AuthenticatedAppKommunikationBrandingRoute: typeof AuthenticatedAppKommunikationBrandingRoute
+  AuthenticatedAppKommunikationRegelnRoute: typeof AuthenticatedAppKommunikationRegelnRoute
   AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
   AuthenticatedAppLagerBewegungenRoute: typeof AuthenticatedAppLagerBewegungenRoute
   AuthenticatedAppLagerLagerorteRoute: typeof AuthenticatedAppLagerLagerorteRoute
@@ -1151,6 +1172,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppDokumenteEinstellungenRoute,
   AuthenticatedAppKommunikationBrandingRoute:
     AuthenticatedAppKommunikationBrandingRoute,
+  AuthenticatedAppKommunikationRegelnRoute:
+    AuthenticatedAppKommunikationRegelnRoute,
   AuthenticatedAppKundenCustomerIdRoute: AuthenticatedAppKundenCustomerIdRoute,
   AuthenticatedAppLagerBewegungenRoute: AuthenticatedAppLagerBewegungenRoute,
   AuthenticatedAppLagerLagerorteRoute: AuthenticatedAppLagerLagerorteRoute,
