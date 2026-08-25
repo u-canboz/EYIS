@@ -150,7 +150,7 @@ export const deleteMedia = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { assertPermission, writeAudit } = await import("./core.server");
-    await assertPermission(supabase, userId, data.organizationId, "media.delete");
+    await assertPermission(supabase, userId, data.organizationId, "media.manage");
 
     const { data: asset, error: readErr } = await supabase
       .from("media_assets")

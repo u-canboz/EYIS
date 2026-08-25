@@ -187,7 +187,7 @@ export const saveCollection = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { assertPermission, writeAudit } = await import("./core.server");
     const { uniqueHandle } = await import("./catalog.server");
-    await assertPermission(supabase, userId, data.organizationId, "categories.manage");
+    await assertPermission(supabase, userId, data.organizationId, "collections.manage");
     if (!data.name.trim()) throw new Error("Bitte gib einen Namen an.");
 
     if (data.id) {
@@ -230,7 +230,7 @@ export const deleteCollection = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { assertPermission } = await import("./core.server");
-    await assertPermission(supabase, userId, data.organizationId, "categories.manage");
+    await assertPermission(supabase, userId, data.organizationId, "collections.manage");
     const { error } = await supabase
       .from("collections")
       .delete()
