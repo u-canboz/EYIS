@@ -49,24 +49,24 @@ async function main() {
   });
 
   // --------------------------------------------------- A3.1 Key handling
-  check("Store API ohne Key -> 401", (await call("/catalog/products")).status === 401);
+  check("Store API ohne Key -> 401", (await call("/products")).status === 401);
   check(
     "Store API mit erfundenem Key -> 401",
-    (await call("/catalog/products", { key: "pk_test_" + "0".repeat(64) })).status === 401,
+    (await call("/products", { key: "pk_test_" + "0".repeat(64) })).status === 401,
   );
   check(
     "Publishable Key erlaubt Katalog-Read",
-    (await call("/catalog/products", { key: keyA.key })).status === 200,
+    (await call("/products", { key: keyA.key })).status === 200,
   );
   check(
     "Fremde Origin wird abgelehnt",
-    (await call("/catalog/products", { key: keyA.key, headers: { origin: "https://evil.test" } }))
+    (await call("/products", { key: keyA.key, headers: { origin: "https://evil.test" } }))
       .status === 403,
   );
   check(
     "Erlaubte Origin wird akzeptiert",
     (
-      await call("/catalog/products", {
+      await call("/products", {
         key: keyA.key,
         headers: { origin: "https://shop-a.example" },
       })
@@ -75,7 +75,7 @@ async function main() {
   await updateKey({ organizationId: ORG_A, keyId: keyA.id, status: "revoked", actorId: null });
   check(
     "Widerrufener Key -> 401",
-    (await call("/catalog/products", { key: keyA.key })).status === 401,
+    (await call("/products", { key: keyA.key })).status === 401,
   );
   const keyA2 = await createKey({
     organizationId: ORG_A,
@@ -140,7 +140,7 @@ async function main() {
 
   // ------------------------------------------------------- A3.4 Eingaben
   const injection = await call(
-    `/catalog/products?search=${encodeURIComponent("a,handle.neq.zzz,name.ilike.*")}`,
+    `/products?search=${encodeURIComponent("a,handle.neq.zzz,name.ilike.*")}`,
     { key: keyA2.key },
   );
   check("Filter-Injection in Suche wird neutralisiert", injection.status === 200);
@@ -233,14 +233,12 @@ async function main() {
     "CSP zunächst nur im Report-Only-Modus",
     Boolean(h("content-security-policy-report-only")) && !h("content-security-policy"),
   );
-  const apiRes = await fetch(`${BASE}/catalog/products`, {
+  const apiRes = await fetch(`${BASE}/products`, {
     headers: { "x-commerce-key": keyA2.key },
   });
   check("Store API: no-store", (apiRes.headers.get("cache-control") ?? "").includes("no-store"));
 
   // -------------------------------------------- A3.9 Datenbank-Privilegien
-  const { data: privs } = await admin.rpc("qa_secdef_privs" as never).catch(() => ({ data: null }));
-  void privs;
   const { data: retExec } = await admin
     .from("store_api_keys")
     .select("id")
