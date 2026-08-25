@@ -7,12 +7,12 @@
   {
     "name": "Concurrency: genau 1 Checkout mit Reservierung",
     "ok": true,
-    "detail": "ok=1 rejected=Nicht genügend Bestand verfügbar (verfügbar: 0, angefragt: 1)."
+    "detail": "ok=1 rejected=Nicht genügend Bestand für „QA Testprodukt“ (verfügbar: 0)."
   },
   {
     "name": "Concurrency: genau 1 Order",
     "ok": true,
-    "detail": "ORD-000005"
+    "detail": "ORD-000007"
   },
   {
     "name": "Concurrency: kein Overselling (on_hand 0, reserved 0)",
@@ -22,7 +22,7 @@
   {
     "name": "Refund Idempotency: identische Refund-ID",
     "ok": true,
-    "detail": "46e1c1a3-6afb-427e-9da6-7cadb2d04f6f"
+    "detail": "f75a8be0-7d7c-4f4a-952e-504bc158f2df"
   },
   {
     "name": "Refund Idempotency: genau eine Rückerstattung",
@@ -61,13 +61,13 @@
   },
   {
     "name": "Refund erhöht Lagerbestand nicht",
-    "ok": false,
+    "ok": true,
     "detail": "{\"before\":{\"onHand\":10,\"reserved\":0,\"damaged\":0},\"after\":{\"onHand\":10,\"reserved\":0,\"damaged\":0}}"
   },
   {
     "name": "Cancellation ausgeführt",
     "ok": true,
-    "detail": "{\"status\":\"cancelled\",\"changed\":true,\"order_id\":\"c879dbc3-e630-4c49-b432-b4537bb4d254\"}"
+    "detail": "{\"status\":\"cancelled\",\"changed\":true,\"order_id\":\"0da70596-d520-4305-9554-c1e708f20f34\"}"
   },
   {
     "name": "Cancellation: Status = cancelled",
@@ -87,7 +87,7 @@
   {
     "name": "Cancellation: Outbox Event",
     "ok": true,
-    "detail": "outbox=1"
+    "detail": "outbox=2"
   },
   {
     "name": "Cancellation: keine automatische Bestandsrückbuchung",
@@ -97,7 +97,7 @@
   {
     "name": "Doppelstornierung ohne Wirkung",
     "ok": true,
-    "detail": "{\"status\":\"cancelled\",\"changed\":false,\"order_id\":\"c879dbc3-e630-4c49-b432-b4537bb4d254\"}"
+    "detail": "{\"status\":\"cancelled\",\"changed\":false,\"order_id\":\"0da70596-d520-4305-9554-c1e708f20f34\"}"
   },
   {
     "name": "Tenant B angemeldet",

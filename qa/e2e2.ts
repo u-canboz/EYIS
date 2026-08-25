@@ -128,7 +128,7 @@ async function main() {
   const levelsAfterRefund = await levels();
   check(
     "Refund erhöht Lagerbestand nicht",
-    levelsAfterRefund.onHand === levelsBeforeRefund.onHand + 10 && levelsAfterRefund.reserved === levelsBeforeRefund.reserved,
+    levelsAfterRefund.onHand === levelsBeforeRefund.onHand && levelsAfterRefund.reserved === levelsBeforeRefund.reserved,
     JSON.stringify({ before: levelsBeforeRefund, after: levelsAfterRefund }),
   );
 
