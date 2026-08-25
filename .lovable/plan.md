@@ -11,9 +11,12 @@ Ziel dieser Phase: das Mandanten- und Rechte-Fundament aus dem Konzeptpaket, lau
 - `memberships` — Nutzer ↔ Organisation, mit Rolle
 - `app_role` Enum mit den Standardrollen: owner, administrator, operations, catalog_manager, fulfillment, customer_support, finance, marketing, developer, read_only
 - `role_permissions` — feingranulare Rechte (products.read, orders.fulfill, invoices.issue, settings.manage, …) je Rolle
+- `invitations` — Einladungen ausschließlich über Token: `organization_id`, `email`, `role`, `token_hash` (nur Hash in der DB), `status` (pending/accepted/revoked/expired), `expires_at`, `invited_by`, `accepted_at`, `accepted_by`. Ein Membership entsteht erst beim Annehmen des gültigen Tokens durch den eingeloggten Nutzer — nie durch bloßes Eintragen einer E-Mail
 - `audit_log` — append-only, wer hat wann was in welcher Organisation geändert
+- `outbox_events` — vorbereitet: `id`, `organization_id`, `event_type`, `payload`, `status`, `available_at`, `attempts`, `last_error`, `created_at`, `processed_at`. Wird in Phase 0 geschrieben, aber noch nicht verarbeitet
+- `idempotency_keys` — vorbereitet: `key`, `organization_id`, `endpoint`, `request_hash`, `response`, `status`, `created_at`, `expires_at`, Unique auf (organization_id, endpoint, key)
 - Security-Definer-Funktionen: `has_org_role()`, `has_permission()`, `current_org_ids()` — verhindern RLS-Rekursion
-- RLS auf allen Tabellen: Zugriff nur über Membership der jeweiligen Organisation; keine Cross-Tenant-Lesbarkeit
+- RLS auf allen Tabellen: Zugriff nur über Membership der jeweiligen Organisation; keine Cross-Tenant-Lesbarkeit. `idempotency_keys` und `outbox_events` sind server-only (kein Zugriff für `authenticated`)
 - GRANTs für `authenticated` / `service_role` je Tabelle
 
 **Auth**
