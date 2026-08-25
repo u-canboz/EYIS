@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as InviteRouteImport } from './routes/invite'
+import { Route as PortalIndexRouteImport } from './routes/portal/index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppAuditRouteImport } from './routes/_authenticated/app/audit'
 import { Route as AuthenticatedAppKategorienRouteImport } from './routes/_authenticated/app/kategorien'
@@ -69,6 +70,11 @@ const AuthRoute = AuthRouteImport.update({
 const InviteRoute = InviteRouteImport.update({
   id: '/invite',
   path: '/invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalIndexRoute = PortalIndexRouteImport.update({
+  id: '/portal/',
+  path: '/portal/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
+  '/portal/': typeof PortalIndexRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
@@ -340,6 +347,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
+  '/portal': typeof PortalIndexRoute
   '/app/audit': typeof AuthenticatedAppAuditRoute
   '/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/app/medien': typeof AuthenticatedAppMedienRoute
@@ -385,6 +393,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/invite': typeof InviteRoute
+  '/portal/': typeof PortalIndexRoute
   '/_authenticated/app/audit': typeof AuthenticatedAppAuditRoute
   '/_authenticated/app/kategorien': typeof AuthenticatedAppKategorienRoute
   '/_authenticated/app/medien': typeof AuthenticatedAppMedienRoute
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/invite'
+    | '/portal/'
     | '/app/audit'
     | '/app/kategorien'
     | '/app/medien'
@@ -473,6 +483,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/invite'
+    | '/portal'
     | '/app/audit'
     | '/app/kategorien'
     | '/app/medien'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/invite'
+    | '/portal/'
     | '/_authenticated/app/audit'
     | '/_authenticated/app/kategorien'
     | '/_authenticated/app/medien'
@@ -562,6 +574,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   InviteRoute: typeof InviteRoute
+  PortalIndexRoute: typeof PortalIndexRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
 }
@@ -594,6 +607,13 @@ declare module '@tanstack/react-router' {
       path: '/invite'
       fullPath: '/invite'
       preLoaderRoute: typeof InviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/': {
+      id: '/portal/'
+      path: '/portal'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof PortalIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/': {
@@ -964,6 +984,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   InviteRoute: InviteRoute,
+  PortalIndexRoute: PortalIndexRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,
 }
