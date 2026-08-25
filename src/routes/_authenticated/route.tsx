@@ -42,6 +42,8 @@ const NAV = [
   { to: "/app/marketing/promotions", label: "Promotions" },
   { to: "/app/versand", label: "Versand" },
   { to: "/app/warenkoerbe", label: "Warenkörbe" },
+  { to: "/app/bestellungen", label: "Bestellungen" },
+  { to: "/app/zahlungen", label: "Zahlungen" },
   { to: "/app/system/storefront-test", label: "Test-Storefront" },
   { to: "/app/medien", label: "Medien" },
   { to: "/app/team", label: "Team" },

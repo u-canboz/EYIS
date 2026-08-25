@@ -23,10 +23,16 @@ import {
   validateCheckoutFn,
   cancelCheckoutFn,
 } from "@/lib/commerce/checkout.functions";
+import {
+  createPaymentSessionFn,
+  getPaymentStatusFn,
+  mockConfirmPaymentFn,
+} from "@/lib/commerce/payments/payment.functions";
 import { listSellableVariants } from "@/lib/commerce/carts-admin.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { formatMoney } from "@/lib/commerce/money";
 import type { CartView, CheckoutView, ShippingMethodView } from "@/lib/commerce/cart-types";
+import type { PaymentStatusView } from "@/lib/commerce/payments/payment-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,6 +75,12 @@ function StorefrontTest() {
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("kundin@example.com");
   const [address, setAddress] = useState({ ...EMPTY_ADDRESS });
+  const [paymentSessionId, setPaymentSessionId] = useState<string>("");
+  const [payment, setPayment] = useState<PaymentStatusView | null>(null);
+
+  const startPayment = useServerFn(createPaymentSessionFn);
+  const paymentStatusFn = useServerFn(getPaymentStatusFn);
+  const mockConfirm = useServerFn(mockConfirmPaymentFn);
 
   const variantsFn = useServerFn(listSellableVariants);
   const create = useServerFn(createCartFn);
@@ -359,6 +371,75 @@ function StorefrontTest() {
                     Checkout abbrechen
                   </Button>
                 </div>
+
+                {checkout.status === "validated" || checkout.status === "awaiting_payment" ? (
+                  <div className="space-y-2 border-t pt-3">
+                    <h3 className="text-sm font-medium">Zahlung</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          run(
+                            startPayment({
+                              data: {
+                                sessionId: checkout.id,
+                                token,
+                                provider: null,
+                                returnUrl: `${window.location.origin}${window.location.pathname}`,
+                              },
+                            }),
+                            (r) => {
+                              setPaymentSessionId(r.paymentSessionId);
+                              setPayment(null);
+                              if (r.redirectUrl && r.provider !== "mock") {
+                                window.location.href = r.redirectUrl;
+                              } else {
+                                toast.success("Zahlung gestartet (Test-Anbieter).");
+                              }
+                            },
+                          )
+                        }
+                      >
+                        Zahlung starten
+                      </Button>
+                      {paymentSessionId && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              run(
+                                mockConfirm({ data: { paymentSessionId, token } }),
+                                (r) => toast.success(`Bestellung ${r.order_number} erstellt.`),
+                              )
+                            }
+                          >
+                            Testzahlung bestätigen
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              run(paymentStatusFn({ data: { paymentSessionId, token } }), setPayment)
+                            }
+                          >
+                            Zahlungsstatus prüfen
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    {payment && (
+                      <p className="text-muted-foreground text-xs">
+                        Status: {payment.status}
+                        {payment.order &&
+                          ` · Bestellung ${payment.order.orderNumber} über ${formatMoney(
+                            payment.order.totalMinor,
+                            payment.order.currencyCode,
+                          )}`}
+                      </p>
+                    )}
+                  </div>
+                ) : null}
               </section>
             )}
           </div>
