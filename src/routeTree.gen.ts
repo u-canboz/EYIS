@@ -26,6 +26,7 @@ import { Route as AuthenticatedAppWarenkoerbeRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppZahlungenRouteImport } from './routes/_authenticated/app/zahlungen'
 import { Route as PortalBestellungenOrderIdRouteImport } from './routes/portal/bestellungen/$orderId'
 import { Route as AuthenticatedAppAutomationenIndexRouteImport } from './routes/_authenticated/app/automationen/index'
+import { Route as AuthenticatedAppAutomationenAufgabenRouteImport } from './routes/_authenticated/app/automationen/aufgaben'
 import { Route as AuthenticatedAppAutomationenVerlaufRouteImport } from './routes/_authenticated/app/automationen/verlauf'
 import { Route as AuthenticatedAppBestellungenIndexRouteImport } from './routes/_authenticated/app/bestellungen/index'
 import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './routes/_authenticated/app/bestellungen/$orderId'
@@ -155,6 +156,12 @@ const AuthenticatedAppAutomationenIndexRoute =
   AuthenticatedAppAutomationenIndexRouteImport.update({
     id: '/app/automationen/',
     path: '/app/automationen/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppAutomationenAufgabenRoute =
+  AuthenticatedAppAutomationenAufgabenRouteImport.update({
+    id: '/app/automationen/aufgaben',
+    path: '/app/automationen/aufgaben',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppAutomationenVerlaufRoute =
@@ -418,6 +425,7 @@ export interface FileRoutesByFullPath {
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
@@ -477,6 +485,7 @@ export interface FileRoutesByTo {
   '/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
@@ -538,6 +547,7 @@ export interface FileRoutesById {
   '/_authenticated/app/zahlungen': typeof AuthenticatedAppZahlungenRoute
   '/portal/bestellungen/$orderId': typeof PortalBestellungenOrderIdRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/automationen/aufgaben': typeof AuthenticatedAppAutomationenAufgabenRoute
   '/_authenticated/app/automationen/verlauf': typeof AuthenticatedAppAutomationenVerlaufRoute
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
@@ -599,6 +609,7 @@ export interface FileRouteTypes {
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
     | '/app/'
+    | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
@@ -658,6 +669,7 @@ export interface FileRouteTypes {
     | '/app/zahlungen'
     | '/portal/bestellungen/$orderId'
     | '/app'
+    | '/app/automationen/aufgaben'
     | '/app/automationen/verlauf'
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
@@ -718,6 +730,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/zahlungen'
     | '/portal/bestellungen/$orderId'
     | '/_authenticated/app/'
+    | '/_authenticated/app/automationen/aufgaben'
     | '/_authenticated/app/automationen/verlauf'
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
@@ -896,6 +909,13 @@ declare module '@tanstack/react-router' {
       path: '/app/automationen'
       fullPath: '/app/automationen/'
       preLoaderRoute: typeof AuthenticatedAppAutomationenIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/automationen/aufgaben': {
+      id: '/_authenticated/app/automationen/aufgaben'
+      path: '/app/automationen/aufgaben'
+      fullPath: '/app/automationen/aufgaben'
+      preLoaderRoute: typeof AuthenticatedAppAutomationenAufgabenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/automationen/verlauf': {
@@ -1198,6 +1218,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppWarenkoerbeRoute: typeof AuthenticatedAppWarenkoerbeRoute
   AuthenticatedAppZahlungenRoute: typeof AuthenticatedAppZahlungenRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppAutomationenAufgabenRoute: typeof AuthenticatedAppAutomationenAufgabenRoute
   AuthenticatedAppAutomationenVerlaufRoute: typeof AuthenticatedAppAutomationenVerlaufRoute
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
@@ -1247,6 +1268,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppWarenkoerbeRoute: AuthenticatedAppWarenkoerbeRoute,
   AuthenticatedAppZahlungenRoute: AuthenticatedAppZahlungenRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppAutomationenAufgabenRoute:
+    AuthenticatedAppAutomationenAufgabenRoute,
   AuthenticatedAppAutomationenVerlaufRoute:
     AuthenticatedAppAutomationenVerlaufRoute,
   AuthenticatedAppBestellungenOrderIdRoute:
