@@ -54,7 +54,7 @@ function ctx(over: Partial<TaxContext> = {}): TaxContext {
 describe("tax helpers", () => {
   it("extracts net from gross with half-up rounding", () => {
     expect(netFromGross(11900, 1900)).toBe(10000);
-    expect(netFromGross(999, 1900)).toBe(840);
+    expect(netFromGross(999, 1900)).toBe(839);
     expect(netFromGross(500, 0)).toBe(500);
   });
 
