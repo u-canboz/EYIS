@@ -77,7 +77,10 @@ function StoreCatalog() {
                   ) : null}
                   <h2 className="font-medium">{product.title}</h2>
                   <p className="text-sm text-muted-foreground">
-                    {price(product.price?.unitAmountMinor ?? 0, product.price?.currencyCode ?? "EUR")}
+                    {price(
+                      product.price?.unitAmountMinor ?? 0,
+                      product.price?.currencyCode ?? "EUR",
+                    )}
                   </p>
                 </CardContent>
               </Card>

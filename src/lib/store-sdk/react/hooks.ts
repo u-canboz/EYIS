@@ -38,7 +38,13 @@ export function useStoreConfig(extra?: QueryExtra<StoreConfig>) {
 }
 
 export function useProducts(
-  params?: { page?: number; pageSize?: number; category?: string | null; collection?: string | null; sort?: string | null },
+  params?: {
+    page?: number;
+    pageSize?: number;
+    category?: string | null;
+    collection?: string | null;
+    sort?: string | null;
+  },
   extra?: QueryExtra<StoreList<StoreProductSummary>>,
 ) {
   const client = useCommerce();
@@ -71,12 +77,20 @@ export function useSearch(term: string, extra?: QueryExtra<StoreList<StoreProduc
 
 export function useCategories(extra?: QueryExtra<StoreCategory[]>) {
   const client = useCommerce();
-  return useQuery({ queryKey: commerceKeys.categories, queryFn: () => client.catalog.categories(), ...extra });
+  return useQuery({
+    queryKey: commerceKeys.categories,
+    queryFn: () => client.catalog.categories(),
+    ...extra,
+  });
 }
 
 export function useCollections(extra?: QueryExtra<StoreCollection[]>) {
   const client = useCommerce();
-  return useQuery({ queryKey: commerceKeys.collections, queryFn: () => client.catalog.collections(), ...extra });
+  return useQuery({
+    queryKey: commerceKeys.collections,
+    queryFn: () => client.catalog.collections(),
+    ...extra,
+  });
 }
 
 export function useCart() {

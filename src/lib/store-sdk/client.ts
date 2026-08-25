@@ -8,12 +8,7 @@
 import type { CommerceClientConfig, ResolvedConfig } from "./config";
 import { CommerceError } from "./errors";
 import { createTransport, randomId, type Transport } from "./http";
-import {
-  createBrowserStorage,
-  createCartStorage,
-  STORAGE_KEYS,
-  type CartHandle,
-} from "./storage";
+import { createBrowserStorage, createCartStorage, STORAGE_KEYS, type CartHandle } from "./storage";
 import type {
   StoreCart,
   StoreCartCreated,
@@ -88,7 +83,10 @@ export function createCommerceClient(input: CommerceClientConfig) {
       try {
         return await cart.get();
       } catch (error) {
-        if (error instanceof CommerceError && (error.code === "CART_EXPIRED" || error.status === 403)) {
+        if (
+          error instanceof CommerceError &&
+          (error.code === "CART_EXPIRED" || error.status === 403)
+        ) {
           config.cartStorage.clear();
           return cart.create();
         }
@@ -150,8 +148,10 @@ export function createCommerceClient(input: CommerceClientConfig) {
     },
   };
 
-  const withCartToken = <T>(path: string, init: Omit<Parameters<Transport>[0], "path" | "cartToken">) =>
-    request<T>({ ...init, path, cartToken: requireCart().cartToken });
+  const withCartToken = <T>(
+    path: string,
+    init: Omit<Parameters<Transport>[0], "path" | "cartToken">,
+  ) => request<T>({ ...init, path, cartToken: requireCart().cartToken });
 
   const checkout = {
     start: (email?: string | null) =>
@@ -161,11 +161,22 @@ export function createCommerceClient(input: CommerceClientConfig) {
       }),
     get: (sessionId: string) => withCartToken<StoreCheckout>(`/checkout/${sessionId}`, {}),
     setEmail: (sessionId: string, email: string) =>
-      withCartToken<StoreCheckout>(`/checkout/${sessionId}/email`, { method: "POST", body: { email } }),
+      withCartToken<StoreCheckout>(`/checkout/${sessionId}/email`, {
+        method: "POST",
+        body: { email },
+      }),
     setAddress: (
       sessionId: string,
-      input: { type: "shipping" | "billing"; address: Record<string, unknown>; billingSameAsShipping?: boolean },
-    ) => withCartToken<StoreCheckout>(`/checkout/${sessionId}/address`, { method: "POST", body: input }),
+      input: {
+        type: "shipping" | "billing";
+        address: Record<string, unknown>;
+        billingSameAsShipping?: boolean;
+      },
+    ) =>
+      withCartToken<StoreCheckout>(`/checkout/${sessionId}/address`, {
+        method: "POST",
+        body: input,
+      }),
     shippingOptions: (sessionId: string) =>
       withCartToken<StoreShippingOption[]>(`/checkout/${sessionId}/shipping-options`, {}),
     setShippingOption: (sessionId: string, shippingMethodId: string) =>
@@ -197,7 +208,9 @@ export function createCommerceClient(input: CommerceClientConfig) {
      * turned into a shareable order URL.
      */
     async redeemConfirmation(token: string): Promise<StoreOrder> {
-      const order = await request<StoreOrder>({ path: `/orders/confirmation/${encodeURIComponent(token)}` });
+      const order = await request<StoreOrder>({
+        path: `/orders/confirmation/${encodeURIComponent(token)}`,
+      });
       // The cart behind a completed order is done; drop the local handle.
       config.cartStorage.clear();
       return order;
@@ -213,11 +226,15 @@ export function createCommerceClient(input: CommerceClientConfig) {
     },
     guestOrder: () => request<StoreOrder>({ path: "/orders/guest", guest: true }),
     guestDocumentUrl: (documentId: string) =>
-      request<{ url: string | null }>({ path: `/orders/guest/documents/${documentId}`, guest: true }),
+      request<{ url: string | null }>({
+        path: `/orders/guest/documents/${documentId}`,
+        guest: true,
+      }),
   };
 
   const returns = {
-    guestEligibility: () => request<StoreReturnEligibility>({ path: "/returns/eligibility", guest: true }),
+    guestEligibility: () =>
+      request<StoreReturnEligibility>({ path: "/returns/eligibility", guest: true }),
     create: (input: {
       items: { orderItemId: string; quantity: number }[];
       reason: string;
@@ -264,14 +281,19 @@ export function createCommerceClient(input: CommerceClientConfig) {
       return { customer: result.customer, sessionActive: Boolean(result.token) };
     },
     requestPasswordReset: (email: string) =>
-      request<{ requested: true }>({ method: "POST", path: "/customer/auth/password-reset", body: { email } }),
+      request<{ requested: true }>({
+        method: "POST",
+        path: "/customer/auth/password-reset",
+        body: { email },
+      }),
     logout() {
       config.storage.remove(STORAGE_KEYS.customerSession);
     },
     isAuthenticated: () => Boolean(config.storage.get(STORAGE_KEYS.customerSession)),
     me: () => request<StoreCustomer>({ path: "/customer/me", auth: true }),
     orders: () => request<StoreOrderSummary[]>({ path: "/customer/orders", auth: true }),
-    order: (orderId: string) => request<StoreOrder>({ path: `/customer/orders/${orderId}`, auth: true }),
+    order: (orderId: string) =>
+      request<StoreOrder>({ path: `/customer/orders/${orderId}`, auth: true }),
     documentUrl: (orderId: string, documentId: string) =>
       request<{ url: string | null }>({
         path: `/customer/orders/${orderId}/documents/${documentId}`,
@@ -297,7 +319,8 @@ export function createCommerceClient(input: CommerceClientConfig) {
           sort: params?.sort ?? null,
         },
       }),
-    product: (handle: string) => request<StoreProduct>({ path: `/products/${encodeURIComponent(handle)}` }),
+    product: (handle: string) =>
+      request<StoreProduct>({ path: `/products/${encodeURIComponent(handle)}` }),
     search: (term: string, limit = 12) =>
       request<StoreList<StoreProductSummary>>({ path: "/search", query: { q: term, limit } }),
     categories: () => request<StoreCategory[]>({ path: "/categories" }),

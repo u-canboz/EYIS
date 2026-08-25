@@ -26,7 +26,9 @@ export const Route = createFileRoute("/store/checkout")({
 });
 
 const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(minor / 100);
+  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
+    minor / 100,
+  );
 
 const EMPTY_ADDRESS = {
   firstName: "",
@@ -121,7 +123,12 @@ function StoreCheckoutPage() {
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label htmlFor="email">E-Mail</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           {(
             [
@@ -152,7 +159,10 @@ function StoreCheckoutPage() {
         <section className="space-y-3 rounded-lg border p-4">
           <h2 className="font-medium">Versandart & Zahlung</h2>
           {options.map((option) => (
-            <div key={option.id} className="flex items-center justify-between gap-3 border-b py-2 last:border-0">
+            <div
+              key={option.id}
+              className="flex items-center justify-between gap-3 border-b py-2 last:border-0"
+            >
               <div>
                 <p className="text-sm font-medium">{option.name}</p>
                 <p className="text-xs text-muted-foreground">

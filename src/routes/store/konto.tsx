@@ -17,7 +17,10 @@ export const Route = createFileRoute("/store/konto")({
         content: "Anmeldung und Bestellübersicht über den Store-Auth-Wrapper der öffentlichen API.",
       },
       { property: "og:title", content: "Kundenkonto – Referenz-Storefront" },
-      { property: "og:description", content: "Bestellungen und Kontodaten der Referenz-Storefront." },
+      {
+        property: "og:description",
+        content: "Bestellungen und Kontodaten der Referenz-Storefront.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -27,7 +30,9 @@ export const Route = createFileRoute("/store/konto")({
 });
 
 const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(minor / 100);
+  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
+    minor / 100,
+  );
 
 function StoreAccountPage() {
   const client = useCommerce();
@@ -62,7 +67,13 @@ function StoreAccountPage() {
         >
           <div>
             <Label htmlFor="email">E-Mail</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
           <div>
             <Label htmlFor="password">Passwort</Label>

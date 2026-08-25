@@ -70,7 +70,6 @@ export function createTransport(config: ResolvedConfig) {
         ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
         ...(options.signal ? { signal: options.signal } : {}),
       });
-
     } catch (error) {
       throw networkError(error instanceof Error ? error.message : "Netzwerkfehler.");
     }
@@ -107,7 +106,8 @@ export function createTransport(config: ResolvedConfig) {
   /** Expired proofs are cleared locally; nothing is silently recreated. */
   function handleAuthLifecycle(error: CommerceError) {
     if (error.code === "CART_EXPIRED") config.cartStorage.clear();
-    if (error.code === "CUSTOMER_SESSION_EXPIRED") config.storage.remove(STORAGE_KEYS.customerSession);
+    if (error.code === "CUSTOMER_SESSION_EXPIRED")
+      config.storage.remove(STORAGE_KEYS.customerSession);
   }
 
   return async function request<T>(options: RequestOptions): Promise<T> {
@@ -117,12 +117,11 @@ export function createTransport(config: ResolvedConfig) {
     let attempt = 0;
     for (;;) {
       try {
-        return await once<T>(
-          idempotencyKey ? { ...options, idempotencyKey } : options,
-        );
+        return await once<T>(idempotencyKey ? { ...options, idempotencyKey } : options);
       } catch (error) {
         const retryable = error instanceof CommerceError && error.retryable;
-        if (!retryable || attempt >= Math.min(config.maxRetries, RETRY_DELAYS_MS.length)) throw error;
+        if (!retryable || attempt >= Math.min(config.maxRetries, RETRY_DELAYS_MS.length))
+          throw error;
         await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt] ?? 600));
         attempt += 1;
       }

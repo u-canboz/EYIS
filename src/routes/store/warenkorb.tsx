@@ -24,7 +24,9 @@ export const Route = createFileRoute("/store/warenkorb")({
 });
 
 const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(minor / 100);
+  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
+    minor / 100,
+  );
 
 function StoreCartPage() {
   const cart = useCart();

@@ -28,7 +28,9 @@ export const Route = createFileRoute("/store/bestaetigung")({
 });
 
 const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(minor / 100);
+  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
+    minor / 100,
+  );
 
 function StoreConfirmationPage() {
   const client = useCommerce();
@@ -106,7 +108,10 @@ function StoreConfirmationPage() {
 
       <ul className="divide-y rounded-lg border">
         {order.items.map((item, index) => (
-          <li key={`${item.sku ?? item.title}-${index}`} className="flex justify-between gap-3 p-4 text-sm">
+          <li
+            key={`${item.sku ?? item.title}-${index}`}
+            className="flex justify-between gap-3 p-4 text-sm"
+          >
             <span>
               {item.quantity} × {item.title}
             </span>

@@ -29,6 +29,7 @@ export function CommerceProvider({
 
 export function useCommerce(): CommerceClient {
   const client = useContext(CommerceContext);
-  if (!client) throw new Error("useCommerce muss innerhalb von <CommerceProvider> verwendet werden.");
+  if (!client)
+    throw new Error("useCommerce muss innerhalb von <CommerceProvider> verwendet werden.");
   return client;
 }

@@ -24,7 +24,9 @@ export const Route = createFileRoute("/store/produkt/$handle")({
 });
 
 const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(minor / 100);
+  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
+    minor / 100,
+  );
 
 function StoreProductPage() {
   const { handle } = Route.useParams();
@@ -91,7 +93,9 @@ function StoreProductPage() {
           ) : null}
 
           <Button
-            disabled={!selected || selected.availability === "out_of_stock" || cart.addItem.isPending}
+            disabled={
+              !selected || selected.availability === "out_of_stock" || cart.addItem.isPending
+            }
             onClick={() =>
               selected &&
               cart.addItem.mutate(
