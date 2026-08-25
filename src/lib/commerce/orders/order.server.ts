@@ -105,6 +105,8 @@ export async function loadOrderDetail(organizationId: string, orderId: string): 
     discountMinor: Number(o['discount_minor'] ?? 0),
     shippingMinor: Number(o['shipping_minor'] ?? 0),
     taxMinor: Number(o['tax_minor'] ?? 0),
+    netTotalMinor: Number(o['net_total_minor'] ?? 0),
+    taxBreakdown: (o['tax_breakdown'] as JsonValue[] | null) ?? [],
     internalNote: (o['internal_note'] as string) ?? null,
     cancelReason: (o['cancel_reason'] as string) ?? null,
     shippingMethod: (o['shipping_method'] as Record<string, JsonValue>) ?? {},
