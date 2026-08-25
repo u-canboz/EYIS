@@ -15,7 +15,7 @@ Datum: 2026-08-25. Bewertung ausschließlich mit Nachweis: PASS / OFFEN / BLOCKE
 | A2-7 | Automations-Job | PASS | `{"ok":true,"reclaimed":0,"queued":0,"claimed":0,"results":[]}` — 200 |
 | A2-8 | Expiration-Job | PASS | `{"ok":true,"expired_carts":0,"expired_sessions":5,"expired_reservations":0}` — 200, 5 überfällige Checkout-Sitzungen tatsächlich beendet |
 | A2-9 | Testumgebung | PASS | Läufe gegen die lokale Entwicklungsinstanz (`localhost:8080`), Daten der QA-Organisation; keine Produktionsdaten, keine externen Provider angesprochen |
-| A2-10 | Zeitplan (pg_cron) eingerichtet | OFFEN | `cron.job` enthält keine Einträge; Planung gehört zu A8, außerdem soll der Zeitplan erst pro Umgebung existieren |
+| A2-10 | Zeitplan (pg_cron) | OFFEN | Der einzige vorhandene Zeitplan `automation-worker` (jede Minute) meldete sich mit dem **öffentlichen** Publishable Key an und wurde entfernt, da er nach der Umstellung nur noch 401 erhalten hätte. Ein neuer Zeitplan mit Bearer-Cron-Secret wird in A8 pro Umgebung eingerichtet; `cron.job` ist derzeit leer |
 
 Reservierungsablauf: `inv_expire_reservations` verlangt einen Akteur mit Berechtigung.
 `ops_expire_due()` setzt dafür das bereits etablierte `commerce.system_op`-Flag transaktionslokal —
