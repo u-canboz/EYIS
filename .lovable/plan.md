@@ -31,8 +31,8 @@ Neue Permissions in `role_permissions`: `carts.read`, `carts.manage`, `checkout.
 
 Wie in Phase 3 laufen kritische Operationen als `SECURITY DEFINER`-Postgres-Funktionen, damit sie atomar und idempotent sind:
 
-- `cart_start_checkout(...)` — Session anlegen, alle lagergeführten Positionen über die bestehende Reservierungslogik reservieren, Snapshot verknüpfen, Audit + Outbox + Idempotency in einer Transaktion. Schlägt eine Position fehl, rollt alles zurück. Keine Teilreservierung.
-- `cart_expire_checkout_sessions(...)` — abgelaufene Sessions auf `expired` setzen und zugehörige Reservierungen freigeben.
+- `cart_start_checkout(...)` — Session anlegen, alle lagergeführten Positionen über die bestehende Reservierungslogik reservieren, Snapshot verknüpfen, Cart-Status auf `checkout` setzen, Audit + Outbox + Idempotency in einer Transaktion. Schlägt eine Position fehl, rollt alles zurück. Keine Teilreservierung. Solange der Cart auf `checkout` steht, werden normale Cart-Mutationen (Add/Update/Remove/Clear/Promotion) abgelehnt; wer ändern will, bricht die Session kontrolliert ab — dann werden Reservierungen freigegeben und der Cart geht zurück auf `active`.
+- `cart_expire_checkout_sessions(...)` — abgelaufene Sessions auf `expired` setzen, zugehörige Reservierungen freigeben und den Cart zurück auf `active` setzen, sofern der Cart selbst noch nicht abgelaufen ist. Der Kunde kann den Checkout dann erneut starten statt einen toten Warenkorb vorzufinden.
 - `cart_expire_carts(...)` — alte Gast-Carts ablaufen lassen, nie mit offenen Reservierungen.
 
 Reservieren, Freigeben und Committen selbst nutzen unverändert die Phase-3-Funktionen.
