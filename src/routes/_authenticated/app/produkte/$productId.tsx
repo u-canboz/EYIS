@@ -12,6 +12,7 @@ import {
   removeVariant,
 } from "@/lib/commerce/variants.functions";
 import { listTaxonomy } from "@/lib/commerce/taxonomy.functions";
+import { getTaxConfiguration } from "@/lib/commerce/tax.functions";
 import { listMedia, attachMedia, detachMedia, reorderProductMedia } from "@/lib/commerce/media.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { BlueprintForm } from "@/components/commerce/BlueprintForm";
@@ -94,6 +95,13 @@ function ProductEditor() {
     queryFn: () => fetchTaxonomy({ data: { organizationId, shopId } }),
   });
 
+  const loadTaxConfig = useServerFn(getTaxConfiguration);
+  const taxConfigQuery = useQuery({
+    queryKey: ["tax-config", organizationId, shopId],
+    enabled: Boolean(organizationId && shopId),
+    queryFn: () => loadTaxConfig({ data: { organizationId, shopId } }),
+  });
+
   const [form, setForm] = useState({
     name: "",
     handle: "",
@@ -103,6 +111,7 @@ function ProductEditor() {
     status: "draft" as "draft" | "active" | "archived",
     seoTitle: "",
     seoDescription: "",
+    taxClassId: "" as string,
   });
   const [blueprintData, setBlueprintData] = useState<BlueprintData>({});
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
@@ -120,6 +129,7 @@ function ProductEditor() {
       status: p.status,
       seoTitle: p.seo_title ?? "",
       seoDescription: p.seo_description ?? "",
+      taxClassId: ((p as { tax_class_id?: string | null }).tax_class_id ?? "") as string,
     });
     setBlueprintData((p.blueprint_data ?? {}) as BlueprintData);
     setCategoryIds(productQuery.data.categoryIds);
@@ -140,6 +150,7 @@ function ProductEditor() {
           status: form.status,
           seoTitle: form.seoTitle,
           seoDescription: form.seoDescription,
+          taxClassId: form.taxClassId || null,
           blueprintData,
           categoryIds,
           collectionIds,
@@ -239,6 +250,24 @@ function ProductEditor() {
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
+            </div>
+            <div>
+              <Label>Steuerklasse</Label>
+              <Select
+                value={form.taxClassId || "default"}
+                disabled={!canEdit}
+                onValueChange={(v) => setForm({ ...form, taxClassId: v === "default" ? "" : v })}
+              >
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Standard des Shops</SelectItem>
+                  {(taxConfigQuery.data?.classes ?? []).map((c) => (
+                    <SelectItem key={c['id'] as string} value={c['id'] as string}>
+                      {c['name'] as string}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Hersteller / Marke</Label>
