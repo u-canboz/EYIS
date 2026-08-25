@@ -192,6 +192,7 @@ function ProductEditor() {
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="varianten">Varianten</TabsTrigger>
+          <TabsTrigger value="preise">Preise</TabsTrigger>
           <TabsTrigger value="medien">Medien</TabsTrigger>
           <TabsTrigger value="organisation">Organisation</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
