@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PricingTab } from "@/components/commerce/PricingTab";
+import { InventoryTab } from "@/components/commerce/InventoryTab";
 import {
   Select,
   SelectContent,
