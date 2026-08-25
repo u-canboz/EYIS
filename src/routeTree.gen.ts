@@ -42,6 +42,7 @@ import { Route as AuthenticatedAppProdukteIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppProdukteProductIdRouteImport } from './routes/_authenticated/app/produkte/$productId'
 import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authenticated/app/produkte/neu'
 import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_authenticated/app/retouren/index'
+import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
@@ -237,6 +238,12 @@ const AuthenticatedAppRetourenIndexRoute =
     path: '/app/retouren/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppRetourenReturnIdRoute =
+  AuthenticatedAppRetourenReturnIdRouteImport.update({
+    id: '/app/retouren/$returnId',
+    path: '/app/retouren/$returnId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemStorefrontTestRoute =
   AuthenticatedAppSystemStorefrontTestRouteImport.update({
     id: '/app/system/storefront-test',
@@ -305,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -346,6 +354,7 @@ export interface FileRoutesByTo {
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -389,6 +398,7 @@ export interface FileRoutesById {
   '/_authenticated/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
+  '/_authenticated/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
+    | '/app/retouren/$returnId'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/app/preise/testen'
     | '/app/produkte/$productId'
     | '/app/produkte/neu'
+    | '/app/retouren/$returnId'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -515,6 +527,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/preise/testen'
     | '/_authenticated/app/produkte/$productId'
     | '/_authenticated/app/produkte/neu'
+    | '/_authenticated/app/retouren/$returnId'
     | '/_authenticated/app/system/storefront-test'
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
@@ -773,6 +786,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRetourenIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/retouren/$returnId': {
+      id: '/_authenticated/app/retouren/$returnId'
+      path: '/app/retouren/$returnId'
+      fullPath: '/app/retouren/$returnId'
+      preLoaderRoute: typeof AuthenticatedAppRetourenReturnIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/storefront-test': {
       id: '/_authenticated/app/system/storefront-test'
       path: '/app/system/storefront-test'
@@ -848,6 +868,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppPreiseTestenRoute: typeof AuthenticatedAppPreiseTestenRoute
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
+  AuthenticatedAppRetourenReturnIdRoute: typeof AuthenticatedAppRetourenReturnIdRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
@@ -892,6 +913,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppProdukteProductIdRoute:
     AuthenticatedAppProdukteProductIdRoute,
   AuthenticatedAppProdukteNeuRoute: AuthenticatedAppProdukteNeuRoute,
+  AuthenticatedAppRetourenReturnIdRoute: AuthenticatedAppRetourenReturnIdRoute,
   AuthenticatedAppSystemStorefrontTestRoute:
     AuthenticatedAppSystemStorefrontTestRoute,
   AuthenticatedAppVersandFulfillmentIdRoute:
