@@ -282,6 +282,15 @@ function ProductEditor() {
           />
         </TabsContent>
 
+        <TabsContent value="bestand" className="pt-4">
+          <InventoryTab
+            productId={productId}
+            organizationId={organizationId}
+            shopId={shopId}
+            canEdit={can("inventory.adjust")}
+          />
+        </TabsContent>
+
         <TabsContent value="medien" className="pt-4">
           <MediaTab
             productId={productId}
