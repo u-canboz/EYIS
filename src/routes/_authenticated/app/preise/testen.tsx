@@ -75,7 +75,7 @@ function PricingPreviewPage() {
   const productQuery = useQuery({
     queryKey: ["product-detail", organizationId, productId],
     enabled: Boolean(organizationId && productId),
-    queryFn: () => fetchProduct({ data: { organizationId, productId } }),
+    queryFn: () => fetchProduct({ data: { productId } }),
   });
 
   useEffect(() => {

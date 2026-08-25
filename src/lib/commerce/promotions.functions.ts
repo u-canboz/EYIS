@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { PromotionAction, PromotionCondition, PromotionType } from "./pricing-types";
+import type {
+  PromotionAction,
+  PromotionCondition,
+  PromotionType,
+  SerializableAction,
+  SerializableCondition,
+} from "./pricing-types";
 
 export type PromotionInput = {
   id?: string;
@@ -59,8 +65,8 @@ export const listPromotions = createServerFn({ method: "POST" })
         usage_limit_per_customer: p.usage_limit_per_customer as number | null,
         priority: p.priority as number,
         stackable: p.stackable as boolean,
-        conditions: (Array.isArray(p.conditions) ? p.conditions : []) as PromotionCondition[],
-        actions: (Array.isArray(p.actions) ? p.actions : []) as PromotionAction[],
+        conditions: (Array.isArray(p.conditions) ? p.conditions : []) as SerializableCondition[],
+        actions: (Array.isArray(p.actions) ? p.actions : []) as SerializableAction[],
       })),
     };
   });

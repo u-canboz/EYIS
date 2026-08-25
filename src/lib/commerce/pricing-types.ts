@@ -146,3 +146,20 @@ export type PricingResult = {
   shippingDiscountEligible: boolean;
   explanation: ExplanationStep[];
 };
+
+/** Wire-safe shapes for conditions/actions crossing the server-function boundary. */
+export type SerializableCondition = {
+  kind: string;
+  ids?: string[];
+  value?: number;
+  from?: string | null;
+  to?: string | null;
+};
+
+export type SerializableAction = {
+  kind: string;
+  value?: number;
+  productId?: string;
+  variantId?: string;
+  quantity?: number;
+};

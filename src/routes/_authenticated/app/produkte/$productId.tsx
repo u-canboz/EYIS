@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PricingTab } from "@/components/commerce/PricingTab";
 import {
   Select,
   SelectContent,
@@ -59,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/app/produkte/$productId")(
 function ProductEditor() {
   const { productId } = Route.useParams();
   const queryClient = useQueryClient();
-  const { organizationId, shopId, can } = useActiveWorkspace();
+  const { organizationId, shopId, shops, can } = useActiveWorkspace();
 
   const fetchProduct = useServerFn(getProduct);
   const fetchBlueprint = useServerFn(getBlueprintVersion);
@@ -192,6 +193,7 @@ function ProductEditor() {
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="varianten">Varianten</TabsTrigger>
+          <TabsTrigger value="preise">Preise</TabsTrigger>
           <TabsTrigger value="medien">Medien</TabsTrigger>
           <TabsTrigger value="organisation">Organisation</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
@@ -266,6 +268,16 @@ function ProductEditor() {
             options={productQuery.data!.options as never}
             variants={productQuery.data!.variants as never}
             axes={blueprintQuery.data?.variant_schema?.axes ?? []}
+          />
+        </TabsContent>
+
+        <TabsContent value="preise" className="pt-4">
+          <PricingTab
+            productId={productId}
+            organizationId={organizationId}
+            shopId={shopId}
+            currency={shops[0]?.currency ?? "EUR"}
+            canEdit={can("pricing.manage")}
           />
         </TabsContent>
 
