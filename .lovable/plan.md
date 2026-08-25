@@ -63,7 +63,9 @@ Pro Position `restock | do_not_restock | manual_review`. Bei `restock` muss ein 
 
 `/konto/registrieren`, `/konto/anmelden`, `/konto` (Dashboard mit letzter Bestellung, offenen Retouren, Rechnungen, Adressen — eine klare nächste Aktion), `/konto/bestellungen`, `/konto/bestellungen/$orderId` (Status, Positionen, Zahlung, Versand + Tracking-Stufen, Rechnungen, Gutschriften, Retouren, Adressen), `/konto/bestellungen/$orderId/retoure` (6-Schritt-Wizard), `/konto/adressen`, `/konto/profil`, `/konto/bestellung/$token` (Gastzugriff).
 Order-Cards statt Tabellen, Touch-Ziele ≥ 44 px, Labels und Fehlertexte an Feldern, Fokusführung pro Wizard-Schritt, Status immer mit Text (nicht nur Farbe).
-Account Linking: nach verifizierter E-Mail kann der Kunde Bestellungen desselben Shops übernehmen, sofern sie noch keinem Customer gehören — nie automatisch durch bloße E-Mail-Eingabe.
+Account Linking: nach verifizierter E-Mail kann der Kunde Bestellungen desselben Shops übernehmen, sofern sie noch keinem Customer gehören — nie automatisch durch bloße E-Mail-Eingabe. **Jede einzelne übernommene Bestellung wird separat protokolliert** (Audit- und Security-Event `customer.order_claimed` je Order mit Order-ID, Customer-ID, Verifikationsweg, Zeitpunkt) — Besitzzuordnung ist sicherheitsrelevant und nie eine Sammelbuchung.
+
+Customer-Blocking: `blocked` ist eine Zugangs-, keine Datenregel. Blockierte Kunden können — je Shop-Policy — keinen neuen Checkout starten und optional sich nicht anmelden; der Lesezugriff auf bereits bestehende Bestellungen, Rechnungen und Gutschriften bleibt erhalten, sofern nicht ausdrücklich eine eigene Regel etwas anderes festlegt. Blockieren löscht und anonymisiert nichts.
 
 ## Backoffice
 
