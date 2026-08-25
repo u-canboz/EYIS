@@ -16,7 +16,7 @@ Domain Event -> Rule -> Template Version -> Context -> Render (HTML+Text)
 - `communication_branding` — je Shop: Logo, Farben, Schrift, Buttonstil, Radius, Footer, Support, Social Links. Vorbelegung aus Shop-/Document-Branding als expliziter Kopiervorgang.
 - `communications` — vollständiger Snapshot je Sendung (Template-Version, Locale, Subject, HTML, Text, Empfänger, Sender, Quell-Event, Status, Zeitstempel).
 - `communication_attempts` — Versuchsnummer, Provider, `provider_message_id`, Fehlercode, Zeiten.
-- `communication_provider_events` — unveränderbares Journal, Unique `(provider, provider_event_id)`, `signature_verified`, `processing_status`.
+- `communication_provider_events` — unveränderbares Journal, Unique `(provider, provider_event_id)`, `signature_verified`, `processing_status`. Ein Trigger sperrt jedes UPDATE außer auf `processing_status` und `processed_at`; Payload, Signaturflag, Event-ID und Empfangszeit sind nach dem Insert unveränderbar, DELETE ist ausgeschlossen.
 - `communication_suppressions` — Adresse + Grund (`hard_bounce | complaint | manual`), Quelle, optionales Ablaufdatum. Marketing-Abmeldung unterdrückt niemals notwendige transaktionale Mails; das wird über den Grund fachlich getrennt.
 - `communication_rules` — Event-Typ → Template, Kanal, `enabled`, `delay_seconds`, `conditions` (JSONB, kontrollierte Felder), Priorität.
 
@@ -30,7 +30,7 @@ Idempotenz: Unique auf `(shop_id, source_event_id, communication_rule_id, recipi
 
 `CommunicationProvider`-Interface analog zum bestehenden `CarrierProvider` (`send`, optional `parseWebhook`, `capabilities`) mit Registry per dynamischem Import.
 
-- `test` — vollständig funktionsfähiger interner Provider: rendert, protokolliert, simuliert Zustellung/Bounce, versendet nichts nach außen. Damit ist die gesamte Engine ohne externe Credentials nutzbar und testbar.
+- `test` — vollständig funktionsfähiger interner Provider: rendert, protokolliert, simuliert Zustellung/Bounce, versendet nichts nach außen. Der Provider besitzt keinerlei Netzwerkpfad — er ruft keine externe API und keinen Mailversand auf, unabhängig davon, welche Empfängeradresse eingetragen ist; eine echte Adresse kann technisch nicht erreicht werden. Jede so erzeugte Communication wird als Testsendung markiert. Damit ist die gesamte Engine ohne externe Credentials nutzbar und testbar.
 - `lovable` — der produktive E-Mail-Versand über die verwaltete E-Mail-Infrastruktur des Projekts. Aktiv erst, wenn eine eigene Absenderdomain eingerichtet und verifiziert ist; bis dahin bleibt der Test-Provider aktiv und die Oberfläche sagt das klar.
 
 Es werden keine Fake-SMS-/WhatsApp-Funktionen gebaut; die Kanäle existieren nur im Datenmodell.
@@ -54,7 +54,7 @@ Kundenkonto: `customer.welcome`, `guest_order_access`.
 
 Standardmäßig aktiv sind nur Bestellbestätigung, Versandbestätigung, Rechnung und die Retouren-Statusmails; Zahlungs- und Zustellbestätigung sind konfigurierbar und standardmäßig aus.
 
-Dokumentlinks in Mails sind nie dauerhaft öffentlich: entweder kurzlebige signierte URL oder Weg über das Kundenportal bzw. den bestehenden Gast-Token-Mechanismus aus Phase 9.
+Dokumentlinks in Mails sind nie dauerhaft öffentlich: entweder kurzlebige signierte URL oder Weg über das Kundenportal bzw. den bestehenden Gast-Token-Mechanismus aus Phase 9. Insbesondere `guest_order_access` rendert niemals eine dauerhafte Dokument-URL, sondern ausschließlich einen kurzlebigen, widerrufbaren Zugangslink auf die Portal-Gastansicht; das Dokument selbst wird erst nach Prüfung des Tokens signiert ausgeliefert.
 
 ## Event-Verarbeitung
 
@@ -74,7 +74,7 @@ Neuer Hauptnavigationspunkt „Kommunikation":
 - `/app/kommunikation/vorlagen` — gruppiert nach Bestellungen, Zahlungen, Versand, Dokumente, Retouren, Kundenkonto; mit Event, Status, Locale, letzter Änderung.
 - `/app/kommunikation/vorlagen/$templateId` — dreiteilig Inhalt / Design / Vorschau. Blockeditor mit Reihenfolgeänderung, Variablen-Picker (kein freies Raten von Platzhaltern), Locale-Umschaltung, Validierung vor Veröffentlichung (unbekannte Variablen, fehlende Pflichtblöcke, leeres Subject, fehlende Locale). Vorschau als Desktop, Mobile und Plain Text mit Demo- oder eigenen Organisationsdaten — nie Fremdmandantendaten.
 - Testversand mit manueller Empfängeradresse, sichtbarer TEST-Kennzeichnung, ohne Order-/Customer-Events, mit Audit-Eintrag `communication.test_sent`.
-- `/app/kommunikation/verlauf` — Log mit Filter nach Status, Template, Event, Zeitraum, Empfänger, Bestellnummer; Detailseite mit Snapshot-Vorschau, Attempts, Provider-Events, Fehlern und „Erneut senden" (erzeugt eine neue Communication aus dem ursprünglichen Snapshot, überschreibt nie den alten Datensatz).
+- `/app/kommunikation/verlauf` — Log mit Filter nach Status, Template, Event, Zeitraum, Empfänger, Bestellnummer; Detailseite mit Snapshot-Vorschau, Attempts, Provider-Events, Fehlern und „Erneut senden". Ein Resend erzeugt immer eine neue Communication mit eigener ID, die den ursprünglichen Snapshot übernimmt und auf die Quell-Communication verweist. Eine bestehende Communication wird nie erneut „aktiviert", ihr Status nie zurückgesetzt und ihr Datensatz nie überschrieben.
 - `/app/kommunikation/branding` — Branding Studio mit Live-Vorschau Desktop und Mobile, ohne CSS-Eingabe.
 - `/app/kommunikation/regeln` und `/app/kommunikation/provider` — Regelmatrix (Event, Template, an/aus, Delay, Conditions) sowie Provider- und Absenderverwaltung inkl. Verifikationsstatus.
 
