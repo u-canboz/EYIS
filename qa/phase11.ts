@@ -15,7 +15,7 @@ async function main() {
   const t = findTemplate("high_value_review")!;
   const { data: owner } = await admin.from("memberships").select("user_id").eq("organization_id", ORG).limit(1);
   const actorId = (owner as { user_id: string }[])[0]!.user_id;
-  await saveRule({
+  const saved = await saveRule({
     organizationId: ORG,
     shopId: SHOP,
     name: t.name,
@@ -33,20 +33,24 @@ async function main() {
     templateKey: t.key,
     actorId,
   });
+  const { publishRule, setRuleStatus } = await import("../src/lib/commerce/automation/rules.server");
+  await publishRule({ organizationId: ORG, ruleId: saved.ruleId, actorId });
+  await setRuleStatus({ organizationId: ORG, ruleId: saved.ruleId, status: "active", actorId });
 
   // condition is total_gross_minor > 50000; order is 5480 -> must not create a task
   await publishOrderEvent(ORDER, "order.created");
   await processAutomationJobs(25);
   const { data: skipped } = await admin
     .from("automation_executions")
-    .select("id, status, created_at")
+    .select("id, status, error_code, created_at")
     .order("created_at", { ascending: false })
     .limit(1);
   check("Event erzeugt Execution", (skipped ?? []).length > 0, JSON.stringify(skipped?.[0] ?? {}));
+  const first = (skipped as { status: string; error_code?: string | null }[] | null)?.[0];
   check(
-    "Bedingung nicht erfüllt -> skipped",
-    (skipped as { status: string }[] | null)?.[0]?.status === "skipped",
-    String((skipped as { status: string }[] | null)?.[0]?.status),
+    "Bedingung nicht erfüllt -> keine Aktion",
+    first?.error_code === "conditions_not_met",
+    String(first?.error_code),
   );
 
   // raise the order above the threshold and re-run
@@ -59,7 +63,7 @@ async function main() {
     .order("created_at", { ascending: false })
     .limit(1);
   const run = (runs as { status: string; error_code: string | null }[] | null)?.[0];
-  check("Bedingung erfüllt -> succeeded", run?.status === "succeeded", JSON.stringify(run ?? {}));
+  check("Bedingung erfüllt -> completed", run?.status === "completed" && !run?.error_code, JSON.stringify(run ?? {}));
   const { data: tasks } = await admin
     .from("tasks")
     .select("id, title, entity_id, status")
