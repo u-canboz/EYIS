@@ -483,7 +483,7 @@ export async function writeSnapshot(
 }
 
 export async function buildCartView(cart: CartRow, options: RepriceOptions = {}): Promise<CartView> {
-  const { calculation, items, codes, warnings, version } = await repriceCart(cart, options);
+  const { calculation, items, codes, warnings, version, tax } = await repriceCart(cart, options);
   const byLine = new Map(calculation.lines.map((l) => [l.lineId, l]));
   const viewItems: CartItemView[] = items.map((item) => {
     const l = byLine.get(item.id);
@@ -521,6 +521,16 @@ export async function buildCartView(cart: CartRow, options: RepriceOptions = {})
     snapshotVersion: version,
     pricingEngineVersion: PRICING_ENGINE_VERSION,
     warnings,
+    tax: {
+      engineVersion: tax.engineVersion,
+      calculationMode: tax.calculationMode,
+      netTotalMinor: tax.netTotalMinor,
+      taxMinor: tax.taxMinor,
+      grossTotalMinor: tax.grossTotalMinor,
+      reverseCharge: tax.reverseCharge,
+      breakdown: tax.breakdown,
+      notes: tax.notes,
+    },
   };
 }
 

@@ -134,6 +134,17 @@ export type CartView = {
   snapshotVersion: number;
   pricingEngineVersion: string;
   warnings: string[];
+  /** Tax breakdown of the current calculation (phase 6). */
+  tax: {
+    engineVersion: string;
+    calculationMode: "gross" | "net";
+    netTotalMinor: number;
+    taxMinor: number;
+    grossTotalMinor: number;
+    reverseCharge: boolean;
+    breakdown: import("./tax/tax.types").TaxBreakdownEntry[];
+    notes: string[];
+  };
 };
 
 export type AddressInput = {
