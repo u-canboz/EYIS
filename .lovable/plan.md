@@ -48,10 +48,11 @@ Server Functions in `src/lib/commerce/store/store-admin.functions.ts` mit `requi
 1. Test-Key anlegen → Client bauen → `/config`.
 2. Katalog: Liste, Detail, Suche, Kategorie — Prüfung, dass keine internen Felder (organization_id, Kosten, interne Status) im JSON auftauchen.
 3. Cart: erstellen, Position hinzufügen/ändern/löschen, Promo anwenden/entfernen, Totals-Konsistenz.
-4. Checkout: E-Mail, Adressen, Versandart, Validate, Payment-Session (Mock), Zahlung, Confirmation-Token einlösen.
-5. Account/Gast: Guest-Access anfordern und einlösen, Bestellung lesen, Dokument-Download-URL, Tracking.
+4. Checkout: E-Mail, Adressen, Versandart, Validate, Payment-Session (Mock), Zahlung, Confirmation-Token einlösen; danach Nachweis, dass derselbe Token ein zweites Mal und nach Widerruf abgelehnt wird.
+5. Account/Gast: Login über den Store-Auth-Wrapper (ohne Supabase-Client), Guest-Access anfordern und einlösen, Bestellung lesen, Dokument-Download-URL, Tracking.
 6. Retoure: Eligibility, Anlage, Duplikat abgelehnt.
-7. Negativfälle: revoked Key, fremder Origin, Cross-Tenant-Zugriff (Key A auf Shop B), fehlender Cart-Token, fremder Cart-Token, Rate-Limit für `customer_login`, `payment_session`, `return_create`, Idempotenz-Wiederholung.
+7. **Cross-Tenant per ID-Manipulation**: Es werden zwei Shops mit je eigenem Key aufgesetzt. Ein Client mit Shop-A-Key ruft mit echten IDs aus Shop B gezielt `GET /cart/:id`, Cart-Mutationen, `GET /checkout/:id`, `GET /orders/confirmation/:token`, `GET /customer/orders/:id`, Dokument- und Tracking-Endpunkte sowie `POST /returns` auf — inklusive der Variante mit gültigem Cart-/Guest-Token aus Shop B. Erwartet ist durchgehend `NOT_FOUND`/`FORBIDDEN` ohne Existenz-Leak und ohne Unterschied in Antwortform oder Timing-Klasse.
+8. Weitere Negativfälle: revoked Key, fremder Origin, fehlender Cart-Token, fremder Cart-Token, Rate-Limit für `customer_login`, `payment_session`, `return_create`, Idempotenz-Wiederholung.
 
 Ergebnis nach `qa/results-phase12.json` plus Kurzreport.
 
