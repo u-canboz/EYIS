@@ -14,17 +14,56 @@ export const Route = createFileRoute("/store")({
   component: StoreLayout,
 });
 
+/**
+ * Resolves the publishable key. It is a shop identifier, NOT a secret, so it
+ * may live in a client bundle, a URL parameter or localStorage.
+ */
+function resolvePublishableKey(): string {
+  const envKey = import.meta.env["VITE_COMMERCE_PUBLISHABLE_KEY"] as string | undefined;
+  if (typeof window === "undefined") return envKey ?? "";
+  const fromUrl = new URLSearchParams(window.location.search).get("key");
+  if (fromUrl) window.localStorage.setItem("commerce.publishableKey", fromUrl);
+  return fromUrl ?? envKey ?? window.localStorage.getItem("commerce.publishableKey") ?? "";
+}
+
 function StoreLayout() {
+  const [publishableKey, setPublishableKey] = useState<string>(() => resolvePublishableKey());
   const config = useMemo<CommerceClientConfig>(
     () => ({
       baseUrl:
         (typeof window === "undefined" ? "" : window.location.origin) + "/api/public/store/v1",
-      // Publishable key = shop identification, NOT a secret.
-      publishableKey: import.meta.env["VITE_COMMERCE_PUBLISHABLE_KEY"] ?? "",
+      publishableKey,
       locale: "de-DE",
     }),
-    [],
+    [publishableKey],
   );
+
+  if (!publishableKey) {
+    return (
+      <div className="mx-auto max-w-md space-y-4 p-8">
+        <h1 className="font-display text-xl font-semibold">Publishable Key erforderlich</h1>
+        <p className="text-sm text-muted-foreground">
+          Der Publishable Key identifiziert den Shop und ist kein Geheimnis. Setze
+          <code className="mx-1">VITE_COMMERCE_PUBLISHABLE_KEY</code>oder trage ihn hier ein.
+        </p>
+        <form
+          className="flex gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const value = new FormData(event.currentTarget).get("key");
+            if (typeof value === "string" && value.trim()) {
+              window.localStorage.setItem("commerce.publishableKey", value.trim());
+              setPublishableKey(value.trim());
+            }
+          }}
+        >
+          <Input name="key" placeholder="pk_..." aria-label="Publishable Key" />
+          <Button type="submit">Laden</Button>
+        </form>
+      </div>
+    );
+  }
+
 
   return (
     <CommerceProvider config={config}>
