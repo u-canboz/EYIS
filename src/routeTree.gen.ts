@@ -22,6 +22,7 @@ import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppLagerIndexRouteImport } from './routes/_authenticated/app/lager/index'
 import { Route as AuthenticatedAppLagerBewegungenRouteImport } from './routes/_authenticated/app/lager/bewegungen'
 import { Route as AuthenticatedAppLagerLagerorteRouteImport } from './routes/_authenticated/app/lager/lagerorte'
+import { Route as AuthenticatedAppLagerReservierungenRouteImport } from './routes/_authenticated/app/lager/reservierungen'
 import { Route as AuthenticatedAppLagerTransfersRouteImport } from './routes/_authenticated/app/lager/transfers'
 import { Route as AuthenticatedAppLagerWareneingangRouteImport } from './routes/_authenticated/app/lager/wareneingang'
 import { Route as AuthenticatedAppMarketingPromotionsRouteImport } from './routes/_authenticated/app/marketing/promotions'
@@ -99,6 +100,12 @@ const AuthenticatedAppLagerLagerorteRoute =
     path: '/app/lager/lagerorte',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppLagerReservierungenRoute =
+  AuthenticatedAppLagerReservierungenRouteImport.update({
+    id: '/app/lager/reservierungen',
+    path: '/app/lager/reservierungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppLagerTransfersRoute =
   AuthenticatedAppLagerTransfersRouteImport.update({
     id: '/app/lager/transfers',
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
+  '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
@@ -182,6 +190,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
+  '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
@@ -206,6 +215,7 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
   '/_authenticated/app/lager/lagerorte': typeof AuthenticatedAppLagerLagerorteRoute
+  '/_authenticated/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/_authenticated/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/_authenticated/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/_authenticated/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
+    | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
     | '/app/marketing/promotions'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/lager/bewegungen'
     | '/app/lager/lagerorte'
+    | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
     | '/app/marketing/promotions'
@@ -275,6 +287,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/app/lager/bewegungen'
     | '/_authenticated/app/lager/lagerorte'
+    | '/_authenticated/app/lager/reservierungen'
     | '/_authenticated/app/lager/transfers'
     | '/_authenticated/app/lager/wareneingang'
     | '/_authenticated/app/marketing/promotions'
@@ -386,6 +399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppLagerLagerorteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/lager/reservierungen': {
+      id: '/_authenticated/app/lager/reservierungen'
+      path: '/app/lager/reservierungen'
+      fullPath: '/app/lager/reservierungen'
+      preLoaderRoute: typeof AuthenticatedAppLagerReservierungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/lager/transfers': {
       id: '/_authenticated/app/lager/transfers'
       path: '/app/lager/transfers'
@@ -454,6 +474,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppLagerBewegungenRoute: typeof AuthenticatedAppLagerBewegungenRoute
   AuthenticatedAppLagerLagerorteRoute: typeof AuthenticatedAppLagerLagerorteRoute
+  AuthenticatedAppLagerReservierungenRoute: typeof AuthenticatedAppLagerReservierungenRoute
   AuthenticatedAppLagerTransfersRoute: typeof AuthenticatedAppLagerTransfersRoute
   AuthenticatedAppLagerWareneingangRoute: typeof AuthenticatedAppLagerWareneingangRoute
   AuthenticatedAppMarketingPromotionsRoute: typeof AuthenticatedAppMarketingPromotionsRoute
@@ -474,6 +495,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppLagerBewegungenRoute: AuthenticatedAppLagerBewegungenRoute,
   AuthenticatedAppLagerLagerorteRoute: AuthenticatedAppLagerLagerorteRoute,
+  AuthenticatedAppLagerReservierungenRoute:
+    AuthenticatedAppLagerReservierungenRoute,
   AuthenticatedAppLagerTransfersRoute: AuthenticatedAppLagerTransfersRoute,
   AuthenticatedAppLagerWareneingangRoute:
     AuthenticatedAppLagerWareneingangRoute,
