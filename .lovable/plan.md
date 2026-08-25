@@ -55,6 +55,13 @@ Ziel dieser Phase: das Mandanten- und Rechte-Fundament aus dem Konzeptpaket, lau
 - Jede Änderung erscheint im Audit-Log
 - Kein Service-Role-Key im Client-Bundle
 
+## Zusätzliche Invarianten
+
+- `memberships`: Unique auf (organization_id, user_id) — kein doppeltes Mitglied.
+- `invitations`: partieller Unique-Index auf (organization_id, lower(email)) für `status = 'pending'`. Beim erneuten Einladen wird die alte offene Einladung automatisch auf `revoked` gesetzt und eine neue erzeugt.
+- `audit_log`: nur Insert. Keine UPDATE-/DELETE-Rechte für `authenticated` oder `service_role`, zusätzlich abgesichert durch einen Trigger, der UPDATE und DELETE blockiert.
+- Owner-Schutz: Der letzte verbleibende `owner` einer Organisation kann weder entfernt noch herabgestuft werden — geprüft per Trigger in der Datenbank und zusätzlich mit klarer Fehlermeldung in der Server-Schicht.
+
 ## Technische Hinweise
 
 - Abweichung vom Konzept, bewusst: statt Supabase Edge Functions + Monorepo-SDK werden TanStack Server Functions und ein interner SDK-Modulpfad genutzt. Die verbindlichen Regeln (keine Commerce-Logik im Client, RLS überall, Idempotency bei kritischen Mutationen, Audit) bleiben erhalten.
