@@ -28,7 +28,7 @@ async function call(
   const response = await fetch(`${API}${path}`, {
     method: init.method,
     headers,
-    body: init.body?.toString(),
+    body: init.body ? init.body.toString() : null,
   });
   const text = await response.text();
   if (!response.ok) {
