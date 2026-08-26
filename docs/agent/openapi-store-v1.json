@@ -1,0 +1,893 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Commerce OS — Public Store API",
+    "version": "1.0.0",
+    "description": "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts. Stand: 2026-08-26T20:28:40.225Z, Commit 3da8679c185fdefbcf4ae8666f0c5f0d502bd57b."
+  },
+  "servers": [
+    {
+      "url": "https://{host}",
+      "variables": {
+        "host": {
+          "default": "your-commerce-os.lovable.app"
+        }
+      }
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "PublishableKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Commerce-Key"
+      }
+    }
+  },
+  "paths": {
+    "/api/public/store/v1/config": {
+      "get": {
+        "tags": [
+          "Konfiguration"
+        ],
+        "summary": "Shop-Konfiguration für den Storefront-Start.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.config()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreConfig"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/products": {
+      "get": {
+        "tags": [
+          "Katalog"
+        ],
+        "summary": "Produktliste mit Paging, Kategorie-/Kollektionsfilter und Sortierung.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.catalog.products({ page: 1, pageSize: 24 })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreList<StoreProductSummary>"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/products/:handle": {
+      "get": {
+        "tags": [
+          "Katalog"
+        ],
+        "summary": "Produktdetail inklusive Varianten, Medien und Preisen.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.catalog.product(\"handle\")`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreProduct"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/search": {
+      "get": {
+        "tags": [
+          "Katalog"
+        ],
+        "summary": "Volltextsuche über den veröffentlichten Katalog.",
+        "description": "Auth: key · Rate-Profil: search · SDK: `await client.catalog.search(\"stuhl\", 12)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreList<StoreProductSummary>"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/categories": {
+      "get": {
+        "tags": [
+          "Katalog"
+        ],
+        "summary": "Kategoriebaum des Shops.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.catalog.categories()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCategory[]"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/collections": {
+      "get": {
+        "tags": [
+          "Katalog"
+        ],
+        "summary": "Kuratierte Kollektionen.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.catalog.collections()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCollection[]"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/cart": {
+      "post": {
+        "tags": [
+          "Warenkorb"
+        ],
+        "summary": "Warenkorb anlegen; liefert Cart und Cart-Token.",
+        "description": "Auth: key · Rate-Profil: cart_write · SDK: `await client.cart.create()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ cart, cartToken }"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/cart/:cartId": {
+      "get": {
+        "tags": [
+          "Warenkorb"
+        ],
+        "summary": "Warenkorb mit Positionen, Rabatten und Summen lesen.",
+        "description": "Auth: cart · Rate-Profil: catalog_read · SDK: `await client.cart.get()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCart"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          },
+          "409": {
+            "description": "CART_EXPIRED — Warenkorb ist abgelaufen oder wurde konvertiert."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/cart/:cartId/items": {
+      "post": {
+        "tags": [
+          "Warenkorb"
+        ],
+        "summary": "Variante hinzufügen.",
+        "description": "Auth: cart · Rate-Profil: cart_write · SDK: `await client.cart.addItem({ variantId, quantity: 1 })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCart"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "409": {
+            "description": "OUT_OF_STOCK — Bestand reicht nicht mehr aus."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/cart/:cartId/items/:itemId": {
+      "patch": {
+        "tags": [
+          "Warenkorb"
+        ],
+        "summary": "Menge ändern; Menge 0 entfernt die Position.",
+        "description": "Auth: cart · Rate-Profil: cart_write · SDK: `await client.cart.updateItem(itemId, 2)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCart"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          },
+          "409": {
+            "description": "OUT_OF_STOCK — Bestand reicht nicht mehr aus."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Warenkorb"
+        ],
+        "summary": "Position entfernen.",
+        "description": "Auth: cart · Rate-Profil: cart_write · SDK: `await client.cart.removeItem(itemId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCart"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/cart/:cartId/promotions": {
+      "post": {
+        "tags": [
+          "Warenkorb"
+        ],
+        "summary": "Gutschein-/Aktionscode anwenden.",
+        "description": "Auth: cart · Rate-Profil: cart_write · SDK: `await client.cart.applyPromotion(\"WELCOME10\")`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCart"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/cart/:cartId/promotions/:code": {
+      "delete": {
+        "tags": [
+          "Warenkorb"
+        ],
+        "summary": "Code wieder entfernen.",
+        "description": "Auth: cart · Rate-Profil: cart_write · SDK: `await client.cart.removePromotion(\"WELCOME10\")`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCart"
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Checkout-Session starten und Bestand reservieren.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.start(email)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCheckout"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "409": {
+            "description": "OUT_OF_STOCK — Bestand reicht nicht mehr aus."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId": {
+      "get": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Aktuellen Stand der Session lesen.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.get(sessionId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCheckout"
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId/email": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Kontakt-E-Mail setzen.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.setEmail(sessionId, email)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCheckout"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId/address": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Liefer- oder Rechnungsadresse setzen.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.setAddress(sessionId, { type: \"shipping\", address })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCheckout"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId/shipping-options": {
+      "get": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Verfügbare Versandarten für die gesetzte Adresse.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.shippingOptions(sessionId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreShippingOption[]"
+          },
+          "409": {
+            "description": "CHECKOUT_INVALID — Checkout ist unvollständig oder nicht mehr gültig."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId/shipping-option": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Versandart wählen.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.setShippingOption(sessionId, methodId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCheckout"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId/validate": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Vollständigkeit prüfen, bevor bezahlt wird.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.validate(sessionId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCheckout"
+          },
+          "409": {
+            "description": "CHECKOUT_INVALID — Checkout ist unvollständig oder nicht mehr gültig."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId/payment-session": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Zahlung starten; liefert Redirect- oder Client-Secret-Daten.",
+        "description": "Auth: cart · Rate-Profil: payment_session · SDK: `await client.checkout.createPaymentSession(sessionId, { returnUrl })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StorePaymentSession"
+          },
+          "402": {
+            "description": "PAYMENT_FAILED — Zahlung wurde abgelehnt."
+          },
+          "409": {
+            "description": "CHECKOUT_INVALID — Checkout ist unvollständig oder nicht mehr gültig."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/payments/:paymentSessionId/status": {
+      "get": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Zahlungsstatus pollen; liefert nach Erfolg den Confirmation-Token.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.payments.status(paymentSessionId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StorePaymentStatus"
+          },
+          "402": {
+            "description": "PAYMENT_FAILED — Zahlung wurde abgelehnt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/orders/confirmation/:confirmationToken": {
+      "get": {
+        "tags": [
+          "Bestellungen & Gastzugang"
+        ],
+        "summary": "Bestätigungs-Token einmalig einlösen und Bestellung lesen.",
+        "description": "Auth: key · Rate-Profil: guest_lookup · SDK: `await client.orders.redeemConfirmation(token)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreOrder"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/orders/guest-access": {
+      "post": {
+        "tags": [
+          "Bestellungen & Gastzugang"
+        ],
+        "summary": "Gastzugang per E-Mail anfordern (Antwort verrät keine Existenz).",
+        "description": "Auth: key · Rate-Profil: guest_lookup · SDK: `await client.orders.requestGuestAccess({ orderNumber, email })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ requested: true }"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/orders/guest": {
+      "get": {
+        "tags": [
+          "Bestellungen & Gastzugang"
+        ],
+        "summary": "Bestellung des Guest-Tokens lesen.",
+        "description": "Auth: guest · Rate-Profil: guest_lookup · SDK: `await client.orders.guestOrder()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreOrder"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/orders/guest/documents/:documentId": {
+      "get": {
+        "tags": [
+          "Bestellungen & Gastzugang"
+        ],
+        "summary": "Kurzlebige Download-URL für ein Dokument der Bestellung.",
+        "description": "Auth: guest · Rate-Profil: guest_lookup · SDK: `await client.orders.guestDocumentUrl(documentId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ url }"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/returns/eligibility": {
+      "get": {
+        "tags": [
+          "Retouren"
+        ],
+        "summary": "Retourenfähige Positionen und Fristen prüfen.",
+        "description": "Auth: guest · Rate-Profil: guest_lookup · SDK: `await client.returns.guestEligibility()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreReturnEligibility"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/returns": {
+      "post": {
+        "tags": [
+          "Retouren"
+        ],
+        "summary": "Retoure anlegen.",
+        "description": "Auth: guest · Rate-Profil: return_create · SDK: `await client.returns.create({ items, reason: \"damaged\" })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreReturn"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/customer/auth/login": {
+      "post": {
+        "tags": [
+          "Kundenkonto"
+        ],
+        "summary": "Anmelden und Store-Session-Token erhalten.",
+        "description": "Auth: key · Rate-Profil: customer_login · SDK: `await client.customer.login({ email, password })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ token, expiresAt, customer }"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/customer/auth/register": {
+      "post": {
+        "tags": [
+          "Kundenkonto"
+        ],
+        "summary": "Konto anlegen; je nach Shop mit E-Mail-Bestätigung.",
+        "description": "Auth: key · Rate-Profil: customer_login · SDK: `await client.customer.register({ email, password })`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ token, customer, confirmationRequired }"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/customer/auth/password-reset": {
+      "post": {
+        "tags": [
+          "Kundenkonto"
+        ],
+        "summary": "Passwort-Reset anstoßen (immer neutrale Antwort).",
+        "description": "Auth: key · Rate-Profil: customer_login · SDK: `await client.customer.requestPasswordReset(email)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ requested: true }"
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/customer/me": {
+      "get": {
+        "tags": [
+          "Kundenkonto"
+        ],
+        "summary": "Profil der aktuellen Store-Session.",
+        "description": "Auth: customer · Rate-Profil: customer_auth · SDK: `await client.customer.me()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCustomer"
+          },
+          "401": {
+            "description": "CUSTOMER_SESSION_EXPIRED — Store-Session abgelaufen; neu anmelden."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/customer/orders": {
+      "get": {
+        "tags": [
+          "Kundenkonto"
+        ],
+        "summary": "Bestellhistorie des Kunden.",
+        "description": "Auth: customer · Rate-Profil: customer_auth · SDK: `await client.customer.orders()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreOrderSummary[]"
+          },
+          "401": {
+            "description": "CUSTOMER_SESSION_EXPIRED — Store-Session abgelaufen; neu anmelden."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/customer/orders/:orderId": {
+      "get": {
+        "tags": [
+          "Kundenkonto"
+        ],
+        "summary": "Bestelldetail inklusive Tracking.",
+        "description": "Auth: customer · Rate-Profil: customer_auth · SDK: `await client.customer.order(orderId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreOrder"
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/customer/orders/:orderId/documents/:documentId": {
+      "get": {
+        "tags": [
+          "Kundenkonto"
+        ],
+        "summary": "Kurzlebige Download-URL für Rechnung oder Gutschrift.",
+        "description": "Auth: customer · Rate-Profil: customer_auth · SDK: `await client.customer.documentUrl(orderId, documentId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ url }"
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    }
+  }
+}

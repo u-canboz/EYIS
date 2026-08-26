@@ -1,0 +1,793 @@
+{
+  "generated_at": "2026-08-26T20:28:40.206Z",
+  "source_commit": "3da8679c185fdefbcf4ae8666f0c5f0d502bd57b",
+  "latest_migration": "20260826121430_0cf80d4f-7b01-47e7-b578-adc806efc847.sql",
+  "generator_version": "1.0.0",
+  "generated_by": "scripts/manifest/generate.ts",
+  "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
+  "total": 77,
+  "by_kind": {
+    "backoffice": 57,
+    "job-endpoint": 3,
+    "public-store-api": 1,
+    "webhook": 3,
+    "public-page": 3,
+    "customer-portal": 3,
+    "storefront": 7
+  },
+  "routes": [
+    {
+      "url": "/app/audit",
+      "source": "src/routes/_authenticated/app/audit.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/automationen/aufgaben",
+      "source": "src/routes/_authenticated/app/automationen/aufgaben.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/automationen",
+      "source": "src/routes/_authenticated/app/automationen/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/automationen/regel/:ruleId",
+      "source": "src/routes/_authenticated/app/automationen/regel.$ruleId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/automationen/verlauf",
+      "source": "src/routes/_authenticated/app/automationen/verlauf.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/automationen/webhooks",
+      "source": "src/routes/_authenticated/app/automationen/webhooks.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/bestellungen/:orderId",
+      "source": "src/routes/_authenticated/app/bestellungen/$orderId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/bestellungen",
+      "source": "src/routes/_authenticated/app/bestellungen/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/dokumente/:invoiceId",
+      "source": "src/routes/_authenticated/app/dokumente/$invoiceId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/dokumente/einstellungen",
+      "source": "src/routes/_authenticated/app/dokumente/einstellungen.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/dokumente",
+      "source": "src/routes/_authenticated/app/dokumente/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/entwickler/api",
+      "source": "src/routes/_authenticated/app/entwickler/api.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/entwickler",
+      "source": "src/routes/_authenticated/app/entwickler/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/entwickler/protokoll",
+      "source": "src/routes/_authenticated/app/entwickler/protokoll.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app",
+      "source": "src/routes/_authenticated/app/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kategorien",
+      "source": "src/routes/_authenticated/app/kategorien.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kommunikation/branding",
+      "source": "src/routes/_authenticated/app/kommunikation/branding.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kommunikation",
+      "source": "src/routes/_authenticated/app/kommunikation/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kommunikation/regeln",
+      "source": "src/routes/_authenticated/app/kommunikation/regeln.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kommunikation/verlauf/:communicationId",
+      "source": "src/routes/_authenticated/app/kommunikation/verlauf/$communicationId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kommunikation/verlauf",
+      "source": "src/routes/_authenticated/app/kommunikation/verlauf/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kommunikation/vorlagen/:templateId",
+      "source": "src/routes/_authenticated/app/kommunikation/vorlagen/$templateId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kommunikation/vorlagen",
+      "source": "src/routes/_authenticated/app/kommunikation/vorlagen/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kunden/:customerId",
+      "source": "src/routes/_authenticated/app/kunden/$customerId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/kunden",
+      "source": "src/routes/_authenticated/app/kunden/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/lager/bewegungen",
+      "source": "src/routes/_authenticated/app/lager/bewegungen.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/lager",
+      "source": "src/routes/_authenticated/app/lager/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/lager/lagerorte",
+      "source": "src/routes/_authenticated/app/lager/lagerorte.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/lager/reservierungen",
+      "source": "src/routes/_authenticated/app/lager/reservierungen.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/lager/transfers",
+      "source": "src/routes/_authenticated/app/lager/transfers.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/lager/wareneingang",
+      "source": "src/routes/_authenticated/app/lager/wareneingang.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/marketing/promotions",
+      "source": "src/routes/_authenticated/app/marketing/promotions.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/medien",
+      "source": "src/routes/_authenticated/app/medien.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/preise",
+      "source": "src/routes/_authenticated/app/preise/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/preise/testen",
+      "source": "src/routes/_authenticated/app/preise/testen.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/produkte/:productId",
+      "source": "src/routes/_authenticated/app/produkte/$productId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/produkte",
+      "source": "src/routes/_authenticated/app/produkte/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/produkte/neu",
+      "source": "src/routes/_authenticated/app/produkte/neu.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/retouren/:returnId",
+      "source": "src/routes/_authenticated/app/retouren/$returnId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/retouren/einstellungen",
+      "source": "src/routes/_authenticated/app/retouren/einstellungen.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/retouren",
+      "source": "src/routes/_authenticated/app/retouren/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/shops",
+      "source": "src/routes/_authenticated/app/shops.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/steuern",
+      "source": "src/routes/_authenticated/app/steuern.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/demo-daten",
+      "source": "src/routes/_authenticated/app/system/demo-daten.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/errors",
+      "source": "src/routes/_authenticated/app/system/errors.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/health",
+      "source": "src/routes/_authenticated/app/system/health.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/jobs",
+      "source": "src/routes/_authenticated/app/system/jobs.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/status",
+      "source": "src/routes/_authenticated/app/system/status.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/storefront-test",
+      "source": "src/routes/_authenticated/app/system/storefront-test.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/team",
+      "source": "src/routes/_authenticated/app/team.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/versand/:fulfillmentId",
+      "source": "src/routes/_authenticated/app/versand/$fulfillmentId.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/versand/dienstleister",
+      "source": "src/routes/_authenticated/app/versand/dienstleister.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/versand",
+      "source": "src/routes/_authenticated/app/versand/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/versand/versandarten",
+      "source": "src/routes/_authenticated/app/versand/versandarten.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/warenkoerbe",
+      "source": "src/routes/_authenticated/app/warenkoerbe.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/zahlungen",
+      "source": "src/routes/_authenticated/app/zahlungen.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/",
+      "source": "src/routes/_authenticated/route.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": false
+    },
+    {
+      "url": "/api/public/jobs/automation",
+      "source": "src/routes/api/public/jobs/automation.ts",
+      "kind": "job-endpoint",
+      "methods": [
+        "POST"
+      ],
+      "auth": "LOVABLE_CRON_SECRET (authenticateCronRequest)",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/jobs/communications",
+      "source": "src/routes/api/public/jobs/communications.ts",
+      "kind": "job-endpoint",
+      "methods": [
+        "POST"
+      ],
+      "auth": "LOVABLE_CRON_SECRET (authenticateCronRequest)",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/jobs/expiration",
+      "source": "src/routes/api/public/jobs/expiration.ts",
+      "kind": "job-endpoint",
+      "methods": [
+        "POST"
+      ],
+      "auth": "LOVABLE_CRON_SECRET (authenticateCronRequest)",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/store/v1/*",
+      "source": "src/routes/api/public/store/v1/$.ts",
+      "kind": "public-store-api",
+      "methods": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "auth": "publishable key (X-Commerce-Key) + optional cart/customer/guest token",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/webhooks/carrier/:provider",
+      "source": "src/routes/api/public/webhooks/carrier/$provider.ts",
+      "kind": "webhook",
+      "methods": [
+        "POST"
+      ],
+      "auth": "provider signature verification",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/webhooks/communications/:provider",
+      "source": "src/routes/api/public/webhooks/communications/$provider.ts",
+      "kind": "webhook",
+      "methods": [
+        "POST"
+      ],
+      "auth": "provider signature verification",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/webhooks/stripe",
+      "source": "src/routes/api/public/webhooks/stripe.ts",
+      "kind": "webhook",
+      "methods": [
+        "POST"
+      ],
+      "auth": "provider signature verification",
+      "ssr": true
+    },
+    {
+      "url": "/auth",
+      "source": "src/routes/auth.tsx",
+      "kind": "public-page",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/",
+      "source": "src/routes/index.tsx",
+      "kind": "public-page",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/invite",
+      "source": "src/routes/invite.tsx",
+      "kind": "public-page",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/portal/bestellungen/:orderId",
+      "source": "src/routes/portal/bestellungen/$orderId.tsx",
+      "kind": "customer-portal",
+      "methods": [
+        "GET"
+      ],
+      "auth": "customer session / guest token",
+      "ssr": false
+    },
+    {
+      "url": "/portal/gast",
+      "source": "src/routes/portal/gast.tsx",
+      "kind": "customer-portal",
+      "methods": [
+        "GET"
+      ],
+      "auth": "customer session / guest token",
+      "ssr": false
+    },
+    {
+      "url": "/portal",
+      "source": "src/routes/portal/index.tsx",
+      "kind": "customer-portal",
+      "methods": [
+        "GET"
+      ],
+      "auth": "customer session / guest token",
+      "ssr": false
+    },
+    {
+      "url": "/store/bestaetigung",
+      "source": "src/routes/store/bestaetigung.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/store/checkout",
+      "source": "src/routes/store/checkout.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/store",
+      "source": "src/routes/store/index.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/store/konto",
+      "source": "src/routes/store/konto.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/store/produkt/:handle",
+      "source": "src/routes/store/produkt.$handle.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/store",
+      "source": "src/routes/store/route.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/store/warenkorb",
+      "source": "src/routes/store/warenkorb.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    }
+  ]
+}
