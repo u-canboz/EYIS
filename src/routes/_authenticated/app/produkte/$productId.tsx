@@ -169,56 +169,90 @@ function ProductEditor() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  if (productQuery.isLoading || !product) return <Skeleton className="h-96 w-full" />;
+  if (productQuery.isLoading || !product)
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-80 w-full rounded-xl" />
+      </div>
+    );
 
   const canEdit = can("products.update");
 
+  const statusSelect = (
+    <Select
+      value={form.status}
+      onValueChange={(v) => setForm({ ...form, status: v as typeof form.status })}
+      disabled={!canEdit}
+    >
+      <SelectTrigger className="h-11 w-full sm:w-40" aria-label="Produktstatus">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="draft">Entwurf</SelectItem>
+        <SelectItem value="active">Aktiv</SelectItem>
+        <SelectItem value="archived">Archiviert</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link to="/app/produkte" className="text-sm text-muted-foreground hover:underline">
-            ← Zurück zur Übersicht
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/produkte"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Alle Produkte
           </Link>
-          <h1 className="font-display text-2xl font-semibold">{form.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            Vorlage: {product.blueprint_key} (v{product.blueprint_version})
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select
-            value={form.status}
-            onValueChange={(v) => setForm({ ...form, status: v as typeof form.status })}
-            disabled={!canEdit}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="draft">Entwurf</SelectItem>
-              <SelectItem value="active">Aktiv</SelectItem>
-              <SelectItem value="archived">Archiviert</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            disabled={!canEdit || saveMutation.isPending}
-            onClick={() => saveMutation.mutate()}
-          >
-            {saveMutation.isPending ? "Speichert…" : "Speichern"}
-          </Button>
-        </div>
-      </header>
+        }
+        title={form.name || "Produkt"}
+        description={`Vorlage: ${product.blueprint_key} (v${product.blueprint_version})`}
+        actions={
+          <div className="hidden items-center gap-2 sm:flex">
+            {statusSelect}
+            <Button
+              className="min-h-11"
+              disabled={!canEdit || saveMutation.isPending}
+              onClick={() => saveMutation.mutate()}
+            >
+              {saveMutation.isPending ? "Speichert…" : "Speichern"}
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="sm:hidden">{statusSelect}</div>
 
       <Tabs defaultValue="details">
-        <TabsList>
-          <TabsTrigger value="details">Details</TabsTrigger>
-          <TabsTrigger value="varianten">Varianten</TabsTrigger>
-          <TabsTrigger value="preise">Preise</TabsTrigger>
-          <TabsTrigger value="bestand">Bestand</TabsTrigger>
-          <TabsTrigger value="medien">Medien</TabsTrigger>
-          <TabsTrigger value="organisation">Organisation</TabsTrigger>
-          <TabsTrigger value="seo">SEO</TabsTrigger>
-        </TabsList>
+        <ScrollTabs>
+          <TabsList className="h-auto flex-nowrap">
+            <TabsTrigger value="details" className="min-h-10 whitespace-nowrap">
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="varianten" className="min-h-10 whitespace-nowrap">
+              Varianten
+            </TabsTrigger>
+            <TabsTrigger value="preise" className="min-h-10 whitespace-nowrap">
+              Preise
+            </TabsTrigger>
+            <TabsTrigger value="bestand" className="min-h-10 whitespace-nowrap">
+              Bestand
+            </TabsTrigger>
+            <TabsTrigger value="medien" className="min-h-10 whitespace-nowrap">
+              Medien
+            </TabsTrigger>
+            <TabsTrigger value="organisation" className="min-h-10 whitespace-nowrap">
+              Organisation
+            </TabsTrigger>
+            <TabsTrigger value="seo" className="min-h-10 whitespace-nowrap">
+              SEO
+            </TabsTrigger>
+          </TabsList>
+        </ScrollTabs>
+
 
         <TabsContent value="details" className="space-y-6 pt-4">
           <div className="grid gap-5 rounded-lg border bg-card p-6 sm:grid-cols-2">
