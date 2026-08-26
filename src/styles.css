@@ -72,8 +72,13 @@
 
 :root {
   --radius: 0.625rem;
+  --content-max: 84rem;
+  --tap: 2.75rem;
+  --elevation-1: 0 1px 2px oklch(0.21 0.02 250 / 6%), 0 1px 3px oklch(0.21 0.02 250 / 5%);
+  --elevation-2: 0 8px 24px -12px oklch(0.21 0.02 250 / 22%);
   --background: oklch(0.985 0.006 95);
   --foreground: oklch(0.21 0.02 250);
+
   --surface: oklch(0.965 0.01 95);
   --surface-foreground: oklch(0.21 0.02 250);
   --card: oklch(1 0 0);
@@ -165,3 +170,17 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* Safe-area aware bottom padding for sticky bars and mobile navigation. */
+@utility pb-safe {
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Explicit, intentional horizontal scroll container (tables, tab strips). */
+@utility scroll-x {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+}
+
