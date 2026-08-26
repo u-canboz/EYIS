@@ -1,5 +1,5 @@
 {
-  "runAt": "2026-08-26T08:15:12.431Z",
+  "runAt": "2026-08-26T08:15:24.894Z",
   "baseline": [
     {
       "area": "documents",
@@ -49,8 +49,8 @@
     },
     {
       "name": "Anonym: Aufruf abgelehnt",
-      "ok": false,
-      "detail": "kein Fehler geworfen"
+      "ok": true,
+      "detail": "permission denied for function health_run_checks"
     },
     {
       "name": "Injektion vorbereitet: Inventory-Level gefunden",
