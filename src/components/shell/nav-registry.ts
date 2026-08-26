@@ -45,8 +45,9 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Katalog",
     items: [
       { to: "/app/produkte", label: "Produkte", icon: Package },
-      { to: "/app/kategorien", label: "Kategorien", icon: Tags },
+      { to: "/app/kategorien", label: "Kategorien & Collections", icon: Tags },
       { to: "/app/preise", label: "Preise", icon: Euro },
+      { to: "/app/preise/testen", label: "Preistest", icon: Euro },
       { to: "/app/medien", label: "Medien", icon: Images },
     ],
   },
@@ -55,24 +56,31 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Verkauf",
     items: [
       { to: "/app/bestellungen", label: "Bestellungen", icon: ClipboardList },
-      { to: "/app/warenkoerbe", label: "Warenkörbe", icon: ShoppingCart },
+      { to: "/app/warenkoerbe", label: "Warenkörbe & Checkouts", icon: ShoppingCart },
       { to: "/app/zahlungen", label: "Zahlungen", icon: CreditCard },
       { to: "/app/retouren", label: "Retouren", icon: RotateCcw },
+      { to: "/app/retouren/einstellungen", label: "Retouren-Regeln", icon: RotateCcw },
       { to: "/app/marketing/promotions", label: "Promotions", icon: Megaphone },
     ],
   },
   {
     id: "customers",
     label: "Kunden",
-    items: [{ to: "/app/kunden", label: "Kunden", icon: Users }],
+    items: [{ to: "/app/kunden", label: "Kunden & Gruppen", icon: Users }],
   },
   {
     id: "logistics",
     label: "Logistik",
     items: [
-      { to: "/app/lager", label: "Lager", icon: Warehouse },
+      { to: "/app/lager", label: "Lagerübersicht", icon: Warehouse },
+      { to: "/app/lager/bewegungen", label: "Bewegungen", icon: Warehouse },
+      { to: "/app/lager/wareneingang", label: "Wareneingang", icon: Warehouse },
+      { to: "/app/lager/transfers", label: "Transfers", icon: Warehouse },
+      { to: "/app/lager/reservierungen", label: "Reservierungen", icon: Warehouse },
+      { to: "/app/lager/lagerorte", label: "Lagerorte", icon: Warehouse },
       { to: "/app/versand", label: "Versand", icon: Truck },
       { to: "/app/versand/versandarten", label: "Versandarten", icon: Truck },
+      { to: "/app/versand/dienstleister", label: "Dienstleister", icon: Truck },
     ],
   },
   {
@@ -80,6 +88,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Finanzen",
     items: [
       { to: "/app/dokumente", label: "Dokumente", icon: FileText },
+      { to: "/app/dokumente/einstellungen", label: "Dokument-Einstellungen", icon: FileText },
       { to: "/app/steuern", label: "Steuern", icon: Receipt },
     ],
   },
@@ -87,8 +96,14 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "communication",
     label: "Kommunikation",
     items: [
-      { to: "/app/kommunikation", label: "Kommunikation", icon: Mail },
+      { to: "/app/kommunikation", label: "Übersicht", icon: Mail },
+      { to: "/app/kommunikation/vorlagen", label: "Vorlagen", icon: Mail },
+      { to: "/app/kommunikation/verlauf", label: "Verlauf", icon: Mail },
+      { to: "/app/kommunikation/branding", label: "Branding Studio", icon: Mail },
+      { to: "/app/kommunikation/regeln", label: "Sende-Regeln", icon: Mail },
       { to: "/app/automationen", label: "Automationen", icon: Workflow },
+      { to: "/app/automationen/verlauf", label: "Automations-Verlauf", icon: Workflow },
+      { to: "/app/automationen/webhooks", label: "Webhooks", icon: Workflow },
       { to: "/app/automationen/aufgaben", label: "Aufgaben", icon: CheckSquare },
     ],
   },
@@ -110,7 +125,9 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "developer",
     label: "Entwickler",
     items: [
-      { to: "/app/entwickler", label: "Entwickler", icon: Code2 },
+      { to: "/app/entwickler", label: "API-Keys", icon: Code2 },
+      { to: "/app/entwickler/api", label: "API-Referenz", icon: Code2 },
+      { to: "/app/entwickler/protokoll", label: "Request-Protokoll", icon: Code2 },
       { to: "/app/system/storefront-test", label: "Test-Storefront", icon: Store },
       { to: "/store", label: "Referenz-Storefront", icon: Store },
     ],
@@ -123,6 +140,19 @@ export const BOTTOM_TABS: NavItem[] = [
   { to: "/app/bestellungen", label: "Bestellungen", icon: ClipboardList },
   { to: "/app/produkte", label: "Produkte", icon: Package },
   { to: "/app/lager", label: "Lager", icon: Warehouse },
+];
+
+/** Compact icon rail for tablet widths — one entry per functional area. */
+export const RAIL_ITEMS: NavItem[] = [
+  { to: "/app", label: "Übersicht", icon: LayoutDashboard, exact: true },
+  { to: "/app/bestellungen", label: "Bestellungen", icon: ClipboardList },
+  { to: "/app/produkte", label: "Produkte", icon: Package },
+  { to: "/app/kunden", label: "Kunden", icon: Users },
+  { to: "/app/lager", label: "Lager", icon: Warehouse },
+  { to: "/app/versand", label: "Versand", icon: Truck },
+  { to: "/app/dokumente", label: "Dokumente", icon: FileText },
+  { to: "/app/kommunikation", label: "Kommunikation", icon: Mail },
+  { to: "/app/system/health", label: "System", icon: Activity },
 ];
 
 export function isActive(pathname: string, item: NavItem) {
