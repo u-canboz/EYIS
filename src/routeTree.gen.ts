@@ -64,7 +64,10 @@ import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_authenticated/app/retouren/index'
 import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
 import { Route as AuthenticatedAppRetourenEinstellungenRouteImport } from './routes/_authenticated/app/retouren/einstellungen'
+import { Route as AuthenticatedAppSystemErrorsRouteImport } from './routes/_authenticated/app/system/errors'
 import { Route as AuthenticatedAppSystemHealthRouteImport } from './routes/_authenticated/app/system/health'
+import { Route as AuthenticatedAppSystemJobsRouteImport } from './routes/_authenticated/app/system/jobs'
+import { Route as AuthenticatedAppSystemStatusRouteImport } from './routes/_authenticated/app/system/status'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
@@ -393,10 +396,28 @@ const AuthenticatedAppRetourenEinstellungenRoute =
     path: '/app/retouren/einstellungen',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppSystemErrorsRoute =
+  AuthenticatedAppSystemErrorsRouteImport.update({
+    id: '/app/system/errors',
+    path: '/app/system/errors',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemHealthRoute =
   AuthenticatedAppSystemHealthRouteImport.update({
     id: '/app/system/health',
     path: '/app/system/health',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppSystemJobsRoute =
+  AuthenticatedAppSystemJobsRouteImport.update({
+    id: '/app/system/jobs',
+    path: '/app/system/jobs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppSystemStatusRoute =
+  AuthenticatedAppSystemStatusRouteImport.update({
+    id: '/app/system/status',
+    path: '/app/system/status',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppSystemStorefrontTestRoute =
@@ -543,7 +564,10 @@ export interface FileRoutesByFullPath {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
+  '/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
+  '/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -616,7 +640,10 @@ export interface FileRoutesByTo {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
+  '/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
+  '/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -692,7 +719,10 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/_authenticated/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/_authenticated/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/_authenticated/app/system/health': typeof AuthenticatedAppSystemHealthRoute
+  '/_authenticated/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
+  '/_authenticated/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
@@ -768,7 +798,10 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/system/errors'
     | '/app/system/health'
+    | '/app/system/jobs'
+    | '/app/system/status'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -841,7 +874,10 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/system/errors'
     | '/app/system/health'
+    | '/app/system/jobs'
+    | '/app/system/status'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
@@ -916,7 +952,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/retouren/$returnId'
     | '/_authenticated/app/retouren/einstellungen'
+    | '/_authenticated/app/system/errors'
     | '/_authenticated/app/system/health'
+    | '/_authenticated/app/system/jobs'
+    | '/_authenticated/app/system/status'
     | '/_authenticated/app/system/storefront-test'
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
@@ -1351,11 +1390,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRetourenEinstellungenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/system/errors': {
+      id: '/_authenticated/app/system/errors'
+      path: '/app/system/errors'
+      fullPath: '/app/system/errors'
+      preLoaderRoute: typeof AuthenticatedAppSystemErrorsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/health': {
       id: '/_authenticated/app/system/health'
       path: '/app/system/health'
       fullPath: '/app/system/health'
       preLoaderRoute: typeof AuthenticatedAppSystemHealthRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/system/jobs': {
+      id: '/_authenticated/app/system/jobs'
+      path: '/app/system/jobs'
+      fullPath: '/app/system/jobs'
+      preLoaderRoute: typeof AuthenticatedAppSystemJobsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/system/status': {
+      id: '/_authenticated/app/system/status'
+      path: '/app/system/status'
+      fullPath: '/app/system/status'
+      preLoaderRoute: typeof AuthenticatedAppSystemStatusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/system/storefront-test': {
@@ -1512,7 +1572,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppRetourenReturnIdRoute: typeof AuthenticatedAppRetourenReturnIdRoute
   AuthenticatedAppRetourenEinstellungenRoute: typeof AuthenticatedAppRetourenEinstellungenRoute
+  AuthenticatedAppSystemErrorsRoute: typeof AuthenticatedAppSystemErrorsRoute
   AuthenticatedAppSystemHealthRoute: typeof AuthenticatedAppSystemHealthRoute
+  AuthenticatedAppSystemJobsRoute: typeof AuthenticatedAppSystemJobsRoute
+  AuthenticatedAppSystemStatusRoute: typeof AuthenticatedAppSystemStatusRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
@@ -1581,7 +1644,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRetourenReturnIdRoute: AuthenticatedAppRetourenReturnIdRoute,
   AuthenticatedAppRetourenEinstellungenRoute:
     AuthenticatedAppRetourenEinstellungenRoute,
+  AuthenticatedAppSystemErrorsRoute: AuthenticatedAppSystemErrorsRoute,
   AuthenticatedAppSystemHealthRoute: AuthenticatedAppSystemHealthRoute,
+  AuthenticatedAppSystemJobsRoute: AuthenticatedAppSystemJobsRoute,
+  AuthenticatedAppSystemStatusRoute: AuthenticatedAppSystemStatusRoute,
   AuthenticatedAppSystemStorefrontTestRoute:
     AuthenticatedAppSystemStorefrontTestRoute,
   AuthenticatedAppVersandFulfillmentIdRoute:

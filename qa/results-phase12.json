@@ -2,7 +2,7 @@
   {
     "name": "Keys für zwei Shops erstellt",
     "ok": true,
-    "detail": "pk_test_9583fa / pk_test_0b9bd8"
+    "detail": "pk_test_148417 / pk_test_9a60b2"
   },
   {
     "name": "GET /config",
@@ -12,7 +12,7 @@
   {
     "name": "Antwort trägt Request-ID",
     "ok": true,
-    "detail": "c3340c3a-29a3-417e-873d-bdffba8c7ed3"
+    "detail": "16b54b90-4fbc-4449-a27b-b4cd7f8b14f9"
   },
   {
     "name": "GET /products",
@@ -117,7 +117,7 @@
   {
     "name": "Mock-Zahlung finalisiert",
     "ok": true,
-    "detail": "{\"created\":true,\"order_id\":\"404b0e2e-5c5c-4f86-8006-9aa95d2c2a9a\",\"order_number\":\"ORD-000013\",\"reservations_committed\":1"
+    "detail": "{\"created\":true,\"order_id\":\"4e6c380e-3a7a-4c30-b5cc-9585044a5a26\",\"order_number\":\"ORD-000014\",\"reservations_committed\":1"
   },
   {
     "name": "Zahlungsstatus lesbar",

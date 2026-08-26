@@ -36,6 +36,9 @@ const HELPER_FUNCTIONS = [
   "current_org_ids",
   "has_org_role",
   "has_permission",
+  // Gate A5: read-only Health-Checks laufen bewusst als aufrufender Nutzer
+  // (organisations-scoped, Rollenprüfung in der Funktion).
+  "health_run_checks",
   "is_org_member",
   "shares_org_with",
   "shop_in_org",

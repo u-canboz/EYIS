@@ -1,7 +1,7 @@
 {
   "gate": "A4",
   "title": "Datenbank-, RLS-, RPC- und Storage-Sicherheitsinventur",
-  "executedAt": "2026-08-26T00:04:09.422Z",
+  "executedAt": "2026-08-26T09:05:08.435Z",
   "organizations": [
     "ba039523-f8ec-44ff-bb9d-2b5b86b0c0a6",
     "29cb83d1-2f6a-42ff-8bb5-413463402b07"
@@ -67,7 +67,7 @@
     {
       "name": "authenticated darf nur die RLS-Hilfsfunktionen ausführen",
       "status": "PASS",
-      "evidence": "erlaubt: can_view_profile, current_org_ids, has_org_role, has_permission, is_org_member, shares_org_with, shop_in_org"
+      "evidence": "erlaubt: can_view_profile, current_org_ids, has_org_role, has_permission, health_run_checks, is_org_member, shares_org_with, shop_in_org"
     },
     {
       "name": "Kein dynamisches SQL in Datenbankfunktionen",
@@ -187,7 +187,7 @@
     {
       "name": "Audit-Log ist append-only für Nutzer",
       "status": "PASS",
-      "evidence": "8 → 8 Einträge, 0 manipuliert"
+      "evidence": "9 → 9 Einträge, 0 manipuliert"
     },
     {
       "name": "Profil eines fremden Nutzers nicht lesbar",

@@ -7,5 +7,5 @@ export const runHealthChecksFn = createServerFn({ method: "POST" })
   .inputValidator((data: { organizationId: string }) => data)
   .handler(async ({ data, context }) => {
     const { runHealthChecks } = await import("./health.server");
-    return runHealthChecks(context.supabase, data.organizationId);
+    return runHealthChecks(context.supabase as never, data.organizationId);
   });

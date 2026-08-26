@@ -1,0 +1,331 @@
+{
+  "createdAt": "2026-08-26T08:51:31.525Z",
+  "project": "hosciphydioqqpmzqtpy",
+  "tables": [
+    {
+      "table": "organizations",
+      "rows": 4,
+      "sha256": "cc7f520a73a8d312f80a8236d339badea228cf44efbc2abc392421aa31f996ca"
+    },
+    {
+      "table": "shops",
+      "rows": 4,
+      "sha256": "1e40b2efe81a8e6a52d7d284975f9bdd155d7316a7625ffce97d62680d5e528c"
+    },
+    {
+      "table": "categories",
+      "rows": 1,
+      "sha256": "6faa9a3032ea40425cbcee9170f4d4d486598b3369a37c04d3782d4a1855ef69"
+    },
+    {
+      "table": "collections",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "products",
+      "rows": 3,
+      "sha256": "e4c22367459b3caa0b3f4fbce50ee9efe68aaca297c1415650903a09b5e91b7f"
+    },
+    {
+      "table": "product_variants",
+      "rows": 2,
+      "sha256": "a21e78a1bd2ce535517dbb80eb18b0b6bfeff50a18897d2ed8bf60d7ac0fcdcc"
+    },
+    {
+      "table": "product_options",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "product_option_values",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "variant_option_values",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "product_categories",
+      "rows": 1,
+      "sha256": "de35e4eb319a754c20a3ca2783bcf53e0b6adf787cf3125dd9854f1cb6a5b9c5"
+    },
+    {
+      "table": "product_collections",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "product_media",
+      "rows": 1,
+      "sha256": "7c46546648f0f6f502119303d05bf764d9e37607af16b8b28dcec6f849b34a42"
+    },
+    {
+      "table": "media_assets",
+      "rows": 1,
+      "sha256": "14a8d3078b5f796a0fe49f8cd512466e17482d2f12803d57ca6ef539593bbb60"
+    },
+    {
+      "table": "price_sets",
+      "rows": 2,
+      "sha256": "b8a6a4891ed3b832df9dd358ea2038cc80ae0af7315283fdb70089a57e5af8c7"
+    },
+    {
+      "table": "prices",
+      "rows": 2,
+      "sha256": "8fe8f83e14dd0fe066556e43158ad5d151c000fc6ebb352ee118819c8a0e6534"
+    },
+    {
+      "table": "promotions",
+      "rows": 1,
+      "sha256": "bea180c04fbbd40c2300bc4996b2ab79995e1064fd736f8dc9a1d9e0c56ce880"
+    },
+    {
+      "table": "inventory_locations",
+      "rows": 2,
+      "sha256": "e1e6081da6057fd8859a96605e4d1c9ab1cd66183dc227d0ef4740eaeff70cd1"
+    },
+    {
+      "table": "inventory_items",
+      "rows": 2,
+      "sha256": "c844d637dcc23c9812b5971e703e7e3ec8a17343fc903d5a2aaf8b9a6ef31fe1"
+    },
+    {
+      "table": "inventory_levels",
+      "rows": 2,
+      "sha256": "fd3c30637018950e400130a42765110330c589411afeafb0ad204279050706e4"
+    },
+    {
+      "table": "inventory_movements",
+      "rows": 50,
+      "sha256": "f51f4ca47ada7932566d91159eeba5aeb5b1f4a34c493088d43bf5019188b738"
+    },
+    {
+      "table": "inventory_reservations",
+      "rows": 22,
+      "sha256": "5d179db51a708b424333dc3d73366cd0ee3ae1020e5e895aeb758240d7ff1c39"
+    },
+    {
+      "table": "customers",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "customer_addresses",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "customer_groups",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "customer_group_members",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "carts",
+      "rows": 49,
+      "sha256": "830b90668ea0aca5ef6cdae2239c1debcc0a368a427eccf2cdee2b2db923c63b"
+    },
+    {
+      "table": "cart_items",
+      "rows": 26,
+      "sha256": "0a57c9816b4b114a3bcb6b77e5f61aa8a26cc4df662f237422f1bcdf95b5a009"
+    },
+    {
+      "table": "checkout_sessions",
+      "rows": 22,
+      "sha256": "f69f9507738c5689480acedef59db88108dab7e8ca47e6705916401a889cd12d"
+    },
+    {
+      "table": "checkout_addresses",
+      "rows": 20,
+      "sha256": "12e22cb650b416d06c2bf4192819cdd6ac39e01c202097b6feb163dfcee0e840"
+    },
+    {
+      "table": "orders",
+      "rows": 13,
+      "sha256": "52f40be36380dd1b08b89381acb1107cf39d714621c2883ef1573d470f884ecc"
+    },
+    {
+      "table": "order_items",
+      "rows": 13,
+      "sha256": "de6a643137960e98d2c1f6a125dbf13df4cf5aa6f9b07931f5e3848b91c22998"
+    },
+    {
+      "table": "order_addresses",
+      "rows": 26,
+      "sha256": "bfb9c32327c7bd270e093f95f0a6db3c342bfbda3520ebf42b55d52889335ee3"
+    },
+    {
+      "table": "order_promotions",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "payment_sessions",
+      "rows": 23,
+      "sha256": "e0bf0d797092b79231b5464c57490b66f5851725e15bcfebef0d3672519b334f"
+    },
+    {
+      "table": "payment_attempts",
+      "rows": 23,
+      "sha256": "f3e838ba59810662d0b9a63ee2895797cf3d68a8bb664befcbfd513e4e9074b5"
+    },
+    {
+      "table": "payment_transactions",
+      "rows": 17,
+      "sha256": "38757d2f5c442b60253d20c90c941386914f9e7f12fbbb08ac6b16bd135d388b"
+    },
+    {
+      "table": "refunds",
+      "rows": 4,
+      "sha256": "8c46004459356e467b7806a5b7d343c4334e2acee5df7260943961c05c4aae45"
+    },
+    {
+      "table": "shipping_methods",
+      "rows": 1,
+      "sha256": "7cb74cc4b06701515aca344bd0b2f1a05e7809bf704a76d633bd79fca72bb2d5"
+    },
+    {
+      "table": "shipments",
+      "rows": 3,
+      "sha256": "c16a879db413d49fac33f76d18119d95635a6805eb6294a13d1c3b0b18b60dc6"
+    },
+    {
+      "table": "shipping_labels",
+      "rows": 3,
+      "sha256": "fc85f3d3e44bece788d37ee73573c57cc00a97f88c1bb3ffaec8a94d839a105f"
+    },
+    {
+      "table": "tracking_events",
+      "rows": 6,
+      "sha256": "377f05d2eb209d3f9927787cc3dec0b10fdeddb5598b070a678365eeba6864a3"
+    },
+    {
+      "table": "fulfillments",
+      "rows": 3,
+      "sha256": "1110ca52c943bbcb6779e09d8bd52898374cf98bde754612d64cc80644cfd78d"
+    },
+    {
+      "table": "fulfillment_items",
+      "rows": 3,
+      "sha256": "8034b62d24ddc419994af33617f4ea7e5d5ac3a995dd809e1e80e3b0f3d41ece"
+    },
+    {
+      "table": "packages",
+      "rows": 3,
+      "sha256": "9c875d6f00015518e0c4a0cf9f3fdb15b0b7a190ef69303332d01fa4177dc82f"
+    },
+    {
+      "table": "package_items",
+      "rows": 3,
+      "sha256": "28fc1e29e91bf09bc3f3d4d7531b508ec2f1464ff0bfb8a2c6a67174eb1ee984"
+    },
+    {
+      "table": "delivery_notes",
+      "rows": 1,
+      "sha256": "69d3fcafd4faa3b517ae0b93227aed908614ba3b562224739409ed14dc2ec2b4"
+    },
+    {
+      "table": "invoices",
+      "rows": 1,
+      "sha256": "a8efec2d1bc99c88ecbb5df1a481c05c3652c55b942b2461b919e2827c2f1780"
+    },
+    {
+      "table": "invoice_items",
+      "rows": 2,
+      "sha256": "bd8ae0d6d0b3381bcd6602560959fbfa867f750df4e3e91168df25bc1592fb89"
+    },
+    {
+      "table": "credit_notes",
+      "rows": 2,
+      "sha256": "9eda91fc4689ef0c3001c425d417e0d937fe68a4e84bf7fac0300e663fec2971"
+    },
+    {
+      "table": "credit_note_items",
+      "rows": 2,
+      "sha256": "945147fd8bc57d4664b98aab94caf6352519589c80d9e4d0dc6ed62a33d46202"
+    },
+    {
+      "table": "document_files",
+      "rows": 7,
+      "sha256": "dfb7abef307d9878579b0fffc63b1abfdb43fb490cd403a7402bd68aac31b7bb"
+    },
+    {
+      "table": "returns",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "return_items",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "tax_classes",
+      "rows": 7,
+      "sha256": "694d0bdc3ca9d014a5f875f562ea6b03226c385173e687cf6e9ed5db400f06f5"
+    },
+    {
+      "table": "tax_rates",
+      "rows": 7,
+      "sha256": "108966c6648ebeaee323c6d23c13dc6d122b2a78f28986632812c27d9c83418e"
+    },
+    {
+      "table": "tax_settings",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "tax_snapshots",
+      "rows": 10,
+      "sha256": "76b08f093404c3aa43491cd55f34c7181fe091035e59c80f751999d5041b750c"
+    },
+    {
+      "table": "automation_rules",
+      "rows": 2,
+      "sha256": "1bf0da9f9b9c8c4450db676afd32aad15782368042b0547f992b471953d14e54"
+    },
+    {
+      "table": "automation_jobs",
+      "rows": 0,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "table": "tasks",
+      "rows": 1,
+      "sha256": "8e73e537db5056f0b2a878ab15117b8fa43122e96c5b1a18107d1e863830f80e"
+    },
+    {
+      "table": "communications",
+      "rows": 19,
+      "sha256": "45138daa9ea31fdf132543115dd8714d537b6cd1fd708cd8bd5e9d227d7cd71c"
+    },
+    {
+      "table": "communication_templates",
+      "rows": 23,
+      "sha256": "908789b2b6fb79ab806d13b196582866f092bf7c892bb5b5c2c7897e5ce0f959"
+    },
+    {
+      "table": "store_api_keys",
+      "rows": 37,
+      "sha256": "34ced954f89bf109bed7fb792d4f48760c54fe8f2b56575b4696863f6f559203"
+    },
+    {
+      "table": "audit_log",
+      "rows": 311,
+      "sha256": "6e34542893dfe3acade059ddd20826133d5fa0eeae8db0bcb06725136b84da16"
+    },
+    {
+      "table": "outbox_events",
+      "rows": 278,
+      "sha256": "cff585de11729277add166195b8a40b0cf10998e28e72ed75e0cb0c1b4eb769c"
+    }
+  ]
+}
