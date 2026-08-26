@@ -91,8 +91,10 @@ for (const file of docs) {
   for (const [re, label] of SECRET_PATTERNS)
     if (re.test(body)) fail(`${rel}: mögliches Secret im Klartext (${label})`);
 
-  if (/npm\s+(install|i)\s+@commerce-os\/sdk/.test(body))
-    fail(`${rel}: verweist auf ein nicht existierendes npm-Paket @commerce-os/sdk`);
+  for (const line of body.split("\n")) {
+    if (/^\s*(\$\s*)?(npm|bun|pnpm|yarn)\s+(install|add|i)\s+@commerce-os\/sdk/.test(line))
+      fail(`${rel}: Installationsbefehl für das nicht existierende Paket @commerce-os/sdk`);
+  }
 
   // relative Markdown-Links
   for (const m of body.matchAll(/\[[^\]]*\]\((?!https?:|mailto:|#)([^)#\s]+)/g)) {

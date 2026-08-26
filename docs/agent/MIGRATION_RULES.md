@@ -59,7 +59,7 @@ CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.<name>
 
 - Bereits angewandte Migrationsdateien werden **nie** nachträglich verändert. Korrektur = neue
   Migration.
-- Keine Migration auf Production ohne Runbook (`docs/production/RESTORE_RUNBOOK.md`),
+- Keine Migration auf Production ohne Runbook (`docs/production/MIGRATION_RUNBOOK.md`, Rollback: `docs/production/ROLLBACK_PLAN.md`),
   Backup-Nachweis und Freigabe.
 - Kein `GRANT ALL` an `anon` oder `authenticated`.
 - Kein Deaktivieren von RLS, auch nicht temporär.

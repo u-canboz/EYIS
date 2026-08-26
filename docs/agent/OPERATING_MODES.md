@@ -56,8 +56,8 @@ Was soll entstehen?
 - **Wann?** Nur wenn der Kunde vollständige Isolation ausdrücklich verlangt (Datenhoheit,
   Compliance, eigener Vertrag). Nie als Standardweg und nie als stille Annahme.
 - **Arbeit:** Repository ausrollen, alle Migrationen aus `supabase/migrations/` anwenden, Secrets
-  nach `docs/production/SECRETS_REGISTER.md` setzen, Cron-Zeitpläne einrichten, Health-Checks und
-  Restore-Drill nach `docs/production/RESTORE_RUNBOOK.md` durchführen.
+  nach `docs/production/SECRET_REGISTER_TEMPLATE.md` setzen, Cron-Zeitpläne einrichten, Health-Checks und
+  Restore-Drill nach `docs/production/DISASTER_RECOVERY_RUNBOOK.md` durchführen.
 - **Kosten/Folgen ehrlich benennen:** eigener Betrieb, eigene Backups, eigene Updates, eigene
   Sicherheitsprüfung. Ein zweiter Datenbestand wird nicht automatisch mitgepflegt.
 

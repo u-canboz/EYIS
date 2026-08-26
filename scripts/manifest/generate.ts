@@ -209,8 +209,8 @@ function buildOpenApi(store: ReturnType<typeof buildStoreApi>) {
       title: "Commerce OS — Public Store API",
       version: "1.0.0",
       description:
-        "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts. " +
-        `Stand: ${store.generated_at}, Commit ${store.source_commit}.`,
+        "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts " +
+        "durch scripts/manifest/generate.ts. Provenienz: docs/agent/store-api-v1.json.",
     },
     servers: [{ url: "https://{host}", variables: { host: { default: "your-commerce-os.lovable.app" } } }],
     components: {

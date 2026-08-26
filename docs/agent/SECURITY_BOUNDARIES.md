@@ -31,7 +31,7 @@ Belege: `qa/PHASE14-SECURITY-REPORT.md` (32/32 PASS), `qa/PHASE14-RLS-REPORT.md`
 - **Service-Role-Key** verlässt niemals den Server, steht in keinem Client-Bundle, in keinem Log und
   in keiner Dokumentation.
 - Secrets werden nur im `.handler()` gelesen, nie auf Modulebene, nie mit `VITE_`-Präfix.
-- Register und Rotationswege: `docs/production/SECRETS_REGISTER.md`,
+- Register und Rotationswege: `docs/production/SECRET_REGISTER_TEMPLATE.md`,
   `docs/production/ENVIRONMENT_MATRIX.md`.
 
 ## 4. Datenabfluss verhindern

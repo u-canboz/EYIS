@@ -3,7 +3,7 @@
   "info": {
     "title": "Commerce OS — Public Store API",
     "version": "1.0.0",
-    "description": "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts. Stand: 2026-08-26T20:38:27.877Z, Commit b323a814e46c27704b1214fdda2763763332a438."
+    "description": "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts durch scripts/manifest/generate.ts. Provenienz: docs/agent/store-api-v1.json."
   },
   "servers": [
     {

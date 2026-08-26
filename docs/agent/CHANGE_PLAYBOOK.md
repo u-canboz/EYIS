@@ -55,7 +55,7 @@ Details: [MIGRATION_RULES.md](MIGRATION_RULES.md).
 
 ## D. Neue Backoffice-Seite
 
-1. Route unter `src/routes/_authenticated/app/...` anlegen (nie unter `src/pages/`).
+1. Route unter `src/routes/_authenticated/app/...` anlegen (nicht unter einem `src/pages`-Ordner — den gibt es hier nicht).
 2. Daten über `*.functions.ts` mit `requireSupabaseAuth` laden, Berechtigung prüfen.
 3. Shell-Bausteine verwenden: `PageHeader`, `FilterBar`, `TableScroll`/`RecordCardList`.
 4. Mobil ab 320 px prüfen, kein horizontaler Überlauf, Touch-Ziele ≥ 44 px.
@@ -80,7 +80,7 @@ Details: [MIGRATION_RULES.md](MIGRATION_RULES.md).
 
 ## G. Datenbankänderung auf Production
 
-1. Runbook lesen: `docs/production/RESTORE_RUNBOOK.md`.
+1. Runbooks lesen: `docs/production/MIGRATION_RUNBOOK.md` und `docs/production/ROLLBACK_PLAN.md`.
 2. Backup nachweisen (Zeitstempel, Umfang).
 3. Migration auf Dev anwenden und prüfen, dann Staging, dann Production.
 4. Rollback-Weg vorher schriftlich festhalten.

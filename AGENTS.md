@@ -53,9 +53,9 @@ Diese Punkte sind nicht verhandelbar und dürfen von keinem Agenten selbstständ
 - **Keine Live-Daten für Tests.** Kundendaten werden nie kopiert, exportiert oder in Fixtures
   verwendet. Testdaten kommen aus dem Demo-/QA-System.
 - **Keine Provider- oder Secret-Änderungen ohne Freigabe.** Secrets werden nicht gelesen, geloggt,
-  ausgegeben, in Code geschrieben oder rotiert. Siehe `docs/production/SECRETS_REGISTER.md`.
+  ausgegeben, in Code geschrieben oder rotiert. Siehe `docs/production/SECRET_REGISTER_TEMPLATE.md`.
 - **Keine Migration auf Production ohne Runbook und Backup.** Ablauf:
-  `docs/production/RESTORE_RUNBOOK.md` plus `docs/agent/CHANGE_PLAYBOOK.md`.
+  `docs/production/DISASTER_RECOVERY_RUNBOOK.md` plus `docs/agent/CHANGE_PLAYBOOK.md`.
 - **Bei unbekannter Umgebung: STOPP.** Wenn nicht sicher belegbar ist, ob die aktuelle Umgebung Dev,
   Staging oder Production ist, wird keine schreibende Aktion ausgeführt. Erst `APP_ENV` und
   `docs/production/ENVIRONMENT_MATRIX.md` prüfen, dann fragen.
