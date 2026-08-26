@@ -64,6 +64,7 @@ import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_authenticated/app/retouren/index'
 import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
 import { Route as AuthenticatedAppRetourenEinstellungenRouteImport } from './routes/_authenticated/app/retouren/einstellungen'
+import { Route as AuthenticatedAppSystemDemoDatenRouteImport } from './routes/_authenticated/app/system/demo-daten'
 import { Route as AuthenticatedAppSystemErrorsRouteImport } from './routes/_authenticated/app/system/errors'
 import { Route as AuthenticatedAppSystemHealthRouteImport } from './routes/_authenticated/app/system/health'
 import { Route as AuthenticatedAppSystemJobsRouteImport } from './routes/_authenticated/app/system/jobs'
@@ -396,6 +397,12 @@ const AuthenticatedAppRetourenEinstellungenRoute =
     path: '/app/retouren/einstellungen',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppSystemDemoDatenRoute =
+  AuthenticatedAppSystemDemoDatenRouteImport.update({
+    id: '/app/system/demo-daten',
+    path: '/app/system/demo-daten',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemErrorsRoute =
   AuthenticatedAppSystemErrorsRouteImport.update({
     id: '/app/system/errors',
@@ -564,6 +571,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
   '/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
@@ -640,6 +648,7 @@ export interface FileRoutesByTo {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
   '/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
@@ -719,6 +728,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/_authenticated/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/_authenticated/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/_authenticated/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/_authenticated/app/system/health': typeof AuthenticatedAppSystemHealthRoute
   '/_authenticated/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
@@ -798,6 +808,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/system/demo-daten'
     | '/app/system/errors'
     | '/app/system/health'
     | '/app/system/jobs'
@@ -874,6 +885,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/system/demo-daten'
     | '/app/system/errors'
     | '/app/system/health'
     | '/app/system/jobs'
@@ -952,6 +964,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/retouren/$returnId'
     | '/_authenticated/app/retouren/einstellungen'
+    | '/_authenticated/app/system/demo-daten'
     | '/_authenticated/app/system/errors'
     | '/_authenticated/app/system/health'
     | '/_authenticated/app/system/jobs'
@@ -1390,6 +1403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRetourenEinstellungenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/system/demo-daten': {
+      id: '/_authenticated/app/system/demo-daten'
+      path: '/app/system/demo-daten'
+      fullPath: '/app/system/demo-daten'
+      preLoaderRoute: typeof AuthenticatedAppSystemDemoDatenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/errors': {
       id: '/_authenticated/app/system/errors'
       path: '/app/system/errors'
@@ -1572,6 +1592,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppRetourenReturnIdRoute: typeof AuthenticatedAppRetourenReturnIdRoute
   AuthenticatedAppRetourenEinstellungenRoute: typeof AuthenticatedAppRetourenEinstellungenRoute
+  AuthenticatedAppSystemDemoDatenRoute: typeof AuthenticatedAppSystemDemoDatenRoute
   AuthenticatedAppSystemErrorsRoute: typeof AuthenticatedAppSystemErrorsRoute
   AuthenticatedAppSystemHealthRoute: typeof AuthenticatedAppSystemHealthRoute
   AuthenticatedAppSystemJobsRoute: typeof AuthenticatedAppSystemJobsRoute
@@ -1644,6 +1665,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRetourenReturnIdRoute: AuthenticatedAppRetourenReturnIdRoute,
   AuthenticatedAppRetourenEinstellungenRoute:
     AuthenticatedAppRetourenEinstellungenRoute,
+  AuthenticatedAppSystemDemoDatenRoute: AuthenticatedAppSystemDemoDatenRoute,
   AuthenticatedAppSystemErrorsRoute: AuthenticatedAppSystemErrorsRoute,
   AuthenticatedAppSystemHealthRoute: AuthenticatedAppSystemHealthRoute,
   AuthenticatedAppSystemJobsRoute: AuthenticatedAppSystemJobsRoute,

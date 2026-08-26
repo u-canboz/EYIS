@@ -2774,6 +2774,47 @@ export type Database = {
           },
         ]
       }
+      demo_environments: {
+        Row: {
+          created_at: string
+          id: string
+          last_reset_at: string | null
+          organization_id: string
+          seed_version: string
+          seeded_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_reset_at?: string | null
+          organization_id: string
+          seed_version: string
+          seeded_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_reset_at?: string | null
+          organization_id?: string
+          seed_version?: string
+          seeded_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_environments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_branding: {
         Row: {
           bank_details: Json
@@ -5964,6 +6005,63 @@ export type Database = {
           },
           {
             foreignKeyName: "promotions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qa_fixtures: {
+        Row: {
+          created_at: string
+          destroyed_at: string | null
+          id: string
+          manifest: Json
+          organization_id: string
+          residual_notes: string | null
+          run_ref: string
+          scenario: string
+          shop_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          destroyed_at?: string | null
+          id?: string
+          manifest?: Json
+          organization_id: string
+          residual_notes?: string | null
+          run_ref: string
+          scenario: string
+          shop_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          destroyed_at?: string | null
+          id?: string
+          manifest?: Json
+          organization_id?: string
+          residual_notes?: string | null
+          run_ref?: string
+          scenario?: string
+          shop_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_fixtures_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_fixtures_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
             referencedRelation: "shops"
