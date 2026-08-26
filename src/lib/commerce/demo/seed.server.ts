@@ -1118,7 +1118,9 @@ async function stepOrders(ctx: SeedCtx, env: DemoEnv): Promise<SeedStepResult> {
     .not("metadata->>demo_key", "is", null);
   const tagged = (rows: unknown) =>
     ((rows ?? []) as { metadata: { demo_key?: string } | null }[]).map((r) => r.metadata?.demo_key);
-  const done = new Set<string>([...tagged(existingOrders), ...tagged(existingSessions)]);
+  const done = new Set<string>(
+    [...tagged(existingOrders), ...tagged(existingSessions)].filter((k): k is string => !!k),
+  );
 
   // Maps vorbereiten
   const variantByProductKey = new Map<string, string>();
