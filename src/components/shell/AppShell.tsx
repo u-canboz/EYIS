@@ -23,10 +23,10 @@ type Props = {
   organizations: ShellOrg[];
   activeOrgId: string;
   onOrgChange: (id: string) => void;
-  roleLabel?: string;
-  email?: string;
-  isLoading?: boolean;
-  isDemo?: boolean;
+  roleLabel?: string | undefined;
+  email?: string | undefined;
+  isLoading?: boolean | undefined;
+  isDemo?: boolean | undefined;
   onSignOut: () => void;
   children: ReactNode;
 };
