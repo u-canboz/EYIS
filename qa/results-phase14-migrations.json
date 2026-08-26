@@ -1,0 +1,58 @@
+{
+  "ranAt": "2026-08-26T08:53:04.631Z",
+  "migrationFiles": 42,
+  "tablesInDb": 112,
+  "functionsInDb": 102,
+  "results": [
+    {
+      "name": "Migrationsdateien: eindeutige Versionen",
+      "ok": true,
+      "detail": "42 Dateien"
+    },
+    {
+      "name": "Migrationsdateien: lexikalische Reihenfolge == chronologische Reihenfolge",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GRANT-Pflicht: jede neue public-Tabelle hat GRANT in derselben Migration",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Verbotene Statements: kein ALTER DATABASE, kein DDL auf auth/storage/realtime/vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Drift Tabellen: Migrationen ↔ Live-DB identisch (112 Tabellen)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Drift Funktionen: Migrationen ↔ Live-DB identisch (102 Funktionen)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "RLS: auf allen public-Tabellen aktiviert",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Policy-Losigkeit: ausschließlich freigegebene Service-Tabellen ohne Policy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service-Tabellen: keine Grants für anon/authenticated",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Vollständiger Schema-Replay auf frischem Projekt",
+      "ok": true,
+      "detail": "BLOCKED — kein zweites Projekt auf der verwalteten Plattform; Drift-Checks 3+4 belegen aktuelle Übereinstimmung"
+    }
+  ]
+}

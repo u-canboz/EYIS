@@ -7,12 +7,12 @@
   {
     "name": "Concurrency: genau 1 Checkout mit Reservierung",
     "ok": true,
-    "detail": "ok=1 rejected=Nicht genügend Bestand für „QA Testprodukt“ (verfügbar: 0)."
+    "detail": "ok=1 rejected=Nicht genügend Bestand verfügbar (verfügbar: 0, angefragt: 1)."
   },
   {
     "name": "Concurrency: genau 1 Order",
     "ok": true,
-    "detail": "ORD-000007"
+    "detail": "ORD-000017"
   },
   {
     "name": "Concurrency: kein Overselling (on_hand 0, reserved 0)",
@@ -22,7 +22,7 @@
   {
     "name": "Refund Idempotency: identische Refund-ID",
     "ok": true,
-    "detail": "f75a8be0-7d7c-4f4a-952e-504bc158f2df"
+    "detail": "dcec83bf-6710-42ff-898c-7009172336c2"
   },
   {
     "name": "Refund Idempotency: genau eine Rückerstattung",
@@ -67,7 +67,7 @@
   {
     "name": "Cancellation ausgeführt",
     "ok": true,
-    "detail": "{\"status\":\"cancelled\",\"changed\":true,\"order_id\":\"0da70596-d520-4305-9554-c1e708f20f34\"}"
+    "detail": "{\"status\":\"cancelled\",\"changed\":true,\"order_id\":\"0bf50e09-0f2b-4131-b83b-651bf5df435b\"}"
   },
   {
     "name": "Cancellation: Status = cancelled",
@@ -87,7 +87,7 @@
   {
     "name": "Cancellation: Outbox Event",
     "ok": true,
-    "detail": "outbox=2"
+    "detail": "outbox=3"
   },
   {
     "name": "Cancellation: keine automatische Bestandsrückbuchung",
@@ -97,7 +97,7 @@
   {
     "name": "Doppelstornierung ohne Wirkung",
     "ok": true,
-    "detail": "{\"status\":\"cancelled\",\"changed\":false,\"order_id\":\"0da70596-d520-4305-9554-c1e708f20f34\"}"
+    "detail": "{\"status\":\"cancelled\",\"changed\":false,\"order_id\":\"0bf50e09-0f2b-4131-b83b-651bf5df435b\"}"
   },
   {
     "name": "Tenant B angemeldet",
@@ -152,7 +152,7 @@
   {
     "name": "Tenant Isolation: Payment Session A nicht änderbar",
     "ok": true,
-    "detail": "0 Zeilen"
+    "detail": "permission denied for table payment_sessions"
   },
   {
     "name": "Test-Provider im Live-Modus abgelehnt",

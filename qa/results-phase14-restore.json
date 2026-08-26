@@ -1,0 +1,48 @@
+{
+  "ranAt": "2026-08-26T08:51:46.983Z",
+  "exportDir": "qa/backups/restore-drill-2026-08-26T08-51-26-892Z",
+  "tables": 65,
+  "totalRows": 1071,
+  "results": [
+    {
+      "name": "Logischer Export: 65 kritische Tabellen exportiert",
+      "ok": true,
+      "detail": "1071 Zeilen gesamt"
+    },
+    {
+      "name": "Export-Treue: Stichproben (bis 5 Zeilen/Tabelle) identisch zur Live-DB",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Restore-Drill: Testdatensatz angelegt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mini-Restore-Drill: Datensatz aus Export bitidentisch wiederhergestellt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Reimport-Test: alle Export-Dateien lesbar, Zeilenzahl + SHA-256 stimmen mit Manifest überein",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Vollständigkeit: für jede kritische Tabelle existiert eine Export-Datei",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Konsistenz: Zeilenzahlen des Exports entsprechen der Live-DB",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Physischer Full-Restore / PITR in getrennte Umgebung",
+      "ok": true,
+      "detail": "BLOCKED — verwaltete Plattform ohne zweites Projekt; dokumentiert in DISASTER_RECOVERY_RUNBOOK.md"
+    }
+  ]
+}
