@@ -291,14 +291,15 @@ async function placeOrder(
     cancelUrl: "http://localhost:8080/store/checkout",
   });
 
-  if (opts.pay === false) return { orderId: null, paymentSessionId: paymentSession.id, checkoutSessionId: sessionId };
+  if (opts.pay === false)
+    return { orderId: null, paymentSessionId: paymentSession.paymentSessionId, checkoutSessionId: sessionId };
 
   const result = await payments.finalizeFromPayment({
     organizationId: orgId,
-    paymentSessionId: paymentSession.id,
-    providerPaymentId: `mock_pi_${paymentSession.id}`,
-    amountMinor: Number(paymentSession.amount_minor),
-    currencyCode: paymentSession.currency_code,
+    paymentSessionId: paymentSession.paymentSessionId,
+    providerPaymentId: `mock_pi_${paymentSession.paymentSessionId}`,
+    amountMinor: Number(paymentSession.amountMinor),
+    currencyCode: paymentSession.currencyCode,
     actorId: userId,
     idempotencyKey: `qa-fixture:${base.manifest["run_ref"]}:${opts.idemSuffix}`,
   });
@@ -552,8 +553,9 @@ const builders: Record<QaScenario, Builder> = {
     await addCustomer(ctx, base);
     const { orderId } = await placeOrder(ctx, base, { idemSuffix: "portal" });
     const customers = await import("../customers/customer.server");
-    const token = await customers.issueGuestToken({
+  const token = await customers.issueGuestToken({
       organizationId: base.organizationId,
+      shopId: base.shopId,
       orderId: orderId!,
       actorId: ctx.userId,
     });
@@ -608,8 +610,8 @@ const builders: Record<QaScenario, Builder> = {
         shop_id: base.shopId,
         channel: "email",
         recipient_type: "test",
-        recipient_email: `qa-retry-${base.manifest["run_ref"]}@commerce-qa.test`,
-        subject: "QA Retry-Test",
+        recipient_address: `qa-retry-${base.manifest["run_ref"]}@commerce-qa.test`,
+        subject_snapshot: "QA Retry-Test",
         status: "failed",
         metadata: { qa: QA_TAG },
       })
@@ -629,9 +631,9 @@ const builders: Record<QaScenario, Builder> = {
         name: "QA Fehler-Regel",
         trigger_type: "manual",
         status: "active",
-        definition: { steps: [] },
-        metadata: { qa: QA_TAG },
-      })
+        trigger_config: { qa: QA_TAG },
+        conditions: [],
+      } as never)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
@@ -639,6 +641,7 @@ const builders: Record<QaScenario, Builder> = {
       .from("automation_executions")
       .insert({
         organization_id: base.organizationId,
+        shop_id: base.shopId,
         rule_id: rule.id,
         status: "failed",
         trigger_type: "manual",
@@ -666,12 +669,11 @@ const builders: Record<QaScenario, Builder> = {
       .insert({
         organization_id: base.organizationId,
         shop_id: base.shopId,
-        label: "QA Test-Key",
+        name: "QA Test-Key",
         key_prefix: rawKey.slice(0, 16),
         key_hash: await hashToken(rawKey),
         environment: "test",
         status: "active",
-        scopes: ["catalog:read"],
       })
       .select("id")
       .single();
@@ -849,10 +851,10 @@ export async function destroyQaFixture(
   // Restprüfung: es darf keine Zeile mit dieser organization_id mehr geben
   const restTables = ["shops", "products", "orders", "customers", "carts", "inventory_items"];
   for (const table of restTables) {
-    const { count } = await admin
-      .from(table)
+    const { count } = (await admin
+      .from(table as never)
       .select("id", { count: "exact", head: true })
-      .eq("organization_id", orgId);
+      .eq("organization_id" as never, orgId)) as unknown as { count: number | null };
     if (Number(count ?? 0) > 0) residual.push(`${table}: ${count} Zeilen verblieben`);
   }
 
