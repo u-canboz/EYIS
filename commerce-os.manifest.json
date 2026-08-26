@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-26T20:28:40.249Z",
-  "source_commit": "3da8679c185fdefbcf4ae8666f0c5f0d502bd57b",
+  "generated_at": "2026-08-26T20:38:27.909Z",
+  "source_commit": "b323a814e46c27704b1214fdda2763763332a438",
   "latest_migration": "20260826121430_0cf80d4f-7b01-47e7-b578-adc806efc847.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
@@ -71,7 +71,21 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "typecheck": "tsgo --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate:manifests": "bun run scripts/manifest/generate.ts",
+    "docs:validate": "bun run scripts/docs-validate.ts",
+    "verify": "bun run docs:validate && bun run typecheck && bun run test && bun run build",
+    "qa:e2e": "bun run qa/e2e.ts",
+    "qa:store-api": "bun run qa/phase12.ts",
+    "qa:security": "bun run qa/phase14-security.ts",
+    "qa:rls": "bun run qa/phase14-rls.ts",
+    "qa:health": "bun run qa/phase14-health.ts",
+    "qa:jobs": "bun run qa/phase14-jobs.ts",
+    "qa:migrations": "bun run qa/phase14-migrations.ts",
+    "qa:demo": "bun run qa/phase15-demo.ts"
   },
   "blocked_integrations": [
     "stripe-live",
