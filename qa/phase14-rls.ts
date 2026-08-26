@@ -302,11 +302,11 @@ async function main() {
   if (productId) {
     const { data } = await userB.from("products").select("*").eq("id", productId);
     check("Manipulierte Produkt-ID aus Organisation A nicht lesbar", (data ?? []).length === 0);
-    const { error } = await userB.from("products").update({ title: "hijacked" }).eq("id", productId);
-    const { data: after } = await admin.from("products").select("title").eq("id", productId).maybeSingle();
+    const { error } = await userB.from("products").update({ name: "hijacked" }).eq("id", productId);
+    const { data: after } = await admin.from("products").select("name").eq("id", productId).maybeSingle();
     check(
       "Produkt aus Organisation A nicht änderbar",
-      (after as { title: string } | null)?.title !== "hijacked",
+      (after as { name: string } | null)?.name !== "hijacked",
       error?.message ?? "0 Zeilen geändert",
     );
     const { error: delError } = await userB.from("products").delete().eq("id", productId);
@@ -316,7 +316,7 @@ async function main() {
 
   const { error: insertError } = await userB
     .from("products")
-    .insert({ organization_id: ORG_A, shop_id: SHOP_A, title: "fremd", handle: "qa-a4-fremd-" + Date.now(), status: "draft" } as never);
+    .insert({ organization_id: ORG_A, shop_id: SHOP_A, name: "fremd", handle: "qa-a4-fremd-" + Date.now(), status: "draft" } as never);
   check("Insert in fremde Organisation abgelehnt", !!insertError, insertError?.message ?? "kein Fehler");
 
   const { error: shopError } = await userB.from("shops").update({ name: "hijacked" }).eq("id", SHOP_A);
