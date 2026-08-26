@@ -17,7 +17,7 @@
   {
     "name": "reserved erhöht",
     "ok": true,
-    "detail": "{\"onHand\":7,\"reserved\":1,\"damaged\":0}"
+    "detail": "{\"onHand\":3,\"reserved\":1,\"damaged\":0}"
   },
   {
     "name": "Payment Session erstellt",
@@ -27,7 +27,7 @@
   {
     "name": "Order Finalization",
     "ok": true,
-    "detail": "{\"created\":true,\"order_id\":\"3842fa73-bd48-4f2f-b00d-e34247f64168\",\"order_number\":\"ORD-000011\",\"reservations_committed\":1}"
+    "detail": "{\"created\":true,\"order_id\":\"ef15559c-d9b5-46ec-8747-7bbd38288cfd\",\"order_number\":\"ORD-000015\",\"reservations_committed\":1}"
   },
   {
     "name": "Genau eine Order für Checkout",
@@ -37,7 +37,7 @@
   {
     "name": "Ordernummer vorhanden/eindeutig",
     "ok": true,
-    "detail": "ORD-000011"
+    "detail": "ORD-000015"
   },
   {
     "name": "Order Total = Snapshot",
@@ -57,7 +57,7 @@
   {
     "name": "Lieferadresse Snapshot",
     "ok": true,
-    "detail": "{\"id\":\"7e1192f3-2a68-4ee8-ab15-d8dbeb2b25a2\",\"city\":\"Berlin\",\"phone\":null,\"state\":null,\"st"
+    "detail": "{\"id\":\"c1ffc7c3-3d85-443c-9cf5-08f18fb6d3b9\",\"city\":\"Berlin\",\"phone\":null,\"state\":null,\"st"
   },
   {
     "name": "Rechnungsadresse Snapshot",
@@ -102,12 +102,12 @@
   {
     "name": "on_hand -1",
     "ok": true,
-    "detail": "{\"onHand\":6,\"reserved\":0,\"damaged\":0}"
+    "detail": "{\"onHand\":2,\"reserved\":0,\"damaged\":0}"
   },
   {
     "name": "reserved zurückgeführt",
     "ok": true,
-    "detail": "{\"onHand\":6,\"reserved\":0,\"damaged\":0}"
+    "detail": "{\"onHand\":2,\"reserved\":0,\"damaged\":0}"
   },
   {
     "name": "Audit-Einträge",
@@ -117,7 +117,7 @@
   {
     "name": "Outbox Events",
     "ok": true,
-    "detail": "events=18"
+    "detail": "events=36"
   },
   {
     "name": "Payment Transaction",
@@ -142,7 +142,7 @@
   {
     "name": "Kein zweiter Inventory Commit",
     "ok": true,
-    "detail": "{\"onHand\":6,\"reserved\":0,\"damaged\":0}"
+    "detail": "{\"onHand\":2,\"reserved\":0,\"damaged\":0}"
   },
   {
     "name": "Reservations weiterhin genau eine",
@@ -182,7 +182,7 @@
   {
     "name": "Retry-Zahlung möglich",
     "ok": true,
-    "detail": "f3fb2801-914e-4354-b9d7-e73dd4528f3d"
+    "detail": "f0d7e352-753b-4be6-98d3-e98cd172e1ed"
   },
   {
     "name": "Pending: Session status = pending",
@@ -197,12 +197,12 @@
   {
     "name": "Pending: kein Inventory Commit",
     "ok": true,
-    "detail": "{\"onHand\":6,\"reserved\":1,\"damaged\":0}"
+    "detail": "{\"onHand\":2,\"reserved\":1,\"damaged\":0}"
   },
   {
     "name": "Pending -> später erfolgreich finalisiert",
     "ok": true,
-    "detail": "{\"created\":true,\"order_id\":\"a55d92d1-2c6b-40ae-a40e-234359427285\",\"order_number\":\"ORD-000012\",\"reservations_committed\":1}"
+    "detail": "{\"created\":true,\"order_id\":\"68fcf903-6a7a-4278-ba0a-9e7ab0ff3b95\",\"order_number\":\"ORD-000016\",\"reservations_committed\":1}"
   },
   {
     "name": "Manipulation: Checkout 54,80 €",
