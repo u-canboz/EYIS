@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-08-26T20:38:59.312Z",
+  "source_commit": "38983019d7bc37452dfb1a221aa037e4c2c65b5f",
+  "latest_migration": "20260826121430_0cf80d4f-7b01-47e7-b578-adc806efc847.sql",
+  "generator_version": "1.0.0",
+  "generated_by": "scripts/manifest/generate.ts",
+  "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
+  "name": "commerce-os",
+  "product": "Commerce OS",
+  "description": "Mandantenfähige Commerce-Engine (Backoffice, Store API v1, Store SDK, Referenz-Storefront).",
+  "version": "1.0.0-rc1",
+  "status": "V1 frozen — production hardening",
+  "stack": {
+    "framework": "TanStack Start v1 (React 19, Vite 7)",
+    "runtime": "Cloudflare Worker (edge)",
+    "styling": "Tailwind CSS v4",
+    "backend": "Lovable Cloud (Supabase: Postgres, Auth, Storage)",
+    "package_manager": "bun"
+  },
+  "public_api_version": "v1",
+  "sdk_version": "1.0.0",
+  "sdk_distribution": "repository-source",
+  "compatible_api_versions": [
+    "v1"
+  ],
+  "sdk_path": "src/lib/store-sdk",
+  "store_api_base_path": "/api/public/store/v1",
+  "operating_modes": [
+    {
+      "id": "A",
+      "name": "Neuer Kunde im bestehenden Commerce OS",
+      "needs_new_database": false,
+      "summary": "Neue Organisation + Shop in der bestehenden Installation. Kein neues Backend."
+    },
+    {
+      "id": "B",
+      "name": "Neue Storefront (React/Lovable)",
+      "needs_new_database": false,
+      "summary": "Eigenes Frontend-Projekt, angebunden per API-URL + Publishable Key über das SDK."
+    },
+    {
+      "id": "C",
+      "name": "Dedicated Deployment",
+      "needs_new_database": true,
+      "summary": "Eigenständige Commerce-OS-Installation mit eigener Datenbank, Auth, Storage und Secrets. Nur auf ausdrücklichen Wunsch."
+    }
+  ],
+  "counts": {
+    "modules": 19,
+    "routes": 77,
+    "store_api_endpoints": 35,
+    "migrations": 45,
+    "public_tables": 112
+  },
+  "entry_points": {
+    "agent_rules": "AGENTS.md",
+    "start_here": "docs/agent/START_HERE.md",
+    "architecture": "docs/agent/ARCHITECTURE_MAP.md",
+    "security": "docs/agent/SECURITY_BOUNDARIES.md",
+    "modules": "docs/agent/modules.json",
+    "routes": "docs/agent/routes.json",
+    "store_api": "docs/agent/store-api-v1.json",
+    "openapi": "docs/agent/openapi-store-v1.json",
+    "storefront_runbook": "docs/agent/NEW_STOREFRONT_RUNBOOK.md",
+    "customer_onboarding": "docs/agent/CUSTOMER_ONBOARDING.md",
+    "change_playbook": "docs/agent/CHANGE_PLAYBOOK.md"
+  },
+  "commands": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsgo --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate:manifests": "bun run scripts/manifest/generate.ts",
+    "docs:validate": "bun run scripts/docs-validate.ts",
+    "verify": "bun run docs:validate && bun run typecheck && bun run test && bun run build",
+    "qa:e2e": "bun run qa/e2e.ts",
+    "qa:store-api": "bun run qa/phase12.ts",
+    "qa:security": "bun run qa/phase14-security.ts",
+    "qa:rls": "bun run qa/phase14-rls.ts",
+    "qa:health": "bun run qa/phase14-health.ts",
+    "qa:jobs": "bun run qa/phase14-jobs.ts",
+    "qa:migrations": "bun run qa/phase14-migrations.ts",
+    "qa:demo": "bun run qa/phase15-demo.ts"
+  },
+  "blocked_integrations": [
+    "stripe-live",
+    "email-delivery",
+    "carrier-labels"
+  ],
+  "source_of_truth_order": [
+    "code",
+    "applied migrations / db introspection",
+    "latest qa reports",
+    "machine-readable manifests",
+    "descriptive documentation",
+    "older plans"
+  ]
+}
