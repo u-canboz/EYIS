@@ -64,7 +64,7 @@ function OrgPicker({
   );
 }
 
-function SidebarBody(props: Props & { onNavigate?: () => void }) {
+function SidebarBody(props: Props & { onNavigate?: (() => void) | undefined }) {
   return (
     <div className="flex h-full min-w-0 flex-col gap-6 overflow-y-auto px-3 py-5">
       <div className="min-w-0 px-3">

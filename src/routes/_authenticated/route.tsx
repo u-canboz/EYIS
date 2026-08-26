@@ -54,7 +54,7 @@ function AuthenticatedLayout() {
       activeOrgId={activeOrg?.id ?? ""}
       onOrgChange={setOrgId}
       roleLabel={activeOrg ? roleLabel(activeOrg.role) : undefined}
-      email={data?.email}
+      email={data?.email ?? undefined}
       isLoading={isLoading || !data}
       isDemo={isDemoOrg}
       onSignOut={async () => {

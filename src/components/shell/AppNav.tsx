@@ -12,8 +12,8 @@ export function AppNav({
   dense,
 }: {
   pathname: string;
-  onNavigate?: () => void;
-  dense?: boolean;
+  onNavigate?: (() => void) | undefined;
+  dense?: boolean | undefined;
 }) {
   return (
     <nav className="flex min-w-0 flex-col gap-5" aria-label="Hauptnavigation">
