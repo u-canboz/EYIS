@@ -1,7 +1,7 @@
 {
   "gate": "A4",
   "title": "Datenbank-, RLS-, RPC- und Storage-Sicherheitsinventur",
-  "executedAt": "2026-08-26T00:01:15.703Z",
+  "executedAt": "2026-08-26T00:01:55.551Z",
   "organizations": [
     "ba039523-f8ec-44ff-bb9d-2b5b86b0c0a6",
     "29cb83d1-2f6a-42ff-8bb5-413463402b07"
@@ -11,8 +11,8 @@
     "b7fa4e29-2a98-4640-8c2f-c6064e9b1658"
   ],
   "total": 51,
-  "passed": 50,
-  "failed": 1,
+  "passed": 51,
+  "failed": 0,
   "checks": [
     {
       "name": "Alle public-Tabellen erfasst",
@@ -71,8 +71,8 @@
     },
     {
       "name": "Jede mandantenbezogene Tabelle ist über organization_id oder Elternschlüssel indiziert",
-      "status": "FAIL",
-      "evidence": "98 Tabellen mit organization_id, ohne Zugriffsindex: shop_order_sequences, order_items, order_promotions, return_sequences, return_media, outgoing_webhook_endpoints"
+      "status": "PASS",
+      "evidence": "98 Tabellen mit organization_id, ohne Zugriffsindex: 0"
     },
     {
       "name": "organization_id ist überall per Foreign Key an organizations gebunden",
