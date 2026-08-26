@@ -106,12 +106,12 @@ async function main() {
   const anon = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  try {
-    await anon.rpc("health_run_checks", { _org_id: ORG_A });
-    check("Anonym: Aufruf abgelehnt", false, "kein Fehler geworfen");
-  } catch (e) {
-    check("Anonym: Aufruf abgelehnt", true, String(e).slice(0, 120));
-  }
+  const anonResult = await anon.rpc("health_run_checks", { _org_id: ORG_A });
+  check(
+    "Anonym: Aufruf abgelehnt",
+    !!anonResult.error,
+    anonResult.error ? anonResult.error.message.slice(0, 120) : "kein Fehler zurückgegeben",
+  );
 
   // 8) Injektion Inventory: negative Verfügbarkeit + Reserved-Mismatch
   const { data: level } = await admin
