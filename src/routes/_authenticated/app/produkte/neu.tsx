@@ -139,25 +139,38 @@ function ProductWizard() {
   const canContinue =
     (step === 0 && Boolean(blueprint)) || (step === 1 && name.trim().length > 1) || step > 1;
 
-  if (isLoading) return <Skeleton className="h-72 w-full" />;
+  if (isLoading) return <Skeleton className="h-72 w-full rounded-xl" />;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Neues Produkt</h1>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {STEPS.map((label, index) => (
-            <Badge key={label} variant={index === step ? "default" : "secondary"}>
-              {index + 1}. {label}
-            </Badge>
-          ))}
-        </div>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Neues Produkt"
+        description={`Schritt ${step + 1} von ${STEPS.length}: ${STEPS[step]}`}
+      />
 
-      <div className="rounded-lg border bg-card p-6">
+      <ol className="grid grid-cols-5 gap-1.5" aria-label="Fortschritt">
+        {STEPS.map((label, index) => (
+          <li key={label} className="min-w-0">
+            <div
+              className={`h-1.5 rounded-full ${index <= step ? "bg-primary" : "bg-muted"}`}
+              aria-hidden
+            />
+            <p
+              className={`mt-1.5 truncate text-[11px] ${
+                index === step ? "font-medium text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {label}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <Panel bodyClassName="p-4 sm:p-6">
         {step === 0 && (
           <div className="space-y-6">
             <p className="text-sm text-muted-foreground">Was möchtest du verkaufen?</p>
+
             {blueprintsQuery.isLoading ? (
               <Skeleton className="h-40 w-full" />
             ) : (
