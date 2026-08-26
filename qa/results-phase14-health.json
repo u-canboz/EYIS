@@ -2,6 +2,6 @@
   {
     "name": "service_role: Lauf für Org A erfolgreich",
     "ok": false,
-    "detail": "Error: function min(uuid) does not exist"
+    "detail": "Error: operator does not exist: uuid = text"
   }
 ]
