@@ -2,6 +2,6 @@
   {
     "name": "service_role: Lauf für Org A erfolgreich",
     "ok": false,
-    "detail": "Error: operator does not exist: uuid = text"
+    "detail": "Error: column t.tgisdisabled does not exist"
   }
 ]
