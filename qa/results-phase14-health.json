@@ -1,21 +1,11 @@
 {
-  "runAt": "2026-08-26T08:15:24.894Z",
-  "baseline": [
-    {
-      "area": "documents",
-      "code": "invoice_order_amount_drift",
-      "shopId": "a9751182-2f3a-4f9a-a2e6-73b6ffd48974",
-      "message": "Rechnungsbetrag (5480) weicht vom aktuellen Bestellbetrag (0) ab.",
-      "entityId": "4145dcc6-99c3-40f0-ae15-ad4625e5a64c",
-      "severity": "high",
-      "entityType": "invoice"
-    }
-  ],
+  "runAt": "2026-08-26T08:15:53.826Z",
+  "baseline": [],
   "results": [
     {
       "name": "service_role: Lauf für Org A erfolgreich",
       "ok": true,
-      "detail": "1 Befund(e)"
+      "detail": "0 Befund(e)"
     },
     {
       "name": "Ergebnisform: code/area/severity/entityType/message vorhanden",
@@ -25,7 +15,7 @@
     {
       "name": "Mandanten-Scope: keine fremden Shop-IDs im Org-A-Lauf",
       "ok": true,
-      "detail": "a9751182-2f3a-4f9a-a2e6-73b6ffd48974"
+      "detail": ""
     },
     {
       "name": "Konfiguration: tax_snapshot_immutable aktiv (kein tax_snapshot_mutable-Befund)",
