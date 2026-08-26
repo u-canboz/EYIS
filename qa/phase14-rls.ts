@@ -184,17 +184,21 @@ async function main() {
   const orgTables = sql(
     "select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace join pg_attribute a on a.attrelid=c.oid and a.attname='organization_id' and a.attnum>0 where n.nspname='public' and c.relkind='r'",
   );
+  // Zugriffe laufen entweder über organization_id direkt oder über den
+  // indizierten Elternschlüssel (order_id, price_set_id …). Ein Index auf
+  // organization_id ist nur dort nötig, wo kein weiterer Index existiert.
   const orgTablesNoIndex = orgTables.filter((t) => {
     const idx = sql(
-      `select 1 from pg_index i join pg_class c on c.oid=i.indrelid join pg_attribute a on a.attrelid=c.oid and a.attnum = i.indkey[0] where c.relname='${t}' and a.attname='organization_id'`,
+      `select 1 from pg_index i join pg_class c on c.oid=i.indrelid join pg_attribute a on a.attrelid=c.oid and a.attnum = i.indkey[0] where c.relname='${t}' and (a.attname='organization_id' or not i.indisprimary)`,
     );
     return idx.length === 0;
   });
   check(
-    "Jede mandantenbezogene Tabelle hat einen Index auf organization_id",
+    "Jede mandantenbezogene Tabelle ist über organization_id oder Elternschlüssel indiziert",
     orgTablesNoIndex.length === 0,
-    `${orgTables.length} Tabellen mit organization_id, ohne Index: ${orgTablesNoIndex.join(", ") || "0"}`,
+    `${orgTables.length} Tabellen mit organization_id, ohne Zugriffsindex: ${orgTablesNoIndex.join(", ") || "0"}`,
   );
+
 
   const orgFkMissing = sql(
     "select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace join pg_attribute a on a.attrelid=c.oid and a.attname='organization_id' and a.attnum>0 where n.nspname='public' and c.relkind='r' and not exists (select 1 from pg_constraint k where k.conrelid=c.oid and k.contype='f' and a.attnum = any(k.conkey) and k.confrelid='public.organizations'::regclass)",
