@@ -1,88 +1,105 @@
-# Phase 14 — Production Hardening (Gate A)
+# Demo- und QA-Datensystem (Commerce OS)
 
-Feature Freeze. Keine neuen Commerce-Funktionen. Gate A umfasst: V1-Freeze-Dokumentation, Umgebungstrennung, Secret-Inventur, Security-Audit (OWASP), Security-Header, RLS/Datenbank-Matrix, Datenintegritäts-Engine, Backup/Restore-Drill, Migrations-Runbook, Job-Härtung und Monitoring-Grundlage.
+## Ziel
 
-Gate B (Performance, Accessibility, Datenschutz, Provider Readiness, Staging-E2E) und Gate C (Release Readiness, Incident Response, Rollback, Go-live) folgen erst nach Abnahme von Gate A.
+Zwei getrennte Datenwelten: eine dauerhafte **Demo-Organisation** ("Commerce OS Demo" / "Demo Store") für Präsentation und manuelle Prüfung, und automatisch erzeugbare, vollständig entfernbare **QA-Fixtures** für technische Tests. Alle Daten synthetisch, Seeds idempotent, Production hart gesperrt.
 
-Grundregel für jeden Status: PASS nur mit Nachweis (Testlauf, Codestelle, SQL-Abfrage, Konfigurationsauszug). Nicht Geprüftes bleibt `OFFEN` oder `BLOCKED`. Stripe, echter E-Mail-Versand und Carrier bleiben durchgehend `BLOCKED`.
+## Architektur
 
-## A1 — V1 einfrieren
+Neues Modul `src/lib/commerce/demo/`:
 
-Dokumente unter `docs/production/`:
-- `V1_SCOPE.md` — Funktionsumfang Phase 0–12, abgeleitet aus den archivierten Phasenplänen und dem tatsächlichen Code.
-- `ARCHITECTURE_CURRENT.md` — Schichten (Server Functions, Public Store API, SDK, Storefront, Backoffice), Datenflüsse, Vertrauensgrenzen.
-- `KNOWN_LIMITATIONS.md` — bekannte Einschränkungen inkl. blockierter Provider.
-- `RELEASE_NOTES_RC1.md` — Version `1.0.0-rc.1`, Build-/Teststand, Schema-Stand (Migrationsliste bis zur letzten angewandten Datei).
+```text
+demo.types.ts        client-sicher: SEED_VERSION, Szenario-Namen, Status-Typen
+guard.server.ts      Production Guard (Mehrfachsignale, harter Abbruch + Audit)
+seed.server.ts       seedDemoEnvironment / resetDemoEnvironment /
+                     verifyDemoEnvironment / seedDemoScenario
+fixtures.server.ts   createQaFixture / destroyQaFixture / resetQaFixture / listQaFixtures
+builders/*.server.ts Daten-Builder je Commerce-Modul (katalog, pricing, inventory,
+                     kunden, orders, shipping, dokumente, retouren, kommunikation,
+                     automation, monitoring)
+demo.functions.ts    dünne createServerFn-Wrapper (requireSupabaseAuth + Permission)
+```
 
-Public Store API bleibt `/api/public/store/v1`; DTO-Änderungen nur versioniert.
+- Engine läuft serverseitig mit Admin-Client, in **Batches mit Fortschrittsprotokoll** (jeder Batch ein eigener Aufruf → timeout-sicher, wiederaufnehmbar).
+- Aufruf über Backoffice-UI **und** über QA-Skript (`qa/demo.ts`), gleiche Engine.
+- **Domain-Services zuerst:** Orders entstehen über den echten Fluss (Cart → Checkout → Mock-Payment → `order_finalize_from_payment`), Retouren über `ret_*`, Dokumente über `invoice_*`/`credit_note_*`/`delivery_note_*`, Inventory über `inv_*`. Direkte Inserts nur, wo keine Domain-Funktion existiert (z. B. Kategorien, Collections, Kommunikations-Historie, Health-Zustände) — jede Abkürzung wird in `docs/production/DEMO_DATA_SYSTEM.md` dokumentiert.
 
-## A2 — Umgebungen und Secrets
+## Migration (eine)
 
-- `docs/production/ENVIRONMENT_MATRIX.md` — Development / Staging / Production mit Datenbank, Auth, Storage, Secrets, Cron, API-URL, Storefront-URL, Stripe-Modus, Providern, Publishable Keys, CORS, Logging, Monitoring. Für jede Zeile: tatsächlicher Ist-Zustand oder `OFFEN`.
-- `.env.example` — ausschließlich Variablennamen, aus dem Code erhoben (alle `process.env[...]`- und `import.meta.env`-Zugriffe).
-- `docs/production/SECRET_REGISTER_TEMPLATE.md` und `SECRET_ROTATION_RUNBOOK.md` — Inventur ohne Werte, Rotations- und Widerrufsablauf.
-- Prüfung: Secrets nie im Client-Bundle, nie in Audit-/Outbox-Payloads, nie in Logs. Nachweis über Suche im gebauten Bundle und über die Redaction-Pfade im Code.
-- Umgebungskennzeichnung: prüfen, ob Payment-, Order-, Communication- und Shipping-Datensätze ihre Umgebung erkennen lassen; fehlende Kennzeichnung wird als Finding erfasst und, wenn nötig, per Migration ergänzt.
+- `public.demo_environments`: organization_id (unique), seed_version, seeded_at, last_reset_at, status. GRANT SELECT an authenticated, ALL an service_role, RLS: Lesen für Org-Mitglieder.
+- `public.qa_fixtures`: id, organization_id, shop_id, scenario, run_ref, status (active/destroyed/failed), manifest (jsonb mit allen erzeugten IDs), destroyed_at, residual_notes. Gleiche Grants/RLS.
+- Neue Permissions in `role_permissions`: `demo.read`, `demo.seed`, `demo.reset`, `qa.create`, `qa.destroy`, `qa.run` — Owner/Admin: alle; Developer: qa.* + demo.read; Operations/Read Only: demo.read; übrige: keine.
+- Demo-/QA-Erkennung über Tabellen + Slug-Konvention (`commerce-os-demo`, `qa-fixture-*`), keine Schemaänderung an organizations/shops nötig.
 
-## A3 — Security-Audit (OWASP ASVS L2 + API Top 10)
+## Production Guard
 
-Automatisierte Prüf-Harness `qa/phase14-security.ts` (gleiche Struktur wie `qa/phase12.ts`) plus manuelle Codeprüfung. Geprüft werden:
-- Auth: Login/Logout/Reset/Session/Token-Widerruf, Account-Enumeration, Rate-Limits, Trennung Admin- vs. Customer-Auth, MFA-Status der Plattform.
-- Autorisierung: jede Server Function, jede Store-API-Route, Portal- und Guest-Token-Funktionen, Dokument-Downloads, Refund/Invoice/Return/Inventory-Aktionen — Object-, Function- und Property-Level, Mass Assignment.
-- Mandantentrennung: Matrix über zwei Organisationen und zwei Shops für alle Domänen inkl. API-Keys, Logs und Storage.
-- Eingaben: Injection, XSS/Stored XSS, Template-/Header-Injection, Path Traversal, SSRF, Open Redirect, ReDoS, Oversized Payloads, Datei-/MIME-Manipulation.
-- API: Rate-Limit-Umgehung, Key-Revoke, Origin-Manipulation, ID-Manipulation, Overexposure, Idempotency-Missbrauch, Replay.
+`assertNotProduction()` prüft vor JEDEM Seed/Reset/Destroy:
+1. Environment-Flag (`APP_ENV=production` / Lovable-Prod-Host)
+2. Live-Payment-Config in der Ziel-Org (`payment_provider_configs.environment='live'` aktiv)
+3. Live-API-Key-Präfixe (`store_api_keys` live-Präfix)
+4. Org-Slug muss Demo-/QA-Muster tragen
 
-Ergebnisse: `qa/PHASE14-SECURITY-REPORT.md` und `qa/results-phase14-security.json` mit Schweregrad, Komponente, Reproduktion, Ursache, Korrektur, Retest. Zusätzlich Deep Security Scan und Datenbank-Linter. Kritische und hohe Findings werden in dieser Phase behoben und erneut getestet — nicht ausgeblendet.
+Bei Treffer: harter Abbruch (`DEMO_SEED_FORBIDDEN`), Audit-Eintrag `security.demo_seed_blocked`, keine Datenänderung. Kein UI-Schalter.
 
-Header/Transport: tatsächlich ausgelieferte Header messen (HTTPS, HSTS, CSP, frame-ancestors, X-Content-Type-Options, Referrer- und Permissions-Policy, CORS, Cookie-Attribute, keine Stack Traces) und in `qa/PHASE14-SECURITY-HEADERS.md` dokumentieren; fehlende Header werden gesetzt, soweit die Plattform es zulässt.
+## Demo-Datenumfang (SEED_VERSION 1.0.0)
 
-## A4 — Datenbank- und RLS-Inventur
+- **Org/Shop/Team:** 1 Org, Hauptshop + Zweitshop, 10 Rollenkonten `*.demo@example.invalid` (Auth-User via Admin API, Passwort dokumentiert im QA-Handbuch).
+- **Katalog:** 9 Blueprints (5+ aktiv befüllt), 32 Produkte (Textil/Lebensmittel/Kosmetik/Elektronik/Möbel/Schmuck/Digital/Service), Varianten inkl. Viele-Varianten-Produkt, Entwürfe, Archivierte, lange/kurze Namen, fehlende optionale Angaben, SEO, Steuerklassen, Return Policies.
+- **Taxonomie:** 10+ Kategorien mit 3 Ebenen (Bekleidung→Herren→Hoodies), 5 Collections.
+- **Medien:** ~10 generierte Produktbilder (imagegen, in `qa/demo-assets/`), Logo, Branding, Variantenbilder, Alt-Texte, 1 absichtlich fehlendes Bild.
+- **Pricing/Promotions:** Basis-/Varianten-/Aktionspreise, Staffeln, Kundengruppenpreise, aktive/abgelaufene/zukünftige Angebote, Prozent/Festbetrag/BXGY/Gratisversand, Codes DEMO10/DEMO20/WELCOME-DEMO/FREESHIP-DEMO + ungültiger/abgelaufener Code, nicht kombinierbar.
+- **Inventory:** 3 Lagerorte (Hauptlager Berlin, Store Hamburg, Externes Fulfillment), alle Bestandszustände inkl. Backorder/Tracking-aus, Bewegungen aller Arten.
+- **Kunden:** 25+ (B2C, B2B, VIP, Gast, gesperrt, Mehrfachadressen, Gruppen, Notizen).
+- **Carts/Checkouts:** alle 12 geforderten Zustände.
+- **Orders:** 40+ über echten Payment-Fluss (bezahlt, pending, fehlgeschlagen, storniert, teil-/voll erstattet, alle Fulfillment-Stati, Gast/Kunde/B2B, gemischte Steuerklassen, Promotions, Versandkosten).
+- **Steuern:** 19 %/7 %/0 % mit Reason Code, Mischkorb, Versandsteuer, B2B.
+- **Shipping:** alle Stati inkl. Teilversand, Multi-Package, Test-Trackingnummern DEMO-DHL-*/DEMO-DPD-*.
+- **Dokumente:** Rechnungen (Entwurf/ausgestellt), Teil-/Vollgutschrift, Lieferschein, PDFs mit Prüfsummen, Branding, Langtext-Positionen.
+- **Retouren:** alle 14 geforderten Zustände.
+- **Kommunikation:** alle Template-Arten + Zustände (queued/delivered/failed/hard_bounce/suppressed) über Mock-Provider, kein externer Versand.
+- **Automation/Tasks:** aktiv/pausiert/fehlgeschlagen/Retry, Low-Stock-/Versand-/Retouren-Aufgaben, offen/überfällig/erledigt.
+- **Monitoring:** absichtliche Demo-Befunde (offene Warnung, failed Job, Dead Letter, Rate-Limit-Spuren) — klar als Demo markiert, keine Produktionsalarme.
 
-Vollständige Tabellenmatrix (alle ~115 Tabellen) per SQL erhoben:
-Organisation-/Shop-Scope, RLS aktiv, Policies je Operation, GRANTs, server-only/append-only/immutable, Foreign Keys, Unique- und CHECK-Constraints, Indizes.
-Zusätzlich Prüfung der SECURITY-DEFINER-Funktionen auf fixierten `search_path`, dynamisches SQL, RLS-Rekursion, Trigger-Reihenfolge und Sperrreihenfolge.
+## QA-Fixtures
 
-Ergebnis: `docs/production/DATABASE_SECURITY_MATRIX.md` und `qa/PHASE14-RLS-REPORT.md`. Lücken werden per Migration geschlossen.
+Szenario-Registry mit allen 22 Szenarien (`catalog_full` … `mobile_ui_full`). Jedes Szenario = Builder-Funktion, die nur benötigte Daten erzeugt und `{ fixture_id, organization_id, shop_id, entity_ids, expected_states, cleanup }` zurückgibt. Org-Name `QA Fixture <Datum> <Seq>`, Slug `qa-fixture-<kurzid>`.
 
-## A5 — Commerce Health Check
+`destroyQaFixture`: prüft Fixture-Registry (niemals normale Mandanten), löscht in FK-sicherer Reihenfolge was löschbar ist, respektiert immutable Journals (audit_log, inventory_movements, payment_events, tax_snapshots, Snapshots) — verbleibende Journal-Zeilen werden in `residual_notes` dokumentiert, Fixture → `destroyed`.
 
-Neues Modul `src/lib/commerce/health/` mit read-only Checks (keine stillen Reparaturen) für Orders/Payments, Inventory, Taxes, Documents, Shipping, Returns, Communications/Automations — genau die im Auftrag genannten Invarianten.
+## UI
 
-Geschützte Backoffice-Route `/app/system/health`: Statusübersicht je Gruppe, betroffene Datensätze mit technischer Referenz, Schweregrad, Zeitpunkt des Laufs. Reparaturen nur als explizite, auditierte Maintenance-Aktionen (in Gate A nur vorbereitet, nicht automatisch ausgeführt).
+- **Demo-Banner** ("DEMO-UMGEBUNG — Alle Daten sind synthetisch…") dauerhaft in Backoffice, Kundenportal und Reference Storefront, wenn aktive Org in `demo_environments` (Flag über `getWorkspace`).
+- **`/app/system/demo-data`**: Demo-Status, Seed-Version, Datenmengen je Gruppe, fehlende Gruppen, Seed/Reset mit Bestätigungsdialog, QA-Fixtures erzeugen/anzeigen/entfernen. Berechtigungsprüfung, Audit, Production Guard serverseitig.
 
-Bericht: `qa/PHASE14-DATA-INTEGRITY-REPORT.md`.
+## Audit/Events
 
-## A6 — Backup und Restore-Drill
+`demo.seeded`, `demo.reset`, `qa.fixture.created`, `qa.fixture.destroyed`, `qa.fixture.failed` — ein Batch-Event pro Lauf, keine Event-Flut pro Datensatz.
 
-Tatsächlich verfügbare Backup-Konfiguration der Cloud-Datenbank erheben (Frequenz, Aufbewahrung, Restore-Optionen, Abdeckung von Storage, Auth-Nutzern, Dokumenten, PDFs, Medien, Labels).
+## Verifikation (`qa/phase15-demo.ts` + Playwright)
 
-Echter Drill in isolierter QA-Organisation: konsistenten Datensatz erzeugen (Produkt, Preis, Bestand, Order, Rechnung, Dokument), Sicherungspunkt festhalten, Daten kontrolliert verändern, Wiederherstellung in isolierte Umgebung, Vergleich von Datenintegrität, Dateien, Prüfsummen sowie Auth-/RLS-Funktion. RPO und RTO werden aus dem gemessenen Lauf abgeleitet, nicht behauptet.
+1. Seed ausführen → alle Mindestmengen belegt (30+ Produkte, 25+ Kunden, 40+ Orders, …)
+2. **Idempotenz:** zweiter Lauf → 0 Dubletten (Zählung vorher/nachher)
+3. `verifyDemoEnvironment` → vollständig
+4. Reset → Ausgangszustand wiederhergestellt
+5. Production Guard: simuliertes Live-Signal → harter Abbruch, keine Änderung, Audit vorhanden
+6. Fixture create/destroy für Stichproben-Szenarien (u. a. `catalog_full`, `payment_success`, `cross_tenant`), Residuen dokumentiert
+7. Cross-Tenant: QA-Org sieht keine Demo-Daten und umgekehrt; Rollen: read_only ohne Seed-Recht bekommt 403
+8. UI-Matrix mit vollen Daten: 375/390/430/768/1024/1440 px auf Kernoberflächen (Produkte, Bestellungen, Kunden, Lager, System)
+9. Regression: alle bisherigen Suiten (A3 32, A4 52, A5 15, Jobs 21, Phase 12 52, E2E 46+35, Unit 72) + Build + Typecheck
 
-Ergebnisse: `docs/production/BACKUP_POLICY.md`, `docs/production/DISASTER_RECOVERY_RUNBOOK.md`, `qa/PHASE14-RESTORE-REPORT.md`. Falls die Plattform eine vollständige Wiederherstellung in eine isolierte Umgebung nicht zulässt, wird der maximal mögliche Umfang durchgeführt und die Lücke ausdrücklich als Go-live-Blocker vermerkt.
+## Deliverables
 
-## A7 — Migrationen produktionssicher
+- Migration + `src/lib/commerce/demo/*` + `/app/system/demo-data` + Banner
+- `docs/production/DEMO_DATA_SYSTEM.md` (inkl. dokumentierter Tabellenabkürzungen, Zugangsdaten-Hinweis, Reset-Strategie)
+- `qa/phase15-demo.ts`, `qa/results-phase15-demo.json`, `qa/PHASE15-DEMO-REPORT.md`
 
-Alle vorhandenen Migrationen auf Reproduzierbarkeit, Reihenfolge, destruktive Schritte, lange Sperren und Backfill-Trennung prüfen.
-Ergebnis: `docs/production/MIGRATION_RUNBOOK.md` und `docs/production/ROLLBACK_PLAN.md` (Forward-Fix-Strategie, API-Kompatibilität während Migrationen).
+## Umsetzungsreihenfolge
 
-## A8 — Jobs, Queue und Monitoring
+1. Migration (Tabellen, Permissions)
+2. Guard + Engine-Skelett + Functions + UI-Grundgerüst
+3. Seed-Builder Basis (Org/Team/Katalog/Medien/Pricing/Inventory/Kunden)
+4. Seed-Builder transaktional (Orders/Dokumente/Retouren/Kommunikation/Automation/Monitoring)
+5. Fixture-System + Szenarien
+6. QA-Harness, UI-Matrix, Regression, Abschlussbericht
 
-- Inventur aller Jobs (Communications, Automations, Checkout-/Cart-/Reservation-Expiration, Tracking-Refresh, Provider-Events, Retry, Dead Letter) mit Auth, Intervall, Batch, Timeout, Locking, Retry, Idempotency, Dead Letter, Monitoring, manueller Wiederholung.
-- Tests: parallele Aufrufe, abgebrochener Worker, Timeout mitten in der Verarbeitung, Retry, veralteter Lock, großer Backlog, Provider-Ausfall.
-- Backoffice `/app/system/jobs`: Queue-Zustand, gesperrte und fehlgeschlagene Jobs, Dead Letters, manuelle Wiederholung (auditiert).
-- Backoffice `/app/system/status` und `/app/system/errors`: Request-Rate, Fehlerquote, Latenz, Rate-Limits, Auth-/Permission-Fehler, Payment-, Webhook-, Order-, Inventory-, Communication-, Automation-, Shipping-, Dokument- und Storage-Fehler — mit Zeit, Komponente, Schweregrad, Request-/Correlation-ID, Shop, bereinigter Meldung, Status. Keine personenbezogenen Daten, keine Secrets.
-- Alerts als interne Operational-Inbox-Regeln (keine erfundene externe Benachrichtigung), inklusive der geforderten Schwellen.
-
-Berichte: `docs/production/JOB_RUNBOOK.md`, `qa/PHASE14-JOBS-REPORT.md`.
-
-## Technische Hinweise
-
-- Health-, Job- und Status-Logik als `*.server.ts` mit dünnen `*.functions.ts`-Wrappern; Backoffice-Routen unter `_authenticated/app/system/` mit Rollenprüfung (nur Owner/Administrator/Operations).
-- Neue Tabellen nur, wo für Monitoring/Health-Läufe zwingend nötig (z. B. Health-Run-Journal), jeweils mit GRANTs, RLS und org-Scoping.
-- Alle Prüf-Harnesses laufen gegen die vorhandene QA-Organisation aus `qa/state.json`, niemals gegen Produktionsdaten.
-- Abschluss von Gate A: Build und Typecheck grün, alle Tests aus Phase 0–12 unverändert grün, Berichte erstellt, offene Findings priorisiert.
-
-## Ausdrücklich nicht Teil von Gate A
-
-Live-Provider einrichten, Domains veröffentlichen, echte Zahlungen, Produktionsdaten erzeugen, Phase-13-Funktionen, Performance-Baseline, Accessibility-Audit, Datenschutzkonzept, Release-Dashboard.
+Keine neuen Commerce-Features; ausschließlich Datensystem. Gate B/C bleiben unangetastet.
