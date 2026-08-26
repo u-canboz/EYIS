@@ -125,7 +125,7 @@ async function main() {
   );
 
   const serverOnlyGrants = sql(
-    `select table_name from information_schema.role_table_grants where table_schema='public' and grantee in ('anon','authenticated') and table_name in (${NO_POLICY_ALLOWLIST.map((t) => `'${t}'`).join(",")})`,
+    `select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace, aclexplode(c.relacl) a where n.nspname='public' and a.grantee::regrole::text in ('anon','authenticated') and c.relname in (${NO_POLICY_ALLOWLIST.map((t) => `'${t}'`).join(",")})`,
   );
   check(
     "Server-only Tabellen ohne anon/authenticated-GRANT",
@@ -133,15 +133,36 @@ async function main() {
     serverOnlyGrants.join(", ") || "0 Treffer",
   );
 
+  // Wichtig: information_schema zeigt nur Rechte der aufrufenden Rolle.
+  // Die Prüfung läuft deshalb über die tatsächliche ACL des Katalogs.
   const anonGrants = sql(
-    "select table_name||':'||privilege_type from information_schema.role_table_grants where table_schema='public' and grantee='anon'",
+    "select c.relname||':'||a.privilege_type from pg_class c join pg_namespace n on n.oid=c.relnamespace, aclexplode(c.relacl) a where n.nspname='public' and c.relkind='r' and a.grantee::regrole::text='anon'",
   );
   check("Kein anon-GRANT auf public-Tabellen", anonGrants.length === 0, anonGrants.join(", ") || "0");
 
   const publicGrants = sql(
-    "select table_name from information_schema.role_table_grants where table_schema='public' and grantee='PUBLIC'",
+    "select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace, aclexplode(c.relacl) a where n.nspname='public' and c.relkind='r' and a.grantee=0",
   );
   check("Kein PUBLIC-GRANT auf public-Tabellen", publicGrants.length === 0, publicGrants.join(", ") || "0");
+
+  // Least Privilege: authenticated darf pro Tabelle nur die Operationen, für die
+  // es auch eine Policy gibt.
+  const surplusGrants = sql(
+    `select c.relname||':'||a.privilege_type from pg_class c join pg_namespace n on n.oid=c.relnamespace, aclexplode(c.relacl) a
+     where n.nspname='public' and c.relkind='r' and a.grantee::regrole::text='authenticated'
+       and not exists (
+         select 1 from pg_policy p where p.polrelid=c.oid and (
+           p.polcmd='*' or
+           (p.polcmd='r' and a.privilege_type='SELECT') or
+           (p.polcmd='a' and a.privilege_type='INSERT') or
+           (p.polcmd='w' and a.privilege_type='UPDATE') or
+           (p.polcmd='d' and a.privilege_type='DELETE')))`,
+  );
+  check(
+    "authenticated hat pro Tabelle nur Rechte mit passender Policy",
+    surplusGrants.length === 0,
+    surplusGrants.join(", ") || "0 überschüssige Rechte",
+  );
 
   const views = sql(
     "select c.relname||' ('||c.relkind::text||')' from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('v','m')",
