@@ -57,6 +57,7 @@ const NAV = [
   { to: "/app/system/jobs", label: "Jobs & Queues" },
   { to: "/app/system/status", label: "Systemstatus" },
   { to: "/app/system/errors", label: "Systemfehler" },
+  { to: "/app/system/demo-daten", label: "Demo & QA" },
   { to: "/app/entwickler", label: "Entwickler" },
   { to: "/store", label: "Referenz-Storefront" },
 
@@ -91,6 +92,9 @@ function AuthenticatedLayout() {
   }, [data, orgId, setOrgId]);
 
   const activeOrg = data?.organizations.find((o) => o.id === orgId) ?? data?.organizations[0];
+  const isDemoOrg =
+    !!activeOrg &&
+    (activeOrg.slug.startsWith("commerce-os-demo") || activeOrg.slug.startsWith("qa-fixture-"));
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -163,6 +167,11 @@ function AuthenticatedLayout() {
 
       <main className="flex-1 px-6 py-8 md:px-10">
         <div className="mx-auto max-w-5xl">
+          {isDemoOrg && (
+            <div className="mb-6 rounded-md border border-amber-500/50 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+              DEMO-UMGEBUNG — synthetische Testdaten, keine echten Bestellungen oder Zahlungen.
+            </div>
+          )}
           <div className="mb-6 flex gap-2 md:hidden">
             {NAV.map((item) => (
               <Link key={item.to} to={item.to} className="rounded-md border px-3 py-1.5 text-xs">
