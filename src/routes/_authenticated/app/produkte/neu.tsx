@@ -15,9 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/produkte/neu")({
   head: () => ({
@@ -139,25 +140,38 @@ function ProductWizard() {
   const canContinue =
     (step === 0 && Boolean(blueprint)) || (step === 1 && name.trim().length > 1) || step > 1;
 
-  if (isLoading) return <Skeleton className="h-72 w-full" />;
+  if (isLoading) return <Skeleton className="h-72 w-full rounded-xl" />;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Neues Produkt</h1>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {STEPS.map((label, index) => (
-            <Badge key={label} variant={index === step ? "default" : "secondary"}>
-              {index + 1}. {label}
-            </Badge>
-          ))}
-        </div>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Neues Produkt"
+        description={`Schritt ${step + 1} von ${STEPS.length}: ${STEPS[step]}`}
+      />
 
-      <div className="rounded-lg border bg-card p-6">
+      <ol className="grid grid-cols-5 gap-1.5" aria-label="Fortschritt">
+        {STEPS.map((label, index) => (
+          <li key={label} className="min-w-0">
+            <div
+              className={`h-1.5 rounded-full ${index <= step ? "bg-primary" : "bg-muted"}`}
+              aria-hidden
+            />
+            <p
+              className={`mt-1.5 truncate text-[11px] ${
+                index === step ? "font-medium text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {label}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <Panel bodyClassName="p-4 sm:p-6">
         {step === 0 && (
           <div className="space-y-6">
             <p className="text-sm text-muted-foreground">Was möchtest du verkaufen?</p>
+
             {blueprintsQuery.isLoading ? (
               <Skeleton className="h-40 w-full" />
             ) : (
@@ -176,7 +190,7 @@ function ProductWizard() {
                           setBlueprintData({});
                           setAxisValues({});
                         }}
-                        className={`rounded-lg border p-4 text-left transition-colors ${
+                        className={`min-h-11 rounded-xl border border-border p-4 text-left transition-colors ${
                           blueprint?.id === bp.id
                             ? "border-primary bg-primary/5"
                             : "hover:border-primary/40"
@@ -197,7 +211,7 @@ function ProductWizard() {
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label>Produktname *</Label>
-              <Input className="mt-2" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input className="mt-2 h-11" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="sm:col-span-2">
               <Label>Untertitel</Label>
@@ -283,7 +297,7 @@ function ProductWizard() {
                                   : [...selected, preset],
                               })
                             }
-                            className={`rounded-full border px-3 py-1 text-sm ${
+                            className={`min-h-11 rounded-full border border-border px-4 text-sm ${
                               active ? "border-primary bg-primary/10" : "hover:border-primary/40"
                             }`}
                           >
@@ -338,25 +352,36 @@ function ProductWizard() {
             </p>
           </div>
         )}
-      </div>
+      </Panel>
 
-      <div className="flex justify-between">
+      <StickyActionBar>
         <Button
           variant="outline"
+          className="min-h-11 flex-1 sm:flex-none"
           onClick={() => (step === 0 ? navigate({ to: "/app/produkte" }) : setStep(step - 1))}
         >
           {step === 0 ? "Abbrechen" : "Zurück"}
         </Button>
+        <div className="flex-1" />
         {step < STEPS.length - 1 ? (
-          <Button disabled={!canContinue} onClick={() => setStep(step + 1)}>
+          <Button
+            className="min-h-11 flex-1 sm:flex-none"
+            disabled={!canContinue}
+            onClick={() => setStep(step + 1)}
+          >
             Weiter
           </Button>
         ) : (
-          <Button disabled={createMutation.isPending} onClick={() => createMutation.mutate()}>
+          <Button
+            className="min-h-11 flex-1 sm:flex-none"
+            disabled={createMutation.isPending}
+            onClick={() => createMutation.mutate()}
+          >
             {createMutation.isPending ? "Wird angelegt…" : "Produkt anlegen"}
           </Button>
         )}
-      </div>
+      </StickyActionBar>
+
     </div>
   );
 }

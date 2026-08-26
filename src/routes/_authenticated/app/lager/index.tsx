@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +37,7 @@ import {
 import { PageHeader } from "@/components/shell/PageHeader";
 import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
 import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/lager/")({
   head: () => ({
@@ -268,19 +268,14 @@ function InventoryPage() {
 
 
       {inventoryQuery.isLoading ? (
-        <div className="space-y-2">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
+        <ListSkeleton />
+      ) : inventoryQuery.error ? (
+        <ErrorState description={(inventoryQuery.error as Error).message} />
       ) : rows.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-10 text-center">
-          <p className="text-sm font-medium">Noch keine Bestandsdaten</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Öffne ein Produkt und aktiviere dort den Tab „Bestand“, oder buche direkt einen
-            Wareneingang.
-          </p>
-        </div>
+        <EmptyState
+          title="Noch keine Bestandsdaten"
+          description="Öffne ein Produkt und aktiviere dort den Tab „Bestand“, oder buche direkt einen Wareneingang."
+        />
       ) : (
         <>
           <RecordCardList>

@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
@@ -26,6 +25,7 @@ import {
 import { PageHeader } from "@/components/shell/PageHeader";
 import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
 import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kunden/")({
   head: () => ({
@@ -106,6 +106,10 @@ function CustomersPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  if (!can("customers.read")) {
+    return <PermissionState what="Kunden" />;
+  }
+
   return (
     <div className="min-w-0 space-y-5">
       <PageHeader
@@ -144,19 +148,14 @@ function CustomersPage() {
       </div>
 
       {customers.isLoading ? (
-        <div className="space-y-3">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-24 w-full lg:h-16" />
-          ))}
-        </div>
+        <ListSkeleton />
       ) : customers.error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-          Kunden konnten nicht geladen werden: {(customers.error as Error).message}
-        </p>
+        <ErrorState description={(customers.error as Error).message} />
       ) : !customers.data?.length ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Noch keine Kunden in dieser Auswahl.
-        </p>
+        <EmptyState
+          title="Keine Kunden in dieser Auswahl"
+          description="Wechsle den Statusfilter oder lege einen Kunden an."
+        />
       ) : (
         <>
           <RecordCardList>
@@ -246,6 +245,7 @@ function CustomersPage() {
             <div>
               <Label htmlFor="email">E-Mail</Label>
               <Input
+                className="h-11"
                 id="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -281,7 +281,7 @@ function CustomersPage() {
               <div>
                 <Label>Kundentyp</Label>
                 <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -291,7 +291,7 @@ function CustomersPage() {
                 </Select>
               </div>
             </div>
-            <Button className="w-full" onClick={() => create.mutate()} disabled={create.isPending}>
+            <Button className="min-h-11 w-full" onClick={() => create.mutate()} disabled={create.isPending}>
               Speichern
             </Button>
           </div>

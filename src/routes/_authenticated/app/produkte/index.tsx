@@ -10,7 +10,6 @@ import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -27,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/shell/PageHeader";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
 import { FilterBar } from "@/components/data/FilterBar";
 import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
 import { TableScroll } from "@/components/data/TableScroll";
@@ -121,6 +121,10 @@ function ProductsPage() {
 
   const activeFilters =
     (status !== "all" ? 1 : 0) + (blueprintKey !== "all" ? 1 : 0) + (categoryId !== "all" ? 1 : 0);
+
+  if (!workspaceLoading && !can("products.read")) {
+    return <PermissionState what="Produkte" />;
+  }
 
   return (
     <div className="min-w-0 space-y-5">
@@ -218,28 +222,21 @@ function ProductsPage() {
       />
 
       {workspaceLoading || productsQuery.isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-24 w-full lg:h-12" />
-          <Skeleton className="h-24 w-full lg:h-12" />
-          <Skeleton className="h-24 w-full lg:h-12" />
-        </div>
+        <ListSkeleton />
       ) : productsQuery.error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-          Produkte konnten nicht geladen werden: {(productsQuery.error as Error).message}
-        </p>
+        <ErrorState description={(productsQuery.error as Error).message} />
       ) : items.length === 0 ? (
-        <div className="rounded-xl border border-dashed p-8 text-center">
-          <p className="font-medium">Noch keine Produkte</p>
-          <p className="mx-auto mt-1 max-w-sm text-sm text-pretty text-muted-foreground">
-            Lege dein erstes Produkt an – der Assistent führt dich durch Vorlage, Details und
-            Varianten.
-          </p>
-          {canCreate && (
-            <Button asChild className="mt-4 h-11">
-              <Link to="/app/produkte/neu">Produkt anlegen</Link>
-            </Button>
-          )}
-        </div>
+        <EmptyState
+          title="Noch keine Produkte"
+          description="Lege dein erstes Produkt an – der Assistent führt dich durch Vorlage, Details und Varianten."
+          action={
+            canCreate ? (
+              <Button asChild className="min-h-11">
+                <Link to="/app/produkte/neu">Produkt anlegen</Link>
+              </Button>
+            ) : null
+          }
+        />
       ) : (
         <>
           <RecordCardList>
