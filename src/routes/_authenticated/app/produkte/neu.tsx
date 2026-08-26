@@ -18,6 +18,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/produkte/neu")({
   head: () => ({
@@ -189,7 +191,7 @@ function ProductWizard() {
                           setBlueprintData({});
                           setAxisValues({});
                         }}
-                        className={`rounded-lg border p-4 text-left transition-colors ${
+                        className={`min-h-11 rounded-xl border border-border p-4 text-left transition-colors ${
                           blueprint?.id === bp.id
                             ? "border-primary bg-primary/5"
                             : "hover:border-primary/40"
@@ -210,7 +212,7 @@ function ProductWizard() {
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label>Produktname *</Label>
-              <Input className="mt-2" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input className="mt-2 h-11" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="sm:col-span-2">
               <Label>Untertitel</Label>
@@ -296,7 +298,7 @@ function ProductWizard() {
                                   : [...selected, preset],
                               })
                             }
-                            className={`rounded-full border px-3 py-1 text-sm ${
+                            className={`min-h-11 rounded-full border border-border px-4 text-sm ${
                               active ? "border-primary bg-primary/10" : "hover:border-primary/40"
                             }`}
                           >
