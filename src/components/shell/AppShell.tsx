@@ -11,7 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AppNav } from "./AppNav";
 import { DemoBanner } from "./DemoBanner";
 import { BOTTOM_TABS, RAIL_ITEMS, isActive } from "./nav-registry";
@@ -144,7 +149,8 @@ export function AppShell(props: Props) {
       {/* Tablet: icon rail, never a squeezed sidebar */}
       <aside className="sticky top-0 hidden h-dvh w-16 shrink-0 flex-col items-center gap-1 border-r border-sidebar-border bg-sidebar py-3 text-sidebar-foreground md:flex xl:hidden">
         <div className="pb-2">{navSheet}</div>
-        <nav aria-label="Bereiche" className="flex flex-col items-center gap-1 overflow-y-auto">
+        <TooltipProvider delayDuration={200}>
+          <nav aria-label="Bereiche" className="flex flex-col items-center gap-1 overflow-y-auto">
           {RAIL_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = isActive(props.pathname, item);
@@ -169,7 +175,8 @@ export function AppShell(props: Props) {
               </Tooltip>
             );
           })}
-        </nav>
+          </nav>
+        </TooltipProvider>
         <button
           type="button"
           onClick={props.onSignOut}
