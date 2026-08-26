@@ -1116,10 +1116,9 @@ async function stepOrders(ctx: SeedCtx, env: DemoEnv): Promise<SeedStepResult> {
     .select("metadata")
     .eq("organization_id", orgId)
     .not("metadata->>demo_key", "is", null);
-  const done = new Set<string>([
-    ...(existingOrders ?? []).map((o: { metadata: { demo_key?: string } }) => o.metadata?.demo_key),
-    ...(existingSessions ?? []).map((s: { metadata: { demo_key?: string } }) => s.metadata?.demo_key),
-  ]);
+  const tagged = (rows: unknown) =>
+    ((rows ?? []) as { metadata: { demo_key?: string } | null }[]).map((r) => r.metadata?.demo_key);
+  const done = new Set<string>([...tagged(existingOrders), ...tagged(existingSessions)]);
 
   // Maps vorbereiten
   const variantByProductKey = new Map<string, string>();
@@ -1247,12 +1246,12 @@ export async function getDemoStatus(ctx: SeedCtx): Promise<DemoStatus> {
     .maybeSingle();
 
   const count = async (table: string, filterDemo: boolean) => {
-    let q = admin
-      .from(table)
+    const base = admin
+      .from(table as never)
       .select("id", { count: "exact", head: true })
-      .eq("organization_id", orgId);
-    if (filterDemo) q = q.not("metadata->>demo_key", "is", null);
-    const { count: n } = await q;
+      .eq("organization_id" as never, orgId);
+    const q = filterDemo ? base.not("metadata->>demo_key", "is", null) : base;
+    const { count: n } = (await q) as unknown as { count: number | null };
     return Number(n ?? 0);
   };
 

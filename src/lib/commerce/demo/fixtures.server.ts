@@ -306,7 +306,7 @@ async function placeOrder(
   if (base.customerId) {
     await admin.from("orders").update({ customer_id: base.customerId }).eq("id", result.order_id);
   }
-  return { orderId: result.order_id, paymentSessionId: paymentSession.id, checkoutSessionId: sessionId };
+  return { orderId: result.order_id, paymentSessionId: paymentSession.paymentSessionId, checkoutSessionId: sessionId };
 }
 
 async function shipOrder(ctx: FixtureCtx, base: FixtureBase, orderId: string, idem: string) {
@@ -614,7 +614,7 @@ const builders: Record<QaScenario, Builder> = {
         subject_snapshot: "QA Retry-Test",
         status: "failed",
         metadata: { qa: QA_TAG },
-      })
+      } as never)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
