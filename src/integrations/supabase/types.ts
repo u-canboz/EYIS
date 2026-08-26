@@ -8033,6 +8033,7 @@ export type Database = {
         Args: { _org_id: string; _permission: string; _user_id: string }
         Returns: boolean
       }
+      health_run_checks: { Args: { _org_id: string }; Returns: Json }
       inv_adjust_stock: {
         Args: {
           _actor: string

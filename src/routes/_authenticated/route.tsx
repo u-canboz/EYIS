@@ -53,6 +53,7 @@ const NAV = [
   { to: "/app/automationen/aufgaben", label: "Aufgaben" },
   { to: "/app/zahlungen", label: "Zahlungen" },
   { to: "/app/system/storefront-test", label: "Test-Storefront" },
+  { to: "/app/system/health", label: "System Health" },
   { to: "/app/entwickler", label: "Entwickler" },
   { to: "/store", label: "Referenz-Storefront" },
 
