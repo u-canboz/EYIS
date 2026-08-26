@@ -55,7 +55,7 @@ Details: [MIGRATION_RULES.md](MIGRATION_RULES.md).
 
 ## D. Neue Backoffice-Seite
 
-1. Route unter `src/routes/_authenticated/app/...` anlegen (nicht unter einem `src/pages`-Ordner — den gibt es hier nicht).
+1. Route unter `src/routes/_authenticated/app/...` anlegen (TanStack-Routing; einen Pages-Ordner gibt es hier nicht).
 2. Daten über `*.functions.ts` mit `requireSupabaseAuth` laden, Berechtigung prüfen.
 3. Shell-Bausteine verwenden: `PageHeader`, `FilterBar`, `TableScroll`/`RecordCardList`.
 4. Mobil ab 320 px prüfen, kein horizontaler Überlauf, Touch-Ziele ≥ 44 px.
