@@ -1,26 +1,11 @@
-import {
-  createFileRoute,
-  Outlet,
-  useNavigate,
-  Link,
-  useRouterState,
-  redirect,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { roleLabel } from "@/lib/commerce/roles";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { AppShell } from "@/components/shell/AppShell";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -32,40 +17,6 @@ export const Route = createFileRoute("/_authenticated")({
   },
   component: AuthenticatedLayout,
 });
-
-const NAV = [
-  { to: "/app", label: "Übersicht" },
-  { to: "/app/produkte", label: "Produkte" },
-  { to: "/app/kategorien", label: "Kategorien" },
-  { to: "/app/preise", label: "Preise" },
-  { to: "/app/lager", label: "Lager" },
-  { to: "/app/marketing/promotions", label: "Promotions" },
-  { to: "/app/versand", label: "Versand" },
-  { to: "/app/versand/versandarten", label: "Versandarten" },
-  { to: "/app/steuern", label: "Steuern" },
-  { to: "/app/warenkoerbe", label: "Warenkörbe" },
-  { to: "/app/bestellungen", label: "Bestellungen" },
-  { to: "/app/kunden", label: "Kunden" },
-  { to: "/app/retouren", label: "Retouren" },
-  { to: "/app/dokumente", label: "Dokumente" },
-  { to: "/app/kommunikation", label: "Kommunikation" },
-  { to: "/app/automationen", label: "Automationen" },
-  { to: "/app/automationen/aufgaben", label: "Aufgaben" },
-  { to: "/app/zahlungen", label: "Zahlungen" },
-  { to: "/app/system/storefront-test", label: "Test-Storefront" },
-  { to: "/app/system/health", label: "System Health" },
-  { to: "/app/system/jobs", label: "Jobs & Queues" },
-  { to: "/app/system/status", label: "Systemstatus" },
-  { to: "/app/system/errors", label: "Systemfehler" },
-  { to: "/app/system/demo-daten", label: "Demo & QA" },
-  { to: "/app/entwickler", label: "Entwickler" },
-  { to: "/store", label: "Referenz-Storefront" },
-
-  { to: "/app/medien", label: "Medien" },
-  { to: "/app/team", label: "Team" },
-  { to: "/app/shops", label: "Shops" },
-  { to: "/app/audit", label: "Audit-Log" },
-] as const;
 
 function AuthenticatedLayout() {
   const navigate = useNavigate();
@@ -97,91 +48,22 @@ function AuthenticatedLayout() {
     (activeOrg.slug.startsWith("commerce-os-demo") || activeOrg.slug.startsWith("qa-fixture-"));
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-64 shrink-0 flex-col bg-sidebar p-6 text-sidebar-foreground md:flex">
-        <Link to="/" className="font-display text-lg font-semibold">
-          Commerce OS
-        </Link>
-
-        <div className="mt-8">
-          <p className="text-[11px] uppercase tracking-widest text-sidebar-foreground/50">
-            Organisation
-          </p>
-          {isLoading || !data ? (
-            <Skeleton className="mt-2 h-9 w-full" />
-          ) : (
-            <Select value={activeOrg?.id ?? ""} onValueChange={setOrgId}>
-              <SelectTrigger className="mt-2 border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {data.organizations.map((o) => (
-                  <SelectItem key={o.id} value={o.id}>
-                    {o.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          {activeOrg && (
-            <p className="mt-2 text-xs text-sidebar-foreground/60">
-              Deine Rolle: {roleLabel(activeOrg.role)}
-            </p>
-          )}
-        </div>
-
-        <nav className="mt-8 flex flex-1 flex-col gap-1">
-          {NAV.map((item) => {
-            const active = item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`rounded-md px-3 py-2 text-sm transition-colors ${
-                  active
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="mt-auto space-y-2 border-t border-sidebar-border pt-4">
-          <p className="truncate text-xs text-sidebar-foreground/60">{data?.email}</p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start text-sidebar-foreground/80 hover:bg-sidebar-accent"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              navigate({ to: "/auth" });
-            }}
-          >
-            Abmelden
-          </Button>
-        </div>
-      </aside>
-
-      <main className="flex-1 px-6 py-8 md:px-10">
-        <div className="mx-auto max-w-5xl">
-          {isDemoOrg && (
-            <div className="mb-6 rounded-md border border-amber-500/50 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-700 dark:text-amber-400">
-              DEMO-UMGEBUNG — synthetische Testdaten, keine echten Bestellungen oder Zahlungen.
-            </div>
-          )}
-          <div className="mb-6 flex gap-2 md:hidden">
-            {NAV.map((item) => (
-              <Link key={item.to} to={item.to} className="rounded-md border px-3 py-1.5 text-xs">
-                {item.label}
-              </Link>
-            ))}
-          </div>
-          <Outlet />
-        </div>
-      </main>
-    </div>
+    <AppShell
+      pathname={pathname}
+      organizations={data?.organizations ?? []}
+      activeOrgId={activeOrg?.id ?? ""}
+      onOrgChange={setOrgId}
+      roleLabel={activeOrg ? roleLabel(activeOrg.role) : undefined}
+      email={data?.email ?? undefined}
+      isLoading={isLoading || !data}
+      isDemo={isDemoOrg}
+      onSignOut={async () => {
+        await supabase.auth.signOut();
+        navigate({ to: "/auth" });
+      }}
+    >
+      <Outlet />
+    </AppShell>
   );
 }
+

@@ -35,6 +35,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
 
 export const Route = createFileRoute("/_authenticated/app/lager/")({
   head: () => ({
@@ -208,42 +211,36 @@ function InventoryPage() {
   })();
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Lagerbestand</h1>
-          <p className="text-muted-foreground text-sm">
-            Physischer Bestand abzüglich beschädigter Ware und Reservierungen ergibt die verfügbare
-            Menge.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/wareneingang">Wareneingang</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/transfers">Umlagerungen</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/reservierungen">Reservierungen</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/bewegungen">Bewegungen</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/lagerorte">Lagerorte</Link>
-          </Button>
-        </div>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Lagerbestand"
+        description="Physischer Bestand abzüglich beschädigter Ware und Reservierungen ergibt die verfügbare Menge."
+      />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="scroll-x -mx-4 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
+        {[
+          { to: "/app/lager/wareneingang", label: "Wareneingang" },
+          { to: "/app/lager/transfers", label: "Umlagerungen" },
+          { to: "/app/lager/reservierungen", label: "Reservierungen" },
+          { to: "/app/lager/bewegungen", label: "Bewegungen" },
+          { to: "/app/lager/lagerorte", label: "Lagerorte" },
+        ].map((entry) => (
+          <Button key={entry.to} asChild variant="outline" size="sm" className="h-10 shrink-0">
+            <Link to={entry.to}>{entry.label}</Link>
+          </Button>
+        ))}
+      </div>
+
+      <div className="grid min-w-0 gap-3 md:grid-cols-3">
         <Input
+          className="h-11"
           placeholder="Produkt, Variante, SKU oder Barcode"
+          aria-label="Bestand durchsuchen"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
         <Select value={locationId} onValueChange={setLocationId}>
-          <SelectTrigger>
+          <SelectTrigger className="h-11">
             <SelectValue placeholder="Lagerort" />
           </SelectTrigger>
           <SelectContent>
@@ -256,7 +253,7 @@ function InventoryPage() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger>
+          <SelectTrigger className="h-11">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -268,6 +265,7 @@ function InventoryPage() {
           </SelectContent>
         </Select>
       </div>
+
 
       {inventoryQuery.isLoading ? (
         <div className="space-y-2">
@@ -284,130 +282,201 @@ function InventoryPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="p-3 font-medium">Produkt / Variante</th>
-                <th className="p-3 font-medium">SKU</th>
-                <th className="p-3 text-right font-medium">Physisch</th>
-                <th className="p-3 text-right font-medium">Beschädigt</th>
-                <th className="p-3 text-right font-medium">Reserviert</th>
-                <th className="p-3 text-right font-medium">Verfügbar</th>
-                <th className="p-3 text-right font-medium">Erwartet</th>
-                <th className="p-3 font-medium">Status</th>
-                <th className="p-3 font-medium">Tracking</th>
-                <th className="p-3 font-medium">Backorder</th>
-                <th className="p-3 text-right font-medium">Aktionen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.inventory_item_id} className="border-t align-middle">
-                  <td className="p-3">
+        <>
+          <RecordCardList>
+            {rows.map((row) => (
+              <RecordCard
+                key={row.inventory_item_id}
+                title={row.product_name}
+                subtitle={`${row.variant_title}${row.sku ? ` · ${row.sku}` : ""}`}
+                trailing={row.track_inventory ? String(row.available) : "∞"}
+                badges={
+                  <Badge
+                    variant={
+                      row.status === "out_of_stock"
+                        ? "destructive"
+                        : row.status === "low_stock"
+                          ? "secondary"
+                          : "outline"
+                    }
+                  >
+                    {STOCK_STATUS_LABEL[row.status]}
+                  </Badge>
+                }
+                fields={[
+                  { label: "Physisch", value: row.track_inventory ? row.totals.on_hand : "—" },
+                  { label: "Reserviert", value: row.track_inventory ? row.totals.reserved : "—" },
+                  { label: "Beschädigt", value: row.track_inventory ? row.totals.damaged : "—" },
+                  { label: "Erwartet", value: row.track_inventory ? row.totals.incoming : "—" },
+                ]}
+                actions={
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-10"
+                      disabled={!canReceive || !row.track_inventory}
+                      onClick={() => openDialog(row, "receive")}
+                    >
+                      Eingang
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-10"
+                      disabled={!canAdjust || !row.track_inventory}
+                      onClick={() => openDialog(row, "adjust")}
+                    >
+                      Korrektur
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-10"
+                      disabled={!canAdjust || !row.track_inventory}
+                      onClick={() => openDialog(row, "damage")}
+                    >
+                      Schaden
+                    </Button>
                     <Link
                       to="/app/produkte/$productId"
                       params={{ productId: row.product_id }}
-                      className="font-medium hover:underline"
+                      className="self-center text-sm underline underline-offset-4"
                     >
-                      {row.product_name}
+                      Produkt
                     </Link>
-                    <div className="text-muted-foreground text-xs">{row.variant_title}</div>
-                    {row.locations.length > 0 && (
-                      <div className="text-muted-foreground mt-1 text-xs">
-                        {row.locations
-                          .map((l) => `${l.location_name}: ${l.available} verfügbar`)
-                          .join(" · ")}
-                      </div>
-                    )}
-                  </td>
-                  <td className="text-muted-foreground p-3">{row.sku ?? "—"}</td>
-                  <td className="p-3 text-right">
-                    {row.track_inventory ? row.totals.on_hand : "—"}
-                  </td>
-                  <td className="p-3 text-right">
-                    {row.track_inventory ? row.totals.damaged : "—"}
-                  </td>
-                  <td className="p-3 text-right">
-                    {row.track_inventory ? row.totals.reserved : "—"}
-                  </td>
-                  <td className="p-3 text-right font-medium">
-                    {row.track_inventory ? row.available : "∞"}
-                  </td>
-                  <td className="p-3 text-right">
-                    {row.track_inventory ? row.totals.incoming : "—"}
-                  </td>
-                  <td className="p-3">
-                    <Badge
-                      variant={
-                        row.status === "out_of_stock"
-                          ? "destructive"
-                          : row.status === "low_stock"
-                            ? "secondary"
-                            : "outline"
-                      }
-                    >
-                      {STOCK_STATUS_LABEL[row.status]}
-                    </Badge>
-                  </td>
-                  <td className="p-3">
-                    <Switch
-                      checked={row.track_inventory}
-                      disabled={!canSettings || settingsMutation.isPending}
-                      onCheckedChange={(checked) =>
-                        settingsMutation.mutate({
-                          inventoryItemId: row.inventory_item_id,
-                          trackInventory: checked,
-                        })
-                      }
-                    />
-                  </td>
-                  <td className="p-3">
-                    <Switch
-                      checked={row.allow_backorder}
-                      disabled={!canSettings || settingsMutation.isPending}
-                      onCheckedChange={(checked) =>
-                        settingsMutation.mutate({
-                          inventoryItemId: row.inventory_item_id,
-                          allowBackorder: checked,
-                        })
-                      }
-                    />
-                  </td>
-                  <td className="p-3 text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!canReceive || !row.track_inventory}
-                        onClick={() => openDialog(row, "receive")}
-                      >
-                        Eingang
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!canAdjust || !row.track_inventory}
-                        onClick={() => openDialog(row, "adjust")}
-                      >
-                        Korrektur
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!canAdjust || !row.track_inventory}
-                        onClick={() => openDialog(row, "damage")}
-                      >
-                        Schaden
-                      </Button>
-                    </div>
-                  </td>
+                  </>
+                }
+              />
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full min-w-[64rem] text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Produkt / Variante</th>
+                  <th className="p-3 font-medium">SKU</th>
+                  <th className="p-3 text-right font-medium">Physisch</th>
+                  <th className="p-3 text-right font-medium">Beschädigt</th>
+                  <th className="p-3 text-right font-medium">Reserviert</th>
+                  <th className="p-3 text-right font-medium">Verfügbar</th>
+                  <th className="p-3 text-right font-medium">Erwartet</th>
+                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3 font-medium">Tracking</th>
+                  <th className="p-3 font-medium">Backorder</th>
+                  <th className="p-3 text-right font-medium">Aktionen</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.inventory_item_id} className="border-t align-middle">
+                    <td className="max-w-[20rem] p-3">
+                      <Link
+                        to="/app/produkte/$productId"
+                        params={{ productId: row.product_id }}
+                        className="font-medium hover:underline"
+                      >
+                        {row.product_name}
+                      </Link>
+                      <div className="text-muted-foreground text-xs">{row.variant_title}</div>
+                      {row.locations.length > 0 && (
+                        <div className="text-muted-foreground mt-1 text-xs">
+                          {row.locations
+                            .map((l) => `${l.location_name}: ${l.available} verfügbar`)
+                            .join(" · ")}
+                        </div>
+                      )}
+                    </td>
+                    <td className="text-muted-foreground p-3 break-all">{row.sku ?? "—"}</td>
+                    <td className="p-3 text-right tabular-nums">
+                      {row.track_inventory ? row.totals.on_hand : "—"}
+                    </td>
+                    <td className="p-3 text-right tabular-nums">
+                      {row.track_inventory ? row.totals.damaged : "—"}
+                    </td>
+                    <td className="p-3 text-right tabular-nums">
+                      {row.track_inventory ? row.totals.reserved : "—"}
+                    </td>
+                    <td className="p-3 text-right font-medium tabular-nums">
+                      {row.track_inventory ? row.available : "∞"}
+                    </td>
+                    <td className="p-3 text-right tabular-nums">
+                      {row.track_inventory ? row.totals.incoming : "—"}
+                    </td>
+                    <td className="p-3">
+                      <Badge
+                        variant={
+                          row.status === "out_of_stock"
+                            ? "destructive"
+                            : row.status === "low_stock"
+                              ? "secondary"
+                              : "outline"
+                        }
+                      >
+                        {STOCK_STATUS_LABEL[row.status]}
+                      </Badge>
+                    </td>
+                    <td className="p-3">
+                      <Switch
+                        checked={row.track_inventory}
+                        disabled={!canSettings || settingsMutation.isPending}
+                        onCheckedChange={(checked) =>
+                          settingsMutation.mutate({
+                            inventoryItemId: row.inventory_item_id,
+                            trackInventory: checked,
+                          })
+                        }
+                      />
+                    </td>
+                    <td className="p-3">
+                      <Switch
+                        checked={row.allow_backorder}
+                        disabled={!canSettings || settingsMutation.isPending}
+                        onCheckedChange={(checked) =>
+                          settingsMutation.mutate({
+                            inventoryItemId: row.inventory_item_id,
+                            allowBackorder: checked,
+                          })
+                        }
+                      />
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={!canReceive || !row.track_inventory}
+                          onClick={() => openDialog(row, "receive")}
+                        >
+                          Eingang
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={!canAdjust || !row.track_inventory}
+                          onClick={() => openDialog(row, "adjust")}
+                        >
+                          Korrektur
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={!canAdjust || !row.track_inventory}
+                          onClick={() => openDialog(row, "damage")}
+                        >
+                          Schaden
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
+
 
       <Dialog open={mode !== null} onOpenChange={(open) => (open ? null : closeDialog())}>
         <DialogContent>

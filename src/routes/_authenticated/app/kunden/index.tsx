@@ -23,6 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
 
 export const Route = createFileRoute("/_authenticated/app/kunden/")({
   head: () => ({
@@ -104,92 +107,135 @@ function CustomersPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Kunden</h1>
-          <p className="text-sm text-muted-foreground">
-            Konten, Bestellhistorie, Gruppen und Sperren – zentral pro Shop.
-          </p>
-        </div>
-        {can("customers.manage") && <Button onClick={() => setOpen(true)}>Kunde anlegen</Button>}
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Kunden"
+        description="Konten, Bestellhistorie, Gruppen und Sperren – zentral pro Shop."
+        actions={
+          can("customers.manage") ? (
+            <Button className="h-11" onClick={() => setOpen(true)}>
+              Kunde anlegen
+            </Button>
+          ) : null
+        }
+      />
 
-      <div className="flex flex-wrap items-center gap-2">
-        {STATUS_FILTERS.map((f) => (
-          <Button
-            key={f.key}
-            size="sm"
-            variant={tab === f.key ? "default" : "outline"}
-            onClick={() => setTab(f.key)}
-          >
-            {f.label}
-          </Button>
-        ))}
+      <div className="min-w-0 space-y-3">
         <Input
-          className="ml-auto w-56"
+          className="h-11 w-full md:max-w-sm"
           placeholder="Name oder E-Mail suchen"
+          aria-label="Kunden suchen"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <div className="scroll-x -mx-4 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
+          {STATUS_FILTERS.map((f) => (
+            <Button
+              key={f.key}
+              size="sm"
+              className="h-10 shrink-0"
+              variant={tab === f.key ? "default" : "outline"}
+              onClick={() => setTab(f.key)}
+            >
+              {f.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {customers.isLoading ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-16 w-full" />
+            <Skeleton key={i} className="h-24 w-full lg:h-16" />
           ))}
         </div>
+      ) : customers.error ? (
+        <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+          Kunden konnten nicht geladen werden: {(customers.error as Error).message}
+        </p>
       ) : !customers.data?.length ? (
-        <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
           Noch keine Kunden in dieser Auswahl.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">Kunde</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Bestellungen</th>
-                <th className="px-4 py-3 text-right">Umsatz</th>
-                <th className="px-4 py-3">Letzte Bestellung</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.data.map((c) => (
-                <tr key={c.id} className="border-t hover:bg-muted/30">
-                  <td className="px-4 py-3">
-                    <Link
-                      to="/app/kunden/$customerId"
-                      params={{ customerId: c.id }}
-                      className="font-medium hover:underline"
-                    >
-                      {[c.firstName, c.lastName].filter(Boolean).join(" ") || c.email}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{c.email}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={c.status === "blocked" ? "destructive" : "secondary"}>
-                      {CUSTOMER_STATUS_LABELS[c.status]}
-                    </Badge>
-                    {c.hasAccount && (
-                      <span className="ml-2 text-xs text-muted-foreground">Konto</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">{c.orderCount}</td>
-                  <td className="px-4 py-3 text-right">
-                    {formatMoney(c.totalSpentMinor, c.currencyCode)}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {c.lastOrderAt ? new Date(c.lastOrderAt).toLocaleDateString("de-DE") : "—"}
-                  </td>
+        <>
+          <RecordCardList>
+            {customers.data.map((c) => (
+              <Link key={c.id} to="/app/kunden/$customerId" params={{ customerId: c.id }}>
+                <RecordCard
+                  interactive
+                  title={[c.firstName, c.lastName].filter(Boolean).join(" ") || c.email}
+                  subtitle={c.email}
+                  trailing={formatMoney(c.totalSpentMinor, c.currencyCode)}
+                  badges={
+                    <>
+                      <Badge variant={c.status === "blocked" ? "destructive" : "secondary"}>
+                        {CUSTOMER_STATUS_LABELS[c.status]}
+                      </Badge>
+                      {c.hasAccount ? <Badge variant="outline">Konto</Badge> : null}
+                    </>
+                  }
+                  fields={[
+                    { label: "Bestellungen", value: c.orderCount },
+                    {
+                      label: "Letzte Bestellung",
+                      value: c.lastOrderAt
+                        ? new Date(c.lastOrderAt).toLocaleDateString("de-DE")
+                        : "—",
+                    },
+                  ]}
+                />
+              </Link>
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3">Kunde</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Bestellungen</th>
+                  <th className="px-4 py-3 text-right">Umsatz</th>
+                  <th className="px-4 py-3">Letzte Bestellung</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {customers.data.map((c) => (
+                  <tr key={c.id} className="border-t hover:bg-muted/30">
+                    <td className="max-w-[22rem] px-4 py-3">
+                      <Link
+                        to="/app/kunden/$customerId"
+                        params={{ customerId: c.id }}
+                        className="font-medium hover:underline"
+                      >
+                        {[c.firstName, c.lastName].filter(Boolean).join(" ") || c.email}
+                      </Link>
+                      <p className="truncate text-xs text-muted-foreground">{c.email}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={c.status === "blocked" ? "destructive" : "secondary"}>
+                        {CUSTOMER_STATUS_LABELS[c.status]}
+                      </Badge>
+                      {c.hasAccount && (
+                        <span className="ml-2 text-xs text-muted-foreground">Konto</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">{c.orderCount}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {formatMoney(c.totalSpentMinor, c.currencyCode)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
+                      {c.lastOrderAt ? new Date(c.lastOrderAt).toLocaleDateString("de-DE") : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
