@@ -213,103 +213,164 @@ function ProductsPage() {
         }
       />
 
-
-      <div className="rounded-lg border bg-card">
-        {workspaceLoading || productsQuery.isLoading ? (
-          <div className="space-y-2 p-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        ) : items.length === 0 ? (
-          <div className="p-10 text-center">
-            <p className="font-medium">Noch keine Produkte</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Lege dein erstes Produkt an – der Assistent führt dich durch Vorlage, Details und
-              Varianten.
-            </p>
-            {canCreate && (
-              <Button asChild className="mt-4">
-                <Link to="/app/produkte/neu">Produkt anlegen</Link>
-              </Button>
-            )}
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-14"></TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Varianten</TableHead>
-                <TableHead>Kategorien</TableHead>
-                <TableHead className="text-right">Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    {item.cover_url ? (
-                      <img
-                        src={item.cover_url}
-                        alt={item.name}
-                        className="h-10 w-10 rounded object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="h-10 w-10 rounded bg-muted" />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Link
-                      to="/app/produkte/$productId"
-                      params={{ productId: item.id }}
-                      className="font-medium hover:underline"
-                    >
-                      {item.name}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">/{item.handle}</p>
-                  </TableCell>
-                  <TableCell>
+      {workspaceLoading || productsQuery.isLoading ? (
+        <div className="space-y-3">
+          <Skeleton className="h-24 w-full lg:h-12" />
+          <Skeleton className="h-24 w-full lg:h-12" />
+          <Skeleton className="h-24 w-full lg:h-12" />
+        </div>
+      ) : productsQuery.error ? (
+        <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+          Produkte konnten nicht geladen werden: {(productsQuery.error as Error).message}
+        </p>
+      ) : items.length === 0 ? (
+        <div className="rounded-xl border border-dashed p-8 text-center">
+          <p className="font-medium">Noch keine Produkte</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-pretty text-muted-foreground">
+            Lege dein erstes Produkt an – der Assistent führt dich durch Vorlage, Details und
+            Varianten.
+          </p>
+          {canCreate && (
+            <Button asChild className="mt-4 h-11">
+              <Link to="/app/produkte/neu">Produkt anlegen</Link>
+            </Button>
+          )}
+        </div>
+      ) : (
+        <>
+          <RecordCardList>
+            {items.map((item) => (
+              <RecordCard
+                key={item.id}
+                title={
+                  <Link
+                    to="/app/produkte/$productId"
+                    params={{ productId: item.id }}
+                    className="hover:underline"
+                  >
+                    {item.name}
+                  </Link>
+                }
+                subtitle={`/${item.handle}`}
+                badges={
+                  <>
                     <Badge variant={item.status === "active" ? "default" : "secondary"}>
                       {STATUS_LABEL[item.status]}
                     </Badge>
-                  </TableCell>
-                  <TableCell>{item.variant_count}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {item.categories.join(", ") || "–"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      {canCreate && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={duplicateMutation.isPending}
-                          onClick={() => duplicateMutation.mutate(item.id)}
-                        >
-                          Duplizieren
-                        </Button>
-                      )}
-                      {can("products.archive") && item.status !== "archived" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={archiveMutation.isPending}
-                          onClick={() => archiveMutation.mutate(item.id)}
-                        >
-                          Archivieren
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
+                    <Badge variant="outline">{item.variant_count} Varianten</Badge>
+                  </>
+                }
+                fields={[
+                  { label: "Kategorien", value: item.categories.join(", ") || "–" },
+                ]}
+                actions={
+                  <>
+                    {canCreate && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10"
+                        disabled={duplicateMutation.isPending}
+                        onClick={() => duplicateMutation.mutate(item.id)}
+                      >
+                        Duplizieren
+                      </Button>
+                    )}
+                    {can("products.archive") && item.status !== "archived" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10"
+                        disabled={archiveMutation.isPending}
+                        onClick={() => archiveMutation.mutate(item.id)}
+                      >
+                        Archivieren
+                      </Button>
+                    )}
+                  </>
+                }
+              />
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-14"></TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Varianten</TableHead>
+                  <TableHead>Kategorien</TableHead>
+                  <TableHead className="text-right">Aktionen</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </div>
+              </TableHeader>
+              <TableBody>
+                {items.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      {item.cover_url ? (
+                        <img
+                          src={item.cover_url}
+                          alt={item.name}
+                          className="h-10 w-10 rounded object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-muted" />
+                      )}
+                    </TableCell>
+                    <TableCell className="max-w-[20rem]">
+                      <Link
+                        to="/app/produkte/$productId"
+                        params={{ productId: item.id }}
+                        className="font-medium hover:underline"
+                      >
+                        {item.name}
+                      </Link>
+                      <p className="truncate text-xs text-muted-foreground">/{item.handle}</p>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={item.status === "active" ? "default" : "secondary"}>
+                        {STATUS_LABEL[item.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="tabular-nums">{item.variant_count}</TableCell>
+                    <TableCell className="max-w-[16rem] truncate text-sm text-muted-foreground">
+                      {item.categories.join(", ") || "–"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        {canCreate && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={duplicateMutation.isPending}
+                            onClick={() => duplicateMutation.mutate(item.id)}
+                          >
+                            Duplizieren
+                          </Button>
+                        )}
+                        {can("products.archive") && item.status !== "archived" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={archiveMutation.isPending}
+                            onClick={() => archiveMutation.mutate(item.id)}
+                          >
+                            Archivieren
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableScroll>
+        </>
+      )}
+
 
       {total > pageSize && (
         <div className="flex items-center justify-between">
