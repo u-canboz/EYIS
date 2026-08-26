@@ -62,117 +62,185 @@ function OrdersPage() {
   });
 
   if (!can("orders.read")) {
-    return <p className="text-muted-foreground text-sm">Keine Berechtigung für Bestellungen.</p>;
+    return (
+      <p className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+        Keine Berechtigung für Bestellungen.
+      </p>
+    );
   }
 
-  return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Bestellungen</h1>
-        <p className="text-muted-foreground text-sm">
-          Bestellungen entstehen ausschließlich nach serverseitig bestätigter Zahlung.
-        </p>
-      </header>
+  const activeFilters = (orderStatus !== "all" ? 1 : 0) + (paymentStatus !== "all" ? 1 : 0);
 
-      <div className="flex flex-wrap gap-2">
-        <Input
-          className="max-w-xs"
-          placeholder="Bestellnummer, E-Mail oder SKU"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <Select value={orderStatus} onValueChange={setOrderStatus}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Bestellstatus" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Bestellstatus</SelectItem>
-            {Object.entries(ORDER_STATUS_LABELS).map(([k, v]) => (
-              <SelectItem key={k} value={k}>
-                {v}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={paymentStatus} onValueChange={setPaymentStatus}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Zahlungsstatus" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Zahlungsstatus</SelectItem>
-            {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) => (
-              <SelectItem key={k} value={k}>
-                {v}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+  return (
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Bestellungen"
+        description="Bestellungen entstehen ausschließlich nach serverseitig bestätigter Zahlung."
+      />
+
+      <FilterBar
+        activeCount={activeFilters}
+        onReset={() => {
+          setOrderStatus("all");
+          setPaymentStatus("all");
+        }}
+        search={
+          <Input
+            className="h-11 w-full"
+            placeholder="Bestellnummer, E-Mail oder SKU"
+            aria-label="Bestellungen suchen"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        }
+        filters={
+          <>
+            <Select value={orderStatus} onValueChange={setOrderStatus}>
+              <SelectTrigger className="h-11 w-full md:w-48">
+                <SelectValue placeholder="Bestellstatus" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Bestellstatus</SelectItem>
+                {Object.entries(ORDER_STATUS_LABELS).map(([k, v]) => (
+                  <SelectItem key={k} value={k}>
+                    {v}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+              <SelectTrigger className="h-11 w-full md:w-48">
+                <SelectValue placeholder="Zahlungsstatus" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Zahlungsstatus</SelectItem>
+                {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) => (
+                  <SelectItem key={k} value={k}>
+                    {v}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        }
+      />
 
       {orders.isLoading ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-12 w-full" />
+            <Skeleton key={i} className="h-24 w-full lg:h-12" />
           ))}
         </div>
+      ) : orders.error ? (
+        <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+          Bestellungen konnten nicht geladen werden: {(orders.error as Error).message}
+        </p>
       ) : !orders.data?.length ? (
-        <p className="text-muted-foreground text-sm">Noch keine Bestellungen.</p>
+        <p className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+          Keine Bestellungen für diese Filter.
+        </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="p-3 font-medium">Nummer</th>
-                <th className="p-3 font-medium">Datum</th>
-                <th className="p-3 font-medium">Kunde</th>
-                <th className="p-3 font-medium">Status</th>
-                <th className="p-3 font-medium">Zahlung</th>
-                <th className="p-3 font-medium">Versand</th>
-                <th className="p-3 text-right font-medium">Summe</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.data.map((o) => (
-                <tr key={o.id} className="hover:bg-muted/40 border-t">
-                  <td className="p-3">
-                    <Link
-                      to="/app/bestellungen/$orderId"
-                      params={{ orderId: o.id }}
-                      className="font-medium underline-offset-2 hover:underline"
-                    >
-                      {o.orderNumber}
-                    </Link>
-                    {o.environment === "test" && (
-                      <Badge variant="outline" className="ml-2">
-                        Test
+        <>
+          <RecordCardList>
+            {orders.data.map((o) => (
+              <Link
+                key={o.id}
+                to="/app/bestellungen/$orderId"
+                params={{ orderId: o.id }}
+                className="min-w-0"
+              >
+                <RecordCard
+                  interactive
+                  title={o.orderNumber}
+                  subtitle={o.email ?? "Gast"}
+                  trailing={formatMoney(o.totalMinor, o.currencyCode)}
+                  badges={
+                    <>
+                      <Badge variant="secondary">{ORDER_STATUS_LABELS[o.orderStatus]}</Badge>
+                      <Badge variant={o.paymentStatus === "paid" ? "default" : "outline"}>
+                        {PAYMENT_STATUS_LABELS[o.paymentStatus]}
                       </Badge>
-                    )}
-                  </td>
-                  <td className="p-3">{new Date(o.placedAt).toLocaleString("de-DE")}</td>
-                  <td className="p-3">{o.email ?? "—"}</td>
-                  <td className="p-3">
-                    <Badge variant="secondary">{ORDER_STATUS_LABELS[o.orderStatus]}</Badge>
-                  </td>
-                  <td className="p-3">
-                    <Badge variant={o.paymentStatus === "paid" ? "default" : "outline"}>
-                      {PAYMENT_STATUS_LABELS[o.paymentStatus]}
-                    </Badge>
-                  </td>
-                  <td className="p-3">{FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}</td>
-                  <td className="p-3 text-right">
-                    {formatMoney(o.totalMinor, o.currencyCode)}
-                    {o.refundedMinor > 0 && (
-                      <span className="text-muted-foreground block text-xs">
-                        −{formatMoney(o.refundedMinor, o.currencyCode)} erstattet
-                      </span>
-                    )}
-                  </td>
+                      <Badge variant="outline">
+                        {FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}
+                      </Badge>
+                      {o.environment === "test" ? <Badge variant="outline">Test</Badge> : null}
+                    </>
+                  }
+                  fields={[
+                    { label: "Datum", value: new Date(o.placedAt).toLocaleString("de-DE") },
+                    ...(o.refundedMinor > 0
+                      ? [
+                          {
+                            label: "Erstattet",
+                            value: `−${formatMoney(o.refundedMinor, o.currencyCode)}`,
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
+              </Link>
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Nummer</th>
+                  <th className="p-3 font-medium">Datum</th>
+                  <th className="p-3 font-medium">Kunde</th>
+                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3 font-medium">Zahlung</th>
+                  <th className="p-3 font-medium">Versand</th>
+                  <th className="p-3 text-right font-medium">Summe</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {orders.data.map((o) => (
+                  <tr key={o.id} className="border-t hover:bg-muted/40">
+                    <td className="p-3">
+                      <Link
+                        to="/app/bestellungen/$orderId"
+                        params={{ orderId: o.id }}
+                        className="font-medium underline-offset-2 hover:underline"
+                      >
+                        {o.orderNumber}
+                      </Link>
+                      {o.environment === "test" && (
+                        <Badge variant="outline" className="ml-2">
+                          Test
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="p-3 whitespace-nowrap tabular-nums">
+                      {new Date(o.placedAt).toLocaleString("de-DE")}
+                    </td>
+                    <td className="max-w-[16rem] truncate p-3">{o.email ?? "—"}</td>
+                    <td className="p-3">
+                      <Badge variant="secondary">{ORDER_STATUS_LABELS[o.orderStatus]}</Badge>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant={o.paymentStatus === "paid" ? "default" : "outline"}>
+                        {PAYMENT_STATUS_LABELS[o.paymentStatus]}
+                      </Badge>
+                    </td>
+                    <td className="p-3">{FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}</td>
+                    <td className="p-3 text-right tabular-nums">
+                      {formatMoney(o.totalMinor, o.currencyCode)}
+                      {o.refundedMinor > 0 && (
+                        <span className="block text-xs text-muted-foreground">
+                          −{formatMoney(o.refundedMinor, o.currencyCode)} erstattet
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
     </div>
   );
 }
+
