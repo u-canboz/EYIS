@@ -247,7 +247,6 @@ function CustomersPage() {
               <Input
                 className="h-11"
                 id="email"
-                className="h-11"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
