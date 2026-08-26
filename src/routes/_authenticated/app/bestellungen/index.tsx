@@ -20,6 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { FilterBar } from "@/components/data/FilterBar";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+
 
 export const Route = createFileRoute("/_authenticated/app/bestellungen/")({
   head: () => ({
