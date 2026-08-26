@@ -29,6 +29,9 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
+import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { ArrowLeft } from "lucide-react";
 import { PricingTab } from "@/components/commerce/PricingTab";
 import { InventoryTab } from "@/components/commerce/InventoryTab";
 import {
@@ -255,7 +258,7 @@ function ProductEditor() {
 
 
         <TabsContent value="details" className="space-y-6 pt-4">
-          <div className="grid gap-5 rounded-lg border bg-card p-6 sm:grid-cols-2">
+          <div className="grid gap-5 rounded-xl border border-border bg-card p-4 sm:p-6 sm:grid-cols-2">
             <div>
               <Label>Produktname</Label>
               <Input
@@ -325,7 +328,7 @@ function ProductEditor() {
           </div>
 
           {blueprintQuery.data && (
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
               <BlueprintForm
                 schema={blueprintQuery.data.schema}
                 value={blueprintData}
@@ -376,7 +379,7 @@ function ProductEditor() {
         </TabsContent>
 
         <TabsContent value="organisation" className="space-y-6 pt-4">
-          <div className="rounded-lg border bg-card p-6">
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
             <p className="font-medium">Kategorien</p>
             <div className="mt-3 flex flex-wrap gap-3">
               {(taxonomyQuery.data?.flatCategories ?? []).map((cat) => (
@@ -397,7 +400,7 @@ function ProductEditor() {
               ))}
             </div>
           </div>
-          <div className="rounded-lg border bg-card p-6">
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
             <p className="font-medium">Kollektionen</p>
             <div className="mt-3 flex flex-wrap gap-3">
               {(taxonomyQuery.data?.collections ?? []).map((col) => (
@@ -421,7 +424,7 @@ function ProductEditor() {
         </TabsContent>
 
         <TabsContent value="seo" className="pt-4">
-          <div className="space-y-5 rounded-lg border bg-card p-6">
+          <div className="space-y-5 rounded-xl border border-border bg-card p-4 sm:p-6">
             <div>
               <Label>SEO-Titel</Label>
               <Input
@@ -452,6 +455,16 @@ function ProductEditor() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <StickyActionBar className="sm:hidden">
+        <Button
+          className="min-h-11 w-full"
+          disabled={!canEdit || saveMutation.isPending}
+          onClick={() => saveMutation.mutate()}
+        >
+          {saveMutation.isPending ? "Speichert…" : "Speichern"}
+        </Button>
+      </StickyActionBar>
     </div>
   );
 }
@@ -551,7 +564,7 @@ function VariantsTab({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
         <p className="font-medium">Optionen</p>
         <p className="text-sm text-muted-foreground">
           Werte mit Komma trennen. Bestehende Varianten bleiben erhalten, fehlende werden ergänzt.
@@ -723,7 +736,7 @@ function MediaTab({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
         <p className="font-medium">Produktgalerie</p>
         <p className="text-sm text-muted-foreground">Das erste Bild ist das Titelbild.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -761,7 +774,7 @@ function MediaTab({
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <p className="font-medium">Medienbibliothek</p>
           <Link to="/app/medien" className="text-sm text-muted-foreground hover:underline">
