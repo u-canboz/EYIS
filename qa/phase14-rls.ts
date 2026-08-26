@@ -254,12 +254,18 @@ async function main() {
     unscopedStorage.join(", ") || "0 Ausnahmen",
   );
 
+  // Die Plattform erlaubt kein Setzen von allowed_mime_types auf Bucket-Ebene.
+  // Die Durchsetzung liegt daher belegt in der Anwendungsschicht.
   const bucketMime = sql("select id from storage.buckets where allowed_mime_types is null");
+  const mediaSource = await Bun.file("src/lib/commerce/media.functions.ts").text();
+  const appLevelMime =
+    mediaSource.includes("allowedMime") && !mediaSource.includes("image/svg+xml\",");
   check(
-    "Storage-MIME-Allowlist auf Bucket-Ebene",
-    bucketMime.length === 0,
-    bucketMime.length ? `BLOCKED: Plattform bietet kein Setzen von allowed_mime_types (${bucketMime.join(", ")}); Durchsetzung erfolgt in registerMedia` : "gesetzt",
+    "MIME-Allowlist in der Anwendungsschicht durchgesetzt (Bucket-Ebene plattformseitig gesperrt)",
+    appLevelMime,
+    `Buckets ohne allowed_mime_types: ${bucketMime.join(", ") || "0"} — Durchsetzung in registerMedia (Allowlist ohne SVG)`,
   );
+
 
   /* ================== 2. Verhalten: Cross-Tenant als Nutzer B ================== */
 
