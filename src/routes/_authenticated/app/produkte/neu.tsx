@@ -351,25 +351,36 @@ function ProductWizard() {
             </p>
           </div>
         )}
-      </div>
+      </Panel>
 
-      <div className="flex justify-between">
+      <StickyActionBar>
         <Button
           variant="outline"
+          className="min-h-11 flex-1 sm:flex-none"
           onClick={() => (step === 0 ? navigate({ to: "/app/produkte" }) : setStep(step - 1))}
         >
           {step === 0 ? "Abbrechen" : "Zurück"}
         </Button>
+        <div className="flex-1" />
         {step < STEPS.length - 1 ? (
-          <Button disabled={!canContinue} onClick={() => setStep(step + 1)}>
+          <Button
+            className="min-h-11 flex-1 sm:flex-none"
+            disabled={!canContinue}
+            onClick={() => setStep(step + 1)}
+          >
             Weiter
           </Button>
         ) : (
-          <Button disabled={createMutation.isPending} onClick={() => createMutation.mutate()}>
+          <Button
+            className="min-h-11 flex-1 sm:flex-none"
+            disabled={createMutation.isPending}
+            onClick={() => createMutation.mutate()}
+          >
             {createMutation.isPending ? "Wird angelegt…" : "Produkt anlegen"}
           </Button>
         )}
-      </div>
+      </StickyActionBar>
+
     </div>
   );
 }
