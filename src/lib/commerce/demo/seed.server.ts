@@ -1124,11 +1124,13 @@ async function seedOneOrder(
 
   // Kommunikation (Mock-Provider, kein externer Versand)
   const commKeys: string[] = [];
-  if (template.state !== "payment_failed" && template.state !== "payment_pending") {
+  const state: string = template.state;
+  if (state !== "payment_failed" && state !== "payment_pending") {
     commKeys.push("order.confirmed", "payment.confirmed");
   }
-  if (template.state === "payment_failed") commKeys.push("payment.failed");
-  if (template.state === "shipped" || template.state === "delivered") commKeys.push("shipment.shipped");
+  if (state === "payment_failed") commKeys.push("payment.failed");
+  if (state === "shipped" || state === "delivered") commKeys.push("shipment.shipped");
+
   if (commKeys.length) {
     const { queueCommunication, dispatchCommunication } = await import(
       "../communications/communication.server"
