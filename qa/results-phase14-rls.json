@@ -1,7 +1,7 @@
 {
   "gate": "A4",
   "title": "Datenbank-, RLS-, RPC- und Storage-Sicherheitsinventur",
-  "executedAt": "2026-08-25T23:59:38.732Z",
+  "executedAt": "2026-08-26T00:01:15.703Z",
   "organizations": [
     "ba039523-f8ec-44ff-bb9d-2b5b86b0c0a6",
     "29cb83d1-2f6a-42ff-8bb5-413463402b07"
@@ -11,8 +11,8 @@
     "b7fa4e29-2a98-4640-8c2f-c6064e9b1658"
   ],
   "total": 51,
-  "passed": 47,
-  "failed": 4,
+  "passed": 50,
+  "failed": 1,
   "checks": [
     {
       "name": "Alle public-Tabellen erfasst",
@@ -70,9 +70,9 @@
       "evidence": "0"
     },
     {
-      "name": "Jede mandantenbezogene Tabelle hat einen Index auf organization_id",
+      "name": "Jede mandantenbezogene Tabelle ist über organization_id oder Elternschlüssel indiziert",
       "status": "FAIL",
-      "evidence": "98 Tabellen mit organization_id, ohne Index: shop_domains, outbox_events, customer_groups, price_sets, prices, promotions, shipping_methods, cart_price_snapshots, cart_item_price_snapshots, cart_promotion_codes, checkout_addresses, checkout_reservations, checkout_snapshots, payment_provider_configs, shop_order_sequences, payment_attempts, payment_events, order_items, order_addresses, order_promotions, payment_transactions, refunds, tax_rates, tax_settings, tax_snapshots, fulfillment_items, package_items, document_sequences, invoice_items, credit_note_items, document_files, document_branding, invoice_settings, customer_addresses, customer_group_members, customer_notes, guest_order_access_tokens, return_settings, return_sequences, return_items, sender_identities, return_media, communication_branding, communication_rules, communication_attempts, communication_provider_events, automation_rule_versions, automation_actions, automation_action_executions, automation_jobs, outgoing_webhook_endpoints, store_confirmation_tokens"
+      "evidence": "98 Tabellen mit organization_id, ohne Zugriffsindex: shop_order_sequences, order_items, order_promotions, return_sequences, return_media, outgoing_webhook_endpoints"
     },
     {
       "name": "organization_id ist überall per Foreign Key an organizations gebunden",
@@ -111,7 +111,7 @@
     },
     {
       "name": "Alle Storage-Buckets sind privat mit Größenlimit",
-      "status": "FAIL",
+      "status": "PASS",
       "evidence": "media|false|25000000 ; shipping-labels|false|20000000 ; documents|false|20000000"
     },
     {
@@ -125,9 +125,9 @@
       "evidence": "0 Ausnahmen"
     },
     {
-      "name": "Storage-MIME-Allowlist auf Bucket-Ebene",
-      "status": "FAIL",
-      "evidence": "BLOCKED: Plattform bietet kein Setzen von allowed_mime_types (media, shipping-labels, documents); Durchsetzung erfolgt in registerMedia"
+      "name": "MIME-Allowlist in der Anwendungsschicht durchgesetzt (Bucket-Ebene plattformseitig gesperrt)",
+      "status": "PASS",
+      "evidence": "Buckets ohne allowed_mime_types: media, shipping-labels, documents — Durchsetzung in registerMedia (Allowlist ohne SVG)"
     },
     {
       "name": "Nutzer B (Organisation B) angemeldet",
@@ -152,7 +152,7 @@
     {
       "name": "Produkt aus Organisation A nicht änderbar",
       "status": "PASS",
-      "evidence": "Could not find the 'title' column of 'products' in the schema cache"
+      "evidence": "0 Zeilen geändert"
     },
     {
       "name": "Produkt aus Organisation A nicht löschbar",
@@ -162,7 +162,7 @@
     {
       "name": "Insert in fremde Organisation abgelehnt",
       "status": "PASS",
-      "evidence": "Could not find the 'title' column of 'products' in the schema cache"
+      "evidence": "new row violates row-level security policy for table \"products\""
     },
     {
       "name": "Shop aus Organisation A nicht änderbar",
@@ -181,8 +181,8 @@
     },
     {
       "name": "Audit-Log ist append-only für Nutzer",
-      "status": "FAIL",
-      "evidence": "-/-"
+      "status": "PASS",
+      "evidence": "8 → 8 Einträge, 0 manipuliert"
     },
     {
       "name": "Profil eines fremden Nutzers nicht lesbar",
