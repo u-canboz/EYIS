@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { ReactNode } from "react";
 import {
@@ -218,7 +218,7 @@ function Overview() {
       ) : (
         <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
           {attention.map((a) => (
-            <AttentionTile key={a.key} {...a} />
+            <AttentionTile {...a} key={a.key} />
           ))}
         </div>
       )}
@@ -303,7 +303,7 @@ function Overview() {
                       {f.ruleName ?? "Automationslauf"}
                     </p>
                     <p className="min-w-0 text-xs text-pretty text-muted-foreground">
-                      {f.errorMessage ?? "Lauf fehlgeschlagen"}
+                      {f.error ?? f.errorCode ?? "Lauf fehlgeschlagen"}
                     </p>
                   </div>
                 </li>
