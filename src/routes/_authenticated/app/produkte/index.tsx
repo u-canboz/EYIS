@@ -115,87 +115,104 @@ function ProductsPage() {
   const pageSize = productsQuery.data?.pageSize ?? 25;
   const canCreate = can("products.create");
 
-  return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Produkte</h1>
-          <p className="text-sm text-muted-foreground">
-            {total} {total === 1 ? "Produkt" : "Produkte"} im aktiven Shop.
-          </p>
-        </div>
-        {canCreate && (
-          <Button asChild>
-            <Link to="/app/produkte/neu">Neues Produkt</Link>
-          </Button>
-        )}
-      </header>
+  const activeFilters =
+    (status !== "all" ? 1 : 0) + (blueprintKey !== "all" ? 1 : 0) + (categoryId !== "all" ? 1 : 0);
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Input
-          placeholder="Name oder Handle suchen"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-        />
-        <Select
-          value={status}
-          onValueChange={(v) => {
-            setStatus(v as typeof status);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Status</SelectItem>
-            <SelectItem value="draft">Entwurf</SelectItem>
-            <SelectItem value="active">Aktiv</SelectItem>
-            <SelectItem value="archived">Archiviert</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={blueprintKey}
-          onValueChange={(v) => {
-            setBlueprintKey(v);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Produktart" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Produktarten</SelectItem>
-            {(blueprintsQuery.data ?? []).map((bp) => (
-              <SelectItem key={bp.key} value={bp.key}>
-                {bp.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={categoryId}
-          onValueChange={(v) => {
-            setCategoryId(v);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Kategorie" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Kategorien</SelectItem>
-            {(taxonomyQuery.data?.flatCategories ?? []).map((cat) => (
-              <SelectItem key={cat.id} value={cat.id}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+  return (
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Produkte"
+        description={`${total} ${total === 1 ? "Produkt" : "Produkte"} im aktiven Shop.`}
+        actions={
+          canCreate ? (
+            <Button asChild className="h-11">
+              <Link to="/app/produkte/neu">Neues Produkt</Link>
+            </Button>
+          ) : null
+        }
+      />
+
+      <FilterBar
+        activeCount={activeFilters}
+        onReset={() => {
+          setStatus("all");
+          setBlueprintKey("all");
+          setCategoryId("all");
+          setPage(1);
+        }}
+        search={
+          <Input
+            className="h-11 w-full"
+            placeholder="Name oder Handle suchen"
+            aria-label="Produkte suchen"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+        }
+        filters={
+          <>
+            <Select
+              value={status}
+              onValueChange={(v) => {
+                setStatus(v as typeof status);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="h-11 w-full md:w-44">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Status</SelectItem>
+                <SelectItem value="draft">Entwurf</SelectItem>
+                <SelectItem value="active">Aktiv</SelectItem>
+                <SelectItem value="archived">Archiviert</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={blueprintKey}
+              onValueChange={(v) => {
+                setBlueprintKey(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="h-11 w-full md:w-44">
+                <SelectValue placeholder="Produktart" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Produktarten</SelectItem>
+                {(blueprintsQuery.data ?? []).map((bp) => (
+                  <SelectItem key={bp.key} value={bp.key}>
+                    {bp.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={categoryId}
+              onValueChange={(v) => {
+                setCategoryId(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="h-11 w-full md:w-44">
+                <SelectValue placeholder="Kategorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Kategorien</SelectItem>
+                {(taxonomyQuery.data?.flatCategories ?? []).map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        }
+      />
+
 
       <div className="rounded-lg border bg-card">
         {workspaceLoading || productsQuery.isLoading ? (
