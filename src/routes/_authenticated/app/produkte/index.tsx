@@ -123,7 +123,7 @@ function ProductsPage() {
     (status !== "all" ? 1 : 0) + (blueprintKey !== "all" ? 1 : 0) + (categoryId !== "all" ? 1 : 0);
 
   if (!workspaceLoading && !can("products.read")) {
-    return <PermissionState />;
+    return <PermissionState what="Produkte" />;
   }
 
   return (
@@ -224,7 +224,7 @@ function ProductsPage() {
       {workspaceLoading || productsQuery.isLoading ? (
         <ListSkeleton />
       ) : productsQuery.error ? (
-        <ErrorState message={(productsQuery.error as Error).message} />
+        <ErrorState description={(productsQuery.error as Error).message} />
       ) : items.length === 0 ? (
         <EmptyState
           title="Noch keine Produkte"

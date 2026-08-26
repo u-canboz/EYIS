@@ -12,7 +12,6 @@ import {
 } from "@/lib/commerce/payments/payment-types";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -24,6 +23,7 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { FilterBar } from "@/components/data/FilterBar";
 import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
 import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
 
 
 export const Route = createFileRoute("/_authenticated/app/bestellungen/")({
@@ -67,11 +67,7 @@ function OrdersPage() {
   });
 
   if (!can("orders.read")) {
-    return (
-      <p className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
-        Keine Berechtigung für Bestellungen.
-      </p>
-    );
+    return <PermissionState what="Bestellungen" />;
   }
 
   const activeFilters = (orderStatus !== "all" ? 1 : 0) + (paymentStatus !== "all" ? 1 : 0);
@@ -131,19 +127,14 @@ function OrdersPage() {
       />
 
       {orders.isLoading ? (
-        <div className="space-y-3">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-24 w-full lg:h-12" />
-          ))}
-        </div>
+        <ListSkeleton />
       ) : orders.error ? (
-        <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-          Bestellungen konnten nicht geladen werden: {(orders.error as Error).message}
-        </p>
+        <ErrorState description={(orders.error as Error).message} />
       ) : !orders.data?.length ? (
-        <p className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
-          Keine Bestellungen für diese Filter.
-        </p>
+        <EmptyState
+          title="Keine Bestellungen"
+          description="Für diese Filter gibt es keine Bestellungen. Setze die Filter zurück, um alle Bestellungen zu sehen."
+        />
       ) : (
         <>
           <RecordCardList>
