@@ -15,7 +15,7 @@ type FixtureBase = {
   shippingId: string;
   variants: { key: string; productId: string; variantId: string; priceMinor: number }[];
   customerId: string | null;
-  manifest: Record<string, unknown>;
+  manifest: Record<string, string | number | boolean | null>;
 };
 
 const FIXTURE_ADDRESS = {
@@ -799,7 +799,7 @@ export async function listQaFixtures(ctx: FixtureCtx): Promise<QaFixtureInfo[]> 
     scenario: f["scenario"] as QaScenario,
     runRef: f["run_ref"] as string,
     status: f["status"] as string,
-    manifest: (f["manifest"] as Record<string, unknown>) ?? {},
+    manifest: (f["manifest"] as Record<string, string | number | boolean | null>) ?? {},
     residualNotes: (f["residual_notes"] as string) ?? null,
     createdAt: f["created_at"] as string,
     destroyedAt: (f["destroyed_at"] as string) ?? null,
