@@ -1,0 +1,81 @@
+{
+  "runAt": "2026-08-26T08:15:53.826Z",
+  "baseline": [],
+  "results": [
+    {
+      "name": "service_role: Lauf für Org A erfolgreich",
+      "ok": true,
+      "detail": "0 Befund(e)"
+    },
+    {
+      "name": "Ergebnisform: code/area/severity/entityType/message vorhanden",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mandanten-Scope: keine fremden Shop-IDs im Org-A-Lauf",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Konfiguration: tax_snapshot_immutable aktiv (kein tax_snapshot_mutable-Befund)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "User B (Owner Org B) angemeldet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "User B: Lauf für eigene Org B erlaubt",
+      "ok": true,
+      "detail": "0 Befund(e)"
+    },
+    {
+      "name": "Cross-Tenant: User B → Org A abgelehnt",
+      "ok": true,
+      "detail": "Error: Keine Berechtigung für System-Health-Checks."
+    },
+    {
+      "name": "Anonym: Aufruf abgelehnt",
+      "ok": true,
+      "detail": "permission denied for function health_run_checks"
+    },
+    {
+      "name": "Injektion vorbereitet: Inventory-Level gefunden",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion erkannt: negative_availability",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion erkannt: reserved_mismatch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Rollback: Inventory-Befunde nach Wiederherstellung weg",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion vorbereitet: completed Cart ohne Order",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion erkannt: completed_cart_without_order",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Rollback: Cart-Befund nach Löschung weg",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}
