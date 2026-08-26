@@ -211,42 +211,36 @@ function InventoryPage() {
   })();
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Lagerbestand</h1>
-          <p className="text-muted-foreground text-sm">
-            Physischer Bestand abzüglich beschädigter Ware und Reservierungen ergibt die verfügbare
-            Menge.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/wareneingang">Wareneingang</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/transfers">Umlagerungen</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/reservierungen">Reservierungen</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/bewegungen">Bewegungen</Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/lager/lagerorte">Lagerorte</Link>
-          </Button>
-        </div>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Lagerbestand"
+        description="Physischer Bestand abzüglich beschädigter Ware und Reservierungen ergibt die verfügbare Menge."
+      />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="scroll-x -mx-4 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
+        {[
+          { to: "/app/lager/wareneingang", label: "Wareneingang" },
+          { to: "/app/lager/transfers", label: "Umlagerungen" },
+          { to: "/app/lager/reservierungen", label: "Reservierungen" },
+          { to: "/app/lager/bewegungen", label: "Bewegungen" },
+          { to: "/app/lager/lagerorte", label: "Lagerorte" },
+        ].map((entry) => (
+          <Button key={entry.to} asChild variant="outline" size="sm" className="h-10 shrink-0">
+            <Link to={entry.to}>{entry.label}</Link>
+          </Button>
+        ))}
+      </div>
+
+      <div className="grid min-w-0 gap-3 md:grid-cols-3">
         <Input
+          className="h-11"
           placeholder="Produkt, Variante, SKU oder Barcode"
+          aria-label="Bestand durchsuchen"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
         <Select value={locationId} onValueChange={setLocationId}>
-          <SelectTrigger>
+          <SelectTrigger className="h-11">
             <SelectValue placeholder="Lagerort" />
           </SelectTrigger>
           <SelectContent>
@@ -259,7 +253,7 @@ function InventoryPage() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger>
+          <SelectTrigger className="h-11">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -271,6 +265,7 @@ function InventoryPage() {
           </SelectContent>
         </Select>
       </div>
+
 
       {inventoryQuery.isLoading ? (
         <div className="space-y-2">
