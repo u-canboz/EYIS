@@ -69,10 +69,13 @@ function Overview() {
   const fetchInbox = useServerFn(automationInboxFn);
   const fetchComms = useServerFn(listCommunicationsFn);
 
+  const workspace = useQuery({ queryKey: ["workspace"], queryFn: () => fetchWorkspace() });
+  const shopId = workspace.data?.shops?.[0]?.id ?? "";
   const enabled = !!orgId;
-  const [workspace, orders, returns, stock, inbox, comms] = useQueries({
+  const scoped = enabled && !!shopId;
+
+  const [orders, returns, stock, inbox, comms] = useQueries({
     queries: [
-      { queryKey: ["workspace"], queryFn: () => fetchWorkspace() },
       {
         queryKey: ["dash-orders", orgId],
         queryFn: () => fetchOrders({ data: { organizationId: orgId } }),
@@ -84,19 +87,20 @@ function Overview() {
         enabled,
       },
       {
-        queryKey: ["dash-stock", orgId],
-        queryFn: () => fetchLowStock({ data: { organizationId: orgId } }),
-        enabled,
+        queryKey: ["dash-stock", orgId, shopId],
+        queryFn: () => fetchLowStock({ data: { organizationId: orgId, shopId } }),
+        enabled: scoped,
       },
       {
-        queryKey: ["dash-inbox", orgId],
-        queryFn: () => fetchInbox({ data: { organizationId: orgId } }),
-        enabled,
+        queryKey: ["dash-inbox", orgId, shopId],
+        queryFn: () => fetchInbox({ data: { organizationId: orgId, shopId } }),
+        enabled: scoped,
       },
       {
-        queryKey: ["dash-comms", orgId],
-        queryFn: () => fetchComms({ data: { organizationId: orgId, status: "failed", limit: 25 } }),
-        enabled,
+        queryKey: ["dash-comms", orgId, shopId],
+        queryFn: () =>
+          fetchComms({ data: { organizationId: orgId, shopId, status: "failed", limit: 25 } }),
+        enabled: scoped,
       },
     ],
   });
@@ -107,14 +111,15 @@ function Overview() {
     (o) => o.orderStatus !== "cancelled" && o.fulfillmentStatus !== "fulfilled",
   );
   const unpaid = orderRows.filter(
-    (o) => o.paymentStatus === "pending" || o.paymentStatus === "failed",
+    (o) => o.paymentStatus === "unpaid" || o.paymentStatus === "failed",
   );
   const shippingIssues = orderRows.filter(
     (o) => o.fulfillmentStatus === "partially_fulfilled" && o.orderStatus !== "cancelled",
   );
   const openReturns = (returns.data ?? []).filter(
-    (r) => r.status !== "closed" && r.status !== "rejected",
+    (r) => r.status !== "completed" && r.status !== "rejected" && r.status !== "cancelled",
   );
+
   const openTasks = inbox.data?.tasks ?? [];
   const automationFailures = inbox.data?.failures ?? [];
   const failedComms = comms.data ?? [];
