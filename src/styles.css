@@ -184,3 +184,51 @@
   min-width: 0;
 }
 
+
+/* --- Phase 16: structural overflow prevention (never a global overflow-x-hidden) --- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Media never widens its container. */
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Long identifiers (SKUs, ids, keys, urls) wrap at any point instead of
+     pushing the layout — but never letter-by-letter for normal prose. */
+  code,
+  kbd,
+  samp,
+  pre {
+    overflow-wrap: anywhere;
+  }
+
+  /* Numeric context: aligned figures everywhere amounts are shown. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Identifier text: wraps on boundaries, never mid-letter-run in prose. */
+@utility id-text {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Touch target helper. */
+@utility tap {
+  min-height: var(--tap);
+  min-width: var(--tap);
+}
