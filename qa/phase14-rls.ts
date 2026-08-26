@@ -233,9 +233,10 @@ async function main() {
   const buckets = sql("select id||'|'||public::text||'|'||coalesce(file_size_limit::text,'-') from storage.buckets");
   check(
     "Alle Storage-Buckets sind privat mit Größenlimit",
-    buckets.length === 3 && buckets.every((b) => b.split("|")[1] === "f" && b.split("|")[2] !== "-"),
+    buckets.length === 3 && buckets.every((b) => b.split("|")[1] === "false" && b.split("|")[2] !== "-"),
     buckets.join(" ; "),
   );
+
 
   const storagePolicies = sql("select policyname from pg_policies where schemaname='storage' order by 1");
   check(
