@@ -844,9 +844,11 @@ export async function destroyQaFixture(
     }
   }
 
-  await admin.from("payment_events").delete().eq("organization_id", orgId);
-  const { error: deleteError } = await admin.from("organizations").delete().eq("id", orgId);
+  const { error: deleteError } = await admin.rpc("demo_purge_organization" as never, {
+    _org: orgId,
+  } as never);
   if (deleteError) throw new Error(`Zerstörung fehlgeschlagen: ${deleteError.message}`);
+
 
   // Restprüfung: es darf keine Zeile mit dieser organization_id mehr geben
   const restTables = ["shops", "products", "orders", "customers", "carts", "inventory_items"];

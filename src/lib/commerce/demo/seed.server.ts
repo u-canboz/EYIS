@@ -264,6 +264,39 @@ async function stepFoundation(ctx: SeedCtx): Promise<string> {
     { onConflict: "shop_id,provider" } as never,
   );
 
+  // Rechnungs-/Dokumenteinstellungen (ohne sie schlagen Rechnungen fehl)
+  await admin.from("invoice_settings").upsert(
+    {
+      organization_id: orgId,
+      shop_id: shopId,
+      company_name: "Commerce OS Demo GmbH",
+      legal_form: "GmbH",
+      address_line1: "Demostraße 1",
+      postal_code: "10115",
+      city: "Berlin",
+      country_code: "DE",
+      tax_number: "30/123/45678",
+      vat_id: "DE999999999",
+      contact_email: "rechnung@demo.invalid",
+      payment_terms_days: 14,
+      invoice_creation_strategy: "manual",
+      metadata: { demo_key: DEMO_TAG },
+    } as never,
+    { onConflict: "shop_id" } as never,
+  );
+  await admin.from("document_sequences").upsert(
+    [
+      { organization_id: orgId, shop_id: shopId, document_type: "invoice", prefix: "RE" },
+      { organization_id: orgId, shop_id: shopId, document_type: "credit_note", prefix: "GS" },
+      { organization_id: orgId, shop_id: shopId, document_type: "delivery_note", prefix: "LS" },
+    ] as never,
+    { onConflict: "shop_id,document_type" } as never,
+  );
+
+  // Kommunikation: Branding, Test-Provider, Absender
+  const { ensureShopDefaults } = await import("../communications/studio.server");
+  await ensureShopDefaults(orgId, shopId);
+
   await writeAudit({
     organizationId: orgId,
     actorId: userId,
@@ -272,7 +305,7 @@ async function stepFoundation(ctx: SeedCtx): Promise<string> {
     entityType: "organization",
     entityId: orgId,
   });
-  return `Foundation bereit (Organisation ${orgId.slice(0, 8)}…, Steuern, Versand, Mock-Anbieter).`;
+  return `Foundation bereit (Organisation ${orgId.slice(0, 8)}…, Steuern, Versand, Dokumente, Kommunikation, Mock-Anbieter).`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -585,8 +618,19 @@ async function stepInventory(ctx: SeedCtx, env: DemoEnv): Promise<string> {
   const locationId = await ensureDefaultLocation(orgId, shopId);
   const invCtx = { supabase: admin as never, userId };
 
+  // Bedarf aus den Bestellvorlagen einrechnen, damit der Order-Seed nie an
+  // fehlendem Bestand scheitert (deterministisch → idempotent).
+  const demandByKey = new Map<string, number>();
+  for (const template of DEMO_ORDERS) {
+    for (const item of template.items) {
+      demandByKey.set(item.productKey, (demandByKey.get(item.productKey) ?? 0) + item.qty);
+    }
+  }
+
   let stocked = 0;
   for (const def of DEMO_PRODUCTS) {
+    const demand = demandByKey.get(def.key) ?? 0;
+    const targetStock = demand > 0 ? Math.max(def.stock, demand * 2) : def.stock;
     const productId = await productByDemoKey(admin, orgId, def.key);
     if (!productId) continue;
     const variantId = await ensureDefaultVariant(orgId, productId);
@@ -605,16 +649,26 @@ async function stepInventory(ctx: SeedCtx, env: DemoEnv): Promise<string> {
       .eq("inventory_item_id", itemId)
       .eq("location_id", locationId)
       .maybeSingle();
-    const onHand = Number(lvl?.on_hand ?? 0);
-    if (onHand < def.stock) {
+    // Bereits per Demo-Seed eingebuchte Menge (Idempotenz trotz Verbrauch durch Bestellungen)
+    const { data: seeded } = await admin
+      .from("inventory_movements")
+      .select("quantity_delta")
+      .eq("inventory_item_id", itemId)
+      .eq("reference_id", "DEMO-SEED");
+    const seededQty = (seeded ?? []).reduce(
+      (sum: number, m: { quantity_delta: number }) => sum + Number(m.quantity_delta ?? 0),
+      0,
+    );
+    const onHand = Math.max(Number(lvl?.on_hand ?? 0), seededQty);
+    if (onHand < targetStock) {
       await receiveStock(invCtx, {
         organizationId: orgId,
         shopId,
         inventoryItemId: itemId,
         locationId,
-        quantity: def.stock - onHand,
+        quantity: targetStock - onHand,
         reference: "DEMO-SEED",
-        idempotencyKey: `demo-seed-receive:${def.key}:${def.stock - onHand}:${onHand}`,
+        idempotencyKey: `demo-seed-receive:${def.key}:${targetStock - onHand}:${onHand}`,
       });
       stocked++;
     }
@@ -1068,6 +1122,42 @@ async function seedOneOrder(
     }
   }
 
+  // Kommunikation (Mock-Provider, kein externer Versand)
+  const commKeys: string[] = [];
+  if (template.state !== "payment_failed" && template.state !== "payment_pending") {
+    commKeys.push("order.confirmed", "payment.confirmed");
+  }
+  if (template.state === "payment_failed") commKeys.push("payment.failed");
+  if (template.state === "shipped" || template.state === "delivered") commKeys.push("shipment.shipped");
+  if (commKeys.length) {
+    const { queueCommunication, dispatchCommunication } = await import(
+      "../communications/communication.server"
+    );
+    const { count: already } = await admin
+      .from("communications")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("order_id", orderId);
+    if (Number(already ?? 0) === 0) {
+      for (const key of commKeys) {
+        try {
+          const res = await queueCommunication({
+            organizationId: orgId,
+            shopId,
+            orderId,
+            customerId: customer?.id ?? null,
+            recipientEmail: email,
+            templateKey: key,
+            guestAccess: !customer,
+          });
+          if (res.queued) await dispatchCommunication(res.communicationId);
+        } catch {
+          // Kommunikation ist Demo-Beiwerk und darf den Order-Seed nie brechen.
+        }
+      }
+    }
+  }
+
   // Rechnungen für einen Teil der bezahlten Bestellungen
   if (template.state === "shipped" && Number(template.key.replace("ord-", "")) % 2 === 0) {
     const { data: invoice, error } = await admin.rpc("invoice_create_from_order" as never, {
@@ -1078,13 +1168,16 @@ async function seedOneOrder(
     } as never);
     if (!error && invoice) {
       const invoiceId = (invoice as unknown as { invoice_id: string }).invoice_id;
-      await admin.rpc("invoice_issue" as never, {
-        _org: orgId,
-        _invoice: invoiceId,
-        _actor: userId,
-        _idem: `demo-seed:issue:${template.key}`,
-      } as never);
+      // Über den Dokumenten-Service ausstellen, damit auch das PDF entsteht.
+      const { issueInvoice } = await import("../documents/document.server");
+      await issueInvoice({
+        organizationId: orgId,
+        invoiceId,
+        actorId: userId,
+        idempotencyKey: `demo-seed:issue:${template.key}`,
+      });
     }
+
   }
 
   return { orderId };
@@ -1343,10 +1436,10 @@ export async function resetDemo(ctx: SeedCtx): Promise<{ detail: string }> {
     }
   }
 
-  // payment_events hat KEINE ON DELETE CASCADE-Regel → zuerst entfernen
-  await admin.from("payment_events").delete().eq("organization_id", orgId);
-  const { error } = await admin.from("organizations").delete().eq("id", orgId);
+  // Vollständige Entfernung inkl. unveränderbarer Journale (nur Demo-/QA-Organisationen)
+  const { error } = await admin.rpc("demo_purge_organization" as never, { _org: orgId } as never);
   if (error) throw new Error(`Reset fehlgeschlagen: ${error.message}`);
+
 
   // Frische Foundation, damit die Umgebung direkt wieder nutzbar ist
   const fresh = await ensureFoundation(ctx);

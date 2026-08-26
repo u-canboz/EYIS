@@ -8053,6 +8053,7 @@ export type Database = {
         }
         Returns: Json
       }
+      demo_purge_organization: { Args: { _org: string }; Returns: undefined }
       doc_assert: {
         Args: { _actor: string; _org: string; _perm: string }
         Returns: undefined
@@ -8371,6 +8372,7 @@ export type Database = {
         Args: { _org: string; _shop: string }
         Returns: string
       }
+      purge_mode: { Args: never; Returns: boolean }
       refund_create: {
         Args: {
           _actor: string
