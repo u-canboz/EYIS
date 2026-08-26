@@ -335,9 +335,28 @@ async function main() {
   const { error: roleError } = await userB.from("role_permissions").insert({ role: "read_only", permission: "settings.manage" } as never);
   check("Rechte-Katalog nicht durch Nutzer beschreibbar", !!roleError, roleError?.message ?? "kein Fehler");
 
-  const { error: auditUpdate } = await userB.from("audit_log").update({ action: "tampered" }).eq("organization_id", ORG_B);
-  const { error: auditDelete } = await userB.from("audit_log").delete().eq("organization_id", ORG_B);
-  check("Audit-Log ist append-only für Nutzer", !!auditUpdate && !!auditDelete, `${auditUpdate?.code ?? "-"}/${auditDelete?.code ?? "-"}`);
+  // Fehlende GRANTs führen zu 0 betroffenen Zeilen statt zu einem Fehler —
+  // deshalb wird der tatsächliche Datenbestand vorher und nachher verglichen.
+  const auditBefore = await admin
+    .from("audit_log")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", ORG_B);
+  await userB.from("audit_log").update({ action: "tampered" }).eq("organization_id", ORG_B);
+  await userB.from("audit_log").delete().eq("organization_id", ORG_B);
+  const auditAfter = await admin
+    .from("audit_log")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", ORG_B);
+  const { count: tampered } = await admin
+    .from("audit_log")
+    .select("id", { count: "exact", head: true })
+    .eq("action", "tampered");
+  check(
+    "Audit-Log ist append-only für Nutzer",
+    auditBefore.count === auditAfter.count && (tampered ?? 0) === 0,
+    `${auditBefore.count} → ${auditAfter.count} Einträge, ${tampered ?? 0} manipuliert`,
+  );
+
 
   /* -------- profiles_select_self / customer_addresses_self (A3-Nacharbeit) -------- */
 
