@@ -35,6 +35,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
 
 export const Route = createFileRoute("/_authenticated/app/lager/")({
   head: () => ({
@@ -311,8 +314,8 @@ function InventoryPage() {
                   { label: "Beschädigt", value: row.track_inventory ? row.totals.damaged : "—" },
                   { label: "Erwartet", value: row.track_inventory ? row.totals.incoming : "—" },
                 ]}
-                footer={
-                  <div className="flex flex-wrap gap-2">
+                actions={
+                  <>
                     <Button
                       size="sm"
                       variant="outline"
@@ -347,7 +350,7 @@ function InventoryPage() {
                     >
                       Produkt
                     </Link>
-                  </div>
+                  </>
                 }
               />
             ))}
