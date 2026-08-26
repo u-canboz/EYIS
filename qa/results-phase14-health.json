@@ -1,7 +1,91 @@
-[
-  {
-    "name": "service_role: Lauf für Org A erfolgreich",
-    "ok": false,
-    "detail": "Error: column t.tgisdisabled does not exist"
-  }
-]
+{
+  "runAt": "2026-08-26T08:15:12.431Z",
+  "baseline": [
+    {
+      "area": "documents",
+      "code": "invoice_order_amount_drift",
+      "shopId": "a9751182-2f3a-4f9a-a2e6-73b6ffd48974",
+      "message": "Rechnungsbetrag (5480) weicht vom aktuellen Bestellbetrag (0) ab.",
+      "entityId": "4145dcc6-99c3-40f0-ae15-ad4625e5a64c",
+      "severity": "high",
+      "entityType": "invoice"
+    }
+  ],
+  "results": [
+    {
+      "name": "service_role: Lauf für Org A erfolgreich",
+      "ok": true,
+      "detail": "1 Befund(e)"
+    },
+    {
+      "name": "Ergebnisform: code/area/severity/entityType/message vorhanden",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mandanten-Scope: keine fremden Shop-IDs im Org-A-Lauf",
+      "ok": true,
+      "detail": "a9751182-2f3a-4f9a-a2e6-73b6ffd48974"
+    },
+    {
+      "name": "Konfiguration: tax_snapshot_immutable aktiv (kein tax_snapshot_mutable-Befund)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "User B (Owner Org B) angemeldet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "User B: Lauf für eigene Org B erlaubt",
+      "ok": true,
+      "detail": "0 Befund(e)"
+    },
+    {
+      "name": "Cross-Tenant: User B → Org A abgelehnt",
+      "ok": true,
+      "detail": "Error: Keine Berechtigung für System-Health-Checks."
+    },
+    {
+      "name": "Anonym: Aufruf abgelehnt",
+      "ok": false,
+      "detail": "kein Fehler geworfen"
+    },
+    {
+      "name": "Injektion vorbereitet: Inventory-Level gefunden",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion erkannt: negative_availability",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion erkannt: reserved_mismatch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Rollback: Inventory-Befunde nach Wiederherstellung weg",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion vorbereitet: completed Cart ohne Order",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Injektion erkannt: completed_cart_without_order",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Rollback: Cart-Befund nach Löschung weg",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

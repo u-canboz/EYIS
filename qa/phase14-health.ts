@@ -74,7 +74,7 @@ async function main() {
   );
 
   // 5) Zugriff: Owner von Org B darf eigene Org prüfen
-  const userB = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_ANON_KEY"]!, {
+  const userB = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const signIn = await userB.auth.signInWithPassword({
@@ -103,7 +103,7 @@ async function main() {
   }
 
   // 7) Zugriff: anonymer Aufruf abgelehnt
-  const anon = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_ANON_KEY"]!, {
+  const anon = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   try {
