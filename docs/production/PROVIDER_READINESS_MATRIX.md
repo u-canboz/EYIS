@@ -9,12 +9,20 @@ Bedienung aller Anbieter zentral unter `/app/einstellungen/integrationen`.
 
 | Bereich | Adapter im Code | Aktive Konfiguration (Dev) | Live-Modus | Webhook-Schutz | Status Go-live |
 | --- | --- | --- | --- | --- | --- |
-| Zahlung Stripe | vorhanden, ladbar (`getProvider('stripe')`) | `mock` (Test) | keiner aktiv | unsignierte Anfrage → 401 | **BLOCKED** — Live-Keys fehlen |
+| Zahlung Stripe | echter Adapter, shop-gebundene Zugangsdaten | `mock` (Test) | keiner aktiv | Signaturprüfung, sonst 401 | **BLOCKED** — Keys des Händlers fehlen |
+| Zahlung PayPal | echter Adapter (Orders v2, OAuth2, Capture, Refund) | keine | keiner aktiv | Verifikation über PayPal-API mit Webhook-ID, sonst 401 | **BLOCKED** — Client-ID/Secret fehlen |
+| Zahlung Mollie | echter Adapter (Payments v2, Refund) | keine | keiner aktiv | Re-Fetch-Verifikation je Shop-Schlüssel, sonst 401 | **BLOCKED** — API-Schlüssel fehlt |
 | Zahlung Test-Provider (`mock`) | vorhanden | aktiv, nur Testmodus | nicht zulässig | n/a | **PASS** — E2E-Kette bis Order-Finalisierung geprüft |
-| E-Mail | Test-Provider | `test` | keiner aktiv | unsignierte Anfrage abgewiesen (404) | **BLOCKED** — Absenderdomain und Provider-Zugangsdaten fehlen |
-| E-Mail SMTP | nicht implementiert | — | — | — | **BLOCKED** — Laufzeit ohne verlässliche TCP/TLS-Sockets |
+| E-Mail Resend | echter Adapter (Versand, Domain, Webhooks) | keine | keiner aktiv | Svix-Signatur, sonst abgewiesen | **BLOCKED** — API-Schlüssel und verifizierte Domain fehlen |
+| E-Mail SMTP | echter Adapter über die bestehende Communication Engine (STARTTLS/TLS, AUTH, MIME) | keine | keiner aktiv | kein Rückkanal (Webhooks entfallen) | **BLOCKED** — Serverdaten fehlen; zusätzlich **OFFEN**: Rohsockets sind laufzeitabhängig, ohne sie meldet der Adapter ehrlich „Anbieter nicht erreichbar" |
+| E-Mail Test-Provider | Test-Provider | `test` | nicht zulässig | n/a | **PASS** — nur Sandbox, zählt nicht als live-fähig |
 | Versand/Carrier | `mock`, `dhl` | `mock` | keiner aktiv | Fehleingabe → 400, kein 5xx | **BLOCKED** — Carrier-Zugangsdaten fehlen |
-| Nicht verfügbare Anbieter (PayPal, Mollie, Resend, Postmark, SES, DPD, GLS, UPS, Sendcloud) | nicht implementiert | — | — | — | ehrlich als „Noch nicht verfügbar" geführt |
+| Nicht verfügbare Anbieter (Postmark, SES, DPD, GLS, UPS, Sendcloud) | nicht implementiert | — | — | — | ehrlich als „Noch nicht verfügbar" geführt |
+
+Zugangsdaten aller Anbieter liegen ausschließlich AES-256-GCM-verschlüsselt und mandantengebunden
+im Tresor (`provider_credentials`, nur Service-Role). Nach außen gehen nur maskierte Hinweise.
+Zahlungsarten liefert `/payment-methods` datengetrieben je Anbieter, Land und Währung — die
+Storefront kennt keine hartcodierte Zahlungsart.
 
 Keine Live-Provider-Secrets sind in der Dev-Umgebung gesetzt (geprüft). Secrets erscheinen weder
 in API-Antworten noch im Client-Bundle (Phase-18-Nachweis).
