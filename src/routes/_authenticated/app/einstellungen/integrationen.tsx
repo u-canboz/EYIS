@@ -371,18 +371,42 @@ function ConnectDialog({
                 {field.label}
                 {field.required ? "" : " (optional)"}
               </Label>
-              <Input
-                id={`${view.id}-${field.name}`}
-                type="password"
-                autoComplete="off"
-                spellCheck={false}
-                className="h-11"
-                placeholder={field.placeholder}
-                value={values[field.name] ?? ""}
-                onChange={(e) =>
-                  setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                }
-              />
+              {field.kind === "choice" ? (
+                <select
+                  id={`${view.id}-${field.name}`}
+                  className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={values[field.name] ?? field.defaultValue ?? ""}
+                  onChange={(e) =>
+                    setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                  }
+                >
+                  {(field.options ?? []).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <Input
+                  id={`${view.id}-${field.name}`}
+                  type={
+                    field.kind === "text"
+                      ? "text"
+                      : field.kind === "number"
+                        ? "number"
+                        : "password"
+                  }
+                  inputMode={field.kind === "number" ? "numeric" : undefined}
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="h-11"
+                  placeholder={field.placeholder}
+                  value={values[field.name] ?? ""}
+                  onChange={(e) =>
+                    setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                  }
+                />
+              )}
               <p className="text-xs text-muted-foreground text-pretty">{field.help}</p>
             </div>
           ))}
