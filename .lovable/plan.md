@@ -1,77 +1,135 @@
-# Integration Center — Payments, E-Mail, Carrier
+# Integration Center — zentrale Provider-Bedienung (V1-Baustein vor Gate C)
 
-Gate B ist abgenommen; Gate C wird nicht begonnen. Ziel ist ein zentrales Integration Center,
-das den Status aller externen Anbieter bündelt und die vorhandenen Detail-Seiten konsistent
-verlinkt. Keine neue Commerce-Fachlogik, kein Umbau der Provider-Contracts: Die bestehenden
-Engines (`payments/`, `communications/`, `shipping/`) bleiben führend.
+Zentrales, mandantenfähiges Integration Center als Bedienebene über den vorhandenen
+Provider-Abstraktionen (Payment-, Communication-, Carrier-Engine). Kein Duplikat
+bestehender Engines, keine Live-Schaltung durch den Agenten, keine erfundenen Credentials.
 
-## Ausgangslage
+## Fluss (zentrale Produktregel)
 
-- Zahlungen: `/app/zahlungen` (249 Zeilen) — Provider-Konfigurationen, Test/Live-Status.
-- Carrier: `/app/versand/dienstleister` (605 Zeilen) — Carrier-Katalog, Konfigurationen.
-- E-Mail: verteilt über `/app/kommunikation/*` (Vorlagen, Regeln, Verlauf, Branding) —
-  keine eigene Provider-Statusseite.
-- Readiness-Wahrheit liegt bereits in `payment_provider_configs`,
-  `communication_provider_configs`, `shipping_provider_configs` plus
-  `qa/phase14-providers.ts` und `PROVIDER_READINESS_MATRIX.md`.
+```text
+Shop → Einstellungen → Integrationen → Anbieter auswählen → Verbinden
+  → Konfiguration prüfen → Verbindung testen → Aktivieren → Verbunden (Health Check)
+```
 
-## Umsetzung
+## 1. Integration Registry
 
-### 1. Zentrale Übersicht `/app/integrationen`
+`src/lib/commerce/integrations/registry.ts` (client-safe, keine Secrets): zentrale
+Provider-Metadaten über den drei Engines — id, category (payment/email/carrier),
+displayName, description, capabilities, connectionType (oauth/api_credentials/smtp/
+managed/manual), configurationRequirements, testModeSupported, healthCheckSupported,
+disconnectSupported, documentationReference, implemented-Flag. Nicht implementierte
+Provider (PayPal, Mollie, DPD, GLS, UPS, Sendcloud, Resend, Postmark, SES) werden als
+„Noch nicht verfügbar" geführt — keine Fake-Integration.
 
-Neue Route mit drei Bereichskarten (Zahlungen, E-Mail, Versand), jeweils:
+## 2. Datenmodell (eine Migration)
 
-- Adapter-Katalog: welche Provider der Code kennt (`getProvider`, `CARRIER_CATALOG`,
-  E-Mail-Registry) und ob sie implementiert oder nur Stub sind.
-- Konfigurationsstatus je Shop: Anzahl Konfigurationen, Typ (mock/test/live), Priorität,
-  Webhook-Schutz aktiv.
-- Go-live-Ampel: PASS / BLOCKED (z. B. „Stripe Live: Zugangsdaten fehlen") — aus den
-  Konfigurationstabellen abgeleitet, nicht hartcodiert.
-- Direktlinks in die bestehenden Detail-Seiten (`/app/zahlungen`,
-  `/app/versand/dienstleister`, neue E-Mail-Provider-Seite).
+- `integration_connections` — org/shop-gebunden, provider, category, status
+  (nicht_verbunden/einrichtung_erforderlich/verifizierung_erforderlich/verbunden/fehler/
+  deaktiviert), environment (test/live), `configuration_reference` (Secret-Referenz,
+  niemals Secret selbst), Metadaten.
+- `integration_health` — healthy/warning/error/unknown, last_checked_at, last_success_at,
+  last_error_code (keine Secrets in Fehlertexten).
+- `sender_domains` — Domain, Status (nicht_eingerichtet/dns_erforderlich/wird_geprueft/
+  verifiziert/fehler), DNS-Einträge (Typ/Name/Wert/Status) als JSON, shop-gebunden.
+- `sender_identities` — Absenderadresse/Name je Shop, Verweis auf verifizierte Domain,
+  expliziter Fallback.
+- `oauth_states` — kurzlebige State-Tokens (Hash, Org/Shop/Provider-Bindung, Ablauf,
+  Einmalverwendung).
+- Grants + RLS (Tenant-Isolation) in derselben Migration. Trigger: keine nachträgliche
+  Änderung verifizierter Domains ohne erneute Prüfung.
 
-### 2. E-Mail-Provider-Statusseite
+## 3. Oberfläche `/app/einstellungen/integrationen`
 
-Neue Unterseite (z. B. `/app/kommunikation/provider` oder Abschnitt im Integration Center),
-die die vorhandenen `communication_provider_configs` analog zu Zahlungen/Carrier sichtbar
-macht: Provider, Test/Live, Absenderidentität-Status, Sperrliste vorhanden, Webhook-Endpunkt.
+- Hochwertige Provider-Liste nach Kategorien (Zahlungen, E-Mail, Versand): Icon, Name,
+  Zweck, Status-Chip, Test/Live, Verbindungsart, letzte Prüfung, Warnung, eine
+  Primäraktion. Responsive: mobil vertikale Liste + Sheet, Desktop Liste + Detailpanel,
+  Touch-Ziele ≥44px.
+- Setup-Wizard E-Mail (7 Schritte: Versandart → Provider → Absenderdomain → DNS →
+  Verifizierung → Test-E-Mail → Aktivieren), technische Details aufklappbar.
+- DNS-Ansicht: Typ/Name/Wert/Status, kopierbar, „erneut prüfen", Provider-Doku-Link.
+- Ehrliche Zustände: „Einrichtung erforderlich", „Testmodus", „Noch nicht verfügbar".
 
-### 3. Gemeinsamer Status-Servercode
+## 4. Stripe (bestehenden Adapter integrieren)
 
-Dünne Lese-Funktionen (`integration.functions.ts` + `*.server.ts`) pro Bereich:
-Konfigurationen + abgeleiteter Readiness-Status, mandantengefiltert
-(`organization_id`/`shop_id`), Admin-Client nur im Handler. Kein Schreiben über das
-Integration Center — Konfiguration bleibt auf den bestehenden Seiten.
+- Status-Karte: Konfiguration, Test/Live, Webhook-Status (Signaturpflicht aktiv), letzte
+  Prüfung, Payment-Methods aus tatsächlicher Capability.
+- Aktionen: Verbindung testen (Adapter-Health), Testmodus, Trennen, Neu verbinden.
+- **Connect/OAuth wird NICHT blind implementiert**: `integrations.server.ts` prüft den
+  vorhandenen Stripe-Adapter; ein Dokumentationsabschnitt im Detailpanel +
+  `docs/production/INTEGRATION_CONNECT_GAPS.md` listet präzise, was für echten
+  Connect-Onboarding fehlt (OAuth-App, Redirect-Allowlist, Token-Exchange, Refresh,
+  Revoke). Bestehende Secret-Key-Verbindung bleibt der unterstützte Weg. Keine
+  Fake-OAuth-Verbindung.
 
-### 4. Navigation
+## 5. Payment Method Discovery
 
-„Integrationen" in der Hauptnavigation (nav-registry), Icon z. B. `Plug`/`Blocks`.
-Bestehende Einträge bleiben.
+Store API v1 additiv (kein Breaking Change): `GET .../payment-methods` (oder Erweiterung
+der Shop-Config) liefert `payment_methods` ausschließlich aus aktiven, implementierten
+Provider-Konfigurationen des Shops. Test-Storefront rendert nur diese Methoden — keine
+hartcodierten Zahlungsarten, keine Stripe-Logik in React.
 
-### 5. Grenzen (nicht verhandelbar, aus Gate B)
+## 6. E-Mail
 
-- Keine Live-Schaltung durch den Agenten; UI zeigt Status und Handlungsanleitung für den
-  Betreiber, bietet aber keinen Live-Aktivieren-Schalter.
-- Secrets werden nie angezeigt oder erneut abgefragt — nur „hinterlegt/ nicht hinterlegt".
-- Mock/Test-Kennzeichnung bleibt deutlich sichtbar.
+- Communication Engine bleibt einzige Versandengine; Integration Center liefert nur
+  Einrichtung/Status.
+- **SMTP: ehrlich als BLOCKED dokumentiert**, falls Laufzeit es nicht sicher zulässt —
+  die Serverless-Laufzeit hat keine zuverlässigen rohen TCP/TLS-Sockets für generisches
+  SMTP. UI und Datenmodell werden vorbereitet (Felder, Secret-Referenz, Test-Aktion),
+  der eigentliche Verbindungstest meldet ehrlich „von der Plattform nicht unterstützt"
+  statt zu simulieren. API-basierte Provider bleiben der empfohlene Weg.
+- Sender Domains + DNS: geführte Einrichtung, DNS-Einträge kommen ausschließlich aus
+  Provider-Konfiguration (keine erfundenen Werte). `verifySenderDomain()` nur, wenn der
+  Provider es anbietet; sonst Status „wird_geprueft" mit ehrlicher Anleitung. Keine
+  Domain wird durch Klick auf „Fertig" verifiziert.
+- Absender je Shop: nur aktive, verifizierte Identitäten; Fallback explizit.
 
-## Nachweis und Re-Checks
+## 7. Carrier
 
-1. `bun run verify` (docs:validate, typecheck, test, build) — inkl. Manifest-Neuerzeugung
-   wegen neuer Route.
-2. `bun run qa:providers` — Provider-Readiness erneut (erwartet: 12 PASS, 2 BLOCKED, unverändert).
-3. `bun run qa:security` und `bun run qa:rls` — Regression nach neuen Lese-Funktionen
-   (neue Tabellen werden nicht angelegt; Zugriff über bestehende Policies).
-4. Voll-Regression: Store API, Jobs, Health, Demo — per bestehenden `qa:*`-Harnesses.
-5. Shop-Readiness: visuelle Prüfung des Integration Center in 390/1440px + Dark Mode
-   über den Visual-Harness bzw. Screenshots; B1-Kriterien (Overflow, Touch-Targets,
-   Fokus) gelten auch für die neue Seite.
-6. Kurzbericht `qa/PHASE18-INTEGRATION-CENTER.md` mit Status PASS/FAIL/OFFEN/BLOCKED je Punkt.
+Bestehende CarrierProvider-Architektur: Katalog-Sicht, Credentials je Shop über die
+bestehenden Konfigurationsseiten, Aktionen Verbinden/Testen/Aktivieren/Trennen analog.
+Nur `mock` (Test) ist implementiert — DHL & Co. „Noch nicht verfügbar".
+
+## 8. Shop Readiness
+
+Zentrale Readiness-Ansicht (im Integration Center): Zahlungen, E-Mail (Domain verifiziert),
+Versand, Steuern, Rechnungen, Storefront-Key — je READY/OFFEN, serverseitig aus realen
+Konfigurationen abgeleitet. „Bereit für Livebetrieb" nur, wenn alle Pflichtbereiche READY
+und nicht im Testmodus.
+
+## 9. Sicherheit (verbindlich)
+
+- Secrets nur als `configuration_reference`; nie in API-Responses, Client-Bundle, Audit,
+  Outbox oder Logs. Passwörter nach Speicherung nie erneut anzeigen.
+- OAuth-Grundgerüst (state, Einmalverwendung, Org/Shop-Bindung, Ablauf, manipulierte/
+  Cross-Tenant-Callbacks abgelehnt) als Infrastruktur — ohne echten Provider-Flow.
+- Mandantentrennung: jede Verbindung exakt org/shop-gebunden; Cross-Tenant-Tests Pflicht.
+- Keine Live-Schaltung, keine echten Credentials, keine Provider-Umstellung durch den Agenten.
+
+## 10. Tests und Nachweise
+
+- Cross-Tenant: Configs/Domains/Health von Shop A für Shop B unsichtbar (RLS-Harness).
+- Secret-Leakage: kein Secret in API-Response und Client-Bundle (Grep + API-Test).
+- Disconnect deaktiviert zuverlässig; Test-Provider nie als Live-READY; nicht verifizierte
+  Domain nie READY; Discovery liefert nur aktive Methoden; OAuth-State Einmalverwendung
+  und Cross-Tenant-Ablehnung; Health-Status aktualisiert sich.
+- Re-Checks nach Umsetzung: `bun run verify`, `qa:providers`, `qa:security`, `qa:rls`,
+  Store-API- und Demo-Regression, Shop-Readiness-Sicht geprüft.
+- Bericht `qa/PHASE18-INTEGRATION-CENTER.md` mit PASS/FAIL/OFFEN/BLOCKED je Punkt.
+
+## 11. Dokumentation
+
+- Phase-17-Agent-Regel ergänzen: Agenten schreiben keine SMTP-Passwörter/Stripe-Secrets/
+  Carrier-Credentials in Code oder Frontend-Env; Provider werden im Integration Center
+  verbunden. Setup-Schritte dürfen erklärt werden.
+- `docs/agent/CUSTOMER_ONBOARDING.md`: Onboarding-Reihenfolge um Payments/E-Mail/Carrier
+  verbinden erweitern.
+- Manifeste neu erzeugen (`bun run generate:manifests`).
 
 ## Umsetzungsreihenfolge
 
-1. Status-Servercode (lesen) + Tests.
-2. Route `/app/integrationen` mit den drei Bereichskarten.
-3. E-Mail-Provider-Status.
-4. Navigation, Manifeste, verify.
-5. Re-Checks (providers, security, rls, Regression) und Bericht.
+1. Registry + Migration (Tabellen, RLS, Grants).
+2. Server-Funktionen: Status lesen, Health, Readiness, Domain-Verwaltung, OAuth-State.
+3. Store-API-Erweiterung payment_methods + Storefront-Umstellung.
+4. UI: Liste, Detailpanel, Wizard, DNS-Ansicht, Readiness.
+5. Stripe-Gap-Doku, SMTP-Blocker-Doku, Agent-/Onboarding-Doku.
+6. Tests, Re-Checks, Bericht.
