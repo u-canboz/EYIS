@@ -4,6 +4,7 @@ import {
   Tags,
   Euro,
   Warehouse,
+  Plug,
   Megaphone,
   Truck,
   Receipt,
