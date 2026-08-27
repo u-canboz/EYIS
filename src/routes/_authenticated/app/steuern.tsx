@@ -495,7 +495,7 @@ function TaxPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-10"
+                                className="min-h-11"
                                 onClick={() => removeRate.mutate(r["id"] as string)}
                               >
                                 Entfernen

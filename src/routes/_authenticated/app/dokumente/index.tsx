@@ -200,7 +200,7 @@ function DocumentsPage() {
                     ]}
                     actions={
                       inv.hasPdf ? (
-                        <Button size="sm" variant="ghost" className="h-10" onClick={() => open(inv.id)}>
+                        <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(inv.id)}>
                           PDF
                         </Button>
                       ) : undefined
@@ -251,7 +251,7 @@ function DocumentsPage() {
                         </td>
                         <td className="p-3 text-right">
                           {inv.hasPdf && (
-                            <Button size="sm" variant="ghost" className="h-10" onClick={() => open(inv.id)}>
+                            <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(inv.id)}>
                               PDF
                             </Button>
                           )}
@@ -297,7 +297,7 @@ function DocumentsPage() {
                         >
                           Bestellung
                         </Link>
-                        <Button size="sm" variant="ghost" className="h-10" onClick={() => open(dn.id)}>
+                        <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(dn.id)}>
                           PDF
                         </Button>
                       </>
@@ -335,7 +335,7 @@ function DocumentsPage() {
                           {new Date(dn.createdAt).toLocaleDateString("de-DE")}
                         </td>
                         <td className="p-3 text-right">
-                          <Button size="sm" variant="ghost" className="h-10" onClick={() => open(dn.id)}>
+                          <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(dn.id)}>
                             PDF
                           </Button>
                         </td>

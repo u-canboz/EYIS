@@ -87,7 +87,7 @@ function ReturnsPage() {
           <Button
             key={f.key}
             size="sm"
-            className="h-10"
+            className="min-h-11"
             variant={tab === f.key ? "default" : "outline"}
             onClick={() => setTab(f.key)}
           >

@@ -270,7 +270,7 @@ function ProductsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-10"
+                        className="min-h-11"
                         disabled={duplicateMutation.isPending}
                         onClick={() => duplicateMutation.mutate(item.id)}
                       >
@@ -281,7 +281,7 @@ function ProductsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-10"
+                        className="min-h-11"
                         disabled={archiveMutation.isPending}
                         onClick={() => archiveMutation.mutate(item.id)}
                       >
