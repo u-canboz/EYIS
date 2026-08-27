@@ -1,6 +1,8 @@
 /* Production Guard: Demo-/QA-Seeds dürfen niemals in einer echten
    Produktivumgebung oder in einer Organisation mit Live-Konfiguration laufen. */
 
+import { EnvironmentGuardError, resolveEnvironment } from "../environment";
+
 export class DemoSeedForbidden extends Error {
   code = "DEMO_SEED_FORBIDDEN";
   signals: string[];
@@ -26,9 +28,19 @@ export async function assertNotProduction(
 ) {
   const signals: string[] = [];
 
-  if (process.env["APP_ENV"] === "production" || process.env["LOVABLE_ENV"] === "production") {
-    signals.push("environment_flag");
+  // Umgebung auflösen. Ungültiger Wert = harter Fehler, fehlender Wert = unknown.
+  let environment: string;
+  try {
+    environment = resolveEnvironment(process.env as Record<string, string | undefined>);
+  } catch (error) {
+    if (error instanceof EnvironmentGuardError) {
+      throw new DemoSeedForbidden(error.message, ["invalid_environment"]);
+    }
+    throw error;
   }
+  if (environment === "production") signals.push("environment_flag");
+  // Unbekannte Umgebung wird nicht still als Development behandelt.
+  if (environment === "unknown") signals.push("unknown_environment");
 
   if (opts.organizationId) {
     const { data: livePayments } = await admin

@@ -107,6 +107,8 @@ async function main() {
 
   /* ---------- 1. Production Guard ---------- */
   const { data: orgsBefore } = await admin.from("organizations").select("id");
+  // Ursprungswert merken: eine fehlende Umgebung ist seit Gate C ein sicherer Abbruch.
+  const previousAppEnv = process.env["APP_ENV"] ?? "development";
   process.env["APP_ENV"] = "production";
   let guardSeed = "";
   try {
@@ -122,8 +124,7 @@ async function main() {
   } catch (e) {
     guardReset = e instanceof Error ? e.message : String(e);
   }
-  process.env["APP_ENV"] = "";
-  delete process.env["APP_ENV"];
+  process.env["APP_ENV"] = previousAppEnv;
   const { data: orgsAfter } = await admin.from("organizations").select("id");
   check("Guard: Seed bricht in Production hart ab", /nicht zulässig/.test(guardSeed), guardSeed.slice(0, 120));
   check("Guard: Reset bricht in Production hart ab", /nicht zulässig/.test(guardReset), guardReset.slice(0, 120));

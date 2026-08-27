@@ -55,3 +55,13 @@ Ergebnis wird in `qa/PHASE14-STAGING-E2E-REPORT.md` eingetragen.
 2. Keine Produktionsdaten in Staging oder Development, auch nicht anonymisiert ohne Freigabe.
 3. Kein Secret, kein API-Key und kein Cron-Secret wird zwischen Umgebungen geteilt.
 4. Bei unbekannter Umgebung: keine schreibende Aktion.
+
+## Ergänzung Gate C (2026-08-27)
+
+11. **`APP_ENV` in jeder Umgebung setzen.** Fehlender oder ungültiger Wert führt jetzt zum
+    sicheren Abbruch aller geschützten Operationen (`src/lib/commerce/environment.ts`).
+    Geschützt sind: Demo-Seed, QA-Fixtures, Fixture-Reset, QA-Harnesses, Test-Payment-Provider,
+    Test-E-Mail-Provider, Test-Carrier, synthetische Testbestellungen, Debug-Endpunkte und
+    Test-Publishable-Keys im Live-Checkout.
+12. **URLs, Origins und Webhooks** je Umgebung nach `docs/production/DOMAIN_AND_DNS_RUNBOOK.md`.
+13. Abnahmebericht: `qa/PHASE19-STAGING-SETUP-REPORT.md`.

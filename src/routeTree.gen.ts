@@ -69,6 +69,7 @@ import { Route as AuthenticatedAppSystemDemoDatenRouteImport } from './routes/_a
 import { Route as AuthenticatedAppSystemErrorsRouteImport } from './routes/_authenticated/app/system/errors'
 import { Route as AuthenticatedAppSystemHealthRouteImport } from './routes/_authenticated/app/system/health'
 import { Route as AuthenticatedAppSystemJobsRouteImport } from './routes/_authenticated/app/system/jobs'
+import { Route as AuthenticatedAppSystemReleaseReadinessRouteImport } from './routes/_authenticated/app/system/release-readiness'
 import { Route as AuthenticatedAppSystemStatusRouteImport } from './routes/_authenticated/app/system/status'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
@@ -428,6 +429,12 @@ const AuthenticatedAppSystemJobsRoute =
     path: '/app/system/jobs',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppSystemReleaseReadinessRoute =
+  AuthenticatedAppSystemReleaseReadinessRouteImport.update({
+    id: '/app/system/release-readiness',
+    path: '/app/system/release-readiness',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemStatusRoute =
   AuthenticatedAppSystemStatusRouteImport.update({
     id: '/app/system/status',
@@ -583,6 +590,7 @@ export interface FileRoutesByFullPath {
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
   '/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
+  '/app/system/release-readiness': typeof AuthenticatedAppSystemReleaseReadinessRoute
   '/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
@@ -661,6 +669,7 @@ export interface FileRoutesByTo {
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
   '/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
+  '/app/system/release-readiness': typeof AuthenticatedAppSystemReleaseReadinessRoute
   '/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
@@ -742,6 +751,7 @@ export interface FileRoutesById {
   '/_authenticated/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/_authenticated/app/system/health': typeof AuthenticatedAppSystemHealthRoute
   '/_authenticated/app/system/jobs': typeof AuthenticatedAppSystemJobsRoute
+  '/_authenticated/app/system/release-readiness': typeof AuthenticatedAppSystemReleaseReadinessRoute
   '/_authenticated/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
@@ -823,6 +833,7 @@ export interface FileRouteTypes {
     | '/app/system/errors'
     | '/app/system/health'
     | '/app/system/jobs'
+    | '/app/system/release-readiness'
     | '/app/system/status'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
@@ -901,6 +912,7 @@ export interface FileRouteTypes {
     | '/app/system/errors'
     | '/app/system/health'
     | '/app/system/jobs'
+    | '/app/system/release-readiness'
     | '/app/system/status'
     | '/app/system/storefront-test'
     | '/app/versand/$fulfillmentId'
@@ -981,6 +993,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/system/errors'
     | '/_authenticated/app/system/health'
     | '/_authenticated/app/system/jobs'
+    | '/_authenticated/app/system/release-readiness'
     | '/_authenticated/app/system/status'
     | '/_authenticated/app/system/storefront-test'
     | '/_authenticated/app/versand/$fulfillmentId'
@@ -1451,6 +1464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSystemJobsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/system/release-readiness': {
+      id: '/_authenticated/app/system/release-readiness'
+      path: '/app/system/release-readiness'
+      fullPath: '/app/system/release-readiness'
+      preLoaderRoute: typeof AuthenticatedAppSystemReleaseReadinessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/status': {
       id: '/_authenticated/app/system/status'
       path: '/app/system/status'
@@ -1617,6 +1637,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppSystemErrorsRoute: typeof AuthenticatedAppSystemErrorsRoute
   AuthenticatedAppSystemHealthRoute: typeof AuthenticatedAppSystemHealthRoute
   AuthenticatedAppSystemJobsRoute: typeof AuthenticatedAppSystemJobsRoute
+  AuthenticatedAppSystemReleaseReadinessRoute: typeof AuthenticatedAppSystemReleaseReadinessRoute
   AuthenticatedAppSystemStatusRoute: typeof AuthenticatedAppSystemStatusRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
@@ -1692,6 +1713,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppSystemErrorsRoute: AuthenticatedAppSystemErrorsRoute,
   AuthenticatedAppSystemHealthRoute: AuthenticatedAppSystemHealthRoute,
   AuthenticatedAppSystemJobsRoute: AuthenticatedAppSystemJobsRoute,
+  AuthenticatedAppSystemReleaseReadinessRoute:
+    AuthenticatedAppSystemReleaseReadinessRoute,
   AuthenticatedAppSystemStatusRoute: AuthenticatedAppSystemStatusRoute,
   AuthenticatedAppSystemStorefrontTestRoute:
     AuthenticatedAppSystemStorefrontTestRoute,
