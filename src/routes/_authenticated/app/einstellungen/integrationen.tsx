@@ -122,6 +122,10 @@ type CredentialField = {
   placeholder: string;
   help: string;
   required: boolean;
+  /** Geheimnisse bleiben verdeckt; Adressen und Ports sind sichtbar. */
+  kind?: "secret" | "text" | "number" | "choice";
+  options?: { value: string; label: string }[];
+  defaultValue?: string;
 };
 
 const CREDENTIAL_FIELDS: Record<string, CredentialField[]> = {
