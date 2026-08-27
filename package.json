@@ -29,7 +29,8 @@
     "qa:performance": "bun run qa/phase14-performance.ts",
     "qa:privacy": "bun run qa/phase14-privacy.ts",
     "qa:storage": "bun run qa/phase14-storage.ts",
-    "qa:providers": "bun run qa/phase14-providers.ts"
+    "qa:providers": "bun run qa/phase14-providers.ts",
+    "qa:integrations": "bun run qa/phase18-integrations.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

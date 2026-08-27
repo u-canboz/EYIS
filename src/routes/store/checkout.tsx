@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { useCommerce } from "@/lib/store-sdk/react/provider";
-import type { StoreCheckout, StoreShippingOption } from "@/lib/store-sdk";
+import type { StoreCheckout, StorePaymentMethod, StoreShippingOption } from "@/lib/store-sdk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,6 +57,8 @@ function StoreCheckoutPage() {
   const navigate = useNavigate();
   const [session, setSession] = useState<StoreCheckout | null>(null);
   const [options, setOptions] = useState<StoreShippingOption[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<StorePaymentMethod[]>([]);
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState({ ...EMPTY_ADDRESS });
   const [busy, setBusy] = useState(false);
@@ -118,6 +120,10 @@ function StoreCheckoutPage() {
       });
       setSession(updated);
       setOptions(await client.checkout.shippingOptions(session.id));
+      // Discover active payment methods — the storefront never hardcodes them.
+      const methods = await client.paymentMethods();
+      setPaymentMethods(methods);
+      setPaymentMethodId((current) => current ?? methods[0]?.id ?? null);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -131,9 +137,11 @@ function StoreCheckoutPage() {
       await client.checkout.setShippingOption(session.id, shippingMethodId);
       const validated = await client.checkout.validate(session.id);
       setSession(validated);
+      const method = paymentMethods.find((m) => m.id === paymentMethodId);
       const payment = await client.checkout.createPaymentSession(session.id, {
         returnUrl: `${window.location.origin}/store/bestaetigung`,
         cancelUrl: `${window.location.origin}/store/checkout`,
+        provider: method?.provider ?? null,
       });
       if (payment.redirectUrl) {
         window.sessionStorage.setItem("commerce.paymentSessionId", payment.id);
@@ -203,6 +211,37 @@ function StoreCheckoutPage() {
         {options.length > 0 ? (
           <section className="min-w-0 space-y-4 rounded-2xl border border-border p-5">
             <StepHeading step={2} title="Versandart, Prüfung & Zahlung" />
+            {paymentMethods.length > 0 ? (
+              <fieldset className="min-w-0">
+                <legend className="text-sm font-medium">Zahlungsart</legend>
+                <div className="mt-2 grid gap-2">
+                  {paymentMethods.map((method) => (
+                    <label
+                      key={method.id}
+                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm has-checked:border-primary has-checked:bg-accent/40"
+                    >
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        className="size-4 accent-primary"
+                        checked={paymentMethodId === method.id}
+                        onChange={() => setPaymentMethodId(method.id)}
+                      />
+                      <span className="min-w-0 flex-1 text-pretty">{method.name}</span>
+                      {method.environment === "test" ? (
+                        <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          Testmodus
+                        </span>
+                      ) : null}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Derzeit ist keine Zahlungsart aktiv. Bitte den Shopbetreiber kontaktieren.
+              </p>
+            )}
             <ul className="divide-y divide-border">
               {options.map((option) => (
                 <li
@@ -217,7 +256,7 @@ function StoreCheckoutPage() {
                   </div>
                   <Button
                     className="h-11 shrink-0"
-                    disabled={busy}
+                    disabled={busy || paymentMethods.length === 0 || !paymentMethodId}
                     onClick={() => pay(option.id)}
                   >
                     Auswählen & bezahlen

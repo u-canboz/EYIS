@@ -20,6 +20,7 @@ import type {
   StoreList,
   StoreOrder,
   StoreOrderSummary,
+  StorePaymentMethod,
   StorePaymentSession,
   StorePaymentStatus,
   StoreProduct,
@@ -329,6 +330,11 @@ export function createCommerceClient(input: CommerceClientConfig) {
 
   return {
     config: () => request<StoreConfig>({ path: "/config" }),
+    /**
+     * Active payment methods for this shop, discovered server-side.
+     * Render exactly these in checkout — never hardcode provider names.
+     */
+    paymentMethods: () => request<StorePaymentMethod[]>({ path: "/payment-methods" }),
     catalog,
     cart,
     checkout,

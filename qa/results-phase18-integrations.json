@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Katalog enthält alle drei Kategorien",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Nicht implementierte Anbieter sind markiert",
+    "ok": true,
+    "detail": "healthCheckSupported=false für nicht implementierte Anbieter"
+  },
+  {
+    "name": "Keine Secrets in Katalog-Metadaten",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "listIntegrations liefert Katalog",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Keine Secret-Werte in Integration-Views",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "OAuth-State wird gehasht gespeichert",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "OAuth-State einmalig konsumierbar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "OAuth-State-Replay abgelehnt",
+    "ok": true,
+    "detail": "OAuth-State wurde bereits verwendet."
+  },
+  {
+    "name": "Cross-Tenant-State abgelehnt",
+    "ok": true,
+    "detail": "OAuth-State gehört nicht zu diesem Shop oder Anbieter."
+  },
+  {
+    "name": "Absenderdomain angelegt (dns_required)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Verifizierung simuliert keinen Erfolg",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Domain bleibt unverifiziert",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Verbindungstest Mock-Payment healthy",
+    "ok": true,
+    "detail": "Verbindung erfolgreich geprüft."
+  },
+  {
+    "name": "SMTP ehrlich als nicht verfügbar",
+    "ok": true,
+    "detail": "Dieser Anbieter ist noch nicht verfügbar."
+  },
+  {
+    "name": "oauth_states nur service-role erreichbar (kein authenticated Grant)",
+    "ok": true,
+    "detail": "admin ok; Policies geprüft in qa:rls"
+  },
+  {
+    "name": "Readiness liefert 6 Bereiche",
+    "ok": true,
+    "detail": "payments:ready, email:offen, shipping:ready, taxes:offen, invoices:ready, storefront:ready"
+  },
+  {
+    "name": "GET /payment-methods antwortet",
+    "ok": true,
+    "detail": "status=200"
+  },
+  {
+    "name": "Payment-Methods ohne Secrets",
+    "ok": true,
+    "detail": ""
+  }
+]
