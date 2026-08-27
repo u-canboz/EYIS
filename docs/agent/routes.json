@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-27T21:27:37.134Z",
-  "source_commit": "ed654b9461362aacf28912f777f57dc0768671e9",
+  "generated_at": "2026-08-27T21:55:46.541Z",
+  "source_commit": "466e32d0e1a587bc442e7289ea2c1867b60b90a4",
   "latest_migration": "20260827211754_23d9f9f3-4f0a-4c2e-b17e-40076c51b3b6.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 79,
+  "total": 81,
   "by_kind": {
     "backoffice": 59,
     "job-endpoint": 3,
     "public-store-api": 1,
-    "webhook": 3,
+    "webhook": 5,
     "public-page": 3,
     "customer-portal": 3,
     "storefront": 7
@@ -662,6 +662,26 @@
     {
       "url": "/api/public/webhooks/communications/:provider",
       "source": "src/routes/api/public/webhooks/communications/$provider.ts",
+      "kind": "webhook",
+      "methods": [
+        "POST"
+      ],
+      "auth": "provider signature verification",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/webhooks/mollie",
+      "source": "src/routes/api/public/webhooks/mollie.ts",
+      "kind": "webhook",
+      "methods": [
+        "POST"
+      ],
+      "auth": "provider signature verification",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/webhooks/paypal",
+      "source": "src/routes/api/public/webhooks/paypal.ts",
       "kind": "webhook",
       "methods": [
         "POST"

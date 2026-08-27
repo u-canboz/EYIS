@@ -4,11 +4,13 @@ import type { CommunicationProvider } from "./provider";
 import { testProvider } from "./providers/test.server";
 import { lovableProvider } from "./providers/lovable.server";
 import { resendProvider, createResendProvider } from "./providers/resend.server";
+import { smtpProvider, createSmtpProvider } from "./providers/smtp.server";
 
 const PROVIDERS: Record<string, CommunicationProvider> = {
   test: testProvider,
   lovable: lovableProvider,
   resend: resendProvider,
+  smtp: smtpProvider,
 };
 
 export const AVAILABLE_PROVIDERS = Object.values(PROVIDERS).map((p) => ({
@@ -32,17 +34,25 @@ export async function bindProvider(
   organizationId: string,
   shopId: string,
 ): Promise<CommunicationProvider> {
-  if (key === "resend") {
+  if (key === "resend" || key === "smtp") {
     const { loadCredentials } = await import("../integrations/credentials.server");
     const creds = await loadCredentials({
       organizationId,
       shopId,
       category: "email",
-      provider: "resend",
+      provider: key,
       environment: "live",
     });
-    const apiKey = creds?.["apiKey"] ?? null;
-    return createResendProvider(apiKey);
+    if (key === "resend") return createResendProvider(creds?.["apiKey"] ?? null);
+    if (!creds?.["host"] || !creds["username"] || !creds["password"]) return createSmtpProvider(null);
+    return createSmtpProvider({
+      host: creds["host"],
+      port: Number(creds["port"] ?? 587),
+      encryption: creds["encryption"] === "tls" ? "tls" : "starttls",
+      username: creds["username"],
+      password: creds["password"],
+      senderAddress: creds["senderAddress"] ?? null,
+    });
   }
   return getProvider(key);
 }

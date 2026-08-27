@@ -23,6 +23,7 @@ import {
 } from "./catalog-public.server";
 import { mapCart, mapCheckout, mapOrder } from "./mappers.server";
 import { getAdmin, generateToken, hashToken } from "../core.server";
+import { methodMatchesContext, methodsForProvider } from "../payments/methods";
 import type { StoreConfig } from "@/lib/store-sdk/types";
 import { STORE_API_VERSION } from "@/lib/store-sdk/types";
 
@@ -127,18 +128,47 @@ export const storeRoutes: RouteDef[] = [
       const admin = await getAdmin();
       const { data } = await admin
         .from("payment_provider_configs")
-        .select("provider, display_name, environment")
+        .select("provider, display_name, environment, priority, settings")
         .eq("organization_id", ctx.key.organizationId)
         .eq("shop_id", ctx.key.shopId)
         .eq("status", "active")
         .order("priority", { ascending: true });
-      return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
-        id: `${String(row["provider"])}-${String(row["environment"])}`,
-        provider: String(row["provider"]),
-        name: String(row["display_name"]),
-        environment: row["environment"] === "live" ? "live" : "test",
-        testOnly: row["provider"] === "mock",
-      }));
+
+      const country = ctx.query.get("country");
+      const currency = ctx.query.get("currency");
+      const seen = new Set<string>();
+
+      return ((data ?? []) as Record<string, unknown>[]).flatMap((row) => {
+        const provider = String(row["provider"]);
+        const environment = row["environment"] === "live" ? "live" : "test";
+        const settings = (row["settings"] as Record<string, unknown> | null) ?? {};
+        const enabled = Array.isArray(settings["methods"])
+          ? (settings["methods"] as unknown[]).map(String)
+          : null;
+
+        // Der höchstpriorisierte Anbieter gewinnt eine doppelt angebotene
+        // Zahlungsart; die Storefront rendert ausschließlich diese Liste.
+        return methodsForProvider(provider, enabled)
+          .filter((method) => methodMatchesContext(method, { country, currency }))
+          .flatMap((method) => {
+            const id = `${provider}-${environment}-${method.method}`;
+            if (seen.has(`${environment}:${method.method}`)) return [];
+            seen.add(`${environment}:${method.method}`);
+            return [
+              {
+                id,
+                provider,
+                method: method.method,
+                name: String(row["display_name"]),
+                label: method.label,
+                flow: method.flow,
+                priority: Number(row["priority"] ?? 100),
+                environment,
+                testOnly: provider === "mock",
+              },
+            ];
+          });
+      });
     },
   },
   {

@@ -3,7 +3,7 @@
 export type JsonValue =
   string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
-export type PaymentProviderId = "stripe" | "mock";
+export type PaymentProviderId = "stripe" | "paypal" | "mollie" | "mock";
 export type CommerceEnvironment = "test" | "live";
 
 export type PaymentSessionStatus =

@@ -122,6 +122,10 @@ type CredentialField = {
   placeholder: string;
   help: string;
   required: boolean;
+  /** Geheimnisse bleiben verdeckt; Adressen und Ports sind sichtbar. */
+  kind?: "secret" | "text" | "number" | "choice";
+  options?: { value: string; label: string }[];
+  defaultValue?: string;
 };
 
 const CREDENTIAL_FIELDS: Record<string, CredentialField[]> = {
@@ -157,6 +161,124 @@ const CREDENTIAL_FIELDS: Record<string, CredentialField[]> = {
       required: false,
     },
   ],
+  paypal: [
+    {
+      name: "environment",
+      label: "Umgebung",
+      placeholder: "",
+      help: "Sandbox zum Testen, Live für echte Zahlungen. Die Zugangsdaten unterscheiden sich.",
+      required: true,
+      kind: "choice",
+      defaultValue: "test",
+      options: [
+        { value: "test", label: "Sandbox (Test)" },
+        { value: "live", label: "Live" },
+      ],
+    },
+    {
+      name: "clientId",
+      label: "Client-ID",
+      placeholder: "A21AA…",
+      help: "Aus dem PayPal-Entwicklerportal unter Apps & Credentials.",
+      required: true,
+      kind: "text",
+    },
+    {
+      name: "clientSecret",
+      label: "Secret",
+      placeholder: "EL…",
+      help: "Das Secret derselben PayPal-App. Wird verschlüsselt gespeichert.",
+      required: true,
+    },
+    {
+      name: "webhookId",
+      label: "Webhook-ID",
+      placeholder: "WH-…",
+      help: "Aus dem in PayPal angelegten Webhook. Ohne sie werden Zahlungen nicht automatisch bestätigt.",
+      required: false,
+      kind: "text",
+    },
+  ],
+  mollie: [
+    {
+      name: "apiKey",
+      label: "Mollie-API-Schlüssel",
+      placeholder: "test_… oder live_…",
+      help: "Aus dem Mollie-Dashboard unter Entwickler → API-Schlüssel. Der Präfix bestimmt Test- oder Live-Betrieb.",
+      required: true,
+    },
+  ],
+  smtp: [
+    {
+      name: "host",
+      label: "SMTP-Host",
+      placeholder: "mail.ihre-domain.de",
+      help: "Adresse Ihres Mailservers.",
+      required: true,
+      kind: "text",
+    },
+    {
+      name: "port",
+      label: "Port",
+      placeholder: "587",
+      help: "587 für STARTTLS, 465 für direktes TLS.",
+      required: true,
+      kind: "number",
+      defaultValue: "587",
+    },
+    {
+      name: "encryption",
+      label: "Verschlüsselung",
+      placeholder: "",
+      help: "Unverschlüsselter Versand ist nicht möglich.",
+      required: true,
+      kind: "choice",
+      defaultValue: "starttls",
+      options: [
+        { value: "starttls", label: "STARTTLS (Port 587)" },
+        { value: "tls", label: "Direktes TLS (Port 465)" },
+      ],
+    },
+    {
+      name: "username",
+      label: "Benutzername",
+      placeholder: "versand@ihre-domain.de",
+      help: "Anmeldename Ihres Mailkontos.",
+      required: true,
+      kind: "text",
+    },
+    {
+      name: "password",
+      label: "Passwort",
+      placeholder: "",
+      help: "Wird verschlüsselt gespeichert und nie wieder angezeigt.",
+      required: true,
+    },
+    {
+      name: "senderAddress",
+      label: "Absenderadresse",
+      placeholder: "shop@ihre-domain.de",
+      help: "Diese Adresse steht im Absender aller Shop-E-Mails.",
+      required: true,
+      kind: "text",
+    },
+    {
+      name: "senderName",
+      label: "Absendername",
+      placeholder: "Mein Shop",
+      help: "Angezeigter Name im Postfach der Kundschaft.",
+      required: false,
+      kind: "text",
+    },
+    {
+      name: "replyTo",
+      label: "Antwortadresse",
+      placeholder: "service@ihre-domain.de",
+      help: "Optional. Antworten der Kundschaft gehen an diese Adresse.",
+      required: false,
+      kind: "text",
+    },
+  ],
 };
 
 function ConnectDialog({
@@ -173,7 +295,13 @@ function ConnectDialog({
   const connect = useServerFn(connectIntegrationFn);
   const fetchStatus = useServerFn(getCredentialStatusFn);
   const fields = CREDENTIAL_FIELDS[view.id] ?? [];
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      (CREDENTIAL_FIELDS[view.id] ?? [])
+        .filter((f) => f.defaultValue)
+        .map((f) => [f.name, f.defaultValue as string]),
+    ),
+  );
 
   const statusQuery = useQuery({
     queryKey: ["credential-status", organizationId, shopId, view.id],
@@ -243,18 +371,42 @@ function ConnectDialog({
                 {field.label}
                 {field.required ? "" : " (optional)"}
               </Label>
-              <Input
-                id={`${view.id}-${field.name}`}
-                type="password"
-                autoComplete="off"
-                spellCheck={false}
-                className="h-11"
-                placeholder={field.placeholder}
-                value={values[field.name] ?? ""}
-                onChange={(e) =>
-                  setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                }
-              />
+              {field.kind === "choice" ? (
+                <select
+                  id={`${view.id}-${field.name}`}
+                  className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={values[field.name] ?? field.defaultValue ?? ""}
+                  onChange={(e) =>
+                    setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                  }
+                >
+                  {(field.options ?? []).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <Input
+                  id={`${view.id}-${field.name}`}
+                  type={
+                    field.kind === "text"
+                      ? "text"
+                      : field.kind === "number"
+                        ? "number"
+                        : "password"
+                  }
+                  inputMode={field.kind === "number" ? "numeric" : undefined}
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="h-11"
+                  placeholder={field.placeholder}
+                  value={values[field.name] ?? ""}
+                  onChange={(e) =>
+                    setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                  }
+                />
+              )}
               <p className="text-xs text-muted-foreground text-pretty">{field.help}</p>
             </div>
           ))}

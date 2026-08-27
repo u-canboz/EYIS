@@ -79,6 +79,8 @@ import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './route
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicJobsExpirationRouteImport } from './routes/api/public/jobs/expiration'
+import { Route as ApiPublicWebhooksMollieRouteImport } from './routes/api/public/webhooks/mollie'
+import { Route as ApiPublicWebhooksPaypalRouteImport } from './routes/api/public/webhooks/paypal'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as AuthenticatedAppAutomationenRegelRuleIdRouteImport } from './routes/_authenticated/app/automationen/regel.$ruleId'
 import { Route as AuthenticatedAppKommunikationVerlaufIndexRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/index'
@@ -487,6 +489,16 @@ const ApiPublicJobsExpirationRoute = ApiPublicJobsExpirationRouteImport.update({
   path: '/api/public/jobs/expiration',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksMollieRoute = ApiPublicWebhooksMollieRouteImport.update({
+  id: '/api/public/webhooks/mollie',
+  path: '/api/public/webhooks/mollie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWebhooksPaypalRoute = ApiPublicWebhooksPaypalRouteImport.update({
+  id: '/api/public/webhooks/paypal',
+  path: '/api/public/webhooks/paypal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
@@ -599,6 +611,8 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
+  '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -678,6 +692,8 @@ export interface FileRoutesByTo {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
+  '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/app/automationen': typeof AuthenticatedAppAutomationenIndexRoute
   '/app/bestellungen': typeof AuthenticatedAppBestellungenIndexRoute
@@ -760,6 +776,8 @@ export interface FileRoutesById {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
+  '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/_authenticated/app/automationen/': typeof AuthenticatedAppAutomationenIndexRoute
   '/_authenticated/app/bestellungen/': typeof AuthenticatedAppBestellungenIndexRoute
@@ -842,6 +860,8 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/webhooks/mollie'
+    | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
     | '/app/automationen/'
     | '/app/bestellungen/'
@@ -921,6 +941,8 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/webhooks/mollie'
+    | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
     | '/app/automationen'
     | '/app/bestellungen'
@@ -1002,6 +1024,8 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/webhooks/mollie'
+    | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
     | '/_authenticated/app/automationen/'
     | '/_authenticated/app/bestellungen/'
@@ -1036,6 +1060,8 @@ export interface RootRouteChildren {
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicJobsExpirationRoute: typeof ApiPublicJobsExpirationRoute
+  ApiPublicWebhooksMollieRoute: typeof ApiPublicWebhooksMollieRoute
+  ApiPublicWebhooksPaypalRoute: typeof ApiPublicWebhooksPaypalRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicStoreV1SplatRoute: typeof ApiPublicStoreV1SplatRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
@@ -1534,6 +1560,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsExpirationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/mollie': {
+      id: '/api/public/webhooks/mollie'
+      path: '/api/public/webhooks/mollie'
+      fullPath: '/api/public/webhooks/mollie'
+      preLoaderRoute: typeof ApiPublicWebhooksMollieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/paypal': {
+      id: '/api/public/webhooks/paypal'
+      path: '/api/public/webhooks/paypal'
+      fullPath: '/api/public/webhooks/paypal'
+      preLoaderRoute: typeof ApiPublicWebhooksPaypalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -1787,6 +1827,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicJobsExpirationRoute: ApiPublicJobsExpirationRoute,
+  ApiPublicWebhooksMollieRoute: ApiPublicWebhooksMollieRoute,
+  ApiPublicWebhooksPaypalRoute: ApiPublicWebhooksPaypalRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicStoreV1SplatRoute: ApiPublicStoreV1SplatRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,

@@ -66,6 +66,12 @@ export interface PaymentProvider {
 export async function getProvider(id: string): Promise<PaymentProvider> {
   if (id === "stripe") return (await import("./stripe.server")).stripeProvider;
   if (id === "mock") return (await import("./mock.server")).mockProvider;
+  // PayPal und Mollie arbeiten ausschließlich mit Shop-Zugangsdaten. Es gibt
+  // bewusst keinen plattformweiten Rückfall — siehe getProviderForShop().
+  if (id === "paypal" || id === "mollie")
+    throw new Error(
+      `Für ${id === "paypal" ? "PayPal" : "Mollie"} sind für diesen Shop keine Zugangsdaten hinterlegt.`,
+    );
   throw new Error(`Unbekannter Zahlungsanbieter: ${id}`);
 }
 
@@ -80,20 +86,39 @@ export async function getProviderForShop(
   id: string,
   environment: CommerceEnvironment,
 ): Promise<PaymentProvider> {
-  if (id === "stripe") {
+  if (id === "stripe" || id === "paypal" || id === "mollie") {
     const { loadCredentials } = await import("../integrations/credentials.server");
     const creds = await loadCredentials({
       organizationId,
       shopId,
       category: "payment",
-      provider: "stripe",
+      provider: id,
       environment,
     });
-    if (creds?.["secretKey"]) {
+
+    if (id === "stripe" && creds?.["secretKey"]) {
       const { createStripeProvider } = await import("./stripe.server");
       return createStripeProvider({
         secretKey: creds["secretKey"],
         webhookSecret: creds["webhookSecret"] ?? null,
+      });
+    }
+
+    if (id === "paypal" && creds?.["clientId"] && creds["clientSecret"]) {
+      const { createPayPalProvider } = await import("./paypal.server");
+      return createPayPalProvider({
+        clientId: creds["clientId"],
+        clientSecret: creds["clientSecret"],
+        webhookId: creds["webhookId"] ?? null,
+        environment,
+      });
+    }
+
+    if (id === "mollie" && creds?.["apiKey"]) {
+      const { createMollieProvider } = await import("./mollie.server");
+      return createMollieProvider({
+        apiKey: creds["apiKey"],
+        webhookUrl: creds["webhookUrl"] ?? null,
       });
     }
   }

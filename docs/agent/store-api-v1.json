@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-27T21:27:37.151Z",
-  "source_commit": "ed654b9461362aacf28912f777f57dc0768671e9",
+  "generated_at": "2026-08-27T21:55:46.561Z",
+  "source_commit": "466e32d0e1a587bc442e7289ea2c1867b60b90a4",
   "latest_migration": "20260827211754_23d9f9f3-4f0a-4c2e-b17e-40076c51b3b6.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
