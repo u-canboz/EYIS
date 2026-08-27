@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { useCommerce } from "@/lib/store-sdk/react/provider";
-import type { StoreCheckout, StoreShippingOption } from "@/lib/store-sdk";
+import type { StoreCheckout, StorePaymentMethod, StoreShippingOption } from "@/lib/store-sdk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,6 +57,8 @@ function StoreCheckoutPage() {
   const navigate = useNavigate();
   const [session, setSession] = useState<StoreCheckout | null>(null);
   const [options, setOptions] = useState<StoreShippingOption[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<StorePaymentMethod[]>([]);
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState({ ...EMPTY_ADDRESS });
   const [busy, setBusy] = useState(false);
