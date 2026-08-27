@@ -243,7 +243,7 @@ function addressOf(value: string): string {
 export function buildMimeMessage(
   message: SendMessage,
   fallbackSender: string,
-): { from: string; body: string } {
+): { from: string; envelopeFrom: string; body: string } {
   const fromAddress = addressOf(message.senderAddress ?? fallbackSender);
   const from = message.senderName
     ? `${encodeHeader(message.senderName)} <${fromAddress}>`
