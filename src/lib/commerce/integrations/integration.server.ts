@@ -972,6 +972,8 @@ export async function getShopReadiness(
     (c) => c["status"] === "active" && c["environment"] === "live" && c["provider"] !== "mock",
   );
   const activeEmail = configs.email.find((c) => c["status"] === "active");
+  const emailLiveProvider =
+    !!activeEmail && activeEmail["provider"] !== "test" && activeEmail["test_mode"] !== true;
   const verifiedSender = configs.identities.some(
     (i) => i["verification_status"] === "verified",
   );
@@ -996,12 +998,14 @@ export async function getShopReadiness(
       key: "email",
       label: "E-Mail",
       ready: !!activeEmail && verifiedSender,
-      liveReady: !!activeEmail && verifiedSender,
+      liveReady: emailLiveProvider && verifiedSender,
       detail: !activeEmail
         ? "Kein E-Mail-Anbieter aktiv"
-        : verifiedSender
-          ? "Absender verifiziert"
-          : "Absenderdomain nicht verifiziert",
+        : !emailLiveProvider
+          ? "Nur Sandbox-Anbieter aktiv"
+          : verifiedSender
+            ? "Absender verifiziert"
+            : "Absenderdomain nicht verifiziert",
     },
     {
       key: "shipping",
