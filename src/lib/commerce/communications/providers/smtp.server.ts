@@ -237,7 +237,10 @@ function wrap(value: string, width = 76): string {
 
 function addressOf(value: string): string {
   const match = value.match(/<([^>]+)>/);
-  return (match?.[1] ?? value).trim();
+  // Zeilenumbrüche in Adressen sind Header-Injection: alles ab dem ersten
+  // Steuerzeichen wird verworfen.
+  // eslint-disable-next-line no-control-regex
+  return (match?.[1] ?? value).split(/[\x00-\x1F]/)[0]!.trim();
 }
 
 export function buildMimeMessage(
