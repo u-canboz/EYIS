@@ -1,5 +1,5 @@
 {
-  "passed": 9,
+  "passed": 10,
   "total": 11,
   "results": [
     {
@@ -19,13 +19,13 @@
     },
     {
       "name": "U4 keine buchstabenweisen Umbr\u00fcche (break-all)",
-      "ok": false,
-      "detail": "lager@320; lager@375; lager@390"
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "Touch-Ziele >= 40 px auf Mobil",
       "ok": false,
-      "detail": "produkte@430:['Zur\u00fcck@32', 'Weiter@32']; retouren@320:['Offen@36', 'Neu beantragt@36', 'In Pr\u00fcfung@36', 'Zu erstatten@36', 'Abgeschlossen@36']; retouren@375:['Offen@36', 'Neu beantragt@36', 'In Pr\u00fcfung@36', 'Zu erstatten@36', 'Abgeschlossen@36']; retouren@390:['Offen@36', 'Neu beantragt@36', 'In Pr\u00fcfung@36', 'Zu erstatten@36', 'Abgeschlossen@36']"
+      "detail": "dokumente@320:['Rechnungen@28', 'Lieferscheine@28']; dokumente@375:['Rechnungen@28', 'Lieferscheine@28']; dokumente@390:['Rechnungen@28', 'Lieferscheine@28']; dokumente@430:['Rechnungen@28', 'Lieferscheine@28']"
     },
     {
       "name": "U2 mobile Navigation erreichbar und vollst\u00e4ndig",
