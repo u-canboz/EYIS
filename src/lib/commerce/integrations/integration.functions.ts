@@ -14,12 +14,7 @@ export const listIntegrationsFn = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
     const { listIntegrations, READ_PERMISSION } = await import("./integration.server");
-    // Caller must hold at least one area read permission; the view filters below.
-    const { hasAnyPermission } = await import("../core.server").catch(() => ({
-      hasAnyPermission: null,
-    }));
-    void hasAnyPermission;
-    // Verify membership via any of the three read permissions.
+    // Caller must hold at least one area read permission.
     const perms = Object.values(READ_PERMISSION);
     let allowed = false;
     for (const p of perms) {
