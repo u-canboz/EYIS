@@ -25,7 +25,7 @@
     {
       "name": "Touch-Ziele >= 40 px auf Mobil",
       "ok": false,
-      "detail": "versand@320:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']; versand@375:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']; versand@390:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']; versand@430:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']"
+      "detail": "preise@320:['Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16']; preise@375:['Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16']; preise@430:['Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16']; promotions@320:['Aktion aktivieren@20', 'Aktion aktivieren@20', 'Aktion aktivieren@20', 'BUTTON@20']"
     },
     {
       "name": "U2 mobile Navigation erreichbar und vollst\u00e4ndig",
