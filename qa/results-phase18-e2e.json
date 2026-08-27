@@ -1,0 +1,107 @@
+[
+  {
+    "name": "Readiness: sechs Bereiche, serverseitig abgeleitet",
+    "ok": true,
+    "detail": "payments:READY, email:OFFEN, shipping:READY, taxes:OFFEN, invoices:READY, storefront:READY"
+  },
+  {
+    "name": "Readiness: kein Live-Ready im Testmodus",
+    "ok": true,
+    "detail": "liveReady=false"
+  },
+  {
+    "name": "Discovery: /payment-methods liefert aktive Methoden für Shop A",
+    "ok": true,
+    "detail": "status=200 methods=mock"
+  },
+  {
+    "name": "Discovery: nur implementierte Provider",
+    "ok": true,
+    "detail": "mock"
+  },
+  {
+    "name": "Discovery: Test-Provider ist als testOnly markiert",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Discovery: keine Secrets in der Antwort",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Cross-Tenant: Shop B sieht ausschließlich eigene Methoden",
+    "ok": true,
+    "detail": "shopB=0 configsB=0 configsA=1"
+  },
+  {
+    "name": "Cross-Tenant: Integrationsansichten sind shop-gebunden",
+    "ok": true,
+    "detail": "A=16 B=16"
+  },
+  {
+    "name": "Cross-Tenant: jede Verbindung ist org- und shop-gebunden",
+    "ok": true,
+    "detail": "rows=0"
+  },
+  {
+    "name": "Secret-Leakage: Registry client-sicher (kein Server-Import)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Secret-Leakage: kein Secret im Client-Bundle",
+    "ok": true,
+    "detail": "0 Treffer"
+  },
+  {
+    "name": "Secret-Leakage: Storefront-Checkout ohne hartcodierte Zahlungsarten",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "E2E: Test-Zahlungsart aus Discovery gewählt",
+    "ok": true,
+    "detail": "mock"
+  },
+  {
+    "name": "E2E: Checkout validiert",
+    "ok": true,
+    "detail": "total=5480"
+  },
+  {
+    "name": "E2E: Payment Session mit entdecktem Provider",
+    "ok": true,
+    "detail": "mock/test 5480 EUR"
+  },
+  {
+    "name": "E2E: Order finalisiert",
+    "ok": true,
+    "detail": "{\"created\":true,\"order_id\":\"0215e942-86fb-4dee-8467-278fe7c5d732\",\"order_number\":\"ORD-000021\",\"reservations_committed\":1"
+  },
+  {
+    "name": "E2E: Zahlungsstatus paid",
+    "ok": true,
+    "detail": "paid"
+  },
+  {
+    "name": "E2E: Bestellstatus gesetzt",
+    "ok": true,
+    "detail": "confirmed"
+  },
+  {
+    "name": "E2E: Payment Session final",
+    "ok": true,
+    "detail": "paid"
+  },
+  {
+    "name": "Readiness nach E2E: Zahlungen READY",
+    "ok": true,
+    "detail": "payments:READY, email:OFFEN, shipping:READY, taxes:OFFEN, invoices:READY, storefront:READY"
+  },
+  {
+    "name": "Readiness nach E2E: Livebetrieb weiterhin nicht freigegeben (Testmodus)",
+    "ok": true,
+    "detail": ""
+  }
+]
