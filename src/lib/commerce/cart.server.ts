@@ -450,15 +450,50 @@ export async function writeSnapshot(
   tax?: TaxResult,
 ) {
   const admin = await getAdmin();
-  const { data: last } = await admin
-    .from("cart_price_snapshots")
-    .select("version")
-    .eq("cart_id", cart.id)
-    .order("version", { ascending: false })
-    .limit(1);
-  const version = (((last ?? [])[0] as { version: number } | undefined)?.version ?? 0) + 1;
+  // Version wird gelesen und danach geschrieben. Bei nebenläufigen Repricings
+  // kann dieselbe Version doppelt entstehen (Unique-Verletzung 23505); dann
+  // wird die nächste freie Version erneut ermittelt.
+  let data: { id: string; version: number } | null = null;
+  let error: { message: string; code?: string } | null = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { data: last } = await admin
+      .from("cart_price_snapshots")
+      .select("version")
+      .eq("cart_id", cart.id)
+      .order("version", { ascending: false })
+      .limit(1);
+    const version = (((last ?? [])[0] as { version: number } | undefined)?.version ?? 0) + 1;
+    const attemptResult = await insertSnapshot(
+      admin,
+      cart,
+      calculation,
+      codes,
+      shippingMethodId,
+      tax,
+      version,
+    );
+    data = attemptResult.data;
+    error = attemptResult.error;
+    if (!error) break;
+    if (error.code !== "23505") break;
+    await new Promise((r) => setTimeout(r, 25 * (attempt + 1)));
+  }
+  if (error) throw new Error(error.message);
+  const snapshot = data as { id: string; version: number };
+  await writeLineSnapshots(admin, cart, calculation, snapshot.id);
+  return snapshot;
+}
 
-  const { data, error } = await admin
+async function insertSnapshot(
+  admin: Awaited<ReturnType<typeof getAdmin>>,
+  cart: CartRow,
+  calculation: CartCalculation,
+  codes: string[],
+  shippingMethodId: string | null,
+  tax: TaxResult | undefined,
+  version: number,
+) {
+  return await admin
     .from("cart_price_snapshots")
     .insert({
       organization_id: cart.organization_id,
@@ -484,14 +519,19 @@ export async function writeSnapshot(
     })
     .select("id, version")
     .single();
-  if (error) throw new Error(error.message);
-  const snapshot = data as { id: string; version: number };
+}
 
+async function writeLineSnapshots(
+  admin: Awaited<ReturnType<typeof getAdmin>>,
+  cart: CartRow,
+  calculation: CartCalculation,
+  snapshotId: string,
+) {
   if (calculation.lines.length) {
     await admin.from("cart_item_price_snapshots").insert(
       calculation.lines.map((l) => ({
         organization_id: cart.organization_id,
-        snapshot_id: snapshot.id,
+        snapshot_id: snapshotId,
         cart_item_id: l.lineId,
         variant_id: l.variantId,
         quantity: l.quantity,
@@ -505,7 +545,6 @@ export async function writeSnapshot(
       })) as never,
     );
   }
-  return snapshot;
 }
 
 export async function buildCartView(

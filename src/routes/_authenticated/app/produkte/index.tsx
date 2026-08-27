@@ -169,7 +169,7 @@ function ProductsPage() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="h-11 w-full md:w-44">
+              <SelectTrigger aria-label="Status" className="h-11 w-full md:w-44">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -186,7 +186,7 @@ function ProductsPage() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="h-11 w-full md:w-44">
+              <SelectTrigger aria-label="Produktart" className="h-11 w-full md:w-44">
                 <SelectValue placeholder="Produktart" />
               </SelectTrigger>
               <SelectContent>
@@ -205,7 +205,7 @@ function ProductsPage() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="h-11 w-full md:w-44">
+              <SelectTrigger aria-label="Kategorie" className="h-11 w-full md:w-44">
                 <SelectValue placeholder="Kategorie" />
               </SelectTrigger>
               <SelectContent>

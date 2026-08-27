@@ -1,0 +1,92 @@
+{
+  "ranAt": "2026-08-27T12:30:33.353475Z",
+  "minTouchTarget": 44,
+  "diffTolerance": 0.005,
+  "viewports": [
+    320,
+    375,
+    390,
+    430,
+    768,
+    834,
+    1024,
+    1280,
+    1440,
+    "667x375",
+    "390x420"
+  ],
+  "passed": 14,
+  "total": 14,
+  "results": [
+    {
+      "name": "B1 Auth-Session f\u00fcr Backoffice-Pr\u00fcfung verf\u00fcgbar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.1 Kein horizontaler \u00dcberlauf (320\u20131440 px, alle Routen)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.2 Touch-Ziele >= 44 px (Touch) bzw. >= 24 px (Desktop)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.3 Keine abgeschnittenen Inhalte",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.4 Keine Aktion ausserhalb des Viewports",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.5 Keine buchstabenweisen Umbr\u00fcche in Fachdaten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.6 Navigation auf jeder Route erreichbar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.7 Dark Mode ohne \u00dcberlauf und mit lesbarem Kontrast",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.8 200 % Zoom ohne horizontalen \u00dcberlauf",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.9 Lange Namen, SKUs, Gast-E-Mails und grosse Betr\u00e4ge brechen um",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.10 375 px Querformat ohne \u00dcberlauf",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.11 Ge\u00f6ffnete mobile Tastatur verdeckt keine Prim\u00e4raktion",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.12 Empty- und Fehlerzust\u00e4nde verst\u00e4ndlich und ohne \u00dcberlauf",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B1.13 Screenshot-Diff-Gate aktiv (Baselines gesetzt)",
+      "ok": true,
+      "detail": "20 Baselines geschrieben, Gate ab jetzt scharf"
+    }
+  ]
+}

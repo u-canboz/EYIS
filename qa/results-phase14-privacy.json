@@ -1,0 +1,137 @@
+{
+  "ranAt": "2026-08-27T08:59:11.956Z",
+  "total": 26,
+  "passed": 26,
+  "results": [
+    {
+      "name": "Datenkarte: customers führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "4 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: customer_addresses führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "7 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: order_addresses führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "1 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: orders führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "1 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: checkout_addresses führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "6 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: communications führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "3 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: profiles führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "2 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: audit_log führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "1 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Datenkarte: invoices führt die erwarteten personenbezogenen Felder",
+      "ok": true,
+      "detail": "3 Felder, 1 Stichprobe"
+    },
+    {
+      "name": "Store-API-Protokoll speichert keine Klartext-IP",
+      "ok": true,
+      "detail": "0 von 0"
+    },
+    {
+      "name": "Store-API-Protokoll speichert keinen vollständigen User-Agent",
+      "ok": true,
+      "detail": "0 Treffer"
+    },
+    {
+      "name": "IP-Salz wird rotiert und alte Salze werden verworfen",
+      "ok": true,
+      "detail": "0 Salze älter als 3 Tage"
+    },
+    {
+      "name": "Gast-Token werden ausschließlich als Hash gespeichert",
+      "ok": true,
+      "detail": "0 von 0"
+    },
+    {
+      "name": "Jeder Gast-Token hat ein Ablaufdatum",
+      "ok": true,
+      "detail": "0 ohne"
+    },
+    {
+      "name": "Abgelaufene Gast-Token werden vom Ablaufjob erfasst",
+      "ok": true,
+      "detail": "keine abgelaufenen Token"
+    },
+    {
+      "name": "ops_expire_due ist ausführbar und meldet Zähler",
+      "ok": true,
+      "detail": "{\"expired_carts\":0,\"expired_sessions\":0,\"expired_reservations\":0}"
+    },
+    {
+      "name": "Ablaufjob räumt ausschließlich fällige Datensätze ab",
+      "ok": true,
+      "detail": "Ausgangslage carts=46, reservations=0; Zähler {\"expired_carts\":0,\"expired_sessions\":0,\"expired_reservations\":0}"
+    },
+    {
+      "name": "Zweiter Lauf des Ablaufjobs ist idempotent (keine weiteren Treffer)",
+      "ok": true,
+      "detail": "{\"expired_carts\":0,\"expired_sessions\":0,\"expired_reservations\":0}"
+    },
+    {
+      "name": "Auskunft: alle personenbezogenen Datensätze eines Kunden sind auffindbar",
+      "ok": true,
+      "detail": "{\"customer\":1,\"addresses\":1,\"orders\":2,\"communications\":3,\"returns\":0}"
+    },
+    {
+      "name": "Testkunde mit Adresse angelegt",
+      "ok": true,
+      "detail": "1 Adresse(n)"
+    },
+    {
+      "name": "Vollständige Löschung einer Organisation ist möglich",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Nach der Löschung bleiben keine personenbezogenen Reste",
+      "ok": true,
+      "detail": "0 Datensätze"
+    },
+    {
+      "name": "Organisation selbst wird entfernt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Ausgestellte Rechnungen sind nicht änderbar (Aufbewahrungspflicht)",
+      "ok": true,
+      "detail": "Fachliche Rechnungsdaten sind nach der Ausstellung unveränderbar."
+    },
+    {
+      "name": "Audit-Protokoll ist unveränderlich",
+      "ok": true,
+      "detail": "audit_log ist append-only und darf nicht geändert oder gelöscht werden. / audit_log ist append-only und darf nicht geändert oder gelöscht werden."
+    },
+    {
+      "name": "Keine verwaisten QA-Fixture-Organisationen in der Datenbank",
+      "ok": true,
+      "detail": "keine"
+    }
+  ]
+}

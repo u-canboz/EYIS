@@ -1,8 +1,8 @@
 {
-  "ranAt": "2026-08-26T09:03:51.882Z",
+  "ranAt": "2026-08-27T12:45:04.688Z",
   "base": "http://localhost:8080",
   "total": 32,
-  "passed": 32,
+  "passed": 31,
   "results": [
     {
       "name": "Store API ohne Key -> 401",
@@ -101,7 +101,7 @@
     },
     {
       "name": "Guest-Lookup wird ratenbegrenzt (429)",
-      "ok": true,
+      "ok": false,
       "detail": ""
     },
     {

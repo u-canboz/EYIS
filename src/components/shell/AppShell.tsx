@@ -75,7 +75,7 @@ function Wordmark({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
     <Link
       to="/app"
       onClick={onNavigate}
-      className="flex min-w-0 items-center gap-2.5 rounded-md focus-visible:outline-none"
+      className="flex min-w-0 items-center gap-2.5 rounded-md focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
     >
       <span
         aria-hidden
@@ -191,8 +191,11 @@ export function AppShell(props: Props) {
         {/* Mobile topbar */}
         <header className="sticky top-0 z-30 grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-background/95 px-2 backdrop-blur md:hidden">
           {navSheet}
-          <Link to="/app" className="min-w-0 truncate font-display text-sm font-semibold">
-            Commerce OS
+          <Link
+            to="/app"
+            className="flex min-h-11 min-w-0 items-center rounded-md font-display text-sm font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            <span className="min-w-0 truncate">Commerce OS</span>
           </Link>
           <Link
             to="/app/bestellungen"

@@ -141,7 +141,7 @@ function TeamPage() {
               <div className="min-w-0 space-y-2">
                 <Label>Rolle</Label>
                 <Select value={role} onValueChange={(v) => setRole(v as Role)}>
-                  <SelectTrigger className="h-11">
+                  <SelectTrigger aria-label="Rolle der Einladung" className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -207,7 +207,7 @@ function TeamPage() {
                         roleMutation.mutate({ membershipId: m.id, role: v as Role })
                       }
                     >
-                      <SelectTrigger className="h-11 w-44">
+                      <SelectTrigger aria-label="Rolle des Mitglieds" className="h-11 w-44">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

@@ -108,7 +108,7 @@ function StoreHeader() {
       <StoreContainer wide className="flex min-h-16 items-center gap-4">
         <Link
           to="/store"
-          className="min-w-0 shrink-0 font-display text-base font-semibold tracking-tight sm:text-lg"
+          className="flex min-h-11 min-w-0 shrink-0 items-center rounded-md font-display text-base font-semibold tracking-tight focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:text-lg"
         >
           Atelier
         </Link>

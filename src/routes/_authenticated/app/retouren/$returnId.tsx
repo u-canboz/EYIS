@@ -492,7 +492,7 @@ function ReturnDetailPage() {
         actions={
           can("inventory.manage") ? (
             <Select value={locationId} onValueChange={setLocationId}>
-              <SelectTrigger className="h-11 w-56">
+              <SelectTrigger aria-label="Einlagerungs-Lagerort" className="h-11 w-56">
                 <SelectValue placeholder="Einlagerungs-Lagerort" />
               </SelectTrigger>
               <SelectContent>

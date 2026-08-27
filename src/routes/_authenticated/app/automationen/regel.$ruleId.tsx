@@ -465,7 +465,7 @@ function RuleEditor() {
                       value={cond.field}
                       onValueChange={(v) => updateCondition(i, { field: v })}
                     >
-                      <SelectTrigger className="h-11 w-full">
+                      <SelectTrigger aria-label="Feld" className="h-11 w-full">
                         <SelectValue placeholder="Feld" />
                       </SelectTrigger>
                       <SelectContent>
@@ -500,7 +500,7 @@ function RuleEditor() {
                         value={String(cond.value ?? "")}
                         onValueChange={(v) => updateCondition(i, { value: v })}
                       >
-                        <SelectTrigger className="h-11 w-full">
+                        <SelectTrigger aria-label="Wert" className="h-11 w-full">
                           <SelectValue placeholder="Wert" />
                         </SelectTrigger>
                         <SelectContent>
@@ -595,7 +595,7 @@ function RuleEditor() {
                                 updateAction(i, { config: { ...action.config, [p.key]: v } })
                               }
                             >
-                              <SelectTrigger className="h-11 w-full">
+                              <SelectTrigger aria-label="Vorlage wählen" className="h-11 w-full">
                                 <SelectValue placeholder="Vorlage wählen" />
                               </SelectTrigger>
                               <SelectContent>
@@ -613,7 +613,7 @@ function RuleEditor() {
                                 updateAction(i, { config: { ...action.config, [p.key]: v } })
                               }
                             >
-                              <SelectTrigger className="h-11 w-full">
+                              <SelectTrigger aria-label="Ziel wählen" className="h-11 w-full">
                                 <SelectValue placeholder="Ziel wählen" />
                               </SelectTrigger>
                               <SelectContent>
@@ -690,7 +690,7 @@ function RuleEditor() {
               <div className="space-y-2">
                 <Label className="text-xs">Aktion hinzufügen</Label>
                 <Select value="" onValueChange={addAction}>
-                  <SelectTrigger className="h-11 w-full sm:w-80">
+                  <SelectTrigger aria-label="Aktion auswählen" className="h-11 w-full sm:w-80">
                     <SelectValue placeholder="Aktion auswählen" />
                   </SelectTrigger>
                   <SelectContent>

@@ -1,5 +1,5 @@
 {
-  "at": "2026-08-26T09:02:06.976Z",
+  "at": "2026-08-27T12:45:39.818Z",
   "results": [
     {
       "name": "A8: /jobs/automation ohne Token → 401",
@@ -49,7 +49,7 @@
     {
       "name": "A8: Hängender Job (locked > 15 min) wird freigegeben und weiterverarbeitet",
       "ok": true,
-      "detail": "{\"status\":\"completed\",\"locked_by\":\"worker-c111782b\"}"
+      "detail": "{\"status\":\"completed\",\"locked_by\":\"worker-990abb5b\"}"
     },
     {
       "name": "A8: Unbekannter Job-Typ → failed + invalid_configuration",
@@ -59,7 +59,7 @@
     {
       "name": "A8: Retryable Fehler → Resume-Job mit Backoff eingeplant",
       "ok": true,
-      "detail": "{\"jobStatus\":\"completed\",\"worker\":1,\"resumeAt\":\"2026-08-26T09:03:04.877+00:00\"}"
+      "detail": "{\"jobStatus\":\"completed\",\"worker\":1,\"resumeAt\":\"2026-08-27T12:46:36.748+00:00\"}"
     },
     {
       "name": "A8: Execution wartet auf Retry (Status queued, nicht failed)",
@@ -74,12 +74,12 @@
     {
       "name": "A8: Owner erhält Systemstatus (Latenz + Counts + Provider + Cron)",
       "ok": true,
-      "detail": "latency=52ms products=1 providers=3"
+      "detail": "latency=56ms products=1 providers=3"
     },
     {
       "name": "A8: Jobs-Übersicht liefert Aggregate (Jobs, Outbox, Kommunikation)",
       "ok": true,
-      "detail": "jobs={\"failed\":3,\"completed\":3} outbox={\"processed\":34,\"pending\":195}"
+      "detail": "jobs={\"failed\":3,\"completed\":3} outbox={\"processed\":66,\"pending\":253}"
     },
     {
       "name": "A8: Fehler-Feed aggregiert Quellen (sortiert, max 100)",

@@ -23,7 +23,13 @@
     "qa:health": "bun run qa/phase14-health.ts",
     "qa:jobs": "bun run qa/phase14-jobs.ts",
     "qa:migrations": "bun run qa/phase14-migrations.ts",
-    "qa:demo": "bun run qa/phase15-demo.ts"
+    "qa:demo": "bun run qa/phase15-demo.ts",
+    "qa:visual": "python3 qa/phase14-visual.py",
+    "qa:a11y": "python3 qa/phase14-a11y.py",
+    "qa:performance": "bun run qa/phase14-performance.ts",
+    "qa:privacy": "bun run qa/phase14-privacy.ts",
+    "qa:storage": "bun run qa/phase14-storage.ts",
+    "qa:providers": "bun run qa/phase14-providers.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -92,6 +98,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "axe-core": "^4.13.0",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",

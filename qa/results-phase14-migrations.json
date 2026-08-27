@@ -1,13 +1,13 @@
 {
-  "ranAt": "2026-08-26T08:53:04.631Z",
-  "migrationFiles": 42,
-  "tablesInDb": 112,
-  "functionsInDb": 102,
+  "ranAt": "2026-08-27T12:45:40.378Z",
+  "migrationFiles": 45,
+  "tablesInDb": 114,
+  "functionsInDb": 104,
   "results": [
     {
       "name": "Migrationsdateien: eindeutige Versionen",
       "ok": true,
-      "detail": "42 Dateien"
+      "detail": "45 Dateien"
     },
     {
       "name": "Migrationsdateien: lexikalische Reihenfolge == chronologische Reihenfolge",
@@ -25,12 +25,12 @@
       "detail": ""
     },
     {
-      "name": "Drift Tabellen: Migrationen ↔ Live-DB identisch (112 Tabellen)",
+      "name": "Drift Tabellen: Migrationen ↔ Live-DB identisch (114 Tabellen)",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "Drift Funktionen: Migrationen ↔ Live-DB identisch (102 Funktionen)",
+      "name": "Drift Funktionen: Migrationen ↔ Live-DB identisch (104 Funktionen)",
       "ok": true,
       "detail": ""
     },

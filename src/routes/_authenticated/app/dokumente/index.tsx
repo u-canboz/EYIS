@@ -152,7 +152,7 @@ function DocumentsPage() {
             }
             filters={
               <Select value={status} onValueChange={(v) => setStatus(v as InvoiceStatus | "all")}>
-                <SelectTrigger className="h-11 w-full md:w-56">
+                <SelectTrigger aria-label="Rechnungsstatus" className="h-11 w-full md:w-56">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

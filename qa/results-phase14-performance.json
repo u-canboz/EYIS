@@ -1,0 +1,165 @@
+{
+  "ranAt": "2026-08-27T12:37:46.751Z",
+  "base": "http://localhost:8080",
+  "stats": [
+    {
+      "label": "GET /products (Katalogliste, 32 Produkte)",
+      "n": 30,
+      "p50": 1580,
+      "p95": 1735,
+      "max": 2089,
+      "errors": 0
+    },
+    {
+      "label": "GET /products/kraeuter-gewuerzsalz-120-g (Detail)",
+      "n": 30,
+      "p50": 746,
+      "p95": 882,
+      "max": 984,
+      "errors": 0
+    },
+    {
+      "label": "GET /products?search= (Suche)",
+      "n": 20,
+      "p50": 1555,
+      "p95": 1763,
+      "max": 1763,
+      "errors": 0
+    },
+    {
+      "label": "POST /cart/:id/items (Position hinzufügen)",
+      "n": 15,
+      "p50": 1626,
+      "p95": 1700,
+      "max": 1700,
+      "errors": 0
+    },
+    {
+      "label": "GET /cart/:id (Warenkorb lesen)",
+      "n": 20,
+      "p50": 990,
+      "p95": 1138,
+      "max": 1138,
+      "errors": 0
+    },
+    {
+      "label": "GET / (HTML)",
+      "n": 10,
+      "p50": 11,
+      "p95": 16,
+      "max": 16,
+      "errors": 0
+    },
+    {
+      "label": "GET /store (HTML)",
+      "n": 10,
+      "p50": 11,
+      "p95": 17,
+      "max": 17,
+      "errors": 0
+    },
+    {
+      "label": "GET /store/warenkorb (HTML)",
+      "n": 10,
+      "p50": 10,
+      "p95": 13,
+      "max": 13,
+      "errors": 0
+    },
+    {
+      "label": "GET /portal/gast (HTML)",
+      "n": 10,
+      "p50": 10,
+      "p95": 17,
+      "max": 17,
+      "errors": 0
+    },
+    {
+      "label": "DB: Bestellliste (50 Zeilen mit Joins)",
+      "n": 15,
+      "p50": 70,
+      "p95": 95,
+      "max": 95,
+      "errors": 0
+    }
+  ],
+  "total": 15,
+  "passed": 15,
+  "results": [
+    {
+      "name": "Katalogliste p95 unter 3000 ms (1735 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET /products (Katalogliste, 32 Produkte)\",\"n\":30,\"p50\":1580,\"p95\":1735,\"max\":2089,\"errors\":0}"
+    },
+    {
+      "name": "Produktdetail p95 unter 1500 ms (882 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET /products/kraeuter-gewuerzsalz-120-g (Detail)\",\"n\":30,\"p50\":746,\"p95\":882,\"max\":984,\"errors\":0}"
+    },
+    {
+      "name": "Suche p95 unter 2500 ms (1763 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET /products?search= (Suche)\",\"n\":20,\"p50\":1555,\"p95\":1763,\"max\":1763,\"errors\":0}"
+    },
+    {
+      "name": "Warenkorb für Messung angelegt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Warenkorb-Schreibvorgang p95 unter 2500 ms (1700 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"POST /cart/:id/items (Position hinzufügen)\",\"n\":15,\"p50\":1626,\"p95\":1700,\"max\":1700,\"errors\":0}"
+    },
+    {
+      "name": "Warenkorb lesen p95 unter 1500 ms (1138 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET /cart/:id (Warenkorb lesen)\",\"n\":20,\"p50\":990,\"p95\":1138,\"max\":1138,\"errors\":0}"
+    },
+    {
+      "name": "10 parallele Katalogabrufe werden bedient (10 OK, 0 ratenbegrenzt, 14557 ms)",
+      "ok": true,
+      "detail": "ok=10 429=0 wall=14557ms"
+    },
+    {
+      "name": "Nebenläufige Warenkorb-Schreibzugriffe bleiben konsistent",
+      "ok": true,
+      "detail": "vorher 0, nachher 0"
+    },
+    {
+      "name": "Kein Überverkauf: reservierte Menge nie größer als Bestand",
+      "ok": true,
+      "detail": "0 von 32 Beständen"
+    },
+    {
+      "name": "Seite / p95 unter 2500 ms (16 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET / (HTML)\",\"n\":10,\"p50\":11,\"p95\":16,\"max\":16,\"errors\":0}"
+    },
+    {
+      "name": "Seite /store p95 unter 2500 ms (17 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET /store (HTML)\",\"n\":10,\"p50\":11,\"p95\":17,\"max\":17,\"errors\":0}"
+    },
+    {
+      "name": "Seite /store/warenkorb p95 unter 2500 ms (13 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET /store/warenkorb (HTML)\",\"n\":10,\"p50\":10,\"p95\":13,\"max\":13,\"errors\":0}"
+    },
+    {
+      "name": "Seite /portal/gast p95 unter 2500 ms (17 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"GET /portal/gast (HTML)\",\"n\":10,\"p50\":10,\"p95\":17,\"max\":17,\"errors\":0}"
+    },
+    {
+      "name": "Bestellliste p95 unter 800 ms (95 ms)",
+      "ok": true,
+      "detail": "{\"label\":\"DB: Bestellliste (50 Zeilen mit Joins)\",\"n\":15,\"p50\":70,\"p95\":95,\"max\":95,\"errors\":0}"
+    },
+    {
+      "name": "Last-Test-Schlüssel entfernt",
+      "ok": true,
+      "detail": "0 verbleibend"
+    }
+  ]
+}

@@ -51,11 +51,11 @@ export function StoreHeading({
       {eyebrow ? (
         <p className="text-xs tracking-[0.18em] text-muted-foreground uppercase">{eyebrow}</p>
       ) : null}
-      <h1 className="mt-1 font-display text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">
+      <h1 className="mt-1 font-display text-2xl leading-tight font-semibold tracking-tight wrap-anywhere text-balance sm:text-4xl">
         {title}
       </h1>
       {description ? (
-        <p className="mt-3 max-w-prose text-sm text-pretty text-muted-foreground sm:text-base">
+        <p className="mt-3 max-w-prose text-sm wrap-anywhere text-pretty text-muted-foreground sm:text-base">
           {description}
         </p>
       ) : null}

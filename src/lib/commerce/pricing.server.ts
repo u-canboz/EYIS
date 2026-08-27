@@ -5,6 +5,7 @@
 import { resolvePricing } from "./pricing-engine";
 import type { PriceRow, PricingContext, PricingSnapshot, PromotionRow } from "./pricing-types";
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Supabase-Query-Builder und rohe Zeilen sind generisch; die Typisierung erfolgt beim Mapping. */
 type Client = { from: (table: string) => any };
 
 export type LoadArgs = {
@@ -85,6 +86,112 @@ export async function loadSnapshot(
     productCategoryIds: ((cats ?? []) as { category_id: string }[]).map((c) => c.category_id),
     productCollectionIds: ((cols ?? []) as { collection_id: string }[]).map((c) => c.collection_id),
   };
+}
+
+/**
+ * Snapshots für viele Produkte in konstant fünf Abfragen statt fünf je Produkt.
+ * Liefert exakt dieselben Snapshots wie loadSnapshot ohne Variantenbezug.
+ */
+export async function loadSnapshotsForProducts(
+  supabase: Client,
+  args: { organizationId: string; shopId: string; productIds: string[] },
+  shopCurrency: string,
+): Promise<Map<string, PricingSnapshot>> {
+  const map = new Map<string, PricingSnapshot>();
+  if (!args.productIds.length) return map;
+
+  const [
+    { data: sets, error: setErr },
+    { data: promoRows, error: promoErr },
+    { data: cats },
+    { data: cols },
+  ] = await Promise.all([
+    supabase
+      .from("price_sets")
+      .select("id, product_id, variant_id")
+      .eq("organization_id", args.organizationId)
+      .eq("shop_id", args.shopId)
+      .in("product_id", args.productIds),
+    supabase
+      .from("promotions")
+      .select("*")
+      .eq("organization_id", args.organizationId)
+      .eq("shop_id", args.shopId)
+      .eq("status", "active"),
+    supabase
+      .from("product_categories")
+      .select("product_id, category_id")
+      .in("product_id", args.productIds),
+    supabase
+      .from("product_collections")
+      .select("product_id, collection_id")
+      .in("product_id", args.productIds),
+  ]);
+  if (setErr) throw new Error(setErr.message);
+  if (promoErr) throw new Error(promoErr.message);
+
+  const setRows = (sets ?? []) as {
+    id: string;
+    product_id: string | null;
+    variant_id: string | null;
+  }[];
+  const setToProduct = new Map(setRows.map((s) => [s.id, s.product_id as string]));
+
+  let priceRows: any[] = [];
+  if (setRows.length) {
+    const { data, error } = await supabase
+      .from("prices")
+      .select("*")
+      .in(
+        "price_set_id",
+        setRows.map((s) => s.id),
+      );
+    if (error) throw new Error(error.message);
+    priceRows = (data ?? []) as any[];
+  }
+
+  const promotions = ((promoRows ?? []) as any[]).map((p) => ({
+    ...p,
+    value: Number(p.value),
+    conditions: Array.isArray(p.conditions) ? p.conditions : [],
+    actions: Array.isArray(p.actions) ? p.actions : [],
+  })) as PromotionRow[];
+
+  const pricesByProduct = new Map<string, PriceRow[]>();
+  for (const row of priceRows) {
+    const productId = setToProduct.get(row.price_set_id);
+    if (!productId) continue;
+    const list = pricesByProduct.get(productId) ?? [];
+    list.push({
+      ...row,
+      amount_minor: Number(row.amount_minor),
+      scope: "product",
+      conditions: (row.conditions ?? {}) as Record<string, unknown>,
+    } as PriceRow);
+    pricesByProduct.set(productId, list);
+  }
+
+  const catsByProduct = new Map<string, string[]>();
+  for (const c of (cats ?? []) as { product_id: string; category_id: string }[]) {
+    catsByProduct.set(c.product_id, [...(catsByProduct.get(c.product_id) ?? []), c.category_id]);
+  }
+  const colsByProduct = new Map<string, string[]>();
+  for (const c of (cols ?? []) as { product_id: string; collection_id: string }[]) {
+    colsByProduct.set(c.product_id, [...(colsByProduct.get(c.product_id) ?? []), c.collection_id]);
+  }
+
+  for (const productId of args.productIds) {
+    map.set(productId, {
+      organizationId: args.organizationId,
+      shopId: args.shopId,
+      shopCurrency,
+      prices: pricesByProduct.get(productId) ?? [],
+      promotions,
+      productCategoryIds: catsByProduct.get(productId) ?? [],
+      productCollectionIds: colsByProduct.get(productId) ?? [],
+    });
+  }
+  return map;
 }
 
 export async function resolveFromDatabase(

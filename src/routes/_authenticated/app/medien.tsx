@@ -73,7 +73,21 @@ function MediaPage() {
     if (!files?.length || !organizationId) return;
     setUploading(true);
     try {
+      // Clientseitige Vorprüfung. Verbindlich sind die Bucket-Allowlist und die
+      // Serverprüfung in registerMedia — hier geht es nur um schnelle Rückmeldung.
+      const allowed = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+        "image/avif",
+        "application/pdf",
+      ];
       for (const file of Array.from(files)) {
+        if (!allowed.includes(file.type)) {
+          throw new Error(`Dateityp nicht erlaubt: ${file.type || "unbekannt"}`);
+        }
+        if (file.size > 25_000_000) throw new Error(`Datei zu groß: ${file.name}`);
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
         const path = `${organizationId}/${crypto.randomUUID()}-${safeName}`;
         const { error } = await supabase.storage.from("media").upload(path, file, {
@@ -81,6 +95,7 @@ function MediaPage() {
           upsert: false,
         });
         if (error) throw new Error(error.message);
+
         await runRegister({
           data: {
             organizationId,

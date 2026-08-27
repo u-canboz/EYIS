@@ -22,12 +22,20 @@ export function PortalPage({
   return (
     <div className="min-h-dvh bg-muted/30">
       <div className="border-b border-border/60 bg-background">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-5 py-4">
-          <Link to="/portal" className="min-w-0 truncate font-display text-sm font-semibold">
-            Kundenkonto
+        <nav
+          aria-label="Kundenkonto"
+          className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3 px-5 py-2"
+        >
+          <Link
+            to="/portal"
+            className="-ml-2 flex min-h-11 min-w-0 items-center rounded-lg px-2 font-display text-sm font-semibold"
+          >
+            <span className="min-w-0 truncate">Kundenkonto</span>
           </Link>
-          <span className="shrink-0 text-xs text-muted-foreground">Service &amp; Bestellungen</span>
-        </div>
+          <span className="min-w-0 shrink truncate text-right text-xs text-muted-foreground">
+            Service &amp; Bestellungen
+          </span>
+        </nav>
       </div>
 
       <main className={cn("mx-auto w-full max-w-2xl px-5 pt-6 pb-16 pb-safe", className)}>
@@ -58,11 +66,13 @@ export function PortalHeading({
 }) {
   return (
     <header className={cn("mb-7 min-w-0", className)}>
-      <h1 className="font-display text-2xl leading-tight font-semibold tracking-tight text-balance sm:text-3xl">
+      <h1 className="font-display text-2xl leading-tight font-semibold tracking-tight break-words text-balance sm:text-3xl">
         {title}
       </h1>
       {description ? (
-        <p className="mt-2 max-w-prose text-sm text-pretty text-muted-foreground">{description}</p>
+        <p className="mt-2 max-w-prose text-sm break-words text-pretty text-muted-foreground">
+          {description}
+        </p>
       ) : null}
     </header>
   );
@@ -89,9 +99,9 @@ export function PortalCard({
       {title ? (
         <header className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
-            <h2 className="font-display text-base font-semibold tracking-tight">{title}</h2>
+            <h2 className="font-display text-base font-semibold tracking-tight break-words">{title}</h2>
             {description ? (
-              <p className="mt-1 text-sm text-pretty text-muted-foreground">{description}</p>
+              <p className="mt-1 text-sm break-words text-pretty text-muted-foreground">{description}</p>
             ) : null}
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
@@ -121,8 +131,12 @@ export function PortalStatus({
         tone === "neutral" && "border-border/70 bg-background",
       )}
     >
-      <p className="font-display text-lg leading-snug font-semibold text-balance">{headline}</p>
-      {detail ? <p className="mt-1 text-sm text-pretty text-muted-foreground">{detail}</p> : null}
+      <p className="font-display text-lg leading-snug font-semibold break-words text-balance">
+        {headline}
+      </p>
+      {detail ? (
+        <p className="mt-1 text-sm break-words text-pretty text-muted-foreground">{detail}</p>
+      ) : null}
     </div>
   );
 }
@@ -139,7 +153,7 @@ export function PortalRow({
 }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 py-1.5 text-sm">
-      <dt className="min-w-0 text-muted-foreground">{label}</dt>
+      <dt className="min-w-0 break-words text-muted-foreground">{label}</dt>
       <dd
         className={cn(
           "min-w-0 text-right break-words tabular-nums",
@@ -172,8 +186,8 @@ export function PortalTimeline({ entries }: { entries: PortalTimelineEntry[] }) 
             {i < entries.length - 1 ? <span className="mt-1 w-px flex-1 bg-border" /> : null}
           </div>
           <div className="min-w-0 pb-1">
-            <p className="text-sm font-medium text-pretty">{e.title}</p>
-            {e.meta ? <p className="mt-0.5 text-xs text-muted-foreground">{e.meta}</p> : null}
+            <p className="text-sm font-medium break-words text-pretty">{e.title}</p>
+            {e.meta ? <p className="mt-0.5 text-xs break-words text-muted-foreground">{e.meta}</p> : null}
           </div>
         </li>
       ))}

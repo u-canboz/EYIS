@@ -94,10 +94,10 @@ function StoreCatalog() {
               className="group min-w-0"
             >
               <ProductMedia src={product.image?.url} alt={product.image?.alt ?? product.title} />
-              <h2 className="mt-3 min-w-0 text-sm font-medium text-pretty sm:text-base">
+              <h2 className="mt-3 min-w-0 text-sm font-medium wrap-anywhere text-pretty sm:text-base">
                 {product.title}
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground tabular-nums">
+              <p className="mt-1 text-sm wrap-anywhere text-muted-foreground tabular-nums">
                 {formatPrice(
                   product.price?.unitAmountMinor ?? 0,
                   product.price?.currencyCode ?? "EUR",

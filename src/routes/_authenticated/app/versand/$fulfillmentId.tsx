@@ -381,7 +381,7 @@ function FulfillmentDetail() {
                     setPackWeight(String(presets.data?.find((p) => p.id === id)?.weightGrams ?? ""))
                   }
                 >
-                  <SelectTrigger className="h-11 w-56">
+                  <SelectTrigger aria-label="Preset wählen" className="h-11 w-56">
                     <SelectValue placeholder="Preset wählen" />
                   </SelectTrigger>
                   <SelectContent>
@@ -406,7 +406,7 @@ function FulfillmentDetail() {
         actions={
           can("shipping.create_label") ? (
             <Select value={provider} onValueChange={setProvider}>
-              <SelectTrigger className="min-h-11 w-56">
+              <SelectTrigger aria-label="Versanddienstleister" className="min-h-11 w-56">
                 <SelectValue placeholder="Versanddienstleister" />
               </SelectTrigger>
               <SelectContent>

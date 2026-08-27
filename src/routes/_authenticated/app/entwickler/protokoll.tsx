@@ -85,7 +85,7 @@ function StoreApiLogs() {
         filters={
           <>
             <Select value={keyId ?? "all"} onValueChange={(v) => setKeyId(v === "all" ? null : v)}>
-              <SelectTrigger className="h-11 w-full md:w-56">
+              <SelectTrigger aria-label="Alle Keys" className="h-11 w-full md:w-56">
                 <SelectValue placeholder="Alle Keys" />
               </SelectTrigger>
               <SelectContent>

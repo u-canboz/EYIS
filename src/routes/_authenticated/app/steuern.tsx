@@ -518,7 +518,7 @@ function TaxPage() {
                     value={rateDraft.taxClassId}
                     onValueChange={(v) => setRateDraft((s) => ({ ...s, taxClassId: v }))}
                   >
-                    <SelectTrigger className="h-11 w-56">
+                    <SelectTrigger aria-label="Wählen" className="h-11 w-56">
                       <SelectValue placeholder="Wählen" />
                     </SelectTrigger>
                     <SelectContent>
