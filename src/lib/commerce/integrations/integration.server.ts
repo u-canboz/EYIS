@@ -396,11 +396,14 @@ async function liveProbe(
       throw Object.assign(new Error("Für SMTP sind noch keine Zugangsdaten hinterlegt."), {
         code: "not_connected",
       });
-    const { verifySmtpConnection } = await import("../communications/providers/smtp.server");
+    const { verifySmtpConnection, resolveTlsMode } = await import(
+      "../communications/providers/smtp.server"
+    );
+    const smtpPort = Number(creds["port"] ?? 587);
     const info = await verifySmtpConnection({
       host: creds["host"],
-      port: Number(creds["port"] ?? 587),
-      encryption: creds["encryption"] === "tls" ? "tls" : "starttls",
+      port: smtpPort,
+      encryption: resolveTlsMode(creds["encryption"], smtpPort),
       username: creds["username"],
       password: creds["password"],
       senderAddress: creds["senderAddress"] ?? null,
