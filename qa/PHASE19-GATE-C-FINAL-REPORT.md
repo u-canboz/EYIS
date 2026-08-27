@@ -18,7 +18,7 @@ Weitere Berichte: `qa/PHASE19-STAGING-SETUP-REPORT.md`, `qa/PHASE19-STAGING-E2E-
 | Store-API-Version | v1 (stabil, additiv erweitert um `GET /payment-methods`) |
 | SDK-Version | 1.0.0, im Repository unter `src/lib/store-sdk` |
 | Buildstand | Client + SSR + Nitro grün |
-| Teststand | Vitest grün, inkl. neuer Guard-Negativtests |
+| Teststand | Vitest 80/80 grün, inkl. 5 neuer Guard-Negativtests |
 | Funktionsumfang | eingefroren, keine neuen Commerce-Funktionen in Gate C |
 
 Grundlagen übernommen aus: `qa/PHASE14-GATE-A-FINAL-REPORT.md`, `qa/PHASE14-GATE-B-FINAL-REPORT.md`,
@@ -98,7 +98,7 @@ Benötigte Werte (ausschließlich über die sichere Secret-Verwaltung des Projek
 
 ## 5. Regression (Punkt 19)
 
-`bun run verify`: docs:validate, typecheck, Tests und Build grün. Die QA-Suiten Security, RLS,
+`bun run verify`: docs:validate OK (24 Pflichtdateien, 75 Markdown-Dateien), typecheck OK, Tests 80/80, Build (Client + SSR + Nitro) OK. Zusätzlich `bun run qa:demo` 44/44 PASS nach der Guard-Härtung (die Demo-Harness stellte `APP_ENV` nach dem Negativtest nicht wieder her; minimal korrigiert, keine Prüfung abgeschwächt). Die QA-Suiten Security, RLS,
 Health, Jobs, Migrationen, Demo, UI, Accessibility, Performance, Privacy, Storage, Provider,
 Integration Center, Store API und SDK-Contract sind mit ihren jeweiligen Berichten aus Gate A,
 Gate B und Phase 18 unverändert gültig; in Gate C wurden keine Tests entfernt oder abgeschwächt.

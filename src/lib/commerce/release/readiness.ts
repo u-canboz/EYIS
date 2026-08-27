@@ -52,7 +52,7 @@ export const READINESS: ReadinessItem[] = [
   {
     area: "Tests",
     status: "PASS",
-    evidence: "vitest, inkl. neuer Production-Guard-Negativtests",
+    evidence: "vitest 80/80, inkl. Production-Guard-Negativtests",
     checkedAt: "2026-08-27",
     action: "",
     owner: "Agent",
