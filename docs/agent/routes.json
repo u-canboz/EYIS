@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-27T17:30:08.077Z",
-  "source_commit": "d7cb32323a7d20d6c15d05e3efdd010a9c73b656",
+  "generated_at": "2026-08-27T21:04:23.283Z",
+  "source_commit": "33f259c90ffd843d9d26ec2813069a99840d7e06",
   "latest_migration": "20260827143513_c0ae8993-af5a-43ac-b8ff-f64ccf818793.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 78,
+  "total": 79,
   "by_kind": {
-    "backoffice": 58,
+    "backoffice": 59,
     "job-endpoint": 3,
     "public-store-api": 1,
     "webhook": 3,
@@ -489,6 +489,16 @@
     {
       "url": "/app/system/jobs",
       "source": "src/routes/_authenticated/app/system/jobs.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/release-readiness",
+      "source": "src/routes/_authenticated/app/system/release-readiness.tsx",
       "kind": "backoffice",
       "methods": [
         "GET"

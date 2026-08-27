@@ -81,3 +81,18 @@ Finding **A2-F3**: keine explizite Umgebungskennzeichnung. Mit echter Projekttre
 entfällt der Bedarf, weil jede Umgebung eine eigene Datenbank hat. Solange die Trennung fehlt,
 bleibt das Risiko der Vermischung bestehen. Eine Migration wird bewusst **nicht** ergänzt, weil
 sie den falschen Lösungsweg zementieren würde.
+
+## Stand nach Gate C (2026-08-27)
+
+Unverändert **BLOCKED**: es existiert weiterhin nur ein Cloud-Projekt. Neu ist die technische
+Absicherung der Umgebungsauflösung:
+
+| Punkt | Umsetzung | Status |
+| --- | --- | --- |
+| `APP_ENV` ist Pflicht, gültige Werte `development`/`staging`/`production` | `src/lib/commerce/environment.ts` | PASS |
+| Ungültiger Wert führt zum harten Abbruch | ebenda, Negativtests | PASS |
+| Fehlender Wert wird nicht still als Development behandelt | ebenda | PASS |
+| Demo-/QA-Seeds nutzen die Auflösung | `src/lib/commerce/demo/guard.server.ts` | PASS |
+| Getrennte Instanzen für Staging und Production | manuelle Betreiberaufgabe | BLOCKED |
+
+Bericht: `qa/PHASE19-STAGING-SETUP-REPORT.md`. Einrichtung: `docs/production/STAGING_SETUP_RUNBOOK.md`.

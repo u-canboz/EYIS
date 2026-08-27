@@ -1,0 +1,33 @@
+{
+  "phase": "19",
+  "suite": "staging-e2e",
+  "ranAt": "2026-08-27T20:30:00Z",
+  "environment": "development",
+  "overallStatus": "BLOCKED",
+  "reason": "Keine getrennte Staging-Umgebung vorhanden; nur ein Cloud-Projekt. Ein Lauf gegen Development wäre kein Staging-Nachweis.",
+  "checks": [
+    { "id": "C11.1", "name": "Organisation und Shop", "status": "BLOCKED" },
+    { "id": "C11.2", "name": "Integration Center mit Staging-Providern", "status": "BLOCKED" },
+    { "id": "C11.3", "name": "Produkt, Varianten, Preis, Promotion, Bestand", "status": "BLOCKED" },
+    { "id": "C11.4", "name": "Storefront, Warenkorb, Checkout", "status": "BLOCKED" },
+    { "id": "C11.5", "name": "Stripe-Testzahlung", "status": "BLOCKED" },
+    { "id": "C11.6", "name": "Bestellung, Tax, Rechnung", "status": "BLOCKED" },
+    { "id": "C11.7", "name": "E-Mail-Zustellung", "status": "BLOCKED" },
+    { "id": "C11.8", "name": "Fulfillment, Carrier, Tracking", "status": "BLOCKED" },
+    { "id": "C11.9", "name": "Kundenportal und Dokumentdownload", "status": "BLOCKED" },
+    { "id": "C11.10", "name": "Retoure, Refund, Gutschrift, Restock", "status": "BLOCKED" },
+    { "id": "C11.11", "name": "Automation und Health Check", "status": "BLOCKED" },
+    { "id": "C11.12", "name": "Cross-Tenant, Rate Limits, API-Key-Revoke", "status": "BLOCKED" },
+    { "id": "C11.13", "name": "Webhook-Dedup, Jobs, Queue-Retry", "status": "BLOCKED" },
+    { "id": "C11.14", "name": "Provider-Ausfall", "status": "BLOCKED" },
+    { "id": "C11.15", "name": "Backup/Export und Demo-Cleanup", "status": "BLOCKED" }
+  ],
+  "devEvidence": [
+    "qa/PHASE5-QA-REPORT.md",
+    "qa/PHASE18-INTEGRATION-CENTER-REPORT.md",
+    "qa/PHASE12-QA-REPORT.md",
+    "qa/PHASE14-JOBS-REPORT.md",
+    "qa/PHASE14-RLS-REPORT.md",
+    "qa/PHASE15-DEMO-REPORT.md"
+  ]
+}
