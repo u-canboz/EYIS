@@ -439,7 +439,7 @@ function RuleEditor() {
               title="2. Bedingungen"
               actions={
                 <Select value={mode} onValueChange={(v) => setMode(v as "all" | "any")}>
-                  <SelectTrigger className="h-9 w-44">
+                  <SelectTrigger className="min-h-11 w-44">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

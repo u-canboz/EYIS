@@ -333,7 +333,7 @@ function FulfillmentDetail() {
                   <td className="p-3">
                     {showPicking && can("fulfillment.pick") ? (
                       <Input
-                        className="h-9 w-20"
+                        className="min-h-11 w-20"
                         value={picked[i.id] ?? String(i.pickedQuantity || i.quantity)}
                         onChange={(e) => setPicked({ ...picked, [i.id]: e.target.value })}
                       />
@@ -406,7 +406,7 @@ function FulfillmentDetail() {
         actions={
           can("shipping.create_label") ? (
             <Select value={provider} onValueChange={setProvider}>
-              <SelectTrigger className="h-9 w-56">
+              <SelectTrigger className="min-h-11 w-56">
                 <SelectValue placeholder="Versanddienstleister" />
               </SelectTrigger>
               <SelectContent>

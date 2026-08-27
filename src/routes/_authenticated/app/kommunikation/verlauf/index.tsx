@@ -70,7 +70,7 @@ function LogPage() {
               key={f.key}
               size="sm"
               variant={tab === f.key ? "default" : "outline"}
-              className="h-9 shrink-0 rounded-full"
+              className="min-h-11 shrink-0 rounded-full"
               onClick={() => setTab(f.key)}
             >
               {f.label}

@@ -194,7 +194,7 @@ function StorefrontTest() {
                       </span>
                       <span className="flex shrink-0 items-center gap-2">
                         <Input
-                          className="h-9 w-16"
+                          className="min-h-11 w-16"
                           defaultValue={i.quantity}
                           onBlur={(e) =>
                             run(

@@ -160,7 +160,7 @@ function FulfillmentWorkspace() {
             key={t.key}
             size="sm"
             variant={t.key === tab ? "default" : "outline"}
-            className="h-9 shrink-0"
+            className="min-h-11 shrink-0"
             onClick={() => setTab(t.key)}
           >
             {t.label}

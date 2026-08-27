@@ -73,7 +73,7 @@ function TemplatesPage() {
             key={c}
             size="sm"
             variant={category === c ? "default" : "outline"}
-            className="h-9 shrink-0 rounded-full"
+            className="min-h-11 shrink-0 rounded-full"
             onClick={() => setCategory(c)}
           >
             {c === "all" ? "Alle" : (CATEGORY_LABELS[c] ?? c)}

@@ -226,7 +226,7 @@ function TeamPage() {
                       size="sm"
                       variant="ghost"
                       onClick={() => removeMutation.mutate(m.id)}
-                      className="h-9 text-destructive"
+                      className="min-h-11 text-destructive"
                     >
                       Entfernen
                     </Button>

@@ -168,7 +168,7 @@ function DeveloperKeys() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-9 shrink-0"
+                      className="min-h-11 shrink-0"
                       onClick={() => revoke.mutate(key.id)}
                       disabled={revoke.isPending}
                     >

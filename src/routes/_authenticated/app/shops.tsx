@@ -231,7 +231,7 @@ function Domains({
               {d.domain} {d.is_primary && <span className="text-muted-foreground">· primär</span>}
             </span>
             {canManage && (
-              <Button size="sm" variant="ghost" className="h-9 shrink-0" onClick={() => removeMutation.mutate(d.id)}>
+              <Button size="sm" variant="ghost" className="min-h-11 shrink-0" onClick={() => removeMutation.mutate(d.id)}>
                 Entfernen
               </Button>
             )}
