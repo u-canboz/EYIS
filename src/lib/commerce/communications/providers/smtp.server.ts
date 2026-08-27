@@ -313,14 +313,16 @@ async function openSession(
   connect: SmtpConnect,
 ): Promise<SmtpSession> {
   const timeout = config.timeoutMs ?? 15_000;
+  const mode = resolveTlsMode(config.encryption, config.port);
   let socket: SmtpSocket;
   try {
-    socket = connect({
-      hostname: config.host,
-      port: config.port,
-      secureTransport: config.encryption === "tls" ? "on" : "starttls",
-      allowHalfOpen: false,
-    });
+    // Adresse und Optionen sind getrennte Argumente. Nur so übernimmt die
+    // Laufzeit `secureTransport` — sonst schlägt ein späteres STARTTLS mit
+    // "secureTransport must be set to 'starttls'" fehl.
+    socket = connect(
+      { hostname: config.host, port: config.port },
+      { secureTransport: SECURE_TRANSPORT[mode], allowHalfOpen: false },
+    );
   } catch (error) {
     throw new CommunicationError(
       "provider_unavailable",
@@ -334,19 +336,22 @@ async function openSession(
   if (greeting.code !== 220) throw classify(greeting.code, greeting.text);
   const helo = config.senderAddress?.split("@")[1] ?? "commerce-os";
   await session.ehlo(helo);
-  if (config.encryption === "starttls") {
-    if (!session.capabilities.has("STARTTLS"))
+  if (mode === "starttls") {
+    if (!session.capabilities.has("STARTTLS")) {
+      await session.abort();
       throw new CommunicationError(
         "not_configured",
         "Der Server bietet kein STARTTLS an. Unverschlüsselter Versand ist nicht zulässig.",
         false,
       );
+    }
     await session.upgrade();
     await session.ehlo(helo);
   }
   await session.authenticate(config.username, config.password);
   return session;
 }
+
 
 /** Reiner Verbindungstest: TLS aufbauen, anmelden, sauber trennen. */
 export async function verifySmtpConnection(
