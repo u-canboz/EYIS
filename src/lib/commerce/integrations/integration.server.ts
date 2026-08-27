@@ -227,6 +227,81 @@ async function probeAdapter(entry: IntegrationCatalogEntry): Promise<void> {
   getProvider(engineId);
 }
 
+/**
+ * Echter Anbieter-Aufruf mit den hinterlegten Zugangsdaten des Shops.
+ * Gibt eine kurze, secret-freie Zusammenfassung zurück.
+ */
+async function liveProbe(
+  entry: IntegrationCatalogEntry,
+  organizationId: string,
+  shopId: string,
+): Promise<{ message: string; reference: string | null } | null> {
+  const { loadCredentials, referenceFor } = await import("./credentials.server");
+
+  if (entry.category === "payment" && entry.id === "stripe") {
+    for (const environment of ["test", "live"] as const) {
+      const creds = await loadCredentials({
+        organizationId,
+        shopId,
+        category: "payment",
+        provider: "stripe",
+        environment,
+      });
+      if (!creds?.["secretKey"]) continue;
+      const { verifyStripeKey } = await import("../payments/stripe.server");
+      const account = await verifyStripeKey(creds["secretKey"]);
+      if (!account.chargesEnabled)
+        throw Object.assign(
+          new Error(
+            "Stripe-Konto erreichbar, aber für dieses Konto sind noch keine Zahlungen freigeschaltet.",
+          ),
+          { code: "charges_disabled" },
+        );
+      return {
+        message: `Stripe-Konto ${account.accountId} erreichbar (${environment === "live" ? "Live" : "Test"}, ${account.country ?? "?"}).`,
+        reference: referenceFor({
+          organizationId,
+          shopId,
+          category: "payment",
+          provider: "stripe",
+          environment,
+        }),
+      };
+    }
+    throw Object.assign(new Error("Für Stripe ist noch kein API-Schlüssel hinterlegt."), {
+      code: "not_connected",
+    });
+  }
+
+  if (entry.category === "email" && entry.id === "resend") {
+    const creds = await loadCredentials({
+      organizationId,
+      shopId,
+      category: "email",
+      provider: "resend",
+      environment: "live",
+    });
+    if (!creds?.["apiKey"])
+      throw Object.assign(new Error("Für Resend ist noch kein API-Schlüssel hinterlegt."), {
+        code: "not_connected",
+      });
+    const { resendVerifyKey } = await import("../communications/providers/resend.server");
+    const info = await resendVerifyKey(creds["apiKey"]);
+    return {
+      message: `Resend erreichbar. Domains: ${info.domainCount}, davon verifiziert: ${info.verifiedDomains.length}.`,
+      reference: referenceFor({
+        organizationId,
+        shopId,
+        category: "email",
+        provider: "resend",
+        environment: "live",
+      }),
+    };
+  }
+
+  return null;
+}
+
 export async function testConnection(input: {
   organizationId: string;
   shopId: string;
@@ -245,8 +320,16 @@ export async function testConnection(input: {
   let health: HealthStatus = "healthy";
   let errorCode: string | null = null;
   let message = "Verbindung erfolgreich geprüft.";
+  let reference: string | null = null;
   try {
     await probeAdapter(entry);
+    const live = await liveProbe(entry, input.organizationId, input.shopId);
+    if (live) {
+      message = live.message;
+      reference = live.reference;
+    } else {
+      message = "Adapter verfügbar. Dieser Anbieter kennt keine externe Kontoprüfung.";
+    }
   } catch (e) {
     health = "error";
     errorCode = (e as { code?: string }).code ?? "unknown";
@@ -264,7 +347,7 @@ export async function testConnection(input: {
         provider: entry.id,
         status: health === "healthy" ? "connected" : "error",
         environment: entry.testOnly ? "test" : "test",
-        configuration_reference: null,
+        configuration_reference: reference,
       } as never,
       { onConflict: "shop_id,category,provider,environment" },
     )
@@ -349,6 +432,14 @@ export async function disconnectIntegration(input: {
       } as never,
       { onConflict: "shop_id,category,provider,environment" },
     );
+
+  const { revokeCredentials } = await import("./credentials.server");
+  await revokeCredentials({
+    organizationId: input.organizationId,
+    shopId: input.shopId,
+    category: input.category,
+    provider: engineId,
+  });
 
   await writeAudit({
     organizationId: input.organizationId,
