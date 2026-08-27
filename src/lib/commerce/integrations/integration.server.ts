@@ -95,6 +95,56 @@ async function loadEngineConfigs(admin: Admin, organizationId: string, shopId: s
   };
 }
 
+/**
+ * Schreibt Verbindung und Gesundheitsstand nach einer erfolgreichen Prüfung.
+ * Ein Eintrag entsteht nur nach einem echten Anbieteraufruf, nie „auf Verdacht".
+ */
+async function upsertConnection(
+  admin: Admin,
+  input: {
+    organizationId: string;
+    shopId: string;
+    category: IntegrationCategory;
+    provider: string;
+    environment: "test" | "live";
+    reference: string;
+    status: "connected" | "verification_required";
+    metadata: Record<string, unknown>;
+  },
+): Promise<void> {
+  const { data } = await admin
+    .from("integration_connections")
+    .upsert(
+      {
+        organization_id: input.organizationId,
+        shop_id: input.shopId,
+        category: input.category,
+        provider: input.provider,
+        status: input.status,
+        environment: input.environment,
+        configuration_reference: input.reference,
+        metadata: input.metadata as never,
+      } as never,
+      { onConflict: "shop_id,category,provider,environment" },
+    )
+    .select("id")
+    .single();
+  if (!data) return;
+  const now = new Date().toISOString();
+  await admin.from("integration_health").upsert(
+    {
+      connection_id: (data as Row)["id"] as string,
+      organization_id: input.organizationId,
+      shop_id: input.shopId,
+      status: "healthy",
+      last_checked_at: now,
+      last_success_at: now,
+      last_error_code: null,
+    } as never,
+    { onConflict: "connection_id" },
+  );
+}
+
 export async function listIntegrations(
   organizationId: string,
   shopId: string,
@@ -206,6 +256,10 @@ export async function listIntegrations(
 async function probeAdapter(entry: IntegrationCatalogEntry): Promise<void> {
   const engineId = engineProviderId(entry);
   if (entry.category === "payment") {
+    // PayPal und Mollie sind ausschließlich zugangsdatengebunden: der reine
+    // Adapter-Ladetest würde hier zu Recht scheitern. Für sie zählt allein der
+    // echte Anbieteraufruf in liveProbe().
+    if (engineId === "paypal" || engineId === "mollie") return;
     const { getProvider } = await import("../payments/provider.server");
     await getProvider(engineId);
     return;
@@ -214,14 +268,6 @@ async function probeAdapter(entry: IntegrationCatalogEntry): Promise<void> {
     const { getCarrier } = await import("../shipping/registry.server");
     await getCarrier(engineId);
     return;
-  }
-  if (entry.id === "smtp") {
-    throw Object.assign(
-      new Error(
-        "Generisches SMTP wird von dieser Plattform nicht unterstützt (keine rohen TCP/TLS-Verbindungen in der Serverless-Laufzeit). Bitte einen API-basierten E-Mail-Anbieter verwenden.",
-      ),
-      { code: "not_supported" },
-    );
   }
   const { getProvider } = await import("../communications/registry.server");
   getProvider(engineId);
@@ -271,6 +317,106 @@ async function liveProbe(
     throw Object.assign(new Error("Für Stripe ist noch kein API-Schlüssel hinterlegt."), {
       code: "not_connected",
     });
+  }
+
+  if (entry.category === "payment" && entry.id === "paypal") {
+    for (const environment of ["test", "live"] as const) {
+      const creds = await loadCredentials({
+        organizationId,
+        shopId,
+        category: "payment",
+        provider: "paypal",
+        environment,
+      });
+      if (!creds?.["clientId"] || !creds["clientSecret"]) continue;
+      const { verifyPayPalCredentials } = await import("../payments/paypal.server");
+      const info = await verifyPayPalCredentials({
+        clientId: creds["clientId"],
+        clientSecret: creds["clientSecret"],
+        webhookId: creds["webhookId"] ?? null,
+        environment,
+      });
+      return {
+        message: `PayPal erreichbar (${environment === "live" ? "Live" : "Sandbox"})${
+          info.webhookConfigured ? ", Webhook-ID hinterlegt" : ", Webhook-ID fehlt noch"
+        }.`,
+        reference: referenceFor({
+          organizationId,
+          shopId,
+          category: "payment",
+          provider: "paypal",
+          environment,
+        }),
+      };
+    }
+    throw Object.assign(new Error("Für PayPal sind noch keine Zugangsdaten hinterlegt."), {
+      code: "not_connected",
+    });
+  }
+
+  if (entry.category === "payment" && entry.id === "mollie") {
+    for (const environment of ["test", "live"] as const) {
+      const creds = await loadCredentials({
+        organizationId,
+        shopId,
+        category: "payment",
+        provider: "mollie",
+        environment,
+      });
+      if (!creds?.["apiKey"]) continue;
+      const { verifyMollieCredentials } = await import("../payments/mollie.server");
+      const info = await verifyMollieCredentials(creds["apiKey"]);
+      return {
+        message: `Mollie erreichbar (${info.environment === "live" ? "Live" : "Test"}). Freigeschaltete Zahlungsarten: ${
+          info.methods.length > 0 ? info.methods.map((m) => m.description).join(", ") : "keine"
+        }.`,
+        reference: referenceFor({
+          organizationId,
+          shopId,
+          category: "payment",
+          provider: "mollie",
+          environment,
+        }),
+      };
+    }
+    throw Object.assign(new Error("Für Mollie ist noch kein API-Schlüssel hinterlegt."), {
+      code: "not_connected",
+    });
+  }
+
+  if (entry.category === "email" && entry.id === "smtp") {
+    const creds = await loadCredentials({
+      organizationId,
+      shopId,
+      category: "email",
+      provider: "smtp",
+      environment: "live",
+    });
+    if (!creds?.["host"] || !creds["username"] || !creds["password"])
+      throw Object.assign(new Error("Für SMTP sind noch keine Zugangsdaten hinterlegt."), {
+        code: "not_connected",
+      });
+    const { verifySmtpConnection } = await import("../communications/providers/smtp.server");
+    const info = await verifySmtpConnection({
+      host: creds["host"],
+      port: Number(creds["port"] ?? 587),
+      encryption: creds["encryption"] === "tls" ? "tls" : "starttls",
+      username: creds["username"],
+      password: creds["password"],
+      senderAddress: creds["senderAddress"] ?? null,
+    });
+    return {
+      message: `SMTP-Server ${info.host}:${info.port} erreichbar, Anmeldung erfolgreich (${
+        info.encryption === "tls" ? "TLS" : "STARTTLS"
+      }).`,
+      reference: referenceFor({
+        organizationId,
+        shopId,
+        category: "email",
+        provider: "smtp",
+        environment: "live",
+      }),
+    };
   }
 
   if (entry.category === "email" && entry.id === "resend") {
@@ -668,7 +814,10 @@ function appOrigin(): string {
 
 export function webhookUrlFor(provider: string): string | null {
   if (provider === "stripe") return `${appOrigin()}/api/public/webhooks/stripe`;
+  if (provider === "paypal") return `${appOrigin()}/api/public/webhooks/paypal`;
+  if (provider === "mollie") return `${appOrigin()}/api/public/webhooks/mollie`;
   if (provider === "resend") return `${appOrigin()}/api/public/webhooks/communications/resend`;
+  // SMTP kennt keinen Rückkanal — Zustellberichte gibt es hier nicht.
   return null;
 }
 
@@ -886,6 +1035,262 @@ export async function connectIntegration(input: {
     };
   }
 
+  if (input.category === "payment" && input.provider === "paypal") {
+    const clientId = (input.values["clientId"] ?? "").trim();
+    const clientSecret = (input.values["clientSecret"] ?? "").trim();
+    const webhookId = (input.values["webhookId"] ?? "").trim() || null;
+    const environment: "test" | "live" =
+      (input.values["environment"] ?? "test").trim() === "live" ? "live" : "test";
+    if (!clientId || !clientSecret)
+      throw new Error("Bitte Client-ID und Secret aus dem PayPal-Entwicklerportal eintragen.");
+
+    const { verifyPayPalCredentials } = await import("../payments/paypal.server");
+    await verifyPayPalCredentials({ clientId, clientSecret, webhookId, environment });
+
+    const { reference } = await storeCredentials({
+      scope: {
+        organizationId: input.organizationId,
+        shopId: input.shopId,
+        category: "payment",
+        provider: "paypal",
+        environment,
+      },
+      values: { clientId, clientSecret, webhookId },
+      maskedFields: ["clientId", "clientSecret", "webhookId"],
+    });
+
+    await admin.from("payment_provider_configs").upsert(
+      {
+        organization_id: input.organizationId,
+        shop_id: input.shopId,
+        provider: "paypal",
+        display_name: "PayPal",
+        environment,
+        status: "active",
+        priority: 20,
+        secret_ref: reference,
+        settings: {} as never,
+      } as never,
+      { onConflict: "shop_id,provider,environment" },
+    );
+
+    await upsertConnection(admin, {
+      organizationId: input.organizationId,
+      shopId: input.shopId,
+      category: "payment",
+      provider: "paypal",
+      environment,
+      reference,
+      status: webhookId ? "connected" : "verification_required",
+      metadata: { webhook_configured: !!webhookId },
+    });
+
+    await writeAudit({
+      organizationId: input.organizationId,
+      actorId: input.actorId,
+      action: "integration.connected",
+      entityType: "integration_connection",
+      entityId: `${input.shopId}:payment:paypal`,
+      metadata: { environment, webhook_configured: !!webhookId },
+    });
+
+    return {
+      ok: true,
+      environment,
+      message: webhookId
+        ? `PayPal verbunden (${environment === "live" ? "Live" : "Sandbox"}).`
+        : `PayPal verbunden (${environment === "live" ? "Live" : "Sandbox"}). Ohne Webhook-ID werden Zahlungen nicht automatisch bestätigt.`,
+    };
+  }
+
+  if (input.category === "payment" && input.provider === "mollie") {
+    const apiKey = (input.values["apiKey"] ?? "").trim();
+    if (!/^(test|live)_[A-Za-z0-9]{10,}$/.test(apiKey))
+      throw new Error("Bitte einen Mollie-API-Schlüssel eintragen (beginnt mit test_ oder live_).");
+    const { verifyMollieCredentials, mollieEnvironment } = await import("../payments/mollie.server");
+    const info = await verifyMollieCredentials(apiKey);
+    const environment = mollieEnvironment(apiKey);
+    const webhookUrl = webhookUrlFor("mollie");
+
+    const { reference } = await storeCredentials({
+      scope: {
+        organizationId: input.organizationId,
+        shopId: input.shopId,
+        category: "payment",
+        provider: "mollie",
+        environment,
+      },
+      values: { apiKey, webhookUrl },
+      maskedFields: ["apiKey"],
+    });
+
+    await admin.from("payment_provider_configs").upsert(
+      {
+        organization_id: input.organizationId,
+        shop_id: input.shopId,
+        provider: "mollie",
+        display_name: "Mollie",
+        environment,
+        status: "active",
+        priority: 30,
+        secret_ref: reference,
+        settings: { methods: info.methods.map((m) => m.id) } as never,
+      } as never,
+      { onConflict: "shop_id,provider,environment" },
+    );
+
+    await upsertConnection(admin, {
+      organizationId: input.organizationId,
+      shopId: input.shopId,
+      category: "payment",
+      provider: "mollie",
+      environment,
+      reference,
+      status: "connected",
+      metadata: { methods: info.methods.map((m) => m.id) },
+    });
+
+    await writeAudit({
+      organizationId: input.organizationId,
+      actorId: input.actorId,
+      action: "integration.connected",
+      entityType: "integration_connection",
+      entityId: `${input.shopId}:payment:mollie`,
+      metadata: { environment, methods: info.methods.length },
+    });
+
+    return {
+      ok: true,
+      environment,
+      message: `Mollie verbunden (${environment === "live" ? "Live" : "Test"}). Zahlungsarten: ${
+        info.methods.length > 0 ? info.methods.map((m) => m.description).join(", ") : "noch keine freigeschaltet"
+      }.`,
+    };
+  }
+
+  if (input.category === "email" && input.provider === "smtp") {
+    const host = (input.values["host"] ?? "").trim();
+    const port = Number((input.values["port"] ?? "587").trim());
+    const encryption = (input.values["encryption"] ?? "starttls").trim() === "tls" ? "tls" : "starttls";
+    const username = (input.values["username"] ?? "").trim();
+    const password = input.values["password"] ?? "";
+    const senderAddress = (input.values["senderAddress"] ?? "").trim();
+    const senderName = (input.values["senderName"] ?? "").trim() || "Shop";
+    const replyTo = (input.values["replyTo"] ?? "").trim() || null;
+
+    if (!host || !username || !password) throw new Error("Host, Benutzername und Passwort sind Pflicht.");
+    if (!Number.isInteger(port) || port < 1 || port > 65535)
+      throw new Error("Bitte einen gültigen Port angeben (üblich: 587 für STARTTLS, 465 für TLS).");
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(senderAddress))
+      throw new Error("Bitte eine gültige Absenderadresse angeben.");
+
+    const { verifySmtpConnection } = await import("../communications/providers/smtp.server");
+    const info = await verifySmtpConnection({
+      host,
+      port,
+      encryption,
+      username,
+      password,
+      senderAddress,
+    });
+
+    const { reference } = await storeCredentials({
+      scope: {
+        organizationId: input.organizationId,
+        shopId: input.shopId,
+        category: "email",
+        provider: "smtp",
+        environment: "live",
+      },
+      values: {
+        host,
+        port: String(port),
+        encryption,
+        username,
+        password,
+        senderAddress,
+      },
+      maskedFields: ["username", "password"],
+    });
+
+    await admin.from("communication_provider_configs").upsert(
+      {
+        organization_id: input.organizationId,
+        shop_id: input.shopId,
+        channel: "email",
+        provider: "smtp",
+        display_name: "Eigener SMTP-Server",
+        status: "active",
+        test_mode: false,
+        priority: 150,
+        configuration_reference: reference,
+        capabilities: {
+          supportsDeliveryWebhooks: false,
+          supportsBounceWebhooks: false,
+        } as never,
+      } as never,
+      { onConflict: "organization_id,shop_id,channel,provider" },
+    );
+
+    const { data: existingDefault } = await admin
+      .from("sender_identities")
+      .select("id")
+      .eq("shop_id", input.shopId)
+      .eq("channel", "email")
+      .eq("is_default", true)
+      .maybeSingle();
+
+    await admin.from("sender_identities").upsert(
+      {
+        organization_id: input.organizationId,
+        shop_id: input.shopId,
+        channel: "email",
+        display_name: senderName,
+        sender_name: senderName,
+        sender_address: senderAddress,
+        reply_to: replyTo,
+        status: "active",
+        // Beim eigenen SMTP-Server prüft die Plattform kein DNS. Der Absender
+        // gilt daher als bestätigt durch den erfolgreichen SMTP-Login, nicht
+        // durch eine Domain-Verifizierung dieser Plattform.
+        verification_status: "unverified",
+        is_default: !existingDefault,
+      } as never,
+      { onConflict: "shop_id,channel,sender_address" },
+    );
+
+    await upsertConnection(admin, {
+      organizationId: input.organizationId,
+      shopId: input.shopId,
+      category: "email",
+      provider: "smtp",
+      environment: "live",
+      reference,
+      status: "connected",
+      metadata: {
+        host: info.host,
+        port: info.port,
+        encryption: info.encryption,
+        connection_verified_at: new Date().toISOString(),
+      },
+    });
+
+    await writeAudit({
+      organizationId: input.organizationId,
+      actorId: input.actorId,
+      action: "integration.connected",
+      entityType: "integration_connection",
+      entityId: `${input.shopId}:email:smtp`,
+      metadata: { host: info.host, port: info.port, encryption: info.encryption },
+    });
+
+    return {
+      ok: true,
+      environment: "live",
+      message: `SMTP verbunden: ${info.host}:${info.port} (${info.encryption === "tls" ? "TLS" : "STARTTLS"}). Bitte jetzt eine Test-E-Mail senden.`,
+    };
+  }
+
   throw new Error("Für diesen Anbieter ist keine Verbindung mit Zugangsdaten vorgesehen.");
 }
 
@@ -902,25 +1307,80 @@ export async function sendProviderTestEmail(input: {
   if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(input.recipient.trim()))
     throw new Error("Bitte eine gültige E-Mail-Adresse eingeben.");
 
+  const admin = await getAdmin();
   const { resolveProvider, resolveSenderIdentity } = await import(
     "../communications/registry.server"
   );
   const { provider } = await resolveProvider(input.organizationId, input.shopId);
   const sender = await resolveSenderIdentity(input.organizationId, input.shopId);
-  if (!sender)
-    throw new Error("Für diesen Shop ist keine Absenderadresse hinterlegt.");
+  if (!sender) throw new Error("Für diesen Shop ist keine Absenderadresse hinterlegt.");
 
-  const result = await provider.send({
-    to: input.recipient.trim(),
-    senderName: sender.senderName,
-    senderAddress: sender.senderAddress,
-    replyTo: sender.replyTo,
-    subject: "Testnachricht aus Commerce OS",
-    html: "<p>Diese Testnachricht bestätigt, dass Ihr E-Mail-Anbieter korrekt verbunden ist.</p>",
-    text: "Diese Testnachricht bestätigt, dass Ihr E-Mail-Anbieter korrekt verbunden ist.",
-    tags: { template: "integration_test" },
-    idempotencyKey: crypto.randomUUID(),
+  // Der Test läuft durch dieselbe Engine wie Bestellmails: Vorlage rendern,
+  // Kommunikation anlegen, Zustellversuch protokollieren, Anbieter aufrufen.
+  const { data: templates } = await admin
+    .from("communication_templates")
+    .select("key, shop_id, organization_id, status")
+    .eq("channel", "email")
+    .or(`organization_id.eq.${input.organizationId},organization_id.is.null`);
+  const usable = ((templates ?? []) as Row[]).filter(
+    (t) => (!t["shop_id"] || t["shop_id"] === input.shopId) && t["status"] === "active",
+  );
+  const preferred = ["order_confirmation", "order_paid", "welcome"];
+  const templateKey =
+    (preferred.map((k) => usable.find((t) => t["key"] === k)).find(Boolean)?.["key"] as
+      | string
+      | undefined) ?? (usable[0]?.["key"] as string | undefined);
+  if (!templateKey)
+    throw new Error(
+      "Es ist keine aktive E-Mail-Vorlage vorhanden. Bitte zuerst im Communication Studio eine Vorlage veröffentlichen.",
+    );
+
+  const { sendTestCommunication } = await import("../communications/communication.server");
+  const queued = await sendTestCommunication({
+    organizationId: input.organizationId,
+    shopId: input.shopId,
+    templateKey,
+    recipient: input.recipient.trim(),
+    actorId: input.actorId,
   });
+
+  let sent = false;
+  let failure: string | null = null;
+  if (queued.queued) {
+    const { data } = await admin
+      .from("communications")
+      .select("status, last_error")
+      .eq("id", queued.communicationId)
+      .maybeSingle();
+    const row = (data ?? {}) as Row;
+    sent = row["status"] === "sent";
+    failure = (row["last_error"] as string | null) ?? null;
+  } else {
+    failure = queued.reason;
+  }
+
+  if (sent) {
+    // Erfolgreicher Versand ist der Nachweis für die Live-Reife des Kanals.
+    const { data: conn } = await admin
+      .from("integration_connections")
+      .select("id, metadata")
+      .eq("shop_id", input.shopId)
+      .eq("category", "email")
+      .eq("provider", provider.key)
+      .maybeSingle();
+    if (conn) {
+      const row = conn as Row;
+      await admin
+        .from("integration_connections")
+        .update({
+          metadata: {
+            ...((row["metadata"] as Record<string, unknown>) ?? {}),
+            test_email_sent_at: new Date().toISOString(),
+          } as never,
+        } as never)
+        .eq("id", row["id"] as string);
+    }
+  }
 
   await writeAudit({
     organizationId: input.organizationId,
@@ -928,15 +1388,17 @@ export async function sendProviderTestEmail(input: {
     action: "integration.test_email_sent",
     entityType: "integration_connection",
     entityId: `${input.shopId}:email:${provider.key}`,
-    metadata: { provider: provider.key, sandbox: provider.isSandbox },
+    metadata: { provider: provider.key, sandbox: provider.isSandbox, sent, template: templateKey },
   });
 
   return {
-    sent: result.status !== "rejected",
+    sent,
     provider: provider.key,
     message: provider.isSandbox
       ? "Der aktive Anbieter ist ein Sandbox-Anbieter — es wurde keine echte E-Mail zugestellt."
-      : `Test-E-Mail an ${input.recipient.trim()} übergeben (Anbieter: ${provider.key}).`,
+      : sent
+        ? `Test-E-Mail an ${input.recipient.trim()} zugestellt (Anbieter: ${provider.key}, Vorlage: ${templateKey}).`
+        : `Versand fehlgeschlagen: ${failure ?? "unbekannter Fehler"}.`,
   };
 }
 
@@ -974,9 +1436,33 @@ export async function getShopReadiness(
   const activeEmail = configs.email.find((c) => c["status"] === "active");
   const emailLiveProvider =
     !!activeEmail && activeEmail["provider"] !== "test" && activeEmail["test_mode"] !== true;
-  const verifiedSender = configs.identities.some(
-    (i) => i["verification_status"] === "verified",
-  );
+  let verifiedSender = configs.identities.some((i) => i["verification_status"] === "verified");
+  let emailDetailOverride: string | null = null;
+
+  // Beim eigenen SMTP-Server verifiziert die Plattform keine Domain. Nachweis
+  // sind hier die geprüfte Verbindung und eine tatsächlich zugestellte
+  // Test-E-Mail — beides wird bei der Verbindung bzw. beim Test protokolliert.
+  if (activeEmail?.["provider"] === "smtp") {
+    const { data } = await admin
+      .from("integration_connections")
+      .select("metadata")
+      .eq("shop_id", shopId)
+      .eq("category", "email")
+      .eq("provider", "smtp")
+      .maybeSingle();
+    const metadata = ((data as Row | null)?.["metadata"] as Record<string, unknown>) ?? {};
+    const connectionChecked = !!metadata["connection_verified_at"];
+    const testSent = !!metadata["test_email_sent_at"];
+    const hasSender = configs.identities.some((i) => i["status"] === "active");
+    verifiedSender = connectionChecked && testSent && hasSender;
+    emailDetailOverride = verifiedSender
+      ? "SMTP-Verbindung geprüft, Test-E-Mail zugestellt (DNS-Reputation liegt beim Betreiber)"
+      : !connectionChecked
+        ? "SMTP-Verbindung noch nicht geprüft"
+        : !testSent
+          ? "Test-E-Mail steht noch aus"
+          : "Keine Absenderadresse hinterlegt";
+  }
   const activeCarrier = configs.carrier.find((c) => c["status"] === "active");
   const carrierLive = configs.carrier.some(
     (c) => c["status"] === "active" && c["test_mode"] === false,
