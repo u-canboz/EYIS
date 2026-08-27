@@ -120,6 +120,10 @@ function StoreCheckoutPage() {
       });
       setSession(updated);
       setOptions(await client.checkout.shippingOptions(session.id));
+      // Discover active payment methods — the storefront never hardcodes them.
+      const methods = await client.paymentMethods();
+      setPaymentMethods(methods);
+      setPaymentMethodId((current) => current ?? methods[0]?.id ?? null);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -133,9 +137,11 @@ function StoreCheckoutPage() {
       await client.checkout.setShippingOption(session.id, shippingMethodId);
       const validated = await client.checkout.validate(session.id);
       setSession(validated);
+      const method = paymentMethods.find((m) => m.id === paymentMethodId);
       const payment = await client.checkout.createPaymentSession(session.id, {
         returnUrl: `${window.location.origin}/store/bestaetigung`,
         cancelUrl: `${window.location.origin}/store/checkout`,
+        provider: method?.provider ?? null,
       });
       if (payment.redirectUrl) {
         window.sessionStorage.setItem("commerce.paymentSessionId", payment.id);
