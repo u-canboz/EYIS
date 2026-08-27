@@ -15,7 +15,7 @@ const base = {
 
 describe("SMTP MIME", () => {
   it("baut eine mehrteilige Nachricht mit beiden Formaten", () => {
-    const mime = buildMimeMessage(base);
+    const mime = buildMimeMessage(base, "shop@example.com").body;
     expect(mime).toContain("multipart/alternative");
     expect(mime).toContain("text/plain");
     expect(mime).toContain("text/html");
@@ -23,17 +23,20 @@ describe("SMTP MIME", () => {
   });
 
   it("kodiert Nicht-ASCII-Betreffs nach RFC 2047", () => {
-    const mime = buildMimeMessage({ ...base, subject: "Grüße aus München" });
+    const mime = buildMimeMessage({ ...base, subject: "Grüße aus München" }, "shop@example.com").body;
     expect(mime).toContain("=?UTF-8?B?");
     expect(mime).not.toContain("Subject: Grüße");
   });
 
   it("verhindert Header-Injection über Betreff und Empfänger", () => {
-    const mime = buildMimeMessage({
-      ...base,
-      subject: "Hallo\r\nBcc: angreifer@example.com",
-      to: "kundin@example.com\r\nBcc: angreifer@example.com",
-    });
+    const mime = buildMimeMessage(
+      {
+        ...base,
+        subject: "Hallo\r\nBcc: angreifer@example.com",
+        to: "kundin@example.com\r\nBcc: angreifer@example.com",
+      },
+      "shop@example.com",
+    ).body;
     expect(mime).not.toContain("Bcc: angreifer@example.com");
   });
 });
