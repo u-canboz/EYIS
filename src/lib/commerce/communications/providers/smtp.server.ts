@@ -57,7 +57,10 @@ const decoder = new TextDecoder();
 /** Lädt die Socket-Schnittstelle der Laufzeit; wirft, wenn es keine gibt. */
 async function runtimeConnect(): Promise<SmtpConnect> {
   try {
-    const mod = (await import(/* @vite-ignore */ "cloudflare:sockets")) as {
+    // Der Spezifizierer bleibt zur Bauzeit unaufgelöst: Laufzeiten ohne
+    // Rohsockets sollen hier scheitern, nicht der Build.
+    const specifier = "cloudflare:sockets";
+    const mod = (await import(/* @vite-ignore */ specifier)) as {
       connect?: SmtpConnect;
     };
     if (typeof mod.connect === "function") return mod.connect;
