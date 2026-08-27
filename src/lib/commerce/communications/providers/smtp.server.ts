@@ -275,7 +275,7 @@ export function buildMimeMessage(
     `--${boundary}--`,
     "",
   ].join("\r\n");
-  return { from: fromAddress, body };
+  return { from: fromAddress, envelopeFrom: fromAddress, body };
 }
 
 async function openSession(
