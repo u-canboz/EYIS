@@ -26,6 +26,12 @@ Grundsatz: **Kein Punkt gilt als PASS ohne konkreten Nachweis.** Statuswerte sin
 | `bun run qa:jobs` | Job-Queue, Cron-Auth, Wiederaufnahme | `qa/PHASE14-JOBS-REPORT.md` |
 | `bun run qa:migrations` | Migrations-Integrität, Drift | `qa/PHASE14-MIGRATION-REPORT.md` |
 | `bun run qa:demo` | Demo-Seed, Idempotenz, Fixtures, Purge | `qa/PHASE15-DEMO-REPORT.md` |
+| `bun run qa:visual` | Überlauf, Touch-Ziele, Zoom, Dark Mode, Screenshot-Diff | `qa/PHASE14-VISUAL-REGRESSION-REPORT.md` |
+| `bun run qa:a11y` | axe-core, Struktur, Tastatur, Kontrast | `qa/PHASE14-ACCESSIBILITY-REPORT.md` |
+| `bun run qa:performance` | Latenz-Budgets, Parallelität, Überverkauf | `qa/PHASE14-PERFORMANCE-REPORT.md` |
+| `bun run qa:privacy` | Datenkarte, Ablaufjobs, Auskunft, Löschung | `qa/PHASE14-PRIVACY-REPORT.md` |
+| `bun run qa:storage` | Buckets, signierte URLs, Mandantentrennung, Uploads | `qa/PHASE14-STORAGE-SECURITY.md` |
+| `bun run qa:providers` | Zahlung, E-Mail, Carrier: Readiness und Live-Sperren | `qa/PHASE14-PROVIDER-REPORT.md` |
 
 **Niemals gegen Production.** Die Demo-/QA-Funktionen brechen bei `APP_ENV=production` hart ab
 (`src/lib/commerce/demo/guard.server.ts`).
@@ -50,7 +56,13 @@ Versand, Kommunikation. Zweiter Lauf erzeugt keine Dubletten. Fixtures decken u.
 
 Produktionsdaten werden nie kopiert, exportiert oder als Testgrundlage verwendet.
 
+`qa:visual` und `qa:a11y` brauchen einen laufenden Dev-Server und einen temporären
+Store-API-Key; beide werden nach dem Lauf entfernt. Neue Baselines nur bewusst mit
+`--approve` schreiben.
+
 ## Bekannte offene Punkte
 
-- Mobile-/UI-Befunde U1–U10 aus `qa/PHASE15-DEMO-REPORT.md` (Redesign läuft).
-- BLOCKED ohne Zugangsdaten: Stripe Live, echter E-Mail-Versand, Carrier-Labels.
+Vollständig und aktuell in [docs/production/GATE_B_OPEN_BLOCKERS.md](../production/GATE_B_OPEN_BLOCKERS.md).
+Kurz: Screenreader-Stichprobe, Production-Performance-Budgets, Retention-Löschjobs und
+Virenscan sind OFFEN. BLOCKED ohne Zugangsdaten bzw. zweite Umgebung: Stripe Live, echter
+E-Mail-Versand, Carrier-Labels, Staging-Trennung und Staging-E2E.
