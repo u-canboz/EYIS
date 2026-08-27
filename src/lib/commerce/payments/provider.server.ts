@@ -99,3 +99,27 @@ export async function getProviderForShop(
   }
   return getProvider(id);
 }
+
+/** Anbieter für eine Bestellung (Erstattungen): Shop und Umgebung aus der Order. */
+export async function getProviderForOrder(
+  organizationId: string,
+  orderId: string,
+  id: string,
+): Promise<PaymentProvider> {
+  const { getAdmin } = await import("../core.server");
+  const admin = await getAdmin();
+  const { data } = await admin
+    .from("orders")
+    .select("shop_id, environment")
+    .eq("id", orderId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  const row = data as { shop_id?: string; environment?: string } | null;
+  if (!row?.shop_id) return getProvider(id);
+  return getProviderForShop(
+    organizationId,
+    row.shop_id,
+    id,
+    row.environment === "live" ? "live" : "test",
+  );
+}

@@ -61,7 +61,7 @@ export const cancelPaymentFn = createServerFn({ method: "POST" })
     const payments = await import("./payment.server");
     const cartApi = await import("../cart.server");
     const checkout = await import("../checkout.server");
-    const { getProvider } = await import("./provider.server");
+    const { getProviderForShop } = await import("./provider.server");
     const ps = await payments.loadPaymentSession(data.paymentSessionId);
     const session = await checkout.loadSession(ps.checkout_session_id);
     await cartApi.loadCartAuthorized(session.cart_id, data.token);
@@ -69,7 +69,9 @@ export const cancelPaymentFn = createServerFn({ method: "POST" })
     if (ps.status === "paid") throw new Error("Diese Zahlung ist bereits abgeschlossen.");
     if (ps.provider_session_id) {
       try {
-        await (await getProvider(ps.provider)).cancelSession(ps.provider_session_id);
+        await (
+          await getProviderForShop(ps.organization_id, ps.shop_id, ps.provider, ps.environment)
+        ).cancelSession(ps.provider_session_id);
       } catch (e) {
         console.error("cancel provider session failed", e);
       }

@@ -4,7 +4,7 @@
  * only created by order_finalize_from_payment after a server-verified payment.
  */
 import { getAdmin, writeAudit, emitEvent } from "../core.server";
-import { getProvider } from "./provider.server";
+import { getProvider, getProviderForShop } from "./provider.server";
 import type { PaymentStatusView } from "./payment-types";
 import { publishOrderEvent } from "../event-payloads.server";
 
@@ -193,7 +193,12 @@ export async function createPaymentSession(input: {
     status: "started",
   } as never);
 
-  const provider = await getProvider(config.provider);
+  const provider = await getProviderForShop(
+    input.organizationId,
+    input.shopId,
+    config.provider,
+    config.environment,
+  );
   const successUrl = `${returnUrlSafe}${returnUrlSafe.includes("?") ? "&" : "?"}ps=${paymentSessionId}`;
   const cancelUrl = `${cancelUrlSafe}${cancelUrlSafe.includes("?") ? "&" : "?"}ps=${paymentSessionId}&cancelled=1`;
 
@@ -309,7 +314,12 @@ export async function paymentStatus(paymentSessionId: string): Promise<PaymentSt
   // Fallback when the webhook has not arrived yet: ask the provider directly.
   if (ps.status === "pending" && ps.provider_session_id) {
     try {
-      const provider = await getProvider(ps.provider);
+      const provider = await getProviderForShop(
+        ps.organization_id,
+        ps.shop_id,
+        ps.provider,
+        ps.environment,
+      );
       const state = await provider.getSession(ps.provider_session_id);
       if (state.status === "paid") {
         await finalizeFromPayment({
