@@ -155,23 +155,29 @@ async function main() {
   );
 
   /* ---------------- Store API: payment-methods discovery ---------------- */
-  const base = process.env["QA_BASE_URL"] ?? "http://localhost:8080";
-  const key = s["storeApiKey"];
-  if (key) {
-    const res = await fetch(`${base}/api/public/store/v1/payment-methods`, {
-      headers: { "x-api-key": key },
-    });
-    const body = (await res.json()) as { provider?: string }[] | { error?: string };
-    check(
-      "GET /payment-methods antwortet",
-      res.status === 200 && Array.isArray(body),
-      `status=${res.status}`,
-    );
-    check(
-      "Payment-Methods ohne Secrets",
-      !JSON.stringify(body).match(/sk_live|sk_test|whsec_/),
-    );
-  }
+  const key = await createKey({
+    organizationId: ORG,
+    shopId: SHOP,
+    name: "phase18-qa",
+    environment: "test",
+    allowedOrigins: ["http://localhost:8080"],
+    actorId: null,
+  });
+  const res = await fetch(`${BASE}/payment-methods`, {
+    headers: { "x-commerce-key": key.key },
+  });
+  const envelope = (await res.json()) as { data?: { provider?: string }[]; error?: unknown };
+  const methods = Array.isArray(envelope) ? envelope : (envelope.data ?? []);
+  check(
+    "GET /payment-methods antwortet",
+    res.status === 200 && Array.isArray(methods),
+    `status=${res.status}`,
+  );
+  check(
+    "Payment-Methods ohne Secrets",
+    !JSON.stringify(methods).match(/sk_live|sk_test|whsec_|secret_ref/),
+  );
+  await admin.from("store_api_keys").delete().eq("id", key.id);
 
   /* ---------------- Cleanup ---------------- */
   await admin.from("sender_domains").delete().eq("id", dom.id);
