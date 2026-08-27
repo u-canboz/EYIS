@@ -23,7 +23,31 @@ import {
   type SendResult,
 } from "../provider";
 
-export type SmtpEncryption = "tls" | "starttls";
+/** Zentrale Modellierung der Transportsicherheit. */
+export const SMTP_TLS_MODES = ["tls", "starttls"] as const;
+export type SmtpEncryption = (typeof SMTP_TLS_MODES)[number];
+
+/** Vom Runtime-SDK verlangte Socket-Option je Modus. */
+const SECURE_TRANSPORT: Record<SmtpEncryption, "on" | "starttls"> = {
+  tls: "on",
+  starttls: "starttls",
+};
+
+/** Übliche Ports je Modus — nur als Vorgabe, nie als Zwang. */
+export const DEFAULT_PORTS: Record<SmtpEncryption, number> = { tls: 465, starttls: 587 };
+
+/**
+ * Normalisiert eine Händlereingabe auf einen der beiden Modi. Unbekannte Werte
+ * werden anhand des Ports entschieden (465 = implizites TLS, sonst STARTTLS).
+ * Der Händler wählt "TLS" oder "STARTTLS" — `secureTransport` bleibt intern.
+ */
+export function resolveTlsMode(value: unknown, port?: number): SmtpEncryption {
+  const raw = String(value ?? "").trim().toLowerCase();
+  if ((SMTP_TLS_MODES as readonly string[]).includes(raw)) return raw as SmtpEncryption;
+  if (raw === "ssl" || raw === "implicit" || raw === "on") return "tls";
+  if (raw === "start_tls" || raw === "tls-start") return "starttls";
+  return port === DEFAULT_PORTS.tls ? "tls" : "starttls";
+}
 
 export type SmtpConfig = {
   host: string;
@@ -44,12 +68,15 @@ export type SmtpSocket = {
   close: () => Promise<void> | void;
 };
 
-export type SmtpConnect = (options: {
-  hostname: string;
-  port: number;
-  secureTransport: "on" | "starttls";
-  allowHalfOpen: boolean;
-}) => SmtpSocket;
+/** Signatur wie `cloudflare:sockets`: Adresse zuerst, Optionen als zweites Argument. */
+export type SmtpConnect = (
+  address: { hostname: string; port: number },
+  options: {
+    secureTransport: "on" | "starttls";
+    allowHalfOpen: boolean;
+  },
+) => SmtpSocket;
+
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
