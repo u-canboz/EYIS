@@ -1,7 +1,7 @@
 {
   "gate": "A4",
   "title": "Datenbank-, RLS-, RPC- und Storage-Sicherheitsinventur",
-  "executedAt": "2026-08-27T12:45:21.647Z",
+  "executedAt": "2026-08-27T13:05:50.246Z",
   "organizations": [
     "ba039523-f8ec-44ff-bb9d-2b5b86b0c0a6",
     "29cb83d1-2f6a-42ff-8bb5-413463402b07"
@@ -11,8 +11,8 @@
     "b7fa4e29-2a98-4640-8c2f-c6064e9b1658"
   ],
   "total": 52,
-  "passed": 51,
-  "failed": 1,
+  "passed": 52,
+  "failed": 0,
   "checks": [
     {
       "name": "Alle public-Tabellen erfasst",
@@ -46,8 +46,8 @@
     },
     {
       "name": "authenticated hat pro Tabelle nur Rechte mit passender Policy",
-      "status": "FAIL",
-      "evidence": "demo_environments:INSERT, demo_environments:UPDATE, demo_environments:DELETE, demo_environments:TRUNCATE, demo_environments:REFERENCES, demo_environments:TRIGGER, demo_environments:MAINTAIN, qa_fixtures:INSERT, qa_fixtures:UPDATE, qa_fixtures:DELETE, qa_fixtures:TRUNCATE, qa_fixtures:REFERENCES, qa_fixtures:TRIGGER, qa_fixtures:MAINTAIN"
+      "status": "PASS",
+      "evidence": "0 überschüssige Rechte"
     },
     {
       "name": "Keine Views/Materialized Views, die RLS umgehen könnten",
