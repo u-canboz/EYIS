@@ -50,11 +50,22 @@ function fakeConnect(options: ServerOptions = {}): { connect: SmtpConnect; rec: 
         if (greet && !stall) emit("220 smtp.example.de ESMTP bereit");
       },
     });
+    let authStep: "none" | "user" | "pass" = "none";
     const writable = new WritableStream<Uint8Array>({
       write(chunk) {
         const text = decoder.decode(chunk);
         rec.written.push(text);
         const command = text.split("\r\n")[0] ?? "";
+        if (authStep === "user") {
+          authStep = "pass";
+          emit("334 UGFzc3dvcmQ6");
+          return;
+        }
+        if (authStep === "pass") {
+          authStep = "none";
+          emit(authOk ? "235 Anmeldung erfolgreich" : "535 Anmeldung fehlgeschlagen");
+          return;
+        }
         if (/^EHLO/i.test(command)) {
           emit("250-smtp.example.de");
           if (offerStartTls && greet) emit("250-STARTTLS");
@@ -62,6 +73,7 @@ function fakeConnect(options: ServerOptions = {}): { connect: SmtpConnect; rec: 
         } else if (/^STARTTLS/i.test(command)) {
           emit("220 Bereit für TLS");
         } else if (/^AUTH LOGIN/i.test(command)) {
+          authStep = "user";
           emit("334 VXNlcm5hbWU6");
         } else if (/^AUTH PLAIN/i.test(command)) {
           emit(authOk ? "235 Anmeldung erfolgreich" : "535 Anmeldung fehlgeschlagen");
@@ -69,20 +81,12 @@ function fakeConnect(options: ServerOptions = {}): { connect: SmtpConnect; rec: 
           emit("250 OK");
         } else if (/^DATA/i.test(command)) {
           emit("354 Ende mit .");
-        } else if (command === ".") {
+        } else if (command === "." || text.trimEnd().endsWith("\r\n.")) {
           emit("250 OK: angenommen");
         } else if (/^QUIT/i.test(command)) {
           emit("221 Tschüss");
         } else {
-          // Base64-Antwort auf AUTH LOGIN (Benutzername oder Passwort)
-          emit(
-            rec.written.filter((w) => /^AUTH LOGIN/i.test(w)).length &&
-              rec.written.filter((w) => !/^[A-Z]/.test(w)).length >= 2
-              ? authOk
-                ? "235 Anmeldung erfolgreich"
-                : "535 Anmeldung fehlgeschlagen"
-              : "334 UGFzc3dvcmQ6",
-          );
+          emit("250 OK");
         }
       },
     });
