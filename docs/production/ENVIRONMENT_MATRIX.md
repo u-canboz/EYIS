@@ -47,6 +47,13 @@ Invarianten des Zielbilds:
 4. Store-API-Keys sind umgebungsgebunden; Origin-Restriction verweist nur auf die Domain der jeweiligen Umgebung.
 5. Jede Umgebung setzt `APP_BASE_URL` auf ihre eigene öffentliche URL.
 
+## Stand nach Gate B (2026-08-27)
+
+Unverändert: es existiert weiterhin nur ein Cloud-Projekt. Die Trennung bleibt **BLOCKED**
+und ist der erste Go-live-Blocker. Der vollständige Einrichtungsablauf steht jetzt in
+[STAGING_SETUP_RUNBOOK.md](STAGING_SETUP_RUNBOOK.md), die Abnahmekriterien in
+[../../qa/PHASE14-STAGING-E2E-REPORT.md](../../qa/PHASE14-STAGING-E2E-REPORT.md).
+
 ## Umsetzungsschritte (noch nicht ausgeführt)
 
 | Schritt | Ergebnis | Status |

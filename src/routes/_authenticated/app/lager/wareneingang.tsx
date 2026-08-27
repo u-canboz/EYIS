@@ -125,7 +125,7 @@ function ReceivingPage() {
               <Skeleton className="h-10 w-full" />
             ) : (
               <Select value={locationId} onValueChange={setLocationId}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Lagerort wählen">
                   <SelectValue placeholder="Lagerort wählen" />
                 </SelectTrigger>
                 <SelectContent>

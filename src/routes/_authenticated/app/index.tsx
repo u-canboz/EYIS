@@ -230,7 +230,7 @@ function Overview() {
           actions={
             <Link
               to="/app/bestellungen"
-              className="inline-flex items-center gap-1 text-xs font-medium text-primary"
+              className="-mr-2 inline-flex min-h-11 min-w-11 items-center justify-end gap-1 px-2 text-xs font-medium text-primary"
             >
               Alle <ArrowRight className="size-3.5" aria-hidden />
             </Link>

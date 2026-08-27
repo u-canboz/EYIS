@@ -137,7 +137,7 @@ function CustomersPage() {
             <Button
               key={f.key}
               size="sm"
-              className="h-10 shrink-0"
+              className="h-11 shrink-0 lg:h-10"
               variant={tab === f.key ? "default" : "outline"}
               onClick={() => setTab(f.key)}
             >

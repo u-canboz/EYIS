@@ -236,9 +236,9 @@ function DemoDaten() {
         description="Isolierte, zerstörbare Testorganisationen pro Szenario. Jede Fixture dokumentiert ihren Inhalt im Manifest und wird beim Zerstören vollständig entfernt."
         className="mt-6"
       >
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap">
           <Select value={scenario} onValueChange={(v) => setScenario(v as QaScenario)}>
-            <SelectTrigger className="h-11 w-full sm:w-80">
+            <SelectTrigger className="h-11 w-full min-w-0 sm:w-80 sm:max-w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

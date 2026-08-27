@@ -127,7 +127,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Produkt</Label>
             <Select value={productId} onValueChange={setProductId}>
-              <SelectTrigger className="mt-2 h-11">
+              <SelectTrigger aria-label="Produkt wählen" className="mt-2 h-11">
                 <SelectValue placeholder="Produkt wählen" />
               </SelectTrigger>
               <SelectContent>

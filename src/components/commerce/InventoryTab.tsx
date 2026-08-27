@@ -409,7 +409,7 @@ function LocationSelect({
     <div className="space-y-2">
       <Label>Lagerort</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Lagerort wählen">
           <SelectValue placeholder="Lagerort wählen" />
         </SelectTrigger>
         <SelectContent>

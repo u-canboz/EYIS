@@ -225,7 +225,7 @@ function InventoryPage() {
           { to: "/app/lager/bewegungen", label: "Bewegungen" },
           { to: "/app/lager/lagerorte", label: "Lagerorte" },
         ].map((entry) => (
-          <Button key={entry.to} asChild variant="outline" size="sm" className="h-10 shrink-0">
+          <Button key={entry.to} asChild variant="outline" size="sm" className="h-11 shrink-0 lg:h-10">
             <Link to={entry.to}>{entry.label}</Link>
           </Button>
         ))}
@@ -240,7 +240,7 @@ function InventoryPage() {
           onChange={(event) => setSearch(event.target.value)}
         />
         <Select value={locationId} onValueChange={setLocationId}>
-          <SelectTrigger className="h-11">
+          <SelectTrigger aria-label="Lagerort" className="h-11">
             <SelectValue placeholder="Lagerort" />
           </SelectTrigger>
           <SelectContent>
@@ -253,7 +253,7 @@ function InventoryPage() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="h-11">
+          <SelectTrigger aria-label="Status" className="h-11">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -414,6 +414,7 @@ function InventoryPage() {
                     </td>
                     <td className="p-3">
                       <Switch
+                        aria-label={`Bestandsführung für ${row.sku ?? row.inventory_item_id}`}
                         checked={row.track_inventory}
                         disabled={!canSettings || settingsMutation.isPending}
                         onCheckedChange={(checked) =>
@@ -426,6 +427,7 @@ function InventoryPage() {
                     </td>
                     <td className="p-3">
                       <Switch
+                        aria-label={`Nachbestellung erlauben für ${row.sku ?? row.inventory_item_id}`}
                         checked={row.allow_backorder}
                         disabled={!canSettings || settingsMutation.isPending}
                         onCheckedChange={(checked) =>
@@ -491,7 +493,7 @@ function InventoryPage() {
             <div className="space-y-2">
               <Label>Lagerort</Label>
               <Select value={dialogLocation} onValueChange={setDialogLocation}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Lagerort wählen">
                   <SelectValue placeholder="Lagerort wählen" />
                 </SelectTrigger>
                 <SelectContent>

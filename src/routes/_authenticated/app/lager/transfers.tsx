@@ -167,7 +167,7 @@ function TransfersPage() {
             <div className="space-y-2">
               <Label>Von</Label>
               <Select value={fromLocationId} onValueChange={setFrom}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Quelllager">
                   <SelectValue placeholder="Quelllager" />
                 </SelectTrigger>
                 <SelectContent>
@@ -182,7 +182,7 @@ function TransfersPage() {
             <div className="space-y-2">
               <Label>Nach</Label>
               <Select value={toLocationId} onValueChange={setTo}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Ziellager">
                   <SelectValue placeholder="Ziellager" />
                 </SelectTrigger>
                 <SelectContent>

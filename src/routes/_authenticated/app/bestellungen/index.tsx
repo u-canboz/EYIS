@@ -97,7 +97,7 @@ function OrdersPage() {
         filters={
           <>
             <Select value={orderStatus} onValueChange={setOrderStatus}>
-              <SelectTrigger className="h-11 w-full md:w-48">
+              <SelectTrigger aria-label="Bestellstatus" className="h-11 w-full md:w-48">
                 <SelectValue placeholder="Bestellstatus" />
               </SelectTrigger>
               <SelectContent>
@@ -110,7 +110,7 @@ function OrdersPage() {
               </SelectContent>
             </Select>
             <Select value={paymentStatus} onValueChange={setPaymentStatus}>
-              <SelectTrigger className="h-11 w-full md:w-48">
+              <SelectTrigger aria-label="Zahlungsstatus" className="h-11 w-full md:w-48">
                 <SelectValue placeholder="Zahlungsstatus" />
               </SelectTrigger>
               <SelectContent>

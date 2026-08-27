@@ -1,0 +1,59 @@
+{
+  "ranAt": "2026-08-27T10:43:34.535384Z",
+  "base": "http://localhost:8080",
+  "total": 9,
+  "passed": 9,
+  "results": [
+    {
+      "name": "B2 Auth-Session fuer Backoffice-Pruefung verfuegbar",
+      "ok": true,
+      "evidence": ""
+    },
+    {
+      "name": "B2.1 Keine schwerwiegenden axe-Verstoesse (serious/critical)",
+      "ok": true,
+      "evidence": "{}"
+    },
+    {
+      "name": "B2.2 Keine axe-Verstoesse beliebiger Schwere",
+      "ok": true,
+      "evidence": "{}"
+    },
+    {
+      "name": "B2.3 Struktur: genau eine h1, main-Landmark, lang, Titel, Labels, alt-Texte",
+      "ok": true,
+      "evidence": "17 Seiten sauber"
+    },
+    {
+      "name": "B2.4 Tastaturnavigation mit sichtbarem Fokus",
+      "ok": true,
+      "evidence": "3 Seiten je 25 Tab-Schritte"
+    },
+    {
+      "name": "B2.5 Erstes Tab-Ziel ist bedienbar und sichtbar",
+      "ok": true,
+      "evidence": "{\"tag\": \"a\", \"label\": \"Atelier\", \"visible\": true, \"inViewport\": true}"
+    },
+    {
+      "name": "B2.6 Mobiles Navigationsdialog: benannt, fokussiert, per Escape schliessbar",
+      "ok": true,
+      "evidence": "{\"modal\": null, \"labelled\": true, \"focusInside\": true} escape_closed=True"
+    },
+    {
+      "name": "B2.7 Kontrast (axe color-contrast) ohne Verstoesse",
+      "ok": true,
+      "evidence": "[]"
+    },
+    {
+      "name": "B2.8 Kontrast im dunklen Thema ohne Verstoesse",
+      "ok": true,
+      "evidence": "[]"
+    },
+    {
+      "name": "B2.9 Screenreader-Stichprobe (NVDA/VoiceOver)",
+      "ok": null,
+      "status": "OFFEN",
+      "evidence": "Keine Screenreader-Umgebung in der Sandbox verfuegbar; manuell vor Go-live nachzuholen."
+    }
+  ]
+}

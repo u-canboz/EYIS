@@ -167,7 +167,7 @@ function PricingOverviewPage() {
           }
           filters={
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="h-11 w-full md:w-48">
+              <SelectTrigger aria-label="Preisart" className="h-11 w-full md:w-48">
                 <SelectValue placeholder="Preisart" />
               </SelectTrigger>
               <SelectContent>

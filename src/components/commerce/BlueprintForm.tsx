@@ -148,7 +148,7 @@ function Control({
     case "select":
       return (
         <Select value={String(value ?? "")} onValueChange={onChange}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Bitte wählen">
             <SelectValue placeholder="Bitte wählen" />
           </SelectTrigger>
           <SelectContent>

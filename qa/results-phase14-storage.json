@@ -1,0 +1,182 @@
+{
+  "ranAt": "2026-08-27T08:57:10.058Z",
+  "total": 35,
+  "passed": 35,
+  "results": [
+    {
+      "name": "Bucket media existiert und ist privat",
+      "ok": true,
+      "detail": "public=false"
+    },
+    {
+      "name": "Bucket media hat eine Größenbegrenzung",
+      "ok": true,
+      "detail": "limit=25000000"
+    },
+    {
+      "name": "Bucket media hat eine MIME-Allowlist",
+      "ok": true,
+      "detail": "mime=[\"image/jpeg\",\"image/png\",\"image/webp\",\"image/gif\",\"image/avif\",\"application/pdf\"]"
+    },
+    {
+      "name": "Bucket documents existiert und ist privat",
+      "ok": true,
+      "detail": "public=false"
+    },
+    {
+      "name": "Bucket documents hat eine Größenbegrenzung",
+      "ok": true,
+      "detail": "limit=20000000"
+    },
+    {
+      "name": "Bucket documents hat eine MIME-Allowlist",
+      "ok": true,
+      "detail": "mime=[\"application/pdf\",\"application/xml\",\"text/xml\"]"
+    },
+    {
+      "name": "Bucket shipping-labels existiert und ist privat",
+      "ok": true,
+      "detail": "public=false"
+    },
+    {
+      "name": "Bucket shipping-labels hat eine Größenbegrenzung",
+      "ok": true,
+      "detail": "limit=20000000"
+    },
+    {
+      "name": "Bucket shipping-labels hat eine MIME-Allowlist",
+      "ok": true,
+      "detail": "mime=[\"application/pdf\",\"image/png\",\"image/jpeg\"]"
+    },
+    {
+      "name": "Anonymer Upload in media wird abgelehnt",
+      "ok": true,
+      "detail": "new row violates row-level security policy"
+    },
+    {
+      "name": "Kontroll-Upload (Service-Rolle) erfolgreich",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Anonymer Download aus privatem Bucket wird abgelehnt",
+      "ok": true,
+      "detail": "Object not found"
+    },
+    {
+      "name": "Öffentliche URL eines privaten Buckets liefert kein 200",
+      "ok": true,
+      "detail": "status 400"
+    },
+    {
+      "name": "Anonymes Signieren wird abgelehnt",
+      "ok": true,
+      "detail": "Object not found"
+    },
+    {
+      "name": "Signierte URL wird erzeugt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Signierte URL ist innerhalb der Gültigkeit nutzbar",
+      "ok": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "Signierte URL läuft ab",
+      "ok": true,
+      "detail": "status 400"
+    },
+    {
+      "name": "Manipuliertes URL-Token wird abgelehnt",
+      "ok": true,
+      "detail": "status 400"
+    },
+    {
+      "name": "Dokument-Kontrolldatei angelegt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Dokument-URL ist signiert und kurzlebig (300 s)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Cross-Tenant-Download (Org B liest Org A) wird abgelehnt",
+      "ok": true,
+      "detail": "Object not found"
+    },
+    {
+      "name": "Cross-Tenant-Signieren wird abgelehnt",
+      "ok": true,
+      "detail": "Object not found"
+    },
+    {
+      "name": "Cross-Tenant-Upload in fremden Ordner wird abgelehnt",
+      "ok": true,
+      "detail": "new row violates row-level security policy"
+    },
+    {
+      "name": "Cross-Tenant-Zugriff auf fremde Dokumente wird abgelehnt",
+      "ok": true,
+      "detail": "Object not found"
+    },
+    {
+      "name": "Cross-Tenant-Listing liefert keine fremden Dateien",
+      "ok": true,
+      "detail": "0 Treffer"
+    },
+    {
+      "name": "SVG-Upload wird auf Bucket-Ebene abgelehnt",
+      "ok": true,
+      "detail": "mime type image/svg+xml is not supported"
+    },
+    {
+      "name": "HTML-Upload wird auf Bucket-Ebene abgelehnt",
+      "ok": true,
+      "detail": "mime type text/html is not supported"
+    },
+    {
+      "name": "Gespoofte Datei wird nicht als HTML ausgeliefert",
+      "ok": true,
+      "detail": "content-type=image/png disposition="
+    },
+    {
+      "name": "Path Traversal verlässt den Mandantenordner nicht",
+      "ok": true,
+      "detail": "new row violates row-level security policy"
+    },
+    {
+      "name": "Auffällige Dateinamen werden normalisiert oder abgelehnt",
+      "ok": true,
+      "detail": "5eebb5ba-0a22-4a34-9c28-5dfab7d48924/gateb-1787821015789-a b#c?d%2e%2e.png"
+    },
+    {
+      "name": "Private Dokumentpfade sind nicht erratbar (UUID-basiert)",
+      "ok": true,
+      "detail": "0 von 15 ohne UUID"
+    },
+    {
+      "name": "Datei über 25 MB wird abgelehnt",
+      "ok": true,
+      "detail": "The object exceeded the maximum allowed size"
+    },
+    {
+      "name": "Ausgestellte Belege sind für Clients nicht überschreibbar",
+      "ok": true,
+      "detail": "new row violates row-level security policy"
+    },
+    {
+      "name": "Keine verwaisten Dateien ohne Datenbankeintrag",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Testdateien vollständig entfernt",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

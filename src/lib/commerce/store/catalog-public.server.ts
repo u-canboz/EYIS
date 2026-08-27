@@ -4,7 +4,8 @@
  * returned field passes through an explicit allowlist mapper.
  */
 import { getAdmin } from "../core.server";
-import { resolveFromDatabase } from "../pricing.server";
+import { loadSnapshotsForProducts, resolveFromDatabase } from "../pricing.server";
+import { resolvePricing } from "../pricing-engine";
 import { getAvailability } from "../cart.server";
 import { availabilityFrom } from "./mappers.server";
 import { notFound } from "./gateway.server";
@@ -152,9 +153,7 @@ export async function listProducts(input: {
   const { data, count, error } = await query.range(from, from + input.pageSize - 1);
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as Row[];
-  const summaries = await Promise.all(
-    rows.map((r) => summarizeProduct(r, input.organizationId, input.shopId)),
-  );
+  const summaries = await summarizeProducts(rows, input.organizationId, input.shopId);
   const total = count ?? summaries.length;
   return {
     data: summaries,
@@ -167,67 +166,197 @@ export async function listProducts(input: {
   };
 }
 
-async function primaryImage(productId: string): Promise<StoreImage | null> {
+/**
+ * Zusammenfassungen für eine Produktliste. Gebündelte Zusatzdaten: eine Abfrage
+ * je Domäne für die ganze Seite statt je Produkt (N+1). Ergebnis ist identisch.
+ */
+async function summarizeProducts(
+  rows: Row[],
+  organizationId: string,
+  shopId: string,
+): Promise<StoreProductSummary[]> {
+  const productIds = rows.map((r) => r["id"] as string);
+  const admin = await getAdmin();
+  const { data: shop } = await admin
+    .from("shops")
+    .select("currency")
+    .eq("id", shopId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  const currency = ((shop as Row | null)?.["currency"] as string) ?? "EUR";
+  const [taxIncluded, imageMap, availabilityMap, snapshots, variantFloor] = await Promise.all([
+    shopTaxIncluded(shopId),
+    primaryImages(productIds),
+    productAvailabilities(organizationId, shopId, productIds),
+    loadSnapshotsForProducts(admin as never, { organizationId, shopId, productIds }, currency),
+    lowestVariantPrices(organizationId, productIds),
+  ]);
+  const now = new Date().toISOString();
+  return rows.map((row) => {
+    const productId = row["id"] as string;
+    let price: StorePrice | null = null;
+    const snapshot = snapshots.get(productId);
+    if (snapshot) {
+      try {
+        const result = resolvePricing(snapshot, {
+          shopId,
+          productId,
+          variantId: null,
+          quantity: 1,
+          currencyCode: currency,
+          customerGroupId: null,
+          promotionCodes: [],
+          now,
+        } as never);
+        if (result && typeof result.resolvedUnitAmount === "number") {
+          price = {
+            currencyCode: result.currencyCode,
+            unitAmountMinor: result.resolvedUnitAmount,
+            compareAtAmountMinor:
+              result.compareAtAmount && result.compareAtAmount > result.resolvedUnitAmount
+                ? result.compareAtAmount
+                : null,
+            taxIncluded,
+          };
+        }
+      } catch {
+        price = null;
+      }
+    }
+    // Preise liegen in diesem Datenmodell in der Regel an der Variante. Ohne
+    // Produktpreis zeigt die Liste den günstigsten aktiven Variantenpreis.
+    const floor = variantFloor.get(productId);
+    if ((!price || price.unitAmountMinor <= 0) && floor) {
+      price = {
+        currencyCode: floor.currencyCode,
+        unitAmountMinor: floor.amountMinor,
+        compareAtAmountMinor: null,
+        taxIncluded,
+      };
+    }
+
+    return {
+      id: productId,
+      handle: row["handle"] as string,
+      title: row["name"] as string,
+      subtitle: str(row["subtitle"]),
+      image: imageMap.get(productId) ?? null,
+      price,
+      availability: availabilityMap.get(productId) ?? availabilityFrom(0),
+    } satisfies StoreProductSummary;
+  });
+}
+
+/** Günstigster aktiver Basispreis je Produkt über dessen Varianten (drei Abfragen). */
+async function lowestVariantPrices(
+  organizationId: string,
+  productIds: string[],
+): Promise<Map<string, { amountMinor: number; currencyCode: string }>> {
+  const out = new Map<string, { amountMinor: number; currencyCode: string }>();
+  if (!productIds.length) return out;
+  const admin = await getAdmin();
+  const { data: variants } = await admin
+    .from("product_variants")
+    .select("id, product_id")
+    .in("product_id", productIds)
+    .eq("status", "active");
+  const variantRows = (variants ?? []) as Row[];
+  if (!variantRows.length) return out;
+  const { data: sets } = await admin
+    .from("price_sets")
+    .select("id, variant_id")
+    .eq("organization_id", organizationId)
+    .in(
+      "variant_id",
+      variantRows.map((v) => v["id"] as string),
+    );
+  const setRows = (sets ?? []) as Row[];
+  if (!setRows.length) return out;
+  const { data: prices } = await admin
+    .from("prices")
+    .select("price_set_id, amount_minor, currency_code, type")
+    .in(
+      "price_set_id",
+      setRows.map((s) => s["id"] as string),
+    )
+    .eq("type", "base");
+  const productByVariant = new Map<string, string>();
+  for (const v of variantRows) productByVariant.set(v["id"] as string, v["product_id"] as string);
+  const productBySet = new Map<string, string>();
+  for (const s of setRows) {
+    const productId = productByVariant.get(s["variant_id"] as string);
+    if (productId) productBySet.set(s["id"] as string, productId);
+  }
+  for (const row of (prices ?? []) as Row[]) {
+    const productId = productBySet.get(row["price_set_id"] as string);
+    if (!productId) continue;
+    const amountMinor = Number(row["amount_minor"]);
+    if (!Number.isFinite(amountMinor) || amountMinor <= 0) continue;
+    const currencyCode = String(row["currency_code"] ?? "EUR");
+    const current = out.get(productId);
+    if (!current || amountMinor < current.amountMinor)
+      out.set(productId, { amountMinor, currencyCode });
+  }
+  return out;
+}
+
+/** Erstes Bild je Produkt — eine Abfrage und ein Signieraufruf für alle Produkte. */
+async function primaryImages(productIds: string[]): Promise<Map<string, StoreImage>> {
+  const map = new Map<string, StoreImage>();
+  if (!productIds.length) return map;
   const admin = await getAdmin();
   const { data } = await admin
     .from("product_media")
-    .select("position, media_assets(storage_path, alt_text)")
-    .eq("product_id", productId)
-    .order("position", { ascending: true })
-    .limit(1);
-  const first = (
-    (data ?? []) as unknown as {
-      position: number;
-      media_assets: { storage_path: string; alt_text: string | null } | null;
-    }[]
-  )[0];
-  if (!first?.media_assets) return null;
-  const signed = await signPaths([first.media_assets.storage_path]);
-  const url = signed.get(first.media_assets.storage_path);
-  return url ? { url, alt: first.media_assets.alt_text, position: first.position } : null;
+    .select("product_id, position, media_assets(storage_path, alt_text)")
+    .in("product_id", productIds)
+    .order("position", { ascending: true });
+  const rows = (data ?? []) as unknown as {
+    product_id: string;
+    position: number;
+    media_assets: { storage_path: string; alt_text: string | null } | null;
+  }[];
+  const first = new Map<string, (typeof rows)[number]>();
+  for (const row of rows) {
+    if (!row.media_assets) continue;
+    if (!first.has(row.product_id)) first.set(row.product_id, row);
+  }
+  const signed = await signPaths([...first.values()].map((r) => r.media_assets!.storage_path));
+  for (const [productId, row] of first) {
+    const url = signed.get(row.media_assets!.storage_path);
+    if (url) map.set(productId, { url, alt: row.media_assets!.alt_text, position: row.position });
+  }
+  return map;
 }
 
-async function summarizeProduct(
-  row: Row,
-  organizationId: string,
-  shopId: string,
-): Promise<StoreProductSummary> {
-  const productId = row["id"] as string;
-  const taxIncluded = await shopTaxIncluded(shopId);
-  const [image, price, availability] = await Promise.all([
-    primaryImage(productId),
-    priceFor({ organizationId, shopId, productId, variantId: null, taxIncluded }),
-    productAvailability(organizationId, shopId, productId),
-  ]);
-  return {
-    id: productId,
-    handle: row["handle"] as string,
-    title: row["name"] as string,
-    subtitle: str(row["subtitle"]),
-    image,
-    price,
-    availability,
-  };
-}
-
-async function productAvailability(organizationId: string, shopId: string, productId: string) {
+/** Verfügbarkeit je Produkt — Varianten in einer Abfrage, Bestände parallel. */
+async function productAvailabilities(organizationId: string, shopId: string, productIds: string[]) {
+  const map = new Map<string, ReturnType<typeof availabilityFrom>>();
+  if (!productIds.length) return map;
   const admin = await getAdmin();
   const { data } = await admin
     .from("product_variants")
-    .select("id")
-    .eq("product_id", productId)
+    .select("id, product_id")
+    .in("product_id", productIds)
     .eq("status", "active");
-  const variants = ((data ?? []) as Row[]).map((v) => v["id"] as string);
-  let total = 0;
-  for (const variantId of variants) {
-    try {
-      const availability = await getAvailability(organizationId, shopId, variantId);
-      total += Number((availability as { available?: number }).available ?? 0);
-    } catch {
-      /* variant without inventory item counts as 0 */
-    }
-  }
-  return availabilityFrom(total);
+  const variants = (data ?? []) as Row[];
+  const totals = new Map<string, number>(productIds.map((id) => [id, 0]));
+  await Promise.all(
+    variants.map(async (v) => {
+      try {
+        const availability = await getAvailability(organizationId, shopId, v["id"] as string);
+        const productId = v["product_id"] as string;
+        totals.set(
+          productId,
+          (totals.get(productId) ?? 0) +
+            Number((availability as { available?: number }).available ?? 0),
+        );
+      } catch {
+        /* Variante ohne Bestandsdatensatz zählt als 0 */
+      }
+    }),
+  );
+  for (const [productId, total] of totals) map.set(productId, availabilityFrom(total));
+  return map;
 }
 
 export async function getProduct(input: {
@@ -405,9 +534,7 @@ export async function searchProducts(input: {
     .is("archived_at", null)
     .or(`name.ilike.%${term.replace(/[%,]/g, "")}%,subtitle.ilike.%${term.replace(/[%,]/g, "")}%`)
     .limit(input.limit);
-  return Promise.all(
-    ((data ?? []) as Row[]).map((r) => summarizeProduct(r, input.organizationId, input.shopId)),
-  );
+  return summarizeProducts((data ?? []) as Row[], input.organizationId, input.shopId);
 }
 
 export async function listCategories(shopId: string): Promise<StoreCategory[]> {

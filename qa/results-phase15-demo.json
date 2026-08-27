@@ -13,12 +13,12 @@
     {
       "name": "Guard: keine Datenänderung durch blockierten Lauf",
       "ok": true,
-      "detail": "6 → 6 Organisationen"
+      "detail": "5 → 5 Organisationen"
     },
     {
       "name": "Guard: Audit-Eintrag security.demo_seed_blocked",
       "ok": true,
-      "detail": "14 Einträge"
+      "detail": "18 Einträge"
     },
     {
       "name": "Seed: alle Schritte als vollständig gemeldet",
@@ -113,7 +113,7 @@
     {
       "name": "Folgedaten: Kommunikation",
       "ok": true,
-      "detail": "55"
+      "detail": "63"
     },
     {
       "name": "Folgedaten: Steuer-Snapshots",
@@ -123,12 +123,12 @@
     {
       "name": "Blueprints: mindestens 5 unterschiedliche belegt",
       "ok": true,
-      "detail": "textil, lebensmittel, kosmetik, moebel, schmuck, elektronik"
+      "detail": "textil, lebensmittel, elektronik, kosmetik, moebel, schmuck"
     },
     {
       "name": "Integrität: Health-Engine ohne kritische Befunde",
-      "ok": false,
-      "detail": "issued_invoice_missing_pdf: Ausgestellte Rechnung ohne erzeugte PDF-Datei. | issued_invoice_missing_pdf: Ausgestellte Rechnung ohne erzeugte PDF-Datei. | issued_invoice_missing_pdf: Ausgestellte Rechnung ohne erzeugte PDF-Datei. | issued_invoice_missing_pdf: Ausgestellte Rechnung ohne erzeugte PDF-Datei. | issued_invoice_missing_pdf: Ausgestellte Rechnung ohne erzeugte PDF-Datei. | issued_invoice_"
+      "ok": true,
+      "detail": "0 nachrangige Hinweise"
     },
     {
       "name": "Bestellungen: mehrere Zustände abgedeckt",
@@ -137,13 +137,13 @@
     },
     {
       "name": "Idempotenz: keine Dubletten beim zweiten Lauf",
-      "ok": false,
-      "detail": "product_media: 32→-1"
+      "ok": true,
+      "detail": "alle Zähler identisch"
     },
     {
       "name": "Fixture mixed_tax_order: erzeugt",
       "ok": true,
-      "detail": "{\"scenario\":\"mixed_tax_order\",\"run_ref\":\"qo25kc\",\"organization_id\":\"a65f5adf-77b5-4814-af9d-2bec5396084a\",\"shop_id\":\"a91eacb0-28df-4cb4-b50e-b7252340aa52\",\"order_id\":\"bcd6a3b1-6d6a-4184-a421-3e9d632a4"
+      "detail": "{\"scenario\":\"mixed_tax_order\",\"run_ref\":\"2qdd1j\",\"organization_id\":\"c8a70f84-52fc-48e8-8484-75bfdb177cb9\",\"shop_id\":\"78bdb457-58a2-4591-8634-11d877ae5227\",\"order_id\":\"fcd3c623-6cf5-4dce-97db-f91a46c3b"
     },
     {
       "name": "Fixture mixed_tax_order: zerstört ohne DB-Reste",
@@ -158,7 +158,7 @@
     {
       "name": "Fixture partial_fulfillment: erzeugt",
       "ok": true,
-      "detail": "{\"scenario\":\"partial_fulfillment\",\"run_ref\":\"qncl4a\",\"organization_id\":\"fd7766e2-8ebd-4017-97fd-aea3f33ef85c\",\"shop_id\":\"4d8234a8-a808-4872-938f-eba757c11997\",\"order_id\":\"e47f5765-9108-4588-8836-9df79"
+      "detail": "{\"scenario\":\"partial_fulfillment\",\"run_ref\":\"28zdlq\",\"organization_id\":\"c6d6ae8e-ec94-4608-866f-2ebd7192dc96\",\"shop_id\":\"d9a00561-7d21-416d-88b7-221976b3870f\",\"order_id\":\"87d5ac0a-3918-47d5-9d77-70a16"
     },
     {
       "name": "Fixture partial_fulfillment: zerstört ohne DB-Reste",
@@ -173,7 +173,7 @@
     {
       "name": "Fixture shipping_exception: erzeugt",
       "ok": true,
-      "detail": "{\"scenario\":\"shipping_exception\",\"run_ref\":\"lcohvr\",\"organization_id\":\"6f2cc95f-7651-45a7-9a12-3e6bb3ced43f\",\"shop_id\":\"ad279b73-8963-4eff-9cdf-5350ef112c6e\",\"order_id\":\"f097bbf4-20e1-4d4d-8016-fc4157"
+      "detail": "{\"scenario\":\"shipping_exception\",\"run_ref\":\"8j3qpj\",\"organization_id\":\"aea8f7c4-cf14-48ad-8881-1d6072921541\",\"shop_id\":\"2757b216-53ee-49e8-8e07-d8f0cf3a1603\",\"order_id\":\"353ae30c-4254-4f52-b820-bf801e"
     },
     {
       "name": "Fixture shipping_exception: zerstört ohne DB-Reste",
@@ -188,7 +188,7 @@
     {
       "name": "Fixture return_full: erzeugt",
       "ok": true,
-      "detail": "{\"scenario\":\"return_full\",\"run_ref\":\"9wij6f\",\"organization_id\":\"dd11d91f-e98a-48df-a975-da27d1e9cd37\",\"shop_id\":\"6d85cb0c-0eac-4411-80d1-31910b65fa53\",\"order_id\":\"bc240a9c-7a98-43d9-8e79-1dc43b2989d4\""
+      "detail": "{\"scenario\":\"return_full\",\"run_ref\":\"olxeyu\",\"organization_id\":\"0d9e82d4-8ba6-479d-ba72-fea87642beaa\",\"shop_id\":\"94173844-993c-49a0-92a7-8fb2657d6bbc\",\"order_id\":\"06b8417c-a81c-4721-9c2e-5f62df22084c\""
     },
     {
       "name": "Fixture return_full: zerstört ohne DB-Reste",
@@ -217,19 +217,19 @@
     },
     {
       "name": "Reseed: identischer Ausgangszustand",
-      "ok": false,
-      "detail": "product_media: 32→-1"
+      "ok": true,
+      "detail": "alle Zähler identisch"
     }
   ],
   "report": {
     "guard": {
       "guardSeed": "Demo-/QA-Seed in dieser Umgebung nicht zulässig (Produktions-Signale aktiv).",
       "guardReset": "Demo-/QA-Seed in dieser Umgebung nicht zulässig (Produktions-Signale aktiv).",
-      "auditBlocked": 14
+      "auditBlocked": 18
     },
     "seed_run1": {
       "detail": {
-        "foundation": "Foundation bereit (Organisation ec0241de…, Steuern, Versand, Dokumente, Kommunikation, Mock-Anbieter).",
+        "foundation": "Foundation bereit (Organisation f2cb5bba…, Steuern, Versand, Dokumente, Kommunikation, Mock-Anbieter).",
         "catalog": "Katalog bereit (32 Produkte, 32 neu, 6 Kategorien, 3 Kollektionen).",
         "media": "Medien bereit (12 hochgeladen, 32 Produktbilder zugeordnet).",
         "inventory": "Inventar bereit (32 Wareneingänge gebucht).",
@@ -262,21 +262,21 @@
         "fulfillments": 21,
         "shipments": 17,
         "tracking_events": 0,
-        "communications": 55,
+        "communications": 63,
         "returns": 2,
         "refunds": 6,
         "tax_snapshots": 40
       },
-      "seconds": 514
+      "seconds": 531
     },
     "blueprints": {
       "used": [
         "textil",
         "lebensmittel",
+        "elektronik",
         "kosmetik",
         "moebel",
-        "schmuck",
-        "elektronik"
+        "schmuck"
       ],
       "available": [
         "standard",
@@ -290,80 +290,7 @@
         "dienstleistung"
       ]
     },
-    "health": [
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "f396841f-93c7-495b-a8f0-3a7aef8f5a1b",
-        "severity": "high",
-        "entityType": "invoice"
-      },
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "27bdf86c-524a-4bc7-885a-e7248d84c029",
-        "severity": "high",
-        "entityType": "invoice"
-      },
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "e5dfa53a-a157-4b8a-93bd-e8319580c5e7",
-        "severity": "high",
-        "entityType": "invoice"
-      },
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "18a4b4c2-284d-4341-8fac-5a619c8da4ac",
-        "severity": "high",
-        "entityType": "invoice"
-      },
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "44f87712-e48d-4315-a2fc-0613bfd9a9d9",
-        "severity": "high",
-        "entityType": "invoice"
-      },
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "452ff2f1-e17b-48ae-99d1-ad8b85012235",
-        "severity": "high",
-        "entityType": "invoice"
-      },
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "ef14b028-85c6-4086-aa8b-8efd10798fd8",
-        "severity": "high",
-        "entityType": "invoice"
-      },
-      {
-        "area": "documents",
-        "code": "issued_invoice_missing_pdf",
-        "shopId": "80a97754-428b-4337-a249-1379d78f43e8",
-        "message": "Ausgestellte Rechnung ohne erzeugte PDF-Datei.",
-        "entityId": "d1cc09a9-77fe-415c-8c82-31c1cb8cc171",
-        "severity": "high",
-        "entityType": "invoice"
-      }
-    ],
+    "health": [],
     "order_states": {
       "states": [
         "confirmed",
@@ -382,7 +309,7 @@
         "categories": 6,
         "collections": 3,
         "media_assets": 12,
-        "product_media": -1,
+        "product_media": 32,
         "prices": 39,
         "promotions": 3,
         "inventory_items": 32,
@@ -401,24 +328,22 @@
         "fulfillments": 21,
         "shipments": 17,
         "tracking_events": 0,
-        "communications": 55,
+        "communications": 63,
         "returns": 2,
         "refunds": 6,
         "tax_snapshots": 40
       },
-      "diffs": [
-        "product_media: 32 → -1"
-      ]
+      "diffs": []
     },
     "fixtures": [
       {
         "scenario": "mixed_tax_order",
         "manifest": {
           "scenario": "mixed_tax_order",
-          "run_ref": "qo25kc",
-          "organization_id": "a65f5adf-77b5-4814-af9d-2bec5396084a",
-          "shop_id": "a91eacb0-28df-4cb4-b50e-b7252340aa52",
-          "order_id": "bcd6a3b1-6d6a-4184-a421-3e9d632a4c75",
+          "run_ref": "2qdd1j",
+          "organization_id": "c8a70f84-52fc-48e8-8484-75bfdb177cb9",
+          "shop_id": "78bdb457-58a2-4591-8634-11d877ae5227",
+          "order_id": "fcd3c623-6cf5-4dce-97db-f91a46c3bb91",
           "note": "Bestellung mit 19 %- und 7 %-Positionen."
         },
         "before": {
@@ -427,7 +352,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 2,
           "promotions": 0,
           "inventory_items": 2,
@@ -457,7 +382,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 0,
           "promotions": 0,
           "inventory_items": 0,
@@ -488,10 +413,10 @@
         "scenario": "partial_fulfillment",
         "manifest": {
           "scenario": "partial_fulfillment",
-          "run_ref": "qncl4a",
-          "organization_id": "fd7766e2-8ebd-4017-97fd-aea3f33ef85c",
-          "shop_id": "4d8234a8-a808-4872-938f-eba757c11997",
-          "order_id": "e47f5765-9108-4588-8836-9df792c27aa9"
+          "run_ref": "28zdlq",
+          "organization_id": "c6d6ae8e-ec94-4608-866f-2ebd7192dc96",
+          "shop_id": "d9a00561-7d21-416d-88b7-221976b3870f",
+          "order_id": "87d5ac0a-3918-47d5-9d77-70a16f41d859"
         },
         "before": {
           "products": 2,
@@ -499,7 +424,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 2,
           "promotions": 0,
           "inventory_items": 2,
@@ -529,7 +454,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 0,
           "promotions": 0,
           "inventory_items": 0,
@@ -560,11 +485,11 @@
         "scenario": "shipping_exception",
         "manifest": {
           "scenario": "shipping_exception",
-          "run_ref": "lcohvr",
-          "organization_id": "6f2cc95f-7651-45a7-9a12-3e6bb3ced43f",
-          "shop_id": "ad279b73-8963-4eff-9cdf-5350ef112c6e",
-          "order_id": "f097bbf4-20e1-4d4d-8016-fc4157191ad8",
-          "shipment_id": "60a8aa92-7ce0-4dee-b81a-a1835e68658d"
+          "run_ref": "8j3qpj",
+          "organization_id": "aea8f7c4-cf14-48ad-8881-1d6072921541",
+          "shop_id": "2757b216-53ee-49e8-8e07-d8f0cf3a1603",
+          "order_id": "353ae30c-4254-4f52-b820-bf801efb6138",
+          "shipment_id": "cbe3173e-4963-4e96-900f-5a3f161b7eac"
         },
         "before": {
           "products": 1,
@@ -572,7 +497,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 1,
           "promotions": 0,
           "inventory_items": 1,
@@ -602,7 +527,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 0,
           "promotions": 0,
           "inventory_items": 0,
@@ -633,11 +558,11 @@
         "scenario": "return_full",
         "manifest": {
           "scenario": "return_full",
-          "run_ref": "9wij6f",
-          "organization_id": "dd11d91f-e98a-48df-a975-da27d1e9cd37",
-          "shop_id": "6d85cb0c-0eac-4411-80d1-31910b65fa53",
-          "order_id": "bc240a9c-7a98-43d9-8e79-1dc43b2989d4",
-          "return_id": "640355be-941e-44e9-b6f9-fda6b45d527e"
+          "run_ref": "olxeyu",
+          "organization_id": "0d9e82d4-8ba6-479d-ba72-fea87642beaa",
+          "shop_id": "94173844-993c-49a0-92a7-8fb2657d6bbc",
+          "order_id": "06b8417c-a81c-4721-9c2e-5f62df22084c",
+          "return_id": "db4c6094-1b68-4848-841c-2760ae6dc503"
         },
         "before": {
           "products": 1,
@@ -645,7 +570,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 1,
           "promotions": 0,
           "inventory_items": 1,
@@ -675,7 +600,7 @@
           "categories": 0,
           "collections": 0,
           "media_assets": 0,
-          "product_media": -1,
+          "product_media": 0,
           "prices": 0,
           "promotions": 0,
           "inventory_items": 0,
@@ -714,7 +639,7 @@
         "categories": 6,
         "collections": 3,
         "media_assets": 12,
-        "product_media": -1,
+        "product_media": 32,
         "prices": 39,
         "promotions": 3,
         "inventory_items": 32,
@@ -733,16 +658,14 @@
         "fulfillments": 21,
         "shipments": 17,
         "tracking_events": 0,
-        "communications": 55,
+        "communications": 63,
         "returns": 2,
         "refunds": 6,
         "tax_snapshots": 40
       },
-      "diffs": [
-        "product_media: 32 → -1"
-      ]
+      "diffs": []
     },
-    "demo_org_id": "a9fc56a2-0578-4911-983b-fc9ff2803a78",
+    "demo_org_id": "f68409ee-21f2-4d8f-a342-644e8452d946",
     "demo_user": {
       "email": "qa-demo-owner@commerce-qa.test",
       "password": "QaPhase15!Demo-Owner"

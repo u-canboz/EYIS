@@ -275,7 +275,7 @@ function TemplateEditor() {
                         setDirty(true);
                       }}
                     >
-                      <SelectTrigger className="h-11 w-48 shrink-0 text-xs">
+                      <SelectTrigger aria-label="Block hinzufügen" className="h-11 w-48 shrink-0 text-xs">
                         <SelectValue placeholder="Block hinzufügen" />
                       </SelectTrigger>
                       <SelectContent>

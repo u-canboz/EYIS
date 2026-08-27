@@ -112,7 +112,7 @@ function MovementsPage() {
           onChange={(event) => setSearch(event.target.value)}
         />
         <Select value={locationId} onValueChange={setLocationId}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Lagerort">
             <SelectValue placeholder="Lagerort" />
           </SelectTrigger>
           <SelectContent>
@@ -125,7 +125,7 @@ function MovementsPage() {
           </SelectContent>
         </Select>
         <Select value={movementType} onValueChange={setMovementType}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Typ">
             <SelectValue placeholder="Typ" />
           </SelectTrigger>
           <SelectContent>

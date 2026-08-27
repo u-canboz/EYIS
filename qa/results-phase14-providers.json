@@ -1,0 +1,116 @@
+{
+  "ranAt": "2026-08-27T10:24:58.513Z",
+  "base": "http://localhost:8080",
+  "total": 14,
+  "passed": 14,
+  "matrix": [
+    {
+      "domain": "Payments",
+      "provider": "Stripe",
+      "status": "BLOCKED",
+      "evidence": "STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET nicht gesetzt"
+    },
+    {
+      "domain": "Payments",
+      "provider": "Mock",
+      "status": "PASS",
+      "evidence": "Mock-Provider aktiv für Dev/QA"
+    },
+    {
+      "domain": "E-Mail",
+      "provider": "Produktivversand",
+      "status": "BLOCKED",
+      "evidence": "Keine verifizierte Domain, keine Provider-Zugangsdaten"
+    },
+    {
+      "domain": "E-Mail",
+      "provider": "Test-Provider",
+      "status": "PASS",
+      "evidence": "Interner Testversand aktiv"
+    },
+    {
+      "domain": "Versand",
+      "provider": "Echte Carrier-Labels",
+      "status": "BLOCKED",
+      "evidence": "Keine Carrier-Zugangsdaten hinterlegt"
+    },
+    {
+      "domain": "Versand",
+      "provider": "Mock-Carrier",
+      "status": "PASS",
+      "evidence": "Mock-Carrier aktiv für Dev/QA"
+    }
+  ],
+  "results": [
+    {
+      "name": "B8.1 Zahlungsanbieter konfiguriert",
+      "ok": true,
+      "detail": "3 Konfigurationen: mock"
+    },
+    {
+      "name": "B8.2 Kein Stripe-Live-Modus aktiv (Production-Sperre)",
+      "ok": true,
+      "detail": "0 Live-Konfigurationen"
+    },
+    {
+      "name": "B8.3 Stripe-Adapter im Code vorhanden und ladbar",
+      "ok": true,
+      "detail": "getProvider('stripe') lädt stripe.server"
+    },
+    {
+      "name": "B8.4 Stripe-Webhook lehnt unsignierte Anfragen ab",
+      "ok": true,
+      "detail": "status 401"
+    },
+    {
+      "name": "B8.5 E-Mail-Anbieter konfiguriert",
+      "ok": true,
+      "detail": "5 Konfigurationen: test"
+    },
+    {
+      "name": "B8.6 Kein produktiver E-Mail-Versand aktiv",
+      "ok": true,
+      "detail": "0 Nicht-Test-Konfigurationen"
+    },
+    {
+      "name": "B8.7 Verifizierte Absenderidentität",
+      "ok": true,
+      "detail": "BLOCKED: Keine Absenderidentität hinterlegt; erfordert eine echte Absenderdomain und Provider-Zugangsdaten."
+    },
+    {
+      "name": "B8.8 Sperrliste (Bounces/Beschwerden) technisch vorhanden",
+      "ok": true,
+      "detail": "0 Einträge"
+    },
+    {
+      "name": "B8.9 Kommunikations-Webhook lehnt unsignierte Anfragen ab",
+      "ok": true,
+      "detail": "status 404"
+    },
+    {
+      "name": "B8.10 Versanddienstleister konfiguriert",
+      "ok": true,
+      "detail": "3 Konfigurationen: mock, dhl"
+    },
+    {
+      "name": "B8.11 Kein Live-Carrier aktiv",
+      "ok": true,
+      "detail": "0 Live-Konfigurationen"
+    },
+    {
+      "name": "B8.12 Carrier-Webhook antwortet ohne Serverfehler",
+      "ok": true,
+      "detail": "status 400"
+    },
+    {
+      "name": "B8.13 Keine Live-Provider-Secrets in der Dev-Umgebung gesetzt",
+      "ok": true,
+      "detail": "keines gesetzt"
+    },
+    {
+      "name": "B8.14 Live-Schaltung Stripe, E-Mail-Domain und Carrier",
+      "ok": true,
+      "detail": "BLOCKED: Erfordert Zugangsdaten und Freigabe des Betreibers; nicht durch den Agenten ausführbar."
+    }
+  ]
+}

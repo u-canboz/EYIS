@@ -355,7 +355,7 @@ function FulfillmentWorkspace() {
               <div className="grid gap-2">
                 <Label>Lagerort</Label>
                 <Select value={locationId} onValueChange={setLocationId}>
-                  <SelectTrigger className="h-11">
+                  <SelectTrigger aria-label="Vorschlag übernehmen" className="h-11">
                     <SelectValue placeholder="Vorschlag übernehmen" />
                   </SelectTrigger>
                   <SelectContent>
