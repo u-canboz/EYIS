@@ -112,6 +112,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "system",
     label: "System",
     items: [
+      { to: "/app/einstellungen/integrationen", label: "Integrationen", icon: Plug },
       { to: "/app/system/health", label: "System Health", icon: Activity },
       { to: "/app/system/jobs", label: "Jobs & Queues", icon: ServerCog },
       { to: "/app/system/status", label: "Systemstatus", icon: Gauge },

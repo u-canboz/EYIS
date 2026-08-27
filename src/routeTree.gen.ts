@@ -41,6 +41,7 @@ import { Route as AuthenticatedAppBestellungenOrderIdRouteImport } from './route
 import { Route as AuthenticatedAppDokumenteIndexRouteImport } from './routes/_authenticated/app/dokumente/index'
 import { Route as AuthenticatedAppDokumenteInvoiceIdRouteImport } from './routes/_authenticated/app/dokumente/$invoiceId'
 import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './routes/_authenticated/app/dokumente/einstellungen'
+import { Route as AuthenticatedAppEinstellungenIntegrationenRouteImport } from './routes/_authenticated/app/einstellungen/integrationen'
 import { Route as AuthenticatedAppEntwicklerIndexRouteImport } from './routes/_authenticated/app/entwickler/index'
 import { Route as AuthenticatedAppEntwicklerApiRouteImport } from './routes/_authenticated/app/entwickler/api'
 import { Route as AuthenticatedAppEntwicklerProtokollRouteImport } from './routes/_authenticated/app/entwickler/protokoll'
@@ -257,6 +258,12 @@ const AuthenticatedAppDokumenteEinstellungenRoute =
   AuthenticatedAppDokumenteEinstellungenRouteImport.update({
     id: '/app/dokumente/einstellungen',
     path: '/app/dokumente/einstellungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppEinstellungenIntegrationenRoute =
+  AuthenticatedAppEinstellungenIntegrationenRouteImport.update({
+    id: '/app/einstellungen/integrationen',
+    path: '/app/einstellungen/integrationen',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppEntwicklerIndexRoute =
@@ -555,6 +562,7 @@ export interface FileRoutesByFullPath {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
@@ -632,6 +640,7 @@ export interface FileRoutesByTo {
   '/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
@@ -712,6 +721,7 @@ export interface FileRoutesById {
   '/_authenticated/app/bestellungen/$orderId': typeof AuthenticatedAppBestellungenOrderIdRoute
   '/_authenticated/app/dokumente/$invoiceId': typeof AuthenticatedAppDokumenteInvoiceIdRoute
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
+  '/_authenticated/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/_authenticated/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
   '/_authenticated/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/_authenticated/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
@@ -792,6 +802,7 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/einstellungen/integrationen'
     | '/app/entwickler/api'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
@@ -869,6 +880,7 @@ export interface FileRouteTypes {
     | '/app/bestellungen/$orderId'
     | '/app/dokumente/$invoiceId'
     | '/app/dokumente/einstellungen'
+    | '/app/einstellungen/integrationen'
     | '/app/entwickler/api'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
@@ -948,6 +960,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/bestellungen/$orderId'
     | '/_authenticated/app/dokumente/$invoiceId'
     | '/_authenticated/app/dokumente/einstellungen'
+    | '/_authenticated/app/einstellungen/integrationen'
     | '/_authenticated/app/entwickler/api'
     | '/_authenticated/app/entwickler/protokoll'
     | '/_authenticated/app/kommunikation/branding'
@@ -1240,6 +1253,13 @@ declare module '@tanstack/react-router' {
       path: '/app/dokumente/einstellungen'
       fullPath: '/app/dokumente/einstellungen'
       preLoaderRoute: typeof AuthenticatedAppDokumenteEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/einstellungen/integrationen': {
+      id: '/_authenticated/app/einstellungen/integrationen'
+      path: '/app/einstellungen/integrationen'
+      fullPath: '/app/einstellungen/integrationen'
+      preLoaderRoute: typeof AuthenticatedAppEinstellungenIntegrationenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/entwickler/': {
@@ -1576,6 +1596,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppBestellungenOrderIdRoute: typeof AuthenticatedAppBestellungenOrderIdRoute
   AuthenticatedAppDokumenteInvoiceIdRoute: typeof AuthenticatedAppDokumenteInvoiceIdRoute
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
+  AuthenticatedAppEinstellungenIntegrationenRoute: typeof AuthenticatedAppEinstellungenIntegrationenRoute
   AuthenticatedAppEntwicklerApiRoute: typeof AuthenticatedAppEntwicklerApiRoute
   AuthenticatedAppEntwicklerProtokollRoute: typeof AuthenticatedAppEntwicklerProtokollRoute
   AuthenticatedAppKommunikationBrandingRoute: typeof AuthenticatedAppKommunikationBrandingRoute
@@ -1641,6 +1662,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppDokumenteInvoiceIdRoute,
   AuthenticatedAppDokumenteEinstellungenRoute:
     AuthenticatedAppDokumenteEinstellungenRoute,
+  AuthenticatedAppEinstellungenIntegrationenRoute:
+    AuthenticatedAppEinstellungenIntegrationenRoute,
   AuthenticatedAppEntwicklerApiRoute: AuthenticatedAppEntwicklerApiRoute,
   AuthenticatedAppEntwicklerProtokollRoute:
     AuthenticatedAppEntwicklerProtokollRoute,
