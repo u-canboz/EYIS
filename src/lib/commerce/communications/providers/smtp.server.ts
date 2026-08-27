@@ -365,7 +365,7 @@ export async function verifySmtpConnection(
   return {
     host: config.host,
     port: config.port,
-    encryption: config.encryption,
+    encryption: resolveTlsMode(config.encryption, config.port),
     capabilities,
   };
 }
