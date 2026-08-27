@@ -12,6 +12,7 @@ const MIGRATIONS_DIR = "supabase/migrations";
 const NO_POLICY_ALLOWLIST = new Set([
   "automation_rule_counters",
   "idempotency_keys",
+  "oauth_states",
   "outbox_events",
   "store_api_rate_counters",
   "store_confirmation_tokens",

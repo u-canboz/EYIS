@@ -53,6 +53,34 @@
         }
       }
     },
+    "/api/public/store/v1/payment-methods": {
+      "get": {
+        "tags": [
+          "Konfiguration"
+        ],
+        "summary": "Aktive Zahlungsarten des Shops (Discovery, secretsfrei).",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.paymentMethods()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StorePaymentMethod[]"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
     "/api/public/store/v1/products": {
       "get": {
         "tags": [

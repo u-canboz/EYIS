@@ -24,6 +24,9 @@ function sql(query: string): string[] {
 const NO_POLICY_ALLOWLIST = [
   "automation_rule_counters",
   "idempotency_keys",
+  // Phase 18: OAuth-States werden ausschließlich per Service-Rolle verwaltet
+  // (kein authenticated-Grant, kein anon-Grant).
+  "oauth_states",
   "outbox_events",
   "store_api_rate_counters",
   "store_confirmation_tokens",
