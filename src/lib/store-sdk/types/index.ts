@@ -25,6 +25,14 @@ export type StoreConfig = {
   environment: "test" | "live";
 };
 
+export type StorePaymentMethod = {
+  id: string;
+  provider: string;
+  name: string;
+  environment: "test" | "live";
+  testOnly: boolean;
+};
+
 export type StoreAvailability = "in_stock" | "low_stock" | "out_of_stock" | "backorder";
 
 export type StorePrice = {
