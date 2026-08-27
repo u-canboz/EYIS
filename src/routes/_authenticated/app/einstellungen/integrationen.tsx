@@ -19,13 +19,17 @@ import {
   Mail,
   Plug,
   RefreshCw,
+  Send,
   Truck,
   Unplug,
 } from "lucide-react";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import {
   addSenderDomainFn,
+  connectIntegrationFn,
   disconnectIntegrationFn,
+  getCredentialStatusFn,
+  sendProviderTestEmailFn,
   getShopReadinessFn,
   listIntegrationsFn,
   listSenderDomainsFn,
@@ -42,6 +46,7 @@ import type { IntegrationView, ReadinessArea } from "@/lib/commerce/integrations
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -111,12 +116,197 @@ function ReadinessCard({ area }: { area: ReadinessArea }) {
   );
 }
 
+type CredentialField = {
+  name: string;
+  label: string;
+  placeholder: string;
+  help: string;
+  required: boolean;
+};
+
+const CREDENTIAL_FIELDS: Record<string, CredentialField[]> = {
+  stripe: [
+    {
+      name: "secretKey",
+      label: "Geheimer Stripe-Schlüssel",
+      placeholder: "sk_test_…",
+      help: "Aus dem Stripe-Dashboard unter Entwickler → API-Schlüssel. sk_test_ verbindet den Testmodus, sk_live_ den Live-Modus.",
+      required: true,
+    },
+    {
+      name: "webhookSecret",
+      label: "Webhook-Secret",
+      placeholder: "whsec_…",
+      help: "Aus dem Stripe-Webhook-Endpunkt. Ohne dieses Secret werden Zahlungen nicht automatisch bestätigt.",
+      required: false,
+    },
+  ],
+  resend: [
+    {
+      name: "apiKey",
+      label: "Resend-API-Schlüssel",
+      placeholder: "re_…",
+      help: "Aus dem Resend-Dashboard unter API Keys (Berechtigung: Full access für Domain-Verwaltung).",
+      required: true,
+    },
+    {
+      name: "webhookSecret",
+      label: "Webhook-Secret",
+      placeholder: "whsec_…",
+      help: "Aus dem Resend-Webhook. Ohne dieses Secret werden Bounces und Beschwerden nicht übernommen.",
+      required: false,
+    },
+  ],
+};
+
+function ConnectDialog({
+  view,
+  open,
+  onOpenChange,
+}: {
+  view: IntegrationView;
+  open: boolean;
+  onOpenChange: (value: boolean) => void;
+}) {
+  const { organizationId, shopId } = useActiveWorkspace();
+  const queryClient = useQueryClient();
+  const connect = useServerFn(connectIntegrationFn);
+  const fetchStatus = useServerFn(getCredentialStatusFn);
+  const fields = CREDENTIAL_FIELDS[view.id] ?? [];
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  const statusQuery = useQuery({
+    queryKey: ["credential-status", organizationId, shopId, view.id],
+    queryFn: () =>
+      fetchStatus({
+        data: { organizationId, shopId, category: view.category, provider: view.id },
+      }),
+    enabled: open && !!organizationId && !!shopId,
+  });
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      connect({
+        data: {
+          organizationId,
+          shopId,
+          category: view.category,
+          provider: view.id,
+          values,
+        },
+      }),
+    onSuccess: (result) => {
+      toast.success(result.message);
+      setValues({});
+      onOpenChange(false);
+      void queryClient.invalidateQueries({ queryKey: ["integrations", organizationId, shopId] });
+      void queryClient.invalidateQueries({ queryKey: ["shop-readiness", organizationId, shopId] });
+      void queryClient.invalidateQueries({ queryKey: ["credential-status"] });
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const required = fields.filter((f) => f.required);
+  const canSubmit = required.every((f) => (values[f.name] ?? "").trim().length > 0);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{view.displayName} verbinden</DialogTitle>
+          <DialogDescription>
+            Die Zugangsdaten werden verschlüsselt und ausschließlich serverseitig gespeichert. Sie
+            werden nach dem Speichern nie wieder angezeigt.
+          </DialogDescription>
+        </DialogHeader>
+
+        {statusQuery.data?.connected ? (
+          <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground text-pretty">
+            Bereits hinterlegt:{" "}
+            {Object.entries(statusQuery.data.hints)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join(" · ")}
+            . Neue Eingaben ersetzen die bisherigen Zugangsdaten.
+          </p>
+        ) : null}
+
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (canSubmit) mutation.mutate();
+          }}
+        >
+          {fields.map((field) => (
+            <div key={field.name} className="space-y-1.5">
+              <Label htmlFor={`${view.id}-${field.name}`}>
+                {field.label}
+                {field.required ? "" : " (optional)"}
+              </Label>
+              <Input
+                id={`${view.id}-${field.name}`}
+                type="password"
+                autoComplete="off"
+                spellCheck={false}
+                className="h-11"
+                placeholder={field.placeholder}
+                value={values[field.name] ?? ""}
+                onChange={(e) =>
+                  setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                }
+              />
+              <p className="text-xs text-muted-foreground text-pretty">{field.help}</p>
+            </div>
+          ))}
+
+          {statusQuery.data?.webhookUrl ? (
+            <div className="space-y-1.5">
+              <Label htmlFor={`${view.id}-webhook-url`}>Webhook-URL für {view.displayName}</Label>
+              <Input
+                id={`${view.id}-webhook-url`}
+                readOnly
+                className="h-11 font-mono text-xs"
+                value={statusQuery.data.webhookUrl}
+                onFocus={(e) => e.currentTarget.select()}
+              />
+              <p className="text-xs text-muted-foreground text-pretty">
+                Diese Adresse beim Anbieter als Webhook-Ziel eintragen.
+              </p>
+            </div>
+          ) : null}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11"
+              onClick={() => onOpenChange(false)}
+            >
+              Abbrechen
+            </Button>
+            <Button type="submit" className="h-11" disabled={!canSubmit || mutation.isPending}>
+              {mutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <Plug className="size-4" aria-hidden />
+              )}
+              Prüfen und verbinden
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function IntegrationCard({ view }: { view: IntegrationView }) {
   const { organizationId, shopId } = useActiveWorkspace();
   const queryClient = useQueryClient();
   const runTest = useServerFn(testConnectionFn);
   const runDisconnect = useServerFn(disconnectIntegrationFn);
   const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const supportsCredentials = !!CREDENTIAL_FIELDS[view.id] && view.implemented;
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ["integrations", organizationId, shopId] });
@@ -201,7 +391,13 @@ function IntegrationCard({ view }: { view: IntegrationView }) {
             <Link to={view.managePath}>Konfigurieren</Link>
           </Button>
         ) : null}
-        {view.implemented && view.status !== "connected" ? (
+        {supportsCredentials ? (
+          <Button className="h-11" onClick={() => setConnectOpen(true)}>
+            <Plug className="size-4" aria-hidden />
+            {view.status === "connected" ? "Zugangsdaten ersetzen" : "Verbinden"}
+          </Button>
+        ) : null}
+        {view.implemented && view.status !== "connected" && !supportsCredentials ? (
           <Button
             className="h-11"
             disabled={testMutation.isPending}
@@ -243,13 +439,17 @@ function IntegrationCard({ view }: { view: IntegrationView }) {
         ) : null}
       </div>
 
+      {supportsCredentials ? (
+        <ConnectDialog view={view} open={connectOpen} onOpenChange={setConnectOpen} />
+      ) : null}
+
       <Dialog open={confirmDisconnect} onOpenChange={setConfirmDisconnect}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{view.displayName} trennen?</DialogTitle>
             <DialogDescription>
-              Die Konfiguration wird deaktiviert. Zugangsdaten bleiben unverändert gespeichert und
-              können später erneut aktiviert werden.
+              Die Konfiguration wird deaktiviert und die hinterlegten Zugangsdaten werden
+              vollständig gelöscht. Zum erneuten Verbinden ist ein neuer Schlüssel nötig.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -366,6 +566,25 @@ function SenderDomainsCard() {
                     : ""}
                 </p>
               </div>
+              {d.dnsRecords.length > 0 ? (
+                <details className="min-w-0 sm:max-w-md">
+                  <summary className="cursor-pointer text-xs text-muted-foreground">
+                    DNS-Einträge anzeigen ({d.dnsRecords.length})
+                  </summary>
+                  <ul className="mt-2 space-y-2">
+                    {d.dnsRecords.map((record) => (
+                      <li
+                        key={`${record.type}-${record.name}`}
+                        className="rounded-lg bg-muted p-2 text-[11px] break-all"
+                      >
+                        <span className="font-medium">{record.type}</span> · {record.name}
+                        <br />
+                        <span className="font-mono">{record.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ) : null}
               {d.status !== "verified" ? (
                 <Button
                   variant="outline"
@@ -382,6 +601,57 @@ function SenderDomainsCard() {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+function TestEmailCard() {
+  const { organizationId, shopId } = useActiveWorkspace();
+  const send = useServerFn(sendProviderTestEmailFn);
+  const [recipient, setRecipient] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: () => send({ data: { organizationId, shopId, recipient } }),
+    onSuccess: (result) => {
+      if (result.sent) toast.success(result.message);
+      else toast.warning(result.message);
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  return (
+    <section className="min-w-0 space-y-4 rounded-2xl border border-border p-5">
+      <div className="flex min-w-0 items-start gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted">
+          <Send className="size-5 text-muted-foreground" aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <h2 className="font-medium text-pretty">Test-E-Mail senden</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
+            Sendet über den aktiven Anbieter dieses Shops — genau denselben Weg wie Bestellmails.
+          </p>
+        </div>
+      </div>
+      <form
+        className="flex flex-col gap-2 sm:flex-row"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (recipient.trim()) mutation.mutate();
+        }}
+      >
+        <Input
+          type="email"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+          placeholder="name@beispiel.de"
+          className="h-11 flex-1"
+          aria-label="Empfängeradresse für die Test-E-Mail"
+        />
+        <Button type="submit" className="h-11" disabled={mutation.isPending || !recipient.trim()}>
+          {mutation.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+          Test-E-Mail senden
+        </Button>
+      </form>
     </section>
   );
 }
@@ -472,8 +742,9 @@ function IntegrationsPage() {
       )}
 
       {category === "email" ? (
-        <div className="mt-6">
+        <div className="mt-6 space-y-6">
           <SenderDomainsCard />
+          <TestEmailCard />
         </div>
       ) : null}
     </div>
