@@ -1171,7 +1171,8 @@ export async function connectIntegration(input: {
   if (input.category === "email" && input.provider === "smtp") {
     const host = (input.values["host"] ?? "").trim();
     const port = Number((input.values["port"] ?? "587").trim());
-    const encryption = (input.values["encryption"] ?? "starttls").trim() === "tls" ? "tls" : "starttls";
+    const { resolveTlsMode } = await import("../communications/providers/smtp.server");
+    const encryption = resolveTlsMode(input.values["encryption"], port);
     const username = (input.values["username"] ?? "").trim();
     const password = input.values["password"] ?? "";
     const senderAddress = (input.values["senderAddress"] ?? "").trim();
