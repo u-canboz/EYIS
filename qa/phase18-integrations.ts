@@ -1,11 +1,13 @@
 /* Phase 18: Integration Center — tenant isolation, honest statuses,
  * no-secret-leakage and engine consistency. Dev/QA only. */
 import { admin, check, expectThrow, readState, summary, results } from "./lib";
+import { createKey } from "../src/lib/commerce/store/keys.server";
 import { writeFileSync } from "fs";
 
 const s = readState();
 const ORG = s["orgA"]!;
 const SHOP = s["shopA"]!;
+const BASE = process.env["QA_STORE_BASE"] ?? "http://localhost:8080/api/public/store/v1";
 
 async function main() {
   /* ---------------- Catalog honesty ---------------- */
