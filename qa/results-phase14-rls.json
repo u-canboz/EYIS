@@ -1,7 +1,7 @@
 {
   "gate": "A4",
   "title": "Datenbank-, RLS-, RPC- und Storage-Sicherheitsinventur",
-  "executedAt": "2026-08-27T13:05:50.246Z",
+  "executedAt": "2026-08-27T14:35:47.101Z",
   "organizations": [
     "ba039523-f8ec-44ff-bb9d-2b5b86b0c0a6",
     "29cb83d1-2f6a-42ff-8bb5-413463402b07"
@@ -17,7 +17,7 @@
     {
       "name": "Alle public-Tabellen erfasst",
       "status": "PASS",
-      "evidence": "114 Tabellen"
+      "evidence": "118 Tabellen"
     },
     {
       "name": "RLS auf jeder public-Tabelle aktiv",
@@ -27,7 +27,7 @@
     {
       "name": "Tabellen ohne Policy sind ausschließlich server-only Systemtabellen",
       "status": "PASS",
-      "evidence": "ohne Policy: automation_rule_counters, idempotency_keys, outbox_events, store_api_rate_counters, store_confirmation_tokens, store_privacy_salts"
+      "evidence": "ohne Policy: automation_rule_counters, idempotency_keys, oauth_states, outbox_events, store_api_rate_counters, store_confirmation_tokens, store_privacy_salts"
     },
     {
       "name": "Server-only Tabellen ohne anon/authenticated-GRANT",
@@ -77,7 +77,7 @@
     {
       "name": "Jede mandantenbezogene Tabelle ist über organization_id oder Elternschlüssel indiziert",
       "status": "PASS",
-      "evidence": "100 Tabellen mit organization_id, ohne Zugriffsindex: 0"
+      "evidence": "104 Tabellen mit organization_id, ohne Zugriffsindex: 0"
     },
     {
       "name": "organization_id ist überall per Foreign Key an organizations gebunden",
@@ -187,7 +187,7 @@
     {
       "name": "Audit-Log ist append-only für Nutzer",
       "status": "PASS",
-      "evidence": "11 → 11 Einträge, 0 manipuliert"
+      "evidence": "12 → 12 Einträge, 0 manipuliert"
     },
     {
       "name": "Profil eines fremden Nutzers nicht lesbar",

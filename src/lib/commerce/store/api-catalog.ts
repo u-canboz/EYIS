@@ -127,6 +127,16 @@ export const STORE_API_GROUPS: StoreEndpointGroup[] = [
         errors: ["UNAUTHORIZED", "FORBIDDEN", "RATE_LIMITED"],
         sdk: "await client.config()",
       },
+      {
+        method: "GET",
+        path: "/payment-methods",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Aktive Zahlungsarten des Shops (Discovery, secretsfrei).",
+        output: "StorePaymentMethod[]",
+        errors: ["UNAUTHORIZED", "FORBIDDEN", "RATE_LIMITED"],
+        sdk: "await client.paymentMethods()",
+      },
     ],
   },
   {
