@@ -38,6 +38,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/system/storefront-test")({
   head: () => ({
@@ -134,34 +136,31 @@ function StorefrontTest() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Test-Storefront</h1>
-        <p className="text-muted-foreground text-sm">
-          Interne Oberfläche zum Prüfen von Cart- und Checkout-Engine. Gast-Warenkorb per Token,
-          keine Zahlung.
-        </p>
-      </header>
+      <PageHeader
+        title="Test-Storefront"
+        description="Interne Oberfläche zum Prüfen von Cart- und Checkout-Engine. Gast-Warenkorb per Token, keine Zahlung."
+      />
 
       {!cart ? (
-        <Button onClick={() => newCart.mutate()} disabled={newCart.isPending}>
+        <Button className="h-11 w-full sm:w-auto" onClick={() => newCart.mutate()} disabled={newCart.isPending}>
           Neuen Gast-Warenkorb starten
         </Button>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <div className="space-y-6">
-            <section className="rounded-lg border p-4">
-              <h2 className="mb-3 font-medium">Produkte hinzufügen</h2>
+            <Panel title="Produkte hinzufügen">
               <div className="max-h-64 space-y-2 overflow-y-auto">
                 {(variants.data ?? []).map((v) => (
                   <div
                     key={v.variantId}
-                    className="flex items-center justify-between gap-3 text-sm"
+                    className="flex flex-wrap items-center justify-between gap-3 text-sm"
                   >
-                    <span>
+                    <span className="min-w-0 break-words">
                       {v.productName} ·{" "}
                       <span className="text-muted-foreground">{v.variantTitle}</span>
                     </span>
                     <Button
+                      className="h-9"
                       size="sm"
                       variant="outline"
                       onClick={() =>
@@ -181,25 +180,21 @@ function StorefrontTest() {
                   </p>
                 )}
               </div>
-            </section>
+            </Panel>
 
-            <section className="rounded-lg border p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-medium">Warenkorb</h2>
-                <Badge variant="secondary">{cart.status}</Badge>
-              </div>
+            <Panel title="Warenkorb" actions={<Badge variant="secondary">{cart.status}</Badge>}>
               {!cart.items.length ? (
                 <p className="text-muted-foreground text-sm">Leer.</p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {cart.items.map((i) => (
-                    <li key={i.id} className="flex items-center justify-between gap-3">
-                      <span>
+                    <li key={i.id} className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="min-w-0 break-words">
                         {i.title} · <span className="text-muted-foreground">{i.variantTitle}</span>
                       </span>
-                      <span className="flex items-center gap-2">
+                      <span className="flex shrink-0 items-center gap-2">
                         <Input
-                          className="h-8 w-16"
+                          className="h-9 w-16"
                           defaultValue={i.quantity}
                           onBlur={(e) =>
                             run(
@@ -210,11 +205,12 @@ function StorefrontTest() {
                             )
                           }
                         />
-                        <span className="w-24 text-right">
+                        <span className="w-24 text-right tabular-nums">
                           {formatMoney(i.lineTotalMinor, cart.currencyCode)}
                         </span>
                         <Button
-                          size="sm"
+                          className="size-9"
+                          size="icon"
                           variant="ghost"
                           onClick={() =>
                             run(removeItem({ data: { ...auth(), itemId: i.id } }), setCart)
@@ -230,13 +226,15 @@ function StorefrontTest() {
 
               <Separator className="my-4" />
 
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <Input
+                  className="h-11"
                   placeholder="Aktionscode"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                 />
                 <Button
+                  className="h-11 w-full sm:w-auto"
                   variant="outline"
                   onClick={() =>
                     run(applyCode({ data: { ...auth(), code } }), (v) => {
@@ -247,7 +245,7 @@ function StorefrontTest() {
                 >
                   Anwenden
                 </Button>
-                <Button variant="ghost" onClick={() => run(clear({ data: auth() }), setCart)}>
+                <Button className="h-11 w-full sm:w-auto" variant="ghost" onClick={() => run(clear({ data: auth() }), setCart)}>
                   Leeren
                 </Button>
               </div>
@@ -266,23 +264,19 @@ function StorefrontTest() {
                 </div>
               )}
               {cart.rejectedCodes.map((r) => (
-                <p key={r.code} className="text-destructive mt-2 text-xs">
+                <p key={r.code} className="text-destructive mt-2 break-words text-xs">
                   {r.code}: {r.reason}
                 </p>
               ))}
               {cart.warnings.map((w) => (
-                <p key={w} className="text-muted-foreground mt-2 text-xs">
+                <p key={w} className="text-muted-foreground mt-2 break-words text-xs">
                   {w}
                 </p>
               ))}
-            </section>
+            </Panel>
 
             {checkout && (
-              <section className="space-y-3 rounded-lg border p-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-medium">Checkout</h2>
-                  <Badge>{checkout.status}</Badge>
-                </div>
+              <Panel title="Checkout" actions={<Badge>{checkout.status}</Badge>} bodyClassName="space-y-3 p-4">
                 <p className="text-muted-foreground text-xs">
                   Gültig bis {new Date(checkout.expiresAt).toLocaleTimeString("de-DE")}
                 </p>
@@ -291,8 +285,9 @@ function StorefrontTest() {
                   <div className="grid gap-1">
                     <Label>E-Mail</Label>
                     <div className="flex gap-2">
-                      <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+                      <Input className="h-11" value={email} onChange={(e) => setEmail(e.target.value)} />
                       <Button
+                        className="h-11 shrink-0"
                         variant="outline"
                         onClick={() =>
                           run(
@@ -321,6 +316,7 @@ function StorefrontTest() {
                     <div key={k} className="grid gap-1">
                       <Label className="text-xs">{k}</Label>
                       <Input
+                        className="h-11"
                         value={address[k]}
                         onChange={(e) => setAddress({ ...address, [k]: e.target.value })}
                       />
@@ -328,6 +324,7 @@ function StorefrontTest() {
                   ))}
                 </div>
                 <Button
+                  className="h-11 w-full sm:w-auto"
                   variant="outline"
                   onClick={() =>
                     run(
@@ -349,6 +346,7 @@ function StorefrontTest() {
 
                 <div className="space-y-2">
                   <Button
+                    className="h-11 w-full sm:w-auto"
                     variant="outline"
                     onClick={() =>
                       run(listMethods({ data: { sessionId: checkout.id, token } }), (m) =>
@@ -362,6 +360,7 @@ function StorefrontTest() {
                     {methods.map((m) => (
                       <Button
                         key={m.id}
+                        className="h-9"
                         size="sm"
                         variant={checkout.shippingMethod?.id === m.id ? "default" : "outline"}
                         onClick={() =>
@@ -387,8 +386,9 @@ function StorefrontTest() {
                   </ul>
                 )}
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button
+                    className="h-11 w-full sm:w-auto"
                     disabled={!checkout.ready}
                     onClick={() =>
                       run(validate({ data: { sessionId: checkout.id, token } }), setCheckout)
@@ -396,10 +396,11 @@ function StorefrontTest() {
                   >
                     Checkout validieren
                   </Button>
-                  <Button variant="ghost" onClick={() => reloadCheckout(checkout.id)}>
+                  <Button className="h-11 w-full sm:w-auto" variant="ghost" onClick={() => reloadCheckout(checkout.id)}>
                     Aktualisieren
                   </Button>
                   <Button
+                    className="h-11 w-full sm:w-auto"
                     variant="ghost"
                     onClick={() =>
                       run(cancel({ data: { sessionId: checkout.id, token } }), (r) => {
@@ -416,9 +417,9 @@ function StorefrontTest() {
                 {checkout.status === "validated" || checkout.status === "awaiting_payment" ? (
                   <div className="space-y-2 border-t pt-3">
                     <h3 className="text-sm font-medium">Zahlung</h3>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                       <Button
-                        size="sm"
+                        className="h-11 w-full sm:w-auto"
                         onClick={() =>
                           run(
                             startPayment({
@@ -446,7 +447,7 @@ function StorefrontTest() {
                       {paymentSessionId && (
                         <>
                           <Button
-                            size="sm"
+                            className="h-11 w-full sm:w-auto"
                             variant="outline"
                             onClick={() =>
                               run(mockConfirm({ data: { paymentSessionId, token } }), (r) =>
@@ -457,7 +458,7 @@ function StorefrontTest() {
                             Testzahlung bestätigen
                           </Button>
                           <Button
-                            size="sm"
+                            className="h-11 w-full sm:w-auto"
                             variant="ghost"
                             onClick={() =>
                               run(
@@ -472,7 +473,7 @@ function StorefrontTest() {
                       )}
                     </div>
                     {payment && (
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-muted-foreground break-words text-xs">
                         Status: {payment.status}
                         {payment.order &&
                           ` · Bestellung ${payment.order.orderNumber} über ${formatMoney(
@@ -483,12 +484,11 @@ function StorefrontTest() {
                     )}
                   </div>
                 ) : null}
-              </section>
+              </Panel>
             )}
           </div>
 
-          <aside className="space-y-4 rounded-lg border p-4">
-            <h2 className="font-medium">Summen</h2>
+          <Panel title="Summen" bodyClassName="space-y-4 p-4" className="lg:sticky lg:top-20">
             <dl className="space-y-1 text-sm">
               <Row
                 label="Zwischensumme"
@@ -540,7 +540,7 @@ function StorefrontTest() {
             <Separator />
             <div className="space-y-2">
               <Button
-                className="w-full"
+                className="h-11 w-full"
                 disabled={!cart.items.length || cart.status !== "active"}
                 onClick={() =>
                   run(start({ data: { ...auth(), email } }), (v) => {
@@ -552,17 +552,17 @@ function StorefrontTest() {
               >
                 Checkout starten
               </Button>
-              <Button variant="ghost" className="w-full" onClick={reloadCart}>
+              <Button variant="ghost" className="h-11 w-full" onClick={reloadCart}>
                 Warenkorb neu laden
               </Button>
-              <Button variant="ghost" className="w-full" onClick={() => newCart.mutate()}>
+              <Button variant="ghost" className="h-11 w-full" onClick={() => newCart.mutate()}>
                 Neuen Warenkorb
               </Button>
             </div>
-            <p className="text-muted-foreground break-all text-[10px]">
+            <p className="text-muted-foreground break-words text-[10px]">
               Cart {cart.id} · Token {token.slice(0, 12)}…
             </p>
-          </aside>
+          </Panel>
         </div>
       )}
     </div>
@@ -571,9 +571,9 @@ function StorefrontTest() {
 
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className={`flex justify-between ${strong ? "font-semibold" : ""}`}>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd>{value}</dd>
+    <div className={`flex justify-between gap-2 ${strong ? "font-semibold" : ""}`}>
+      <dt className="min-w-0 text-muted-foreground">{label}</dt>
+      <dd className="tabular-nums">{value}</dd>
     </div>
   );
 }

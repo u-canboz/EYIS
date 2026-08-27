@@ -11,8 +11,8 @@ export function DetailLayout({
   className,
 }: {
   main: ReactNode;
-  aside?: ReactNode;
-  className?: string;
+  aside?: ReactNode | undefined;
+  className?: string | undefined;
 }) {
   return (
     <div
@@ -37,12 +37,12 @@ export function Panel({
   className,
   bodyClassName,
 }: {
-  title?: ReactNode;
-  description?: ReactNode;
-  actions?: ReactNode;
+  title?: ReactNode | undefined;
+  description?: ReactNode | undefined;
+  actions?: ReactNode | undefined;
   children: ReactNode;
-  className?: string;
-  bodyClassName?: string;
+  className?: string | undefined;
+  bodyClassName?: string | undefined;
 }) {
   return (
     <section

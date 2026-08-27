@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   listTasksFn,
   createTaskFn,
@@ -20,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -28,6 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
+import { EmptyState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/automationen/aufgaben")({
   head: () => ({
@@ -111,99 +114,112 @@ function TaskInbox() {
   });
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link to="/app/automationen" className="text-sm text-muted-foreground hover:underline">
-            ← Automationen
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/automationen"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Automationen
           </Link>
-          <h1 className="font-display text-2xl font-semibold">Aufgaben</h1>
-          <p className="text-sm text-muted-foreground">
-            Was Automationen nicht allein entscheiden können, landet hier.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant={filter === "open" ? "default" : "outline"}
-            onClick={() => setFilter("open")}
-          >
-            Offen
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === "all" ? "default" : "outline"}
-            onClick={() => setFilter("all")}
-          >
-            Alle
-          </Button>
-        </div>
-      </header>
+        }
+        title="Aufgaben"
+        description="Was Automationen nicht allein entscheiden können, landet hier."
+        actions={
+          <>
+            <Button
+              className="h-11"
+              variant={filter === "open" ? "default" : "outline"}
+              onClick={() => setFilter("open")}
+            >
+              Offen
+            </Button>
+            <Button
+              className="h-11"
+              variant={filter === "all" ? "default" : "outline"}
+              onClick={() => setFilter("all")}
+            >
+              Alle
+            </Button>
+          </>
+        }
+      />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          {tasks.isLoading ? (
-            <Skeleton className="h-64 w-full" />
-          ) : (tasks.data ?? []).length === 0 ? (
-            <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-              Keine offenen Aufgaben. Gut gemacht.
-            </p>
-          ) : (
-            <ul className="divide-y rounded-lg border bg-card">
-              {(tasks.data ?? []).map((t) => (
-                <li key={t.id} className="flex flex-wrap items-start justify-between gap-3 p-4">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">{t.title}</p>
-                      <Badge variant="secondary" className={PRIORITY_TONE[t.priority] ?? ""}>
-                        {TASK_PRIORITY_LABELS[t.priority as keyof typeof TASK_PRIORITY_LABELS] ??
-                          t.priority}
-                      </Badge>
-                      {t.source === "automation" && <Badge variant="outline">Automation</Badge>}
+      <DetailLayout
+        main={
+          <Panel title="Aufgabenliste">
+            {tasks.isLoading ? (
+              <Skeleton className="h-64 w-full" />
+            ) : (tasks.data ?? []).length === 0 ? (
+              <EmptyState title="Keine offenen Aufgaben" description="Gut gemacht." />
+            ) : (
+              <ul className="min-w-0 divide-y divide-border">
+                {(tasks.data ?? []).map((t) => (
+                  <li
+                    key={t.id}
+                    className="grid min-w-0 grid-cols-1 gap-3 py-4 first:pt-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <p className="min-w-0 break-words font-medium">{t.title}</p>
+                        <Badge variant="secondary" className={PRIORITY_TONE[t.priority] ?? ""}>
+                          {TASK_PRIORITY_LABELS[t.priority as keyof typeof TASK_PRIORITY_LABELS] ??
+                            t.priority}
+                        </Badge>
+                        {t.source === "automation" && <Badge variant="outline">Automation</Badge>}
+                      </div>
+                      {t.description && (
+                        <p className="mt-1 min-w-0 break-words text-sm text-muted-foreground">
+                          {t.description}
+                        </p>
+                      )}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {TASK_STATUS_LABELS[t.status as keyof typeof TASK_STATUS_LABELS] ??
+                          t.status}
+                        {t.dueAt ? ` · fällig ${new Date(t.dueAt).toLocaleString("de-DE")}` : ""}
+                      </p>
                     </div>
-                    {t.description && (
-                      <p className="mt-1 text-sm text-muted-foreground">{t.description}</p>
-                    )}
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {TASK_STATUS_LABELS[t.status as keyof typeof TASK_STATUS_LABELS] ?? t.status}
-                      {t.dueAt ? ` · fällig ${new Date(t.dueAt).toLocaleString("de-DE")}` : ""}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    {t.status === "open" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          statusMutation.mutate({ taskId: t.id, status: "in_progress" })
-                        }
-                      >
-                        Übernehmen
-                      </Button>
-                    )}
-                    {t.status !== "completed" && t.status !== "cancelled" && (
-                      <Button
-                        size="sm"
-                        onClick={() => statusMutation.mutate({ taskId: t.id, status: "completed" })}
-                      >
-                        Erledigt
-                      </Button>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Neue Aufgabe</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+                    <div className="flex shrink-0 gap-2">
+                      {t.status === "open" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            statusMutation.mutate({ taskId: t.id, status: "in_progress" })
+                          }
+                        >
+                          Übernehmen
+                        </Button>
+                      )}
+                      {t.status !== "completed" && t.status !== "cancelled" && (
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            statusMutation.mutate({ taskId: t.id, status: "completed" })
+                          }
+                        >
+                          Erledigt
+                        </Button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        }
+        aside={
+          <Panel title="Neue Aufgabe" bodyClassName="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="task-title">Titel</Label>
-              <Input id="task-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input
+                id="task-title"
+                className="h-11"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="task-desc">Beschreibung</Label>
@@ -217,7 +233,7 @@ function TaskInbox() {
             <div className="space-y-2">
               <Label>Priorität</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -229,15 +245,15 @@ function TaskInbox() {
               </Select>
             </div>
             <Button
-              className="w-full"
+              className="h-11 w-full"
               disabled={!title.trim() || createMutation.isPending}
               onClick={() => createMutation.mutate()}
             >
               Aufgabe anlegen
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+          </Panel>
+        }
+      />
     </div>
   );
 }

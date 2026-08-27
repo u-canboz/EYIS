@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -32,6 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/marketing/promotions")({
   head: () => ({
@@ -218,87 +222,151 @@ function PromotionsPage() {
     return formatMoney(value, currency);
   };
 
-  return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Promotions & Gutscheine</h1>
-        <p className="text-sm text-muted-foreground">
-          Aktionen greifen nach der Preisauflösung. Buy X Get Y und Limits pro Kunde sind
-          modelliert, aber erst mit Warenkorb und Bestellungen wirksam.
-        </p>
-      </header>
+  const promotions = promotionsQuery.data?.promotions ?? [];
 
-      <section className="rounded-lg border bg-card p-6">
-        <p className="font-medium">Bestehende Aktionen</p>
+  return (
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Promotions & Gutscheine"
+        description="Aktionen greifen nach der Preisauflösung. Buy X Get Y und Limits pro Kunde sind modelliert, aber erst mit Warenkorb und Bestellungen wirksam."
+      />
+
+      <Panel title="Bestehende Aktionen">
         {promotionsQuery.isLoading ? (
-          <Skeleton className="mt-4 h-32 w-full" />
-        ) : (promotionsQuery.data?.promotions ?? []).length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">Noch keine Aktionen angelegt.</p>
+          <ListSkeleton />
+        ) : promotionsQuery.error ? (
+          <ErrorState description={(promotionsQuery.error as Error).message} />
+        ) : promotions.length === 0 ? (
+          <EmptyState title="Keine Aktionen" description="Noch keine Aktionen angelegt." />
         ) : (
-          <div className="mt-4 space-y-2">
-            {promotionsQuery.data!.promotions.map((promo) => (
-              <div
-                key={promo.id}
-                className="flex flex-wrap items-center justify-between gap-3 border-b py-3"
-              >
-                <div>
-                  <p className="text-sm font-medium">
-                    {promo.name}
-                    {promo.code && (
-                      <span className="ml-2 rounded bg-muted px-2 py-0.5 font-mono text-xs">
-                        {promo.code}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {PROMOTION_TYPE_LABELS[promo.type] ?? promo.type} ·{" "}
-                    {describeValue(promo.type, promo.value)} · Priorität {promo.priority} ·{" "}
-                    {promo.stackable ? "kombinierbar" : "exklusiv"}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  {(promo.type === "buy_x_get_y" || promo.usage_limit_per_customer) && (
-                    <Badge variant="outline">Vorbereitet</Badge>
-                  )}
-                  <Badge variant={promo.status === "active" ? "default" : "secondary"}>
-                    {promo.status === "active" ? "aktiv" : promo.status}
-                  </Badge>
-                  {canManage && (
+          <>
+            <RecordCardList>
+              {promotions.map((promo) => (
+                <RecordCard
+                  key={promo.id}
+                  title={promo.name}
+                  subtitle={promo.code ?? "Automatisch, ohne Code"}
+                  badges={
                     <>
-                      <Switch
-                        checked={promo.status === "active"}
-                        onCheckedChange={(checked) =>
-                          statusMutation.mutate({
-                            promotionId: promo.id,
-                            status: checked ? "active" : "inactive",
-                          })
-                        }
-                        aria-label="Aktion aktivieren"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteMutation.mutate(promo.id)}
-                      >
-                        Löschen
-                      </Button>
+                      <Badge variant={promo.status === "active" ? "default" : "secondary"}>
+                        {promo.status === "active" ? "aktiv" : promo.status}
+                      </Badge>
+                      {(promo.type === "buy_x_get_y" || promo.usage_limit_per_customer) && (
+                        <Badge variant="outline">Vorbereitet</Badge>
+                      )}
                     </>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+                  }
+                  fields={[
+                    { label: "Art", value: PROMOTION_TYPE_LABELS[promo.type] ?? promo.type },
+                    { label: "Wert", value: describeValue(promo.type, promo.value) },
+                    { label: "Priorität", value: promo.priority },
+                    { label: "Kombinierbar", value: promo.stackable ? "Ja" : "Nein" },
+                  ]}
+                  actions={
+                    canManage && (
+                      <>
+                        <label className="flex min-h-11 items-center gap-2 text-sm">
+                          <Switch
+                            checked={promo.status === "active"}
+                            onCheckedChange={(checked) =>
+                              statusMutation.mutate({
+                                promotionId: promo.id,
+                                status: checked ? "active" : "inactive",
+                              })
+                            }
+                            aria-label="Aktion aktivieren"
+                          />
+                          aktiv
+                        </label>
+                        <Button
+                          variant="ghost"
+                          className="h-11"
+                          onClick={() => deleteMutation.mutate(promo.id)}
+                        >
+                          Löschen
+                        </Button>
+                      </>
+                    )
+                  }
+                />
+              ))}
+            </RecordCardList>
+
+            <TableScroll desktopOnly>
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left">
+                  <tr>
+                    <th className="p-3 font-medium">Name</th>
+                    <th className="p-3 font-medium">Art</th>
+                    <th className="p-3 font-medium">Wert</th>
+                    <th className="p-3 font-medium">Priorität</th>
+                    <th className="p-3 font-medium">Status</th>
+                    {canManage && <th className="p-3" />}
+                  </tr>
+                </thead>
+                <tbody>
+                  {promotions.map((promo) => (
+                    <tr key={promo.id} className="border-t border-border">
+                      <td className="max-w-[18rem] p-3">
+                        <span className="truncate font-medium">{promo.name}</span>
+                        {promo.code && (
+                          <span className="ml-2 rounded bg-muted px-2 py-0.5 font-mono text-xs">
+                            {promo.code}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3">{PROMOTION_TYPE_LABELS[promo.type] ?? promo.type}</td>
+                      <td className="p-3 tabular-nums">{describeValue(promo.type, promo.value)}</td>
+                      <td className="p-3 tabular-nums">{promo.priority}</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <Badge variant={promo.status === "active" ? "default" : "secondary"}>
+                            {promo.status === "active" ? "aktiv" : promo.status}
+                          </Badge>
+                          {(promo.type === "buy_x_get_y" || promo.usage_limit_per_customer) && (
+                            <Badge variant="outline">Vorbereitet</Badge>
+                          )}
+                        </div>
+                      </td>
+                      {canManage && (
+                        <td className="p-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Switch
+                              checked={promo.status === "active"}
+                              onCheckedChange={(checked) =>
+                                statusMutation.mutate({
+                                  promotionId: promo.id,
+                                  status: checked ? "active" : "inactive",
+                                })
+                              }
+                              aria-label="Aktion aktivieren"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteMutation.mutate(promo.id)}
+                            >
+                              Löschen
+                            </Button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TableScroll>
+          </>
         )}
-      </section>
+      </Panel>
 
       {canManage && (
-        <section className="rounded-lg border bg-card p-6">
-          <p className="font-medium">{editingId ? "Aktion bearbeiten" : "Neue Aktion"}</p>
-          <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Panel title={editingId ? "Aktion bearbeiten" : "Neue Aktion"}>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <Label>Name</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={form.name}
                 onChange={(e) => set("name", e.target.value)}
               />
@@ -306,7 +374,7 @@ function PromotionsPage() {
             <div>
               <Label>Gutscheincode (optional)</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={form.code}
                 onChange={(e) => set("code", e.target.value)}
                 placeholder="ohne Code = automatisch"
@@ -315,7 +383,7 @@ function PromotionsPage() {
             <div>
               <Label>Art</Label>
               <Select value={form.type} onValueChange={(v) => set("type", v as PromotionType)}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -337,7 +405,7 @@ function PromotionsPage() {
                       : "Betrag"}
                 </Label>
                 <Input
-                  className="mt-2"
+                  className="mt-2 h-11"
                   value={form.value}
                   onChange={(e) => set("value", e.target.value)}
                 />
@@ -346,7 +414,7 @@ function PromotionsPage() {
             <div>
               <Label>Start</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 type="datetime-local"
                 value={form.startsAt}
                 onChange={(e) => set("startsAt", e.target.value)}
@@ -355,7 +423,7 @@ function PromotionsPage() {
             <div>
               <Label>Ende</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 type="datetime-local"
                 value={form.endsAt}
                 onChange={(e) => set("endsAt", e.target.value)}
@@ -364,7 +432,7 @@ function PromotionsPage() {
             <div>
               <Label>Mindestbestellwert</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={form.minimumSubtotal}
                 onChange={(e) => set("minimumSubtotal", e.target.value)}
                 placeholder="z. B. 50,00"
@@ -373,7 +441,7 @@ function PromotionsPage() {
             <div>
               <Label>Mindestmenge</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={form.minimumQuantity}
                 onChange={(e) => set("minimumQuantity", e.target.value)}
               />
@@ -381,7 +449,7 @@ function PromotionsPage() {
             <div>
               <Label>Kundengruppe</Label>
               <Select value={form.customerGroupId} onValueChange={(v) => set("customerGroupId", v)}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -397,7 +465,7 @@ function PromotionsPage() {
             <div>
               <Label>Priorität</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={form.priority}
                 onChange={(e) => set("priority", e.target.value)}
               />
@@ -405,7 +473,7 @@ function PromotionsPage() {
             <div>
               <Label>Nutzungslimit gesamt</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={form.usageLimit}
                 onChange={(e) => set("usageLimit", e.target.value)}
               />
@@ -413,7 +481,7 @@ function PromotionsPage() {
             <div>
               <Label>Limit pro Kunde (vorbereitet)</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={form.usageLimitPerCustomer}
                 onChange={(e) => set("usageLimitPerCustomer", e.target.value)}
               />
@@ -426,7 +494,7 @@ function PromotionsPage() {
                 onChange={(e) => set("description", e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex min-h-11 items-center gap-3">
               <Switch
                 checked={form.stackable}
                 onCheckedChange={(checked) => set("stackable", checked)}
@@ -436,8 +504,9 @@ function PromotionsPage() {
             </div>
           </div>
 
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Button
+              className="h-11"
               disabled={!form.name.trim() || saveMutation.isPending}
               onClick={() => saveMutation.mutate()}
             >
@@ -446,6 +515,7 @@ function PromotionsPage() {
             {editingId && (
               <Button
                 variant="ghost"
+                className="h-11"
                 onClick={() => {
                   setEditingId(null);
                   setForm(EMPTY);
@@ -455,7 +525,7 @@ function PromotionsPage() {
               </Button>
             )}
           </div>
-        </section>
+        </Panel>
       )}
     </div>
   );

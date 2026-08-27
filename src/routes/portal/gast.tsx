@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -11,6 +11,7 @@ import {
   requestGuestAccessFn,
 } from "@/lib/commerce/portal/portal.functions";
 import { PortalOrderView } from "@/components/portal/PortalOrderView";
+import { PortalCard, PortalHeading, PortalPage } from "@/components/portal/PortalChrome";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,62 +85,72 @@ function GuestLookupPage() {
   };
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <Link to="/portal" className="text-xs text-muted-foreground hover:underline">
-        ← Zum Kundenportal
-      </Link>
-
+    <PortalPage back={{ to: "/portal", label: "Zum Kundenkonto" }}>
       {!token ? (
-        <div className="mt-6 space-y-5 rounded-xl border p-6">
-          <div>
-            <h1 className="font-display text-2xl font-semibold">Bestellung als Gast öffnen</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Gib Bestellnummer und die E-Mail-Adresse der Bestellung ein. Der Zugang gilt für zwei
-              Stunden und nur für diese eine Bestellung.
-            </p>
-          </div>
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="orderNumber">Bestellnummer</Label>
-              <Input
-                id="orderNumber"
-                placeholder="ORD-0001"
-                value={orderNumber}
-                onChange={(e) => setOrderNumber(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">E-Mail-Adresse</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <Button onClick={lookup} disabled={pending || !orderNumber.trim() || !email.trim()}>
-              Bestellung öffnen
-            </Button>
-          </div>
-        </div>
-      ) : order.isLoading || !order.data ? (
-        <Skeleton className="mt-6 h-96 w-full" />
-      ) : (
-        <div className="mt-6">
-          <PortalOrderView
-            order={order.data}
-            eligibility={eligibility.data ?? null}
-            onDocument={(kind, documentId) =>
-              documentUrl({ data: { token: token!, documentId, kind } })
-            }
-            onCreateReturn={async (input) => {
-              await createReturn({ data: { token: token!, ...input } });
-              await queryClient.invalidateQueries({ queryKey: ["guest-order", token] });
-              await queryClient.invalidateQueries({ queryKey: ["guest-eligibility", token] });
-            }}
+        <>
+          <PortalHeading
+            title="Bestellung als Gast öffnen"
+            description="Gib Bestellnummer und die E-Mail-Adresse der Bestellung ein. Der Zugang gilt für zwei Stunden und nur für diese eine Bestellung."
           />
+          <PortalCard>
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void lookup();
+              }}
+            >
+              <div className="space-y-1.5">
+                <Label htmlFor="orderNumber">Bestellnummer</Label>
+                <Input
+                  id="orderNumber"
+                  className="h-11"
+                  placeholder="ORD-0001"
+                  value={orderNumber}
+                  onChange={(e) => setOrderNumber(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">E-Mail-Adresse</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  className="h-11"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <Button
+                type="submit"
+                className="h-11 w-full sm:w-auto"
+                disabled={pending || !orderNumber.trim() || !email.trim()}
+              >
+                Bestellung öffnen
+              </Button>
+            </form>
+          </PortalCard>
+        </>
+      ) : order.isLoading || !order.data ? (
+        <div className="space-y-3">
+          <Skeleton className="h-28 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
         </div>
+      ) : (
+        <PortalOrderView
+          order={order.data}
+          eligibility={eligibility.data ?? null}
+          onDocument={(kind, documentId) =>
+            documentUrl({ data: { token: token!, documentId, kind } })
+          }
+          onCreateReturn={async (input) => {
+            await createReturn({ data: { token: token!, ...input } });
+            await queryClient.invalidateQueries({ queryKey: ["guest-order", token] });
+            await queryClient.invalidateQueries({ queryKey: ["guest-eligibility", token] });
+          }}
+        />
       )}
-    </main>
+    </PortalPage>
   );
 }

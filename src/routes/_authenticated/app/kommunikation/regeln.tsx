@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   listProvidersFn,
   listRulesFn,
@@ -18,7 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/regeln")({
   head: () => ({
@@ -85,32 +88,41 @@ function RulesPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <header>
-        <Link to="/app/kommunikation" className="text-xs text-muted-foreground hover:underline">
-          ← Kommunikation
-        </Link>
-        <h1 className="font-display text-2xl font-semibold">Regeln & Anbieter</h1>
-        <p className="text-sm text-muted-foreground">
-          Ereignisse lösen Nachrichten aus. Ohne aktive Regel wird nichts versendet.
-        </p>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/kommunikation"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Kommunikation
+          </Link>
+        }
+        title="Regeln & Anbieter"
+        description="Ereignisse lösen Nachrichten aus. Ohne aktive Regel wird nichts versendet."
+      />
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Auslöser</h2>
+      <Panel title="Auslöser" bodyClassName="p-0">
         {rules.isLoading ? (
-          <Skeleton className="h-64 w-full" />
+          <div className="p-4">
+            <ListSkeleton rows={3} />
+          </div>
+        ) : !rules.data?.length ? (
+          <div className="p-4">
+            <EmptyState title="Keine Regeln" description="Für diesen Shop sind keine Auslöser konfiguriert." />
+          </div>
         ) : (
-          <ul className="divide-y rounded-lg border">
-            {(rules.data ?? []).map((r) => (
-              <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+          <ul className="min-w-0 divide-y divide-border">
+            {rules.data.map((r) => (
+              <li key={r.id} className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
                 <div className="min-w-0">
-                  <p className="font-medium">{r.templateName}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="truncate font-medium">{r.templateName}</p>
+                  <p className="truncate text-xs text-muted-foreground">
                     {r.eventType} → {r.templateKey}
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Label htmlFor={`delay-${r.id}`} className="text-xs">
                       Verzögerung (Sek.)
@@ -119,7 +131,7 @@ function RulesPage() {
                       id={`delay-${r.id}`}
                       type="number"
                       min={0}
-                      className="h-8 w-24"
+                      className="h-11 w-24"
                       defaultValue={r.delaySeconds}
                       onBlur={(e) => {
                         const value = Number(e.target.value);
@@ -151,28 +163,29 @@ function RulesPage() {
             ))}
           </ul>
         )}
-      </section>
+      </Panel>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Anbieter</h2>
+      <Panel title="Anbieter" bodyClassName="p-0">
         {providers.isLoading ? (
-          <Skeleton className="h-40 w-full" />
+          <div className="p-4">
+            <ListSkeleton rows={2} />
+          </div>
         ) : (
-          <ul className="divide-y rounded-lg border">
+          <ul className="min-w-0 divide-y divide-border">
             {(providers.data?.available ?? []).map((p) => {
               const config = providers.data?.configs.find((c) => c.provider === p.key);
               const active = config?.status === "active";
               return (
-                <li key={p.key} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                  <div>
-                    <p className="font-medium">{p.label}</p>
-                    <p className="text-xs text-muted-foreground">
+                <li key={p.key} className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{p.label}</p>
+                    <p className="text-xs text-pretty text-muted-foreground">
                       {p.isSandbox
                         ? "Interner Testversand – verlässt die Plattform niemals."
                         : "Echter Versand über den verwalteten E-Mail-Dienst."}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex shrink-0 items-center gap-3">
                     {p.isSandbox && <Badge variant="outline">Sandbox</Badge>}
                     <Switch
                       checked={active}
@@ -201,23 +214,22 @@ function RulesPage() {
             })}
           </ul>
         )}
-      </section>
+      </Panel>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Absender</h2>
-        <ul className="divide-y rounded-lg border">
+      <Panel title="Absender" bodyClassName="p-0">
+        <ul className="min-w-0 divide-y divide-border">
           {(providers.data?.senders ?? []).map((s) => (
-            <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-              <div>
-                <p className="font-medium">
+            <li key={s.id} className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <div className="min-w-0">
+                <p className="truncate font-medium">
                   {s.senderName} &lt;{s.senderAddress}&gt;
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="truncate text-xs text-muted-foreground">
                   {s.displayName}
                   {s.replyTo ? ` · Antwort an ${s.replyTo}` : ""}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <Badge variant="outline">{s.verificationStatus}</Badge>
                 {s.isDefault ? (
                   <Badge variant="secondary">Standard</Badge>
@@ -225,6 +237,7 @@ function RulesPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className="h-11"
                     disabled={busy}
                     onClick={() =>
                       run("Standardabsender gesetzt.", async () => {
@@ -250,72 +263,78 @@ function RulesPage() {
               </div>
             </li>
           ))}
-          <li className="grid gap-3 p-4 sm:grid-cols-5">
-            <Input
-              placeholder="Bezeichnung"
-              value={sender.displayName}
-              onChange={(e) => setSender({ ...sender, displayName: e.target.value })}
-            />
-            <Input
-              placeholder="Absendername"
-              value={sender.senderName}
-              onChange={(e) => setSender({ ...sender, senderName: e.target.value })}
-            />
-            <Input
-              placeholder="absender@example.com"
-              value={sender.senderAddress}
-              onChange={(e) => setSender({ ...sender, senderAddress: e.target.value })}
-            />
-            <Input
-              placeholder="Antwort an (optional)"
-              value={sender.replyTo}
-              onChange={(e) => setSender({ ...sender, replyTo: e.target.value })}
-            />
-            <Button
-              disabled={busy || !sender.senderAddress || !sender.senderName}
-              onClick={() =>
-                run("Absender gespeichert.", async () => {
-                  await saveSender({
-                    data: {
-                      organizationId,
-                      shopId,
-                      displayName: sender.displayName || sender.senderName,
-                      senderName: sender.senderName,
-                      senderAddress: sender.senderAddress,
-                      replyTo: sender.replyTo || null,
-                      isDefault: !(providers.data?.senders ?? []).length,
-                    },
-                  });
-                  setSender({ displayName: "", senderName: "", senderAddress: "", replyTo: "" });
-                  await providers.refetch();
-                })
-              }
-            >
-              Hinzufügen
-            </Button>
-          </li>
         </ul>
-      </section>
+        <div className="grid min-w-0 gap-3 border-t border-border p-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Input
+            className="h-11"
+            placeholder="Bezeichnung"
+            value={sender.displayName}
+            onChange={(e) => setSender({ ...sender, displayName: e.target.value })}
+          />
+          <Input
+            className="h-11"
+            placeholder="Absendername"
+            value={sender.senderName}
+            onChange={(e) => setSender({ ...sender, senderName: e.target.value })}
+          />
+          <Input
+            className="h-11"
+            placeholder="absender@example.com"
+            value={sender.senderAddress}
+            onChange={(e) => setSender({ ...sender, senderAddress: e.target.value })}
+          />
+          <Input
+            className="h-11"
+            placeholder="Antwort an (optional)"
+            value={sender.replyTo}
+            onChange={(e) => setSender({ ...sender, replyTo: e.target.value })}
+          />
+          <Button
+            className="h-11"
+            disabled={busy || !sender.senderAddress || !sender.senderName}
+            onClick={() =>
+              run("Absender gespeichert.", async () => {
+                await saveSender({
+                  data: {
+                    organizationId,
+                    shopId,
+                    displayName: sender.displayName || sender.senderName,
+                    senderName: sender.senderName,
+                    senderAddress: sender.senderAddress,
+                    replyTo: sender.replyTo || null,
+                    isDefault: !(providers.data?.senders ?? []).length,
+                  },
+                });
+                setSender({ displayName: "", senderName: "", senderAddress: "", replyTo: "" });
+                await providers.refetch();
+              })
+            }
+          >
+            Hinzufügen
+          </Button>
+        </div>
+      </Panel>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Sperrliste</h2>
-        <p className="text-sm text-muted-foreground">
-          Adressen mit harten Zustellfehlern oder Beschwerden werden automatisch gesperrt.
-        </p>
+      <Panel
+        title="Sperrliste"
+        description="Adressen mit harten Zustellfehlern oder Beschwerden werden automatisch gesperrt."
+        bodyClassName="p-0"
+      >
         {!suppressions.data?.length ? (
-          <p className="rounded-lg border p-4 text-sm text-muted-foreground">
-            Keine gesperrten Adressen.
-          </p>
+          <div className="p-4">
+            <EmptyState title="Keine gesperrten Adressen" />
+          </div>
         ) : (
-          <ul className="divide-y rounded-lg border">
+          <ul className="min-w-0 divide-y divide-border">
             {suppressions.data.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 p-4 text-sm">
-                <span>
+              <li key={s.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 text-sm">
+                <span className="min-w-0 truncate">
                   {s.address} · {s.reason}
                 </span>
                 <Button
                   size="sm"
                   variant="outline"
+                  className="h-11 shrink-0"
                   disabled={busy}
                   onClick={() =>
                     run("Sperre aufgehoben.", async () => {
@@ -330,7 +349,7 @@ function RulesPage() {
             ))}
           </ul>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }

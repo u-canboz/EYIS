@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import { useCommerce } from "@/lib/store-sdk/react/provider";
 import type { StoreCheckout, StoreShippingOption } from "@/lib/store-sdk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  StoreContainer,
+  StoreHeading,
+  StoreNotice,
+  formatPrice,
+} from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store/checkout")({
   head: () => ({
@@ -25,11 +32,6 @@ export const Route = createFileRoute("/store/checkout")({
   component: StoreCheckoutPage,
 });
 
-const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
-    minor / 100,
-  );
-
 const EMPTY_ADDRESS = {
   firstName: "",
   lastName: "",
@@ -38,6 +40,17 @@ const EMPTY_ADDRESS = {
   city: "",
   countryCode: "DE",
 };
+
+function StepHeading({ step, title }: { step: number; title: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+        {step}
+      </span>
+      <h2 className="min-w-0 font-medium text-pretty">{title}</h2>
+    </div>
+  );
+}
 
 function StoreCheckoutPage() {
   const client = useCommerce();
@@ -48,6 +61,7 @@ function StoreCheckoutPage() {
   const [address, setAddress] = useState({ ...EMPTY_ADDRESS });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,7 +70,8 @@ function StoreCheckoutPage() {
       .then((s) => {
         if (!cancelled) setSession(s);
       })
-      .catch((e: Error) => !cancelled && setError(e.message));
+      .catch((e: Error) => !cancelled && setError(e.message))
+      .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
@@ -64,14 +79,33 @@ function StoreCheckoutPage() {
 
   if (error)
     return (
-      <div className="space-y-3">
-        <p className="text-sm text-destructive">{error}</p>
-        <Button asChild variant="outline">
-          <Link to="/store/warenkorb">Zurück zum Warenkorb</Link>
-        </Button>
-      </div>
+      <StoreContainer className="py-8 sm:py-12">
+        <StoreHeading title="Kasse" />
+        <div className="mt-6">
+          <StoreNotice
+            tone="error"
+            title="Die Kasse konnte nicht geladen werden"
+            description={error}
+            action={
+              <Button asChild variant="outline" className="mt-2 h-11">
+                <Link to="/store/warenkorb">Zurück zum Warenkorb</Link>
+              </Button>
+            }
+          />
+        </div>
+      </StoreContainer>
     );
-  if (!session) return <Skeleton className="h-72 w-full" />;
+
+  if (loading || !session)
+    return (
+      <StoreContainer className="py-8 sm:py-12">
+        <StoreHeading title="Kasse" />
+        <div className="mt-7 space-y-4">
+          <Skeleton className="h-48 w-full rounded-2xl" />
+          <Skeleton className="h-24 w-full rounded-2xl" />
+        </div>
+      </StoreContainer>
+    );
 
   const submitAddress = async () => {
     setBusy(true);
@@ -115,74 +149,94 @@ function StoreCheckoutPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-display text-2xl font-semibold">Kasse</h1>
+    <StoreContainer className="py-6 sm:py-10">
+      <Link
+        to="/store/warenkorb"
+        className="-ml-2 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="size-4 shrink-0" aria-hidden />
+        Warenkorb
+      </Link>
 
-      <section className="space-y-3 rounded-lg border p-4">
-        <h2 className="font-medium">Kontakt & Lieferadresse</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <Label htmlFor="email">E-Mail</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          {(
-            [
-              ["firstName", "Vorname"],
-              ["lastName", "Nachname"],
-              ["street", "Straße und Nr."],
-              ["postalCode", "PLZ"],
-              ["city", "Ort"],
-              ["countryCode", "Land (ISO)"],
-            ] as const
-          ).map(([field, label]) => (
-            <div key={field}>
-              <Label htmlFor={field}>{label}</Label>
+      <StoreHeading className="mt-4" title="Kasse" />
+
+      <div className="mt-7 space-y-5">
+        <section className="min-w-0 space-y-4 rounded-2xl border border-border p-5">
+          <StepHeading step={1} title="E-Mail & Adresse" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="min-w-0 sm:col-span-2">
+              <Label htmlFor="email">E-Mail</Label>
               <Input
-                id={field}
-                value={address[field]}
-                onChange={(e) => setAddress((a) => ({ ...a, [field]: e.target.value }))}
+                id="email"
+                type="email"
+                className="mt-1.5 h-11"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-          ))}
-        </div>
-        <Button onClick={submitAddress} disabled={busy || !email}>
-          Weiter zum Versand
-        </Button>
-      </section>
-
-      {options.length > 0 ? (
-        <section className="space-y-3 rounded-lg border p-4">
-          <h2 className="font-medium">Versandart & Zahlung</h2>
-          {options.map((option) => (
-            <div
-              key={option.id}
-              className="flex items-center justify-between gap-3 border-b py-2 last:border-0"
-            >
-              <div>
-                <p className="text-sm font-medium">{option.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {money(option.amountMinor, option.currencyCode)}
-                </p>
+            {(
+              [
+                ["firstName", "Vorname"],
+                ["lastName", "Nachname"],
+                ["street", "Straße und Nr."],
+                ["postalCode", "PLZ"],
+                ["city", "Ort"],
+                ["countryCode", "Land (ISO)"],
+              ] as const
+            ).map(([field, label]) => (
+              <div key={field} className="min-w-0">
+                <Label htmlFor={field}>{label}</Label>
+                <Input
+                  id={field}
+                  className="mt-1.5 h-11"
+                  value={address[field]}
+                  onChange={(e) => setAddress((a) => ({ ...a, [field]: e.target.value }))}
+                />
               </div>
-              <Button size="sm" disabled={busy} onClick={() => pay(option.id)}>
-                Auswählen & bezahlen
-              </Button>
-            </div>
-          ))}
+            ))}
+          </div>
+          <Button className="h-12 w-full text-base" onClick={submitAddress} disabled={busy || !email}>
+            Weiter zum Versand
+          </Button>
         </section>
-      ) : null}
 
-      <dl className="space-y-1 rounded-lg border p-4 text-sm">
-        <div className="flex justify-between font-medium">
-          <dt>Gesamt</dt>
-          <dd>{money(session.totals.totalMinor, session.currencyCode)}</dd>
-        </div>
-      </dl>
-    </div>
+        {options.length > 0 ? (
+          <section className="min-w-0 space-y-4 rounded-2xl border border-border p-5">
+            <StepHeading step={2} title="Versandart, Prüfung & Zahlung" />
+            <ul className="divide-y divide-border">
+              {options.map((option) => (
+                <li
+                  key={option.id}
+                  className="flex min-w-0 flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-pretty">{option.name}</p>
+                    <p className="text-xs text-muted-foreground tabular-nums">
+                      {formatPrice(option.amountMinor, option.currencyCode)}
+                    </p>
+                  </div>
+                  <Button
+                    className="h-11 shrink-0"
+                    disabled={busy}
+                    onClick={() => pay(option.id)}
+                  >
+                    Auswählen & bezahlen
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        <dl className="rounded-2xl border border-border p-5 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="font-medium">Gesamt</dt>
+            <dd className="text-base font-semibold tabular-nums">
+              {formatPrice(session.totals.totalMinor, session.currencyCode)}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </StoreContainer>
   );
 }

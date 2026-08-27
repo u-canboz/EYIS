@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
@@ -24,6 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/versand/versandarten")({
   head: () => ({
@@ -143,85 +146,128 @@ function ShippingPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Versandarten</h1>
-          <p className="text-muted-foreground text-sm">
-            Versandoptionen, die im Checkout zur Auswahl stehen. Beträge in {currency}.
-          </p>
-        </div>
-        {can("shipping_methods.manage") && (
-          <Button onClick={() => setDraft({ ...EMPTY })}>Versandart anlegen</Button>
-        )}
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Versandarten"
+        description={`Versandoptionen, die im Checkout zur Auswahl stehen. Beträge in ${currency}.`}
+        actions={
+          can("shipping_methods.manage") ? (
+            <Button className="h-11" onClick={() => setDraft({ ...EMPTY })}>
+              Versandart anlegen
+            </Button>
+          ) : undefined
+        }
+      />
 
       {methods.isLoading ? (
-        <Skeleton className="h-40 w-full" />
+        <ListSkeleton />
       ) : !methods.data?.length ? (
-        <p className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
-          Noch keine Versandarten. Ohne Versandart kann kein Checkout validiert werden.
-        </p>
+        <EmptyState
+          title="Noch keine Versandarten"
+          description="Ohne Versandart kann kein Checkout validiert werden."
+        />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="p-3 font-medium">Name</th>
-                <th className="p-3 font-medium">Code</th>
-                <th className="p-3 font-medium">Preis</th>
-                <th className="p-3 font-medium">Gratis ab</th>
-                <th className="p-3 font-medium">Länder</th>
-                <th className="p-3 font-medium">Status</th>
-                <th className="p-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {methods.data.map((m) => (
-                <tr key={m.id} className="border-t">
-                  <td className="p-3 font-medium">{m.name}</td>
-                  <td className="text-muted-foreground p-3 font-mono text-xs">{m.code}</td>
-                  <td className="p-3">
-                    {m.pricingType === "free"
-                      ? "Gratis"
-                      : formatMoney(m.amountMinor, m.currencyCode)}
-                  </td>
-                  <td className="p-3">
-                    {m.freeAboveMinor === null
-                      ? "—"
-                      : formatMoney(m.freeAboveMinor, m.currencyCode)}
-                  </td>
-                  <td className="p-3">{m.countries.length ? m.countries.join(", ") : "Alle"}</td>
-                  <td className="p-3">
-                    <Badge variant={m.status === "active" ? "default" : "secondary"}>
-                      {m.status}
-                    </Badge>
-                  </td>
-                  <td className="p-3 text-right">
-                    {can("shipping_methods.manage") && (
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setDraft(toDraft(m))}>
-                          Bearbeiten
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeMutation.mutate(m.id)}
-                        >
-                          Archivieren
-                        </Button>
-                      </div>
-                    )}
-                  </td>
+        <>
+          <RecordCardList>
+            {methods.data.map((m) => (
+              <RecordCard
+                key={m.id}
+                title={m.name}
+                subtitle={m.code}
+                trailing={
+                  m.pricingType === "free" ? "Gratis" : formatMoney(m.amountMinor, m.currencyCode)
+                }
+                badges={
+                  <Badge variant={m.status === "active" ? "default" : "secondary"}>
+                    {m.status}
+                  </Badge>
+                }
+                fields={[
+                  {
+                    label: "Gratis ab",
+                    value:
+                      m.freeAboveMinor === null ? "—" : formatMoney(m.freeAboveMinor, m.currencyCode),
+                  },
+                  { label: "Länder", value: m.countries.length ? m.countries.join(", ") : "Alle" },
+                ]}
+                actions={
+                  can("shipping_methods.manage") ? (
+                    <>
+                      <Button variant="outline" size="sm" onClick={() => setDraft(toDraft(m))}>
+                        Bearbeiten
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => removeMutation.mutate(m.id)}>
+                        Archivieren
+                      </Button>
+                    </>
+                  ) : undefined
+                }
+              />
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Name</th>
+                  <th className="p-3 font-medium">Code</th>
+                  <th className="p-3 font-medium">Preis</th>
+                  <th className="p-3 font-medium">Gratis ab</th>
+                  <th className="p-3 font-medium">Länder</th>
+                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {methods.data.map((m) => (
+                  <tr key={m.id} className="border-t border-border hover:bg-muted/40">
+                    <td className="p-3 font-medium">{m.name}</td>
+                    <td className="p-3 font-mono text-xs break-words text-muted-foreground">
+                      {m.code}
+                    </td>
+                    <td className="p-3 tabular-nums">
+                      {m.pricingType === "free"
+                        ? "Gratis"
+                        : formatMoney(m.amountMinor, m.currencyCode)}
+                    </td>
+                    <td className="p-3 tabular-nums">
+                      {m.freeAboveMinor === null
+                        ? "—"
+                        : formatMoney(m.freeAboveMinor, m.currencyCode)}
+                    </td>
+                    <td className="p-3">{m.countries.length ? m.countries.join(", ") : "Alle"}</td>
+                    <td className="p-3">
+                      <Badge variant={m.status === "active" ? "default" : "secondary"}>
+                        {m.status}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-right">
+                      {can("shipping_methods.manage") && (
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => setDraft(toDraft(m))}>
+                            Bearbeiten
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeMutation.mutate(m.id)}
+                          >
+                            Archivieren
+                          </Button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
 
       <Dialog open={!!draft} onOpenChange={(open) => !open && setDraft(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[85dvh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{draft?.id ? "Versandart bearbeiten" : "Versandart anlegen"}</DialogTitle>
           </DialogHeader>
@@ -230,6 +276,7 @@ function ShippingPage() {
               <div className="grid gap-2">
                 <Label>Name</Label>
                 <Input
+                  className="h-11"
                   value={draft.name}
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                 />
@@ -238,6 +285,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Code</Label>
                   <Input
+                    className="h-11"
                     value={draft.code}
                     onChange={(e) => setDraft({ ...draft, code: e.target.value })}
                   />
@@ -250,7 +298,7 @@ function ShippingPage() {
                       setDraft({ ...draft, pricingType: v as "fixed" | "free" })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -264,6 +312,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Preis</Label>
                   <Input
+                    className="h-11"
                     value={draft.amount}
                     disabled={draft.pricingType === "free"}
                     onChange={(e) => setDraft({ ...draft, amount: e.target.value })}
@@ -272,6 +321,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Gratis ab (optional)</Label>
                   <Input
+                    className="h-11"
                     value={draft.freeAbove}
                     onChange={(e) => setDraft({ ...draft, freeAbove: e.target.value })}
                   />
@@ -281,6 +331,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Mindestbestellwert</Label>
                   <Input
+                    className="h-11"
                     value={draft.minSubtotal}
                     onChange={(e) => setDraft({ ...draft, minSubtotal: e.target.value })}
                   />
@@ -288,6 +339,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Position</Label>
                   <Input
+                    className="h-11"
                     value={draft.position}
                     onChange={(e) => setDraft({ ...draft, position: e.target.value })}
                   />
@@ -296,6 +348,7 @@ function ShippingPage() {
               <div className="grid gap-2">
                 <Label>Länder (ISO-2, leer = alle)</Label>
                 <Input
+                  className="h-11"
                   value={draft.countries}
                   onChange={(e) => setDraft({ ...draft, countries: e.target.value })}
                 />
@@ -303,11 +356,16 @@ function ShippingPage() {
               <div className="grid gap-2">
                 <Label>Beschreibung</Label>
                 <Input
+                  className="h-11"
                   value={draft.description}
                   onChange={(e) => setDraft({ ...draft, description: e.target.value })}
                 />
               </div>
-              <Button onClick={() => saveMutation.mutate(draft)} disabled={saveMutation.isPending}>
+              <Button
+                className="h-11"
+                onClick={() => saveMutation.mutate(draft)}
+                disabled={saveMutation.isPending}
+              >
                 Speichern
               </Button>
             </div>

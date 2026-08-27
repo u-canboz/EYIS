@@ -34,7 +34,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -43,6 +42,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft } from "lucide-react";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { ErrorState, EmptyState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/retouren/$returnId")({
   head: () => ({
@@ -59,10 +62,8 @@ export const Route = createFileRoute("/_authenticated/app/retouren/$returnId")({
     ],
   }),
   component: ReturnDetailPage,
-  errorComponent: ({ error }) => (
-    <p className="rounded-lg border p-6 text-sm text-destructive">{(error as Error).message}</p>
-  ),
-  notFoundComponent: () => <p className="p-6 text-sm">Retoure nicht gefunden.</p>,
+  errorComponent: ({ error }) => <ErrorState description={(error as Error).message} />,
+  notFoundComponent: () => <EmptyState title="Retoure nicht gefunden" />,
 });
 
 type ReceiveDraft = Record<string, { qty: number; condition: ReturnItemCondition }>;
@@ -198,7 +199,13 @@ function ReturnDetailPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (detail.isLoading || !r) return <Skeleton className="h-96 w-full" />;
+  if (detail.isLoading || !r)
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    );
 
   const receiveDraft = (id: string, fallbackQty: number) =>
     receive[id] ?? { qty: fallbackQty, condition: "unopened" as ReturnItemCondition };
@@ -211,14 +218,20 @@ function ReturnDetailPage() {
     };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link to="/app/retouren" className="text-xs text-muted-foreground hover:underline">
-            ← Zurück zu Retouren
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/retouren"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Zurück zu Retouren
           </Link>
-          <h1 className="font-display text-2xl font-semibold">{r.returnNumber}</h1>
-          <p className="text-sm text-muted-foreground">
+        }
+        title={r.returnNumber}
+        description={
+          <>
             Bestellung{" "}
             <Link
               to="/app/bestellungen/$orderId"
@@ -228,24 +241,22 @@ function ReturnDetailPage() {
               {r.orderNumber}
             </Link>{" "}
             · {RETURN_REASON_LABELS[r.reasonCategory]} · {r.customerEmail ?? "Gast"}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{RETURN_STATUS_LABELS[r.status]}</Badge>
-          {["requested", "authorized"].includes(r.status) && can("returns.manage") && (
-            <Button size="sm" variant="outline" onClick={() => cancelM.mutate()}>
-              Stornieren
-            </Button>
-          )}
-        </div>
-      </header>
+          </>
+        }
+        actions={
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{RETURN_STATUS_LABELS[r.status]}</Badge>
+            {["requested", "authorized"].includes(r.status) && can("returns.manage") && (
+              <Button size="sm" className="h-11" variant="outline" onClick={() => cancelM.mutate()}>
+                Stornieren
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       {action && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Nächster Schritt: {action.label}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <Panel title={`Nächster Schritt: ${action.label}`} bodyClassName="space-y-4">
             {!action.permission || can(action.permission) ? (
               <>
                 {action.key === "authorize" && (
@@ -472,16 +483,16 @@ function ReturnDetailPage() {
                 Dir fehlt die Berechtigung für diesen Schritt ({action.permission}).
               </p>
             )}
-          </CardContent>
-        </Card>
+      </Panel>
       )}
 
-      <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <CardTitle className="text-base">Positionen</CardTitle>
-          {can("inventory.manage") && (
+      <Panel
+        title="Positionen"
+        bodyClassName="space-y-2"
+        actions={
+          can("inventory.manage") ? (
             <Select value={locationId} onValueChange={setLocationId}>
-              <SelectTrigger className="w-56">
+              <SelectTrigger className="h-11 w-56">
                 <SelectValue placeholder="Einlagerungs-Lagerort" />
               </SelectTrigger>
               <SelectContent>
@@ -492,16 +503,16 @@ function ReturnDetailPage() {
                 ))}
               </SelectContent>
             </Select>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-2">
+          ) : undefined
+        }
+      >
           {r.items.map((it) => (
             <div
               key={it.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3 text-sm"
+              className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border p-3 text-sm"
             >
-              <div>
-                <p className="font-medium">
+              <div className="min-w-0">
+                <p className="min-w-0 break-words font-medium">
                   {it.title} {it.variantTitle ? `· ${it.variantTitle}` : ""}
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -510,10 +521,10 @@ function ReturnDetailPage() {
                   {RESTOCK_LABELS[it.restockDecision]}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <span>{formatMoney(it.refundAmountMinor ?? 0, r.currencyCode)}</span>
+              <div className="flex shrink-0 items-center gap-3">
+                <span className="tabular-nums">{formatMoney(it.refundAmountMinor ?? 0, r.currencyCode)}</span>
                 {it.restockDecision === "restock" && !it.restockedAt && can("inventory.manage") && (
-                  <Button size="sm" variant="outline" onClick={() => restockM.mutate(it.id)}>
+                  <Button size="sm" className="h-9" variant="outline" onClick={() => restockM.mutate(it.id)}>
                     Einlagern
                   </Button>
                 )}
@@ -521,51 +532,38 @@ function ReturnDetailPage() {
               </div>
             </div>
           ))}
-        </CardContent>
-      </Card>
+      </Panel>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p>Erstattung gesamt: {formatMoney(r.refundTotalMinor, r.currencyCode)}</p>
-            <p>Versandkosten-Erstattung: {formatMoney(r.shippingRefundMinor, r.currencyCode)}</p>
-            {r.customerNote && (
-              <div>
-                <Label className="text-xs">Kundennachricht</Label>
-                <Textarea readOnly value={r.customerNote} className="mt-1" />
+      <div className="grid min-w-0 gap-4 md:grid-cols-2">
+        <Panel title="Details" bodyClassName="space-y-2 text-sm">
+          <p>Erstattung gesamt: <span className="tabular-nums">{formatMoney(r.refundTotalMinor, r.currencyCode)}</span></p>
+          <p>Versandkosten-Erstattung: <span className="tabular-nums">{formatMoney(r.shippingRefundMinor, r.currencyCode)}</span></p>
+          {r.customerNote && (
+            <div>
+              <Label className="text-xs">Kundennachricht</Label>
+              <Textarea readOnly value={r.customerNote} className="mt-1" />
+            </div>
+          )}
+          {r.rejectionReason && <p className="text-destructive">Ablehnung: {r.rejectionReason}</p>}
+        </Panel>
+
+        <Panel title="Verlauf" bodyClassName="space-y-2 text-sm">
+          {!r.timeline.length ? (
+            <p className="text-muted-foreground">Noch keine Ereignisse.</p>
+          ) : (
+            r.timeline.map((t) => (
+              <div
+                key={t.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-border py-1 last:border-none"
+              >
+                <span className="min-w-0 break-words">{t.action}</span>
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                  {new Date(t.createdAt).toLocaleString("de-DE")}
+                </span>
               </div>
-            )}
-            {r.rejectionReason && (
-              <p className="text-destructive">Ablehnung: {r.rejectionReason}</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Verlauf</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            {!r.timeline.length ? (
-              <p className="text-muted-foreground">Noch keine Ereignisse.</p>
-            ) : (
-              r.timeline.map((t) => (
-                <div
-                  key={t.id}
-                  className="flex items-center justify-between border-b py-1 last:border-none"
-                >
-                  <span>{t.action}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(t.createdAt).toLocaleString("de-DE")}
-                  </span>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+            ))
+          )}
+        </Panel>
       </div>
     </div>
   );

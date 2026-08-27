@@ -22,7 +22,6 @@ import {
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -31,6 +30,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { EmptyState, PermissionState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/system/demo-daten")({
   head: () => ({
@@ -137,10 +139,8 @@ function DemoDaten() {
   if (!isLoading && !allowed) {
     return (
       <div>
-        <h1 className="font-display text-2xl font-semibold">Demo & QA Daten</h1>
-        <p className="mt-4 text-sm text-muted-foreground">
-          Nur Inhaber und Administratoren dürfen Demo- und QA-Daten verwalten.
-        </p>
+        <PageHeader title="Demo & QA Daten" />
+        <PermissionState what="Demo- und QA-Daten" />
       </div>
     );
   }
@@ -151,42 +151,39 @@ function DemoDaten() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold">Demo & QA Daten</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Zwei getrennte Welten: eine dauerhafte, realistische Demo-Organisation und beliebig oft
-        erzeug- und zerstörbare QA-Fixtures. Der Seed ist idempotent und in Production blockiert.
-      </p>
+      <PageHeader
+        title="Demo & QA Daten"
+        description="Zwei getrennte Welten: eine dauerhafte, realistische Demo-Organisation und beliebig oft erzeug- und zerstörbare QA-Fixtures. Der Seed ist idempotent und in Production blockiert."
+      />
 
       {/* ---------------- Demo-Organisation ---------------- */}
-      <section className="mt-8 rounded-lg border p-5">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">Demo-Organisation</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Dauerhafte Welt „Commerce OS Demo" mit Katalog, Medien, Kunden, Promotions und 40
-              Bestellungen in realistischen Zuständen.
-            </p>
-          </div>
-          <div className="flex shrink-0 gap-2">
+      <Panel
+        title="Demo-Organisation"
+        description={
+          <>
+            Dauerhafte Welt „Commerce OS Demo" mit Katalog, Medien, Kunden, Promotions und 40
+            Bestellungen in realistischen Zuständen.
+          </>
+        }
+        className="mt-6"
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <Button className="h-11 w-full sm:w-auto" onClick={() => seedMutation.mutate()} disabled={busy}>
+            {seedMutation.isPending ? "Seed läuft …" : status?.environment ? "Seed fortsetzen / ergänzen" : "Demo seeden"}
+          </Button>
+          {status?.environment && (
             <Button
-              onClick={() => seedMutation.mutate()}
+              className="h-11 w-full sm:w-auto"
+              variant="destructive"
+              onClick={() => {
+                if (window.confirm("Demo-Organisation wirklich komplett löschen und neu aufbauen?"))
+                  resetMutation.mutate();
+              }}
               disabled={busy}
             >
-              {seedMutation.isPending ? "Seed läuft …" : status?.environment ? "Seed fortsetzen / ergänzen" : "Demo seeden"}
+              {resetMutation.isPending ? "Reset läuft …" : "Zurücksetzen"}
             </Button>
-            {status?.environment && (
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  if (window.confirm("Demo-Organisation wirklich komplett löschen und neu aufbauen?"))
-                    resetMutation.mutate();
-                }}
-                disabled={busy}
-              >
-                {resetMutation.isPending ? "Reset läuft …" : "Zurücksetzen"}
-              </Button>
-            )}
-          </div>
+          )}
         </div>
 
         {statusQuery.isLoading ? (
@@ -195,7 +192,7 @@ function DemoDaten() {
           <div className="mt-4 space-y-4">
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <Badge variant="default">{status.environment.status}</Badge>
-              <span className="text-muted-foreground">
+              <span className="min-w-0 break-words text-muted-foreground">
                 {status.environment.organizationName} · Seed v{status.environment.seedVersion} ·
                 geseedet {new Date(status.environment.seededAt).toLocaleString("de-DE")}
               </span>
@@ -210,8 +207,8 @@ function DemoDaten() {
                     ["Medien", status.counts.media],
                   ] as const
                 ).map(([label, value]) => (
-                  <div key={label} className="rounded-md border p-3">
-                    <p className="text-2xl font-semibold">{value}</p>
+                  <div key={label} className="rounded-md border border-border p-3">
+                    <p className="text-2xl font-semibold tabular-nums">{value}</p>
                     <p className="text-xs text-muted-foreground">{label}</p>
                   </div>
                 ))}
@@ -231,53 +228,49 @@ function DemoDaten() {
             Bestellungen über den echten Checkout-Fluss erzeugt werden.
           </p>
         )}
-      </section>
-
-      <Separator className="my-8" />
+      </Panel>
 
       {/* ---------------- QA-Fixtures ---------------- */}
-      <section className="rounded-lg border p-5">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">QA-Fixtures</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Isolierte, zerstörbare Testorganisationen pro Szenario. Jede Fixture dokumentiert
-              ihren Inhalt im Manifest und wird beim Zerstören vollständig entfernt.
-            </p>
-          </div>
-          <div className="flex items-end gap-2">
-            <Select value={scenario} onValueChange={(v) => setScenario(v as QaScenario)}>
-              <SelectTrigger className="w-80">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {QA_SCENARIOS.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {QA_SCENARIO_LABELS[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={() => createMutation.mutate(scenario)} disabled={busy}>
-              {createMutation.isPending ? "Erzeuge …" : "Fixture erzeugen"}
-            </Button>
-          </div>
+      <Panel
+        title="QA-Fixtures"
+        description="Isolierte, zerstörbare Testorganisationen pro Szenario. Jede Fixture dokumentiert ihren Inhalt im Manifest und wird beim Zerstören vollständig entfernt."
+        className="mt-6"
+      >
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Select value={scenario} onValueChange={(v) => setScenario(v as QaScenario)}>
+            <SelectTrigger className="h-11 w-full sm:w-80">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {QA_SCENARIOS.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {QA_SCENARIO_LABELS[s]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button className="h-11 w-full sm:w-auto" onClick={() => createMutation.mutate(scenario)} disabled={busy}>
+            {createMutation.isPending ? "Erzeuge …" : "Fixture erzeugen"}
+          </Button>
         </div>
 
         {fixturesQuery.isLoading ? (
           <Skeleton className="mt-4 h-24 w-full" />
         ) : (fixturesQuery.data ?? []).length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">Keine QA-Fixtures vorhanden.</p>
+          <EmptyState className="mt-4" title="Keine QA-Fixtures vorhanden." />
         ) : (
           <div className="mt-4 space-y-3">
             {(fixturesQuery.data ?? []).map((f) => (
-              <div key={f.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
-                <div>
-                  <div className="flex items-center gap-2">
+              <div
+                key={f.id}
+                className="flex flex-col gap-3 rounded-md border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium">{QA_SCENARIO_LABELS[f.scenario]}</span>
                     <Badge variant={f.status === "active" ? "default" : "secondary"}>{f.status}</Badge>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 break-words text-xs text-muted-foreground">
                     {f.organizationName} · Run {f.runRef} · erstellt{" "}
                     {new Date(f.createdAt).toLocaleString("de-DE")}
                     {f.residualNotes ? ` · Reste: ${f.residualNotes}` : ""}
@@ -285,6 +278,7 @@ function DemoDaten() {
                 </div>
                 {f.status === "active" && (
                   <Button
+                    className="h-11 w-full shrink-0 sm:w-auto"
                     variant="destructive"
                     size="sm"
                     disabled={busy}
@@ -300,7 +294,7 @@ function DemoDaten() {
             ))}
           </div>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }

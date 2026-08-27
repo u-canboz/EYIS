@@ -6,14 +6,14 @@ export type RecordField = { label: string; value: ReactNode };
 
 type Props = {
   title: ReactNode;
-  subtitle?: ReactNode;
+  subtitle?: ReactNode | undefined;
   /** Right-aligned emphasis value, e.g. an amount. */
-  trailing?: ReactNode;
-  badges?: ReactNode;
-  fields?: RecordField[];
-  actions?: ReactNode;
-  className?: string;
-  interactive?: boolean;
+  trailing?: ReactNode | undefined;
+  badges?: ReactNode | undefined;
+  fields?: RecordField[] | undefined;
+  actions?: ReactNode | undefined;
+  className?: string | undefined;
+  interactive?: boolean | undefined;
 };
 
 /**
@@ -78,8 +78,8 @@ export function RecordCardList({
   desktopHidden = true,
 }: {
   children: ReactNode;
-  className?: string;
-  desktopHidden?: boolean;
+  className?: string | undefined;
+  desktopHidden?: boolean | undefined;
 }) {
   return (
     <div className={cn("flex flex-col gap-3", desktopHidden && "lg:hidden", className)}>

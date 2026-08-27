@@ -13,7 +13,12 @@ import { formatMoney } from "@/lib/commerce/money";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { FilterBar } from "@/components/data/FilterBar";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/retouren/")({
   head: () => ({
@@ -66,100 +71,139 @@ function ReturnsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Retouren</h1>
-          <p className="text-sm text-muted-foreground">
-            Von der Anfrage über Wareneingang und Prüfung bis zur Erstattung.
-          </p>
-        </div>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/app/retouren/einstellungen">Retouren-Einstellungen</Link>
-        </Button>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Retouren"
+        description="Von der Anfrage über Wareneingang und Prüfung bis zur Erstattung."
+        actions={
+          <Button asChild variant="outline" className="h-11">
+            <Link to="/app/retouren/einstellungen">Retouren-Einstellungen</Link>
+          </Button>
+        }
+      />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <ScrollTabs>
         {FILTERS.map((f) => (
           <Button
             key={f.key}
             size="sm"
+            className="h-9"
             variant={tab === f.key ? "default" : "outline"}
             onClick={() => setTab(f.key)}
           >
             {f.label}
           </Button>
         ))}
-        <Input
-          className="ml-auto w-56"
-          placeholder="RMA- oder Bestellnummer"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      </ScrollTabs>
+
+      <FilterBar
+        filters={null}
+        search={
+          <Input
+            className="h-11 w-full"
+            placeholder="RMA- oder Bestellnummer"
+            aria-label="Retouren suchen"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        }
+      />
 
       {returns.isLoading ? (
-        <div className="space-y-2">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
-        </div>
+        <ListSkeleton />
+      ) : returns.error ? (
+        <ErrorState description={(returns.error as Error).message} />
       ) : !returns.data?.length ? (
-        <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Keine Retouren in dieser Auswahl.
-        </p>
+        <EmptyState
+          title="Keine Retouren"
+          description="Für diese Auswahl gibt es keine Retouren."
+        />
       ) : (
-        <div className="overflow-hidden rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">RMA</th>
-                <th className="px-4 py-3">Bestellung</th>
-                <th className="px-4 py-3">Grund</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Positionen</th>
-                <th className="px-4 py-3 text-right">Erstattung</th>
-                <th className="px-4 py-3">Beantragt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {returns.data.map((r) => (
-                <tr key={r.id} className="border-t hover:bg-muted/30">
-                  <td className="px-4 py-3">
-                    <Link
-                      to="/app/retouren/$returnId"
-                      params={{ returnId: r.id }}
-                      className="font-medium hover:underline"
-                    >
-                      {r.returnNumber}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{r.customerEmail ?? "Gast"}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      to="/app/bestellungen/$orderId"
-                      params={{ orderId: r.orderId }}
-                      className="hover:underline"
-                    >
-                      {r.orderNumber}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">{RETURN_REASON_LABELS[r.reasonCategory]}</td>
-                  <td className="px-4 py-3">
-                    <Badge variant="secondary">{RETURN_STATUS_LABELS[r.status]}</Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right">{r.itemCount}</td>
-                  <td className="px-4 py-3 text-right">
-                    {formatMoney(r.refundTotalMinor, r.currencyCode)}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(r.requestedAt).toLocaleDateString("de-DE")}
-                  </td>
+        <>
+          <RecordCardList>
+            {returns.data.map((r) => (
+              <Link
+                key={r.id}
+                to="/app/retouren/$returnId"
+                params={{ returnId: r.id }}
+                className="min-w-0"
+              >
+                <RecordCard
+                  interactive
+                  title={r.returnNumber}
+                  subtitle={r.customerEmail ?? "Gast"}
+                  trailing={formatMoney(r.refundTotalMinor, r.currencyCode)}
+                  badges={
+                    <>
+                      <Badge variant="secondary">{RETURN_STATUS_LABELS[r.status]}</Badge>
+                      <Badge variant="outline">{RETURN_REASON_LABELS[r.reasonCategory]}</Badge>
+                    </>
+                  }
+                  fields={[
+                    { label: "Bestellung", value: r.orderNumber },
+                    { label: "Positionen", value: r.itemCount },
+                    {
+                      label: "Beantragt",
+                      value: new Date(r.requestedAt).toLocaleDateString("de-DE"),
+                    },
+                  ]}
+                />
+              </Link>
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">RMA</th>
+                  <th className="p-3 font-medium">Bestellung</th>
+                  <th className="p-3 font-medium">Grund</th>
+                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3 text-right font-medium">Positionen</th>
+                  <th className="p-3 text-right font-medium">Erstattung</th>
+                  <th className="p-3 font-medium">Beantragt</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {returns.data.map((r) => (
+                  <tr key={r.id} className="border-t hover:bg-muted/40">
+                    <td className="p-3">
+                      <Link
+                        to="/app/retouren/$returnId"
+                        params={{ returnId: r.id }}
+                        className="font-medium underline-offset-2 hover:underline"
+                      >
+                        {r.returnNumber}
+                      </Link>
+                      <p className="text-xs text-muted-foreground">{r.customerEmail ?? "Gast"}</p>
+                    </td>
+                    <td className="p-3">
+                      <Link
+                        to="/app/bestellungen/$orderId"
+                        params={{ orderId: r.orderId }}
+                        className="hover:underline"
+                      >
+                        {r.orderNumber}
+                      </Link>
+                    </td>
+                    <td className="p-3">{RETURN_REASON_LABELS[r.reasonCategory]}</td>
+                    <td className="p-3">
+                      <Badge variant="secondary">{RETURN_STATUS_LABELS[r.status]}</Badge>
+                    </td>
+                    <td className="p-3 text-right tabular-nums">{r.itemCount}</td>
+                    <td className="p-3 text-right tabular-nums">
+                      {formatMoney(r.refundTotalMinor, r.currencyCode)}
+                    </td>
+                    <td className="p-3 text-muted-foreground">
+                      {new Date(r.requestedAt).toLocaleDateString("de-DE")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
     </div>
   );

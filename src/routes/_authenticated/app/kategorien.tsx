@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -24,6 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kategorien")({
   head: () => ({
@@ -117,21 +120,24 @@ function TaxonomyPage() {
 
   const renderTree = (nodes: CategoryNode[], depth = 0) =>
     nodes.map((node) => (
-      <div key={node.id}>
+      <div key={node.id} className="min-w-0">
         <div
-          className="flex items-center justify-between border-b py-2"
+          className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border py-2 last:border-b-0"
           style={{ paddingLeft: depth * 20 }}
         >
-          <div>
-            <span className="text-sm font-medium">{node.name}</span>
-            <span className="ml-2 text-xs text-muted-foreground">/{node.handle}</span>
+          <div className="min-w-0">
+            <span className="truncate text-sm font-medium">{node.name}</span>
+            <span className="ml-2 truncate text-xs text-muted-foreground">/{node.handle}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{node.product_count}</Badge>
+          <div className="flex shrink-0 items-center gap-2">
+            <Badge variant="secondary" className="tabular-nums">
+              {node.product_count}
+            </Badge>
             {canManage && (
               <Button
                 variant="ghost"
                 size="sm"
+                className="h-9"
                 onClick={() => categoryDeleteMutation.mutate(node.id)}
               >
                 Löschen
@@ -143,27 +149,25 @@ function TaxonomyPage() {
       </div>
     ));
 
-  return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Kategorien & Kollektionen</h1>
-        <p className="text-sm text-muted-foreground">
-          Kategorien bilden die Struktur, Kollektionen gruppieren Produkte frei.
-        </p>
-      </header>
+  const categories = taxonomyQuery.data?.categories ?? [];
+  const collections = taxonomyQuery.data?.collections ?? [];
 
-      <section className="rounded-lg border bg-card p-6">
-        <p className="font-medium">Kategorien</p>
+  return (
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Kategorien & Kollektionen"
+        description="Kategorien bilden die Struktur, Kollektionen gruppieren Produkte frei."
+      />
+
+      <Panel title="Kategorien">
         {taxonomyQuery.isLoading ? (
-          <Skeleton className="mt-4 h-32 w-full" />
+          <ListSkeleton />
+        ) : taxonomyQuery.error ? (
+          <ErrorState description={(taxonomyQuery.error as Error).message} />
+        ) : categories.length === 0 ? (
+          <EmptyState title="Keine Kategorien" description="Noch keine Kategorien angelegt." />
         ) : (
-          <div className="mt-4">
-            {(taxonomyQuery.data?.categories ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground">Noch keine Kategorien angelegt.</p>
-            ) : (
-              renderTree(taxonomyQuery.data!.categories)
-            )}
-          </div>
+          <div className="min-w-0">{renderTree(categories)}</div>
         )}
 
         {canManage && (
@@ -171,7 +175,7 @@ function TaxonomyPage() {
             <div>
               <Label>Neue Kategorie</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
               />
@@ -179,7 +183,7 @@ function TaxonomyPage() {
             <div>
               <Label>Übergeordnet</Label>
               <Select value={parentId} onValueChange={setParentId}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -193,6 +197,7 @@ function TaxonomyPage() {
               </Select>
             </div>
             <Button
+              className="h-11"
               disabled={!categoryName.trim() || categoryMutation.isPending}
               onClick={() => categoryMutation.mutate()}
             >
@@ -200,47 +205,54 @@ function TaxonomyPage() {
             </Button>
           </div>
         )}
-      </section>
+      </Panel>
 
-      <section className="rounded-lg border bg-card p-6">
-        <p className="font-medium">Kollektionen</p>
-        <div className="mt-4 space-y-2">
-          {(taxonomyQuery.data?.collections ?? []).map((col) => (
-            <div key={col.id} className="flex items-center justify-between border-b py-2">
-              <div>
-                <span className="text-sm font-medium">{col.name}</span>
-                <span className="ml-2 text-xs text-muted-foreground">/{col.handle}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">{col.product_count}</Badge>
-                {canManageCollections && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => collectionDeleteMutation.mutate(col.id)}
-                  >
-                    Löschen
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-          {(taxonomyQuery.data?.collections ?? []).length === 0 && (
-            <p className="text-sm text-muted-foreground">Noch keine Kollektionen angelegt.</p>
-          )}
-        </div>
+      <Panel title="Kollektionen">
+        {taxonomyQuery.isLoading ? (
+          <ListSkeleton />
+        ) : collections.length === 0 ? (
+          <EmptyState title="Keine Kollektionen" description="Noch keine Kollektionen angelegt." />
+        ) : (
+          <RecordCardList desktopHidden={false}>
+            {collections.map((col) => (
+              <RecordCard
+                key={col.id}
+                title={col.name}
+                subtitle={`/${col.handle}`}
+                trailing={
+                  <Badge variant="secondary" className="tabular-nums">
+                    {col.product_count}
+                  </Badge>
+                }
+                actions={
+                  canManageCollections && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9"
+                      onClick={() => collectionDeleteMutation.mutate(col.id)}
+                    >
+                      Löschen
+                    </Button>
+                  )
+                }
+              />
+            ))}
+          </RecordCardList>
+        )}
 
         {canManageCollections && (
-          <div className="mt-6 flex items-end gap-3">
-            <div className="flex-1">
+          <div className="mt-6 flex flex-col items-end gap-3 sm:flex-row">
+            <div className="w-full flex-1">
               <Label>Neue Kollektion</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={collectionName}
                 onChange={(e) => setCollectionName(e.target.value)}
               />
             </div>
             <Button
+              className="h-11 w-full sm:w-auto"
               disabled={!collectionName.trim() || collectionMutation.isPending}
               onClick={() => collectionMutation.mutate()}
             >
@@ -248,7 +260,7 @@ function TaxonomyPage() {
             </Button>
           </div>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }

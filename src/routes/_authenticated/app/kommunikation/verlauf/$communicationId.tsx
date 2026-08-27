@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   getCommunicationFn,
   resendCommunicationFn,
@@ -12,6 +13,8 @@ import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/verlauf/$communicationId")({
   head: () => ({
@@ -43,32 +46,35 @@ function CommunicationDetailPage() {
     queryFn: () => fetchDetail({ data: { organizationId, communicationId } }),
   });
 
-  if (detail.isLoading || !detail.data) return <Skeleton className="h-96 w-full" />;
+  if (detail.isLoading || !detail.data) {
+    return (
+      <div className="min-w-0 space-y-4">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    );
+  }
   const c = detail.data;
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
           <Link
             to="/app/kommunikation/verlauf"
-            className="text-xs text-muted-foreground hover:underline"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
           >
-            ← Versandprotokoll
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Versandprotokoll
           </Link>
-          <h1 className="font-display text-2xl font-semibold">{c.subject}</h1>
-          <p className="text-sm text-muted-foreground">
-            {c.recipient} · {new Date(c.createdAt).toLocaleString("de-DE")}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={c.status === "failed" ? "destructive" : "secondary"}>
-            {STATUS_LABELS[c.status] ?? c.status}
-          </Badge>
-          {c.deliveryStatus && <Badge variant="outline">{DELIVERY_LABELS[c.deliveryStatus]}</Badge>}
+        }
+        title={c.subject}
+        description={`${c.recipient} · ${new Date(c.createdAt).toLocaleString("de-DE")}`}
+        actions={
           <Button
             size="sm"
             variant="outline"
+            className="h-11"
             disabled={busy}
             onClick={async () => {
               setBusy(true);
@@ -87,92 +93,112 @@ function CommunicationDetailPage() {
           >
             Erneut senden
           </Button>
-        </div>
-      </header>
+        }
+      />
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: "Vorlage",
-            value: `${c.templateKey}${c.templateVersion ? ` v${c.templateVersion}` : ""}`,
-          },
-          { label: "Anbieter", value: c.provider ?? "–" },
-          { label: "Absender", value: c.senderAddress ?? c.senderName ?? "–" },
-          { label: "Auslöser", value: c.sourceEventType ?? (c.isTestSend ? "Testversand" : "–") },
-        ].map((item) => (
-          <div key={item.label} className="rounded-lg border p-3">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">{item.label}</p>
-            <p className="mt-1 truncate text-sm">{item.value}</p>
-          </div>
-        ))}
-      </section>
+      <div className="flex min-w-0 flex-wrap gap-2">
+        <Badge variant={c.status === "failed" ? "destructive" : "secondary"}>
+          {STATUS_LABELS[c.status] ?? c.status}
+        </Badge>
+        {c.deliveryStatus && <Badge variant="outline">{DELIVERY_LABELS[c.deliveryStatus]}</Badge>}
+      </div>
 
-      {c.lastError && (
-        <p className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">
-          {c.lastError}
-        </p>
-      )}
-      {c.resendOf && (
-        <p className="rounded-lg border p-3 text-sm text-muted-foreground">
-          Diese Nachricht wurde als erneuter Versand erzeugt.{" "}
-          <Link
-            to="/app/kommunikation/verlauf/$communicationId"
-            params={{ communicationId: c.resendOf }}
-            className="underline"
-          >
-            Ursprüngliche Nachricht
-          </Link>
-        </p>
-      )}
+      <DetailLayout
+        main={
+          <>
+            <Panel title="Gesendeter Inhalt (Snapshot)" bodyClassName="p-0">
+              <div className="min-w-0 overflow-hidden rounded-b-xl">
+                <iframe title="Snapshot" srcDoc={c.html} className="h-[600px] w-full bg-white" />
+              </div>
+            </Panel>
 
-      <section className="space-y-2">
-        <p className="text-sm font-medium">Gesendeter Inhalt (Snapshot)</p>
-        <div className="overflow-hidden rounded-lg border">
-          <iframe title="Snapshot" srcDoc={c.html} className="h-[600px] w-full bg-white" />
-        </div>
-      </section>
+            <Panel title="Sendeversuche">
+              {!c.attempts.length ? (
+                <p className="text-sm text-muted-foreground">Noch kein Versuch protokolliert.</p>
+              ) : (
+                <ul className="min-w-0 space-y-1.5 text-sm">
+                  {c.attempts.map((a) => (
+                    <li key={a.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                      <span className="min-w-0 break-words">
+                        Versuch {a.attemptNumber} · {a.provider} ·{" "}
+                        {new Date(a.startedAt).toLocaleString("de-DE")}
+                      </span>
+                      <span
+                        className={
+                          a.errorCode
+                            ? "shrink-0 break-words text-right text-destructive"
+                            : "shrink-0 text-right text-muted-foreground"
+                        }
+                      >
+                        {a.errorCode ? `${a.errorCode}: ${a.errorMessage}` : DELIVERY_LABELS[a.status]}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
 
-      <section className="rounded-lg border">
-        <p className="border-b px-4 py-3 text-sm font-medium">Sendeversuche</p>
-        {!c.attempts.length ? (
-          <p className="p-4 text-sm text-muted-foreground">Noch kein Versuch protokolliert.</p>
-        ) : (
-          <ul className="divide-y">
-            {c.attempts.map((a) => (
-              <li key={a.id} className="flex flex-wrap justify-between gap-2 px-4 py-3 text-sm">
-                <span>
-                  Versuch {a.attemptNumber} · {a.provider} ·{" "}
-                  {new Date(a.startedAt).toLocaleString("de-DE")}
-                </span>
-                <span className={a.errorCode ? "text-destructive" : "text-muted-foreground"}>
-                  {a.errorCode ? `${a.errorCode}: ${a.errorMessage}` : DELIVERY_LABELS[a.status]}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+            <Panel title="Anbieterereignisse">
+              {!c.providerEvents.length ? (
+                <p className="text-sm text-muted-foreground">Keine Rückmeldungen erhalten.</p>
+              ) : (
+                <ul className="min-w-0 space-y-1.5 text-sm">
+                  {c.providerEvents.map((e) => (
+                    <li key={e.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                      <span className="min-w-0 break-words">
+                        {e.eventType} · {new Date(e.receivedAt).toLocaleString("de-DE")}
+                      </span>
+                      <span className="shrink-0 text-right text-muted-foreground">
+                        {e.signatureVerified ? "Signatur geprüft" : "ohne Signatur"} ·{" "}
+                        {e.processingStatus}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
+          </>
+        }
+        aside={
+          <>
+            <Panel title="Details">
+              <dl className="min-w-0">
+                <DataRow
+                  label="Vorlage"
+                  value={`${c.templateKey}${c.templateVersion ? ` v${c.templateVersion}` : ""}`}
+                />
+                <DataRow label="Anbieter" value={c.provider ?? "–"} />
+                <DataRow label="Absender" value={c.senderAddress ?? c.senderName ?? "–"} />
+                <DataRow
+                  label="Auslöser"
+                  value={c.sourceEventType ?? (c.isTestSend ? "Testversand" : "–")}
+                />
+              </dl>
+            </Panel>
 
-      <section className="rounded-lg border">
-        <p className="border-b px-4 py-3 text-sm font-medium">Anbieterereignisse</p>
-        {!c.providerEvents.length ? (
-          <p className="p-4 text-sm text-muted-foreground">Keine Rückmeldungen erhalten.</p>
-        ) : (
-          <ul className="divide-y">
-            {c.providerEvents.map((e) => (
-              <li key={e.id} className="flex flex-wrap justify-between gap-2 px-4 py-3 text-sm">
-                <span>
-                  {e.eventType} · {new Date(e.receivedAt).toLocaleString("de-DE")}
-                </span>
-                <span className="text-muted-foreground">
-                  {e.signatureVerified ? "Signatur geprüft" : "ohne Signatur"} ·{" "}
-                  {e.processingStatus}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+            {c.lastError && (
+              <Panel title="Fehler" className="border-destructive/30 bg-destructive/5">
+                <p className="min-w-0 break-words text-sm">{c.lastError}</p>
+              </Panel>
+            )}
+
+            {c.resendOf && (
+              <Panel title="Herkunft">
+                <p className="text-sm text-muted-foreground">
+                  Diese Nachricht wurde als erneuter Versand erzeugt.{" "}
+                  <Link
+                    to="/app/kommunikation/verlauf/$communicationId"
+                    params={{ communicationId: c.resendOf }}
+                    className="underline"
+                  >
+                    Ursprüngliche Nachricht
+                  </Link>
+                </p>
+              </Panel>
+            )}
+          </>
+        }
+      />
     </div>
   );
 }

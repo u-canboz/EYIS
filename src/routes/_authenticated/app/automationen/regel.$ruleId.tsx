@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   getAutomationFn,
   saveAutomationFn,
@@ -33,7 +34,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -41,6 +41,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
+import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/automationen/regel/$ruleId")({
   head: () => ({
@@ -271,17 +273,21 @@ function RuleEditor() {
     });
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link to="/app/automationen" className="text-sm text-muted-foreground hover:underline">
-            ← Alle Automationen
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/automationen"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Alle Automationen
           </Link>
-          <h1 className="font-display text-2xl font-semibold">
-            {isNew ? "Neue Automation" : rule.data?.name || "Automation"}
-          </h1>
-          {!isNew && rule.data && (
-            <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+        }
+        title={isNew ? "Neue Automation" : rule.data?.name || "Automation"}
+        description={
+          !isNew && rule.data ? (
+            <span className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">
                 {AUTOMATION_STATUS_LABELS[
                   rule.data.status as keyof typeof AUTOMATION_STATUS_LABELS
@@ -293,41 +299,46 @@ function RuleEditor() {
                   ? ` · aktiv v${rule.data.activeVersion}`
                   : " · noch nie veröffentlicht"}
               </span>
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending}
-          >
-            Entwurf speichern
-          </Button>
-          {!isNew && (
-            <Button onClick={() => publishMutation.mutate()} disabled={publishMutation.isPending}>
-              Veröffentlichen &amp; aktivieren
+            </span>
+          ) : undefined
+        }
+        actions={
+          <>
+            <Button
+              variant="outline"
+              className="h-11"
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending}
+            >
+              Entwurf speichern
             </Button>
-          )}
-        </div>
-      </header>
+            {!isNew && (
+              <Button
+                className="h-11"
+                onClick={() => publishMutation.mutate()}
+                disabled={publishMutation.isPending}
+              >
+                Veröffentlichen &amp; aktivieren
+              </Button>
+            )}
+          </>
+        }
+      />
 
-      <div className="rounded-lg border bg-muted/40 p-4">
+      <div className="min-w-0 rounded-xl border border-border bg-muted/40 p-4">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">In einem Satz</p>
-        <p className="mt-1 text-sm">{summary}</p>
+        <p className="mt-1 min-w-0 break-words text-sm">{summary}</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Grunddaten</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+      <DetailLayout
+        main={
+          <>
+            <Panel title="Grunddaten" bodyClassName="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="rule-name">Name</Label>
                 <Input
                   id="rule-name"
+                  className="h-11"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="z. B. Bestellung bezahlt → Rechnung"
@@ -342,22 +353,17 @@ function RuleEditor() {
                   rows={2}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </Panel>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">1. Auslöser</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+            <Panel title="1. Auslöser" bodyClassName="space-y-4">
+              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Art</Label>
                   <Select
                     value={triggerType}
                     onValueChange={(v) => setTriggerType(v as typeof triggerType)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11 w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -371,7 +377,7 @@ function RuleEditor() {
                   <div className="space-y-2">
                     <Label>Ereignis</Label>
                     <Select value={eventType} onValueChange={setEventType}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -389,7 +395,7 @@ function RuleEditor() {
                     <div className="space-y-2">
                       <Label>Was wird geprüft</Label>
                       <Select value={scheduleKind} onValueChange={setScheduleKind}>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11 w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -405,6 +411,7 @@ function RuleEditor() {
                       <Label htmlFor="every">Prüfung alle (Minuten)</Label>
                       <Input
                         id="every"
+                        className="h-11"
                         type="number"
                         min={15}
                         value={everyMinutes}
@@ -415,6 +422,7 @@ function RuleEditor() {
                       <Label htmlFor="older">Älter als (Stunden)</Label>
                       <Input
                         id="older"
+                        className="h-11"
                         type="number"
                         min={1}
                         value={olderThanHours}
@@ -425,23 +433,23 @@ function RuleEditor() {
                 )}
               </div>
               {event && <p className="text-sm text-muted-foreground">{event.description}</p>}
-            </CardContent>
-          </Card>
+            </Panel>
 
-          <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base">2. Bedingungen</CardTitle>
-              <Select value={mode} onValueChange={(v) => setMode(v as "all" | "any")}>
-                <SelectTrigger className="w-44">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle müssen zutreffen</SelectItem>
-                  <SelectItem value="any">Eine reicht</SelectItem>
-                </SelectContent>
-              </Select>
-            </CardHeader>
-            <CardContent className="space-y-3">
+            <Panel
+              title="2. Bedingungen"
+              actions={
+                <Select value={mode} onValueChange={(v) => setMode(v as "all" | "any")}>
+                  <SelectTrigger className="h-9 w-44">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle müssen zutreffen</SelectItem>
+                    <SelectItem value="any">Eine reicht</SelectItem>
+                  </SelectContent>
+                </Select>
+              }
+              bodyClassName="space-y-3"
+            >
               {conditions.length === 0 && (
                 <p className="text-sm text-muted-foreground">
                   Ohne Bedingungen läuft die Automation bei jedem Auslöser.
@@ -452,12 +460,12 @@ function RuleEditor() {
                 const ops = operatorsFor(field?.type ?? "string");
                 const noValue = cond.operator === "exists" || cond.operator === "not_exists";
                 return (
-                  <div key={i} className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]">
+                  <div key={i} className="grid min-w-0 gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]">
                     <Select
                       value={cond.field}
                       onValueChange={(v) => updateCondition(i, { field: v })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 w-full">
                         <SelectValue placeholder="Feld" />
                       </SelectTrigger>
                       <SelectContent>
@@ -474,7 +482,7 @@ function RuleEditor() {
                         updateCondition(i, { operator: v as Condition["operator"] })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -492,7 +500,7 @@ function RuleEditor() {
                         value={String(cond.value ?? "")}
                         onValueChange={(v) => updateCondition(i, { value: v })}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11 w-full">
                           <SelectValue placeholder="Wert" />
                         </SelectTrigger>
                         <SelectContent>
@@ -505,6 +513,7 @@ function RuleEditor() {
                       </Select>
                     ) : (
                       <Input
+                        className="h-11"
                         value={String(cond.value ?? "")}
                         placeholder={field?.type === "money" ? "Betrag in Cent" : "Wert"}
                         onChange={(e) =>
@@ -527,32 +536,29 @@ function RuleEditor() {
                   </div>
                 );
               })}
-              <Button variant="outline" size="sm" onClick={addCondition} disabled={!event}>
+              <Button variant="outline" className="h-11" onClick={addCondition} disabled={!event}>
                 Bedingung hinzufügen
               </Button>
-            </CardContent>
-          </Card>
+            </Panel>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">3. Aktionen</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+            <Panel title="3. Aktionen" bodyClassName="space-y-4">
               {actions.length === 0 && (
                 <p className="text-sm text-muted-foreground">Noch keine Aktion ausgewählt.</p>
               )}
               {actions.map((action, i) => {
                 const def = findAction(action.actionType);
                 return (
-                  <div key={i} className="rounded-lg border p-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <p className="font-medium">
+                  <div key={i} className="min-w-0 rounded-lg border border-border p-3">
+                    <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="min-w-0 break-words font-medium">
                           {i + 1}. {def?.label ?? action.actionType}
                         </p>
-                        <p className="text-xs text-muted-foreground">{def?.description}</p>
+                        <p className="min-w-0 break-words text-xs text-muted-foreground">
+                          {def?.description}
+                        </p>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex shrink-0 gap-1">
                         <Button size="sm" variant="ghost" onClick={() => moveAction(i, -1)}>
                           ↑
                         </Button>
@@ -568,7 +574,7 @@ function RuleEditor() {
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
                       {(def?.params ?? []).map((p) => (
                         <div key={p.key} className="space-y-1">
                           <Label className="text-xs">{p.label}</Label>
@@ -589,7 +595,7 @@ function RuleEditor() {
                                 updateAction(i, { config: { ...action.config, [p.key]: v } })
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="h-11 w-full">
                                 <SelectValue placeholder="Vorlage wählen" />
                               </SelectTrigger>
                               <SelectContent>
@@ -607,7 +613,7 @@ function RuleEditor() {
                                 updateAction(i, { config: { ...action.config, [p.key]: v } })
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="h-11 w-full">
                                 <SelectValue placeholder="Ziel wählen" />
                               </SelectTrigger>
                               <SelectContent>
@@ -625,7 +631,7 @@ function RuleEditor() {
                                 updateAction(i, { config: { ...action.config, [p.key]: v } })
                               }
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="h-11 w-full">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -637,6 +643,7 @@ function RuleEditor() {
                             </Select>
                           ) : (
                             <Input
+                              className="h-11"
                               type={p.type === "number" ? "number" : "text"}
                               placeholder={p.placeholder}
                               value={String(action.config[p.key] ?? "")}
@@ -657,6 +664,7 @@ function RuleEditor() {
                       <div className="space-y-1">
                         <Label className="text-xs">Verzögerung (Sekunden)</Label>
                         <Input
+                          className="h-11"
                           type="number"
                           min={0}
                           value={action.delaySeconds}
@@ -682,7 +690,7 @@ function RuleEditor() {
               <div className="space-y-2">
                 <Label className="text-xs">Aktion hinzufügen</Label>
                 <Select value="" onValueChange={addAction}>
-                  <SelectTrigger className="w-full sm:w-80">
+                  <SelectTrigger className="h-11 w-full sm:w-80">
                     <SelectValue placeholder="Aktion auswählen" />
                   </SelectTrigger>
                   <SelectContent>
@@ -694,16 +702,12 @@ function RuleEditor() {
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Sicherheitsgrenzen</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+            </Panel>
+          </>
+        }
+        aside={
+          <>
+            <Panel title="Sicherheitsgrenzen" bodyClassName="space-y-4">
               <div className="flex items-center gap-2">
                 <Switch id="stop" checked={stopOnError} onCheckedChange={setStopOnError} />
                 <Label htmlFor="stop" className="text-sm">
@@ -716,6 +720,7 @@ function RuleEditor() {
                 </Label>
                 <Input
                   id="mph"
+                  className="h-11"
                   type="number"
                   min={1}
                   placeholder="unbegrenzt"
@@ -729,6 +734,7 @@ function RuleEditor() {
                 </Label>
                 <Input
                   id="mpe"
+                  className="h-11"
                   type="number"
                   min={1}
                   placeholder="unbegrenzt"
@@ -740,15 +746,10 @@ function RuleEditor() {
                 Häufen sich Fehler, pausiert das System die Automation automatisch und meldet es im
                 Überblick.
               </p>
-            </CardContent>
-          </Card>
+            </Panel>
 
-          {!isNew && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Testlauf</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            {!isNew && (
+              <Panel title="Testlauf" bodyClassName="space-y-3">
                 <p className="text-sm text-muted-foreground">
                   Prüft Bedingungen und geplante Aktionen — ohne etwas auszuführen.
                 </p>
@@ -760,7 +761,7 @@ function RuleEditor() {
                 />
                 <Button
                   variant="outline"
-                  size="sm"
+                  className="h-11"
                   disabled={dryRunMutation.isPending}
                   onClick={() => {
                     try {
@@ -773,7 +774,7 @@ function RuleEditor() {
                   Testlauf starten
                 </Button>
                 {dryResult && (
-                  <div className="space-y-2 rounded-md border p-3 text-sm">
+                  <div className="min-w-0 space-y-2 rounded-md border border-border p-3 text-sm">
                     <p className={dryResult.matched ? "text-primary" : "text-muted-foreground"}>
                       {dryResult.matched
                         ? "Automation würde laufen."
@@ -783,7 +784,10 @@ function RuleEditor() {
                       {dryResult.trace.map((t, i) => (
                         <li
                           key={i}
-                          className={t.passed ? "text-muted-foreground" : "text-destructive"}
+                          className={
+                            "min-w-0 break-words " +
+                            (t.passed ? "text-muted-foreground" : "text-destructive")
+                          }
                         >
                           {t.field} {t.operator} {String(t.expected ?? "")} — ist{" "}
                           {String(t.actual ?? "–")}
@@ -792,7 +796,7 @@ function RuleEditor() {
                     </ul>
                     <ul className="space-y-1 text-xs">
                       {dryResult.actions.map((a) => (
-                        <li key={a.position}>
+                        <li key={a.position} className="min-w-0 break-words">
                           {a.position}. {findAction(a.actionType)?.label ?? a.actionType}{" "}
                           {a.wouldRun ? "→ würde ausgeführt" : "→ übersprungen"}
                         </li>
@@ -800,21 +804,16 @@ function RuleEditor() {
                     </ul>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          )}
+              </Panel>
+            )}
 
-          {!isNew && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Letzte Läufe</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
+            {!isNew && (
+              <Panel title="Letzte Läufe" bodyClassName="space-y-2">
                 {(executions.data ?? []).length === 0 && (
-                  <p className="text-muted-foreground">Noch keine Läufe.</p>
+                  <p className="text-sm text-muted-foreground">Noch keine Läufe.</p>
                 )}
                 {(executions.data ?? []).map((e) => (
-                  <div key={e.id} className="flex items-center justify-between gap-2">
+                  <div key={e.id} className="flex items-center justify-between gap-2 text-sm">
                     <span className="text-muted-foreground">
                       {new Date(e.createdAt).toLocaleString("de-DE")}
                     </span>
@@ -824,11 +823,31 @@ function RuleEditor() {
                     </Badge>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+              </Panel>
+            )}
+          </>
+        }
+      />
+
+      <StickyActionBar className="lg:hidden">
+        <Button
+          variant="outline"
+          className="h-11 flex-1"
+          onClick={() => saveMutation.mutate()}
+          disabled={saveMutation.isPending}
+        >
+          Entwurf speichern
+        </Button>
+        {!isNew && (
+          <Button
+            className="h-11 flex-1"
+            onClick={() => publishMutation.mutate()}
+            disabled={publishMutation.isPending}
+          >
+            Veröffentlichen
+          </Button>
+        )}
+      </StickyActionBar>
     </div>
   );
 }

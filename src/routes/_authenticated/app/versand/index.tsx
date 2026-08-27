@@ -28,6 +28,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/versand/")({
   head: () => ({
@@ -128,108 +133,148 @@ function FulfillmentWorkspace() {
   const locationOptions = allocation.data?.lines[0]?.options ?? [];
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Versand & Fulfillment</h1>
-          <p className="text-muted-foreground text-sm">
-            Bezahlte Bestellungen kommissionieren, verpacken und versenden.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/app/versand/versandarten">Versandarten</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/app/versand/dienstleister">Dienstleister</Link>
-          </Button>
-          {can("fulfillment.manage") && (
-            <Button onClick={() => setOrderPickerOpen(true)}>Fulfillment anlegen</Button>
-          )}
-        </div>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Versand & Fulfillment"
+        description="Bezahlte Bestellungen kommissionieren, verpacken und versenden."
+        actions={
+          <>
+            <Button variant="outline" className="h-11" asChild>
+              <Link to="/app/versand/versandarten">Versandarten</Link>
+            </Button>
+            <Button variant="outline" className="h-11" asChild>
+              <Link to="/app/versand/dienstleister">Dienstleister</Link>
+            </Button>
+            {can("fulfillment.manage") && (
+              <Button className="h-11" onClick={() => setOrderPickerOpen(true)}>
+                Fulfillment anlegen
+              </Button>
+            )}
+          </>
+        }
+      />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <ScrollTabs>
         {TABS.map((t) => (
           <Button
             key={t.key}
             size="sm"
             variant={t.key === tab ? "default" : "outline"}
+            className="h-9 shrink-0"
             onClick={() => setTab(t.key)}
           >
             {t.label}
           </Button>
         ))}
-        <Input
-          className="ml-auto max-w-xs"
-          placeholder="Bestellnummer oder Sendungsnummer"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      </ScrollTabs>
+
+      <Input
+        className="h-11 w-full sm:max-w-xs"
+        placeholder="Bestellnummer oder Sendungsnummer"
+        aria-label="Vorgänge suchen"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
       {queue.isLoading ? (
-        <Skeleton className="h-40 w-full" />
+        <ListSkeleton />
       ) : !queue.data?.length ? (
-        <p className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
-          Keine Vorgänge in dieser Ansicht.
-        </p>
+        <EmptyState title="Keine Vorgänge" description="Für diese Ansicht gibt es keine Vorgänge." />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="p-3 font-medium">Bestellung</th>
-                <th className="p-3 font-medium">Status</th>
-                <th className="p-3 font-medium">Fortschritt</th>
-                <th className="p-3 font-medium">Lagerort</th>
-                <th className="p-3 font-medium">Pakete</th>
-                <th className="p-3 font-medium">Carrier</th>
-                <th className="p-3 font-medium">Sendungsnummer</th>
-                <th className="p-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {queue.data.map((f) => (
-                <tr key={f.id} className="border-t">
-                  <td className="p-3 font-medium">{f.orderNumber}</td>
-                  <td className="p-3">
-                    <Badge
-                      variant={
-                        f.hasException
-                          ? "destructive"
-                          : f.status === "delivered"
-                            ? "secondary"
-                            : "default"
-                      }
-                    >
-                      {FULFILLMENT_STATE_LABELS[f.status]}
-                    </Badge>
-                  </td>
-                  <td className="text-muted-foreground p-3 text-xs">
-                    {f.pickedQuantity}/{f.totalQuantity} gepickt · {f.packedQuantity} gepackt ·{" "}
-                    {f.shippedQuantity} versendet
-                  </td>
-                  <td className="p-3">{f.locationName ?? "—"}</td>
-                  <td className="p-3">{f.packageCount}</td>
-                  <td className="p-3">
-                    {f.carrierProvider ? carrierLabel(f.carrierProvider) : "—"}
-                  </td>
-                  <td className="text-muted-foreground p-3 font-mono text-xs">
-                    {f.trackingNumber ?? "—"}
-                  </td>
-                  <td className="p-3 text-right">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to="/app/versand/$fulfillmentId" params={{ fulfillmentId: f.id }}>
-                        Öffnen
-                      </Link>
-                    </Button>
-                  </td>
+        <>
+          <RecordCardList>
+            {queue.data.map((f) => (
+              <Link
+                key={f.id}
+                to="/app/versand/$fulfillmentId"
+                params={{ fulfillmentId: f.id }}
+                className="min-w-0"
+              >
+                <RecordCard
+                  interactive
+                  title={f.orderNumber}
+                  subtitle={f.locationName ?? "ohne Lagerort"}
+                  badges={
+                    <>
+                      <Badge variant={f.hasException ? "destructive" : f.status === "delivered" ? "secondary" : "default"}>
+                        {FULFILLMENT_STATE_LABELS[f.status]}
+                      </Badge>
+                      {f.carrierProvider ? (
+                        <Badge variant="outline">{carrierLabel(f.carrierProvider)}</Badge>
+                      ) : null}
+                    </>
+                  }
+                  fields={[
+                    {
+                      label: "Fortschritt",
+                      value: `${f.pickedQuantity}/${f.totalQuantity} gepickt`,
+                    },
+                    { label: "Pakete", value: f.packageCount },
+                    ...(f.trackingNumber
+                      ? [{ label: "Sendungsnummer", value: f.trackingNumber }]
+                      : []),
+                  ]}
+                />
+              </Link>
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Bestellung</th>
+                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3 font-medium">Fortschritt</th>
+                  <th className="p-3 font-medium">Lagerort</th>
+                  <th className="p-3 font-medium">Pakete</th>
+                  <th className="p-3 font-medium">Carrier</th>
+                  <th className="p-3 font-medium">Sendungsnummer</th>
+                  <th className="p-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {queue.data.map((f) => (
+                  <tr key={f.id} className="border-t border-border hover:bg-muted/40">
+                    <td className="p-3 font-medium">{f.orderNumber}</td>
+                    <td className="p-3">
+                      <Badge
+                        variant={
+                          f.hasException
+                            ? "destructive"
+                            : f.status === "delivered"
+                              ? "secondary"
+                              : "default"
+                        }
+                      >
+                        {FULFILLMENT_STATE_LABELS[f.status]}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-xs text-muted-foreground">
+                      {f.pickedQuantity}/{f.totalQuantity} gepickt · {f.packedQuantity} gepackt ·{" "}
+                      {f.shippedQuantity} versendet
+                    </td>
+                    <td className="p-3">{f.locationName ?? "—"}</td>
+                    <td className="p-3 tabular-nums">{f.packageCount}</td>
+                    <td className="p-3">
+                      {f.carrierProvider ? carrierLabel(f.carrierProvider) : "—"}
+                    </td>
+                    <td className="p-3 font-mono text-xs text-muted-foreground break-words">
+                      {f.trackingNumber ?? "—"}
+                    </td>
+                    <td className="p-3 text-right">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to="/app/versand/$fulfillmentId" params={{ fulfillmentId: f.id }}>
+                          Öffnen
+                        </Link>
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
 
       <Dialog
@@ -239,7 +284,7 @@ function FulfillmentWorkspace() {
           if (!open) setAllocationOrderId(null);
         }}
       >
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {allocationOrderId ? "Positionen zuweisen" : "Offene Bestellung wählen"}
@@ -250,7 +295,7 @@ function FulfillmentWorkspace() {
             openOrders.isLoading ? (
               <Skeleton className="h-40 w-full" />
             ) : !openOrders.data?.length ? (
-              <p className="text-muted-foreground text-sm">Keine offenen Bestellungen.</p>
+              <EmptyState title="Keine offenen Bestellungen" />
             ) : (
               <div className="max-h-96 space-y-2 overflow-y-auto">
                 {openOrders.data.map((o) => (
@@ -258,10 +303,10 @@ function FulfillmentWorkspace() {
                     key={o.id}
                     type="button"
                     onClick={() => setAllocationOrderId(o.id)}
-                    className="hover:bg-muted flex w-full items-center justify-between rounded-md border p-3 text-left text-sm"
+                    className="flex min-h-11 w-full items-center justify-between gap-2 rounded-md border border-border p-3 text-left text-sm hover:bg-muted"
                   >
-                    <span className="font-medium">{o.orderNumber}</span>
-                    <span className="text-muted-foreground">{o.email ?? "—"}</span>
+                    <span className="min-w-0 truncate font-medium">{o.orderNumber}</span>
+                    <span className="shrink-0 text-muted-foreground">{o.email ?? "—"}</span>
                   </button>
                 ))}
               </div>
@@ -270,7 +315,7 @@ function FulfillmentWorkspace() {
             <Skeleton className="h-40 w-full" />
           ) : (
             <div className="space-y-4">
-              <div className="rounded-md border">
+              <TableScroll>
                 <table className="w-full text-sm">
                   <thead className="bg-muted/50 text-left">
                     <tr>
@@ -285,14 +330,14 @@ function FulfillmentWorkspace() {
                         (o) => o.locationId === l.suggestedLocationId,
                       );
                       return (
-                        <tr key={l.orderItemId} className="border-t">
-                          <td className="p-2">
+                        <tr key={l.orderItemId} className="border-t border-border">
+                          <td className="p-2 break-words">
                             {l.title}
                             {l.variantTitle ? (
                               <span className="text-muted-foreground"> · {l.variantTitle}</span>
                             ) : null}
                           </td>
-                          <td className="p-2">
+                          <td className="p-2 tabular-nums">
                             {l.openQuantity} / {l.orderedQuantity}
                           </td>
                           <td className="p-2">
@@ -305,12 +350,12 @@ function FulfillmentWorkspace() {
                     })}
                   </tbody>
                 </table>
-              </div>
+              </TableScroll>
 
               <div className="grid gap-2">
                 <Label>Lagerort</Label>
                 <Select value={locationId} onValueChange={setLocationId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11">
                     <SelectValue placeholder="Vorschlag übernehmen" />
                   </SelectTrigger>
                   <SelectContent>
@@ -321,17 +366,21 @@ function FulfillmentWorkspace() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-xs text-muted-foreground">
                   Der Vorschlag basiert auf Verfügbarkeit und Priorität und wird nie automatisch
                   ausgeführt.
                 </p>
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setAllocationOrderId(null)}>
+                <Button variant="outline" className="h-11" onClick={() => setAllocationOrderId(null)}>
                   Zurück
                 </Button>
-                <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
+                <Button
+                  className="h-11"
+                  onClick={() => createMutation.mutate()}
+                  disabled={createMutation.isPending}
+                >
                   Fulfillment anlegen
                 </Button>
               </div>

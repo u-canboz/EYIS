@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   getFulfillment,
   startPickingFn,
@@ -41,6 +42,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { TableScroll } from "@/components/data/TableScroll";
 
 export const Route = createFileRoute("/_authenticated/app/versand/$fulfillmentId")({
   head: () => ({
@@ -235,105 +239,120 @@ function FulfillmentDetail() {
     }
   };
 
-  if (detail.isLoading || !view) return <Skeleton className="h-96 w-full" />;
+  if (detail.isLoading || !view)
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    );
 
   const showPicking = view.status === "picking";
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-muted-foreground text-sm">
-            <Link to="/app/versand" className="hover:underline">
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <>
+            <Link
+              to="/app/versand"
+              className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+            >
+              <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
               Versand
-            </Link>{" "}
-            /{" "}
+            </Link>
+            <span>/</span>
             <Link
               to="/app/bestellungen/$orderId"
               params={{ orderId: view.orderId }}
-              className="hover:underline"
+              className="min-h-11 truncate hover:text-foreground hover:underline"
             >
               {view.orderNumber}
             </Link>
-          </p>
-          <h1 className="text-2xl font-semibold tracking-tight">Fulfillment {view.orderNumber}</h1>
-          <p className="text-muted-foreground text-sm">
-            {FULFILLMENT_STATE_LABELS[view.status]}
-            {view.locationName ? ` · ${view.locationName}` : ""}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {next && next.action !== "done" && (
-            <Badge variant="secondary">Nächster Schritt: {next.label}</Badge>
-          )}
-          {can("fulfillment.manage") &&
-            view.status !== "cancelled" &&
-            view.status !== "shipped" && (
-              <Button variant="ghost" onClick={() => cancelMutation.mutate()}>
-                Stornieren
-              </Button>
+          </>
+        }
+        title={`Fulfillment ${view.orderNumber}`}
+        description={`${FULFILLMENT_STATE_LABELS[view.status]}${view.locationName ? ` · ${view.locationName}` : ""}`}
+        actions={
+          <>
+            {next && next.action !== "done" && (
+              <Badge variant="secondary">Nächster Schritt: {next.label}</Badge>
             )}
-        </div>
-      </header>
+            {can("fulfillment.manage") &&
+              view.status !== "cancelled" &&
+              view.status !== "shipped" && (
+                <Button variant="ghost" className="h-11" onClick={() => cancelMutation.mutate()}>
+                  Stornieren
+                </Button>
+              )}
+          </>
+        }
+      />
 
-      <section className="space-y-3 rounded-lg border p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-medium">Pickliste</h2>
-          {can("fulfillment.pick") && (view.status === "ready" || view.status === "draft") && (
+      <Panel
+        title="Pickliste"
+        actions={
+          can("fulfillment.pick") && (view.status === "ready" || view.status === "draft") ? (
             <Button
               size="sm"
+              className="h-9"
               onClick={() => startMutation.mutate()}
               disabled={startMutation.isPending}
             >
               Kommissionierung starten
             </Button>
-          )}
-        </div>
-        <div className="overflow-x-auto">
+          ) : undefined
+        }
+        bodyClassName="space-y-3 p-0"
+      >
+        <TableScroll className="border-0">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-2 font-medium">Artikel</th>
-                <th className="p-2 font-medium">SKU</th>
-                <th className="p-2 font-medium">Menge</th>
-                <th className="p-2 font-medium">Gepickt</th>
-                <th className="p-2 font-medium">Gepackt</th>
-                <th className="p-2 font-medium">Versendet</th>
+                <th className="p-3 font-medium">Artikel</th>
+                <th className="p-3 font-medium">SKU</th>
+                <th className="p-3 font-medium">Menge</th>
+                <th className="p-3 font-medium">Gepickt</th>
+                <th className="p-3 font-medium">Gepackt</th>
+                <th className="p-3 font-medium">Versendet</th>
               </tr>
             </thead>
             <tbody>
               {view.items.map((i: FulfillmentItemView) => (
-                <tr key={i.id} className="border-t">
-                  <td className="p-2">
+                <tr key={i.id} className="border-t border-border">
+                  <td className="p-3 break-words">
                     {i.title}
                     {i.variantTitle ? (
                       <span className="text-muted-foreground"> · {i.variantTitle}</span>
                     ) : null}
                   </td>
-                  <td className="text-muted-foreground p-2 font-mono text-xs">{i.sku ?? "—"}</td>
-                  <td className="p-2">{i.quantity}</td>
-                  <td className="p-2">
+                  <td className="p-3 font-mono text-xs break-words text-muted-foreground">
+                    {i.sku ?? "—"}
+                  </td>
+                  <td className="p-3 tabular-nums">{i.quantity}</td>
+                  <td className="p-3">
                     {showPicking && can("fulfillment.pick") ? (
                       <Input
-                        className="h-8 w-20"
+                        className="h-9 w-20"
                         value={picked[i.id] ?? String(i.pickedQuantity || i.quantity)}
                         onChange={(e) => setPicked({ ...picked, [i.id]: e.target.value })}
                       />
                     ) : (
-                      i.pickedQuantity
+                      <span className="tabular-nums">{i.pickedQuantity}</span>
                     )}
                   </td>
-                  <td className="p-2">{i.packedQuantity}</td>
-                  <td className="p-2">{i.shippedQuantity}</td>
+                  <td className="p-3 tabular-nums">{i.packedQuantity}</td>
+                  <td className="p-3 tabular-nums">{i.shippedQuantity}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         {showPicking && can("fulfillment.pick") && (
-          <div className="flex justify-end">
+          <div className="flex justify-end p-4 pt-0">
             <Button
               size="sm"
+              className="h-9"
               onClick={() => pickMutation.mutate()}
               disabled={pickMutation.isPending}
             >
@@ -341,16 +360,15 @@ function FulfillmentDetail() {
             </Button>
           </div>
         )}
-      </section>
+      </Panel>
 
       {can("fulfillment.pack") && showPicking && (
-        <section className="space-y-3 rounded-lg border p-4">
-          <h2 className="font-medium">Verpacken</h2>
+        <Panel title="Verpacken">
           <div className="flex flex-wrap items-end gap-3">
             <div className="grid gap-2">
               <Label>Gewicht (g)</Label>
               <Input
-                className="w-40"
+                className="h-11 w-40"
                 value={packWeight}
                 onChange={(e) => setPackWeight(e.target.value)}
               />
@@ -363,7 +381,7 @@ function FulfillmentDetail() {
                     setPackWeight(String(presets.data?.find((p) => p.id === id)?.weightGrams ?? ""))
                   }
                 >
-                  <SelectTrigger className="w-56">
+                  <SelectTrigger className="h-11 w-56">
                     <SelectValue placeholder="Preset wählen" />
                   </SelectTrigger>
                   <SelectContent>
@@ -376,19 +394,19 @@ function FulfillmentDetail() {
                 </Select>
               </div>
             ) : null}
-            <Button onClick={() => packMutation.mutate()} disabled={packMutation.isPending}>
+            <Button className="h-11" onClick={() => packMutation.mutate()} disabled={packMutation.isPending}>
               Alle gepickten Positionen verpacken
             </Button>
           </div>
-        </section>
+        </Panel>
       )}
 
-      <section className="space-y-3 rounded-lg border p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-medium">Pakete & Sendungen</h2>
-          {can("shipping.create_label") && (
+      <Panel
+        title="Pakete & Sendungen"
+        actions={
+          can("shipping.create_label") ? (
             <Select value={provider} onValueChange={setProvider}>
-              <SelectTrigger className="w-56">
+              <SelectTrigger className="h-9 w-56">
                 <SelectValue placeholder="Versanddienstleister" />
               </SelectTrigger>
               <SelectContent>
@@ -400,19 +418,19 @@ function FulfillmentDetail() {
                 ))}
               </SelectContent>
             </Select>
-          )}
-        </div>
-
+          ) : undefined
+        }
+      >
         {!view.packages.length ? (
-          <p className="text-muted-foreground text-sm">Noch keine Pakete gepackt.</p>
+          <p className="text-sm text-muted-foreground">Noch keine Pakete gepackt.</p>
         ) : (
-          <div className="space-y-3">
+          <div className="min-w-0 space-y-3">
             {view.packages.map((p) => (
-              <div key={p.id} className="rounded-md border p-3">
+              <div key={p.id} className="min-w-0 rounded-md border border-border p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium">Paket {p.packageNumber}</p>
-                    <p className="text-muted-foreground text-xs">
+                    <p className="text-xs text-muted-foreground">
                       {p.items.reduce((s, i) => s + i.quantity, 0)} Positionen
                       {p.weightGrams ? ` · ${p.weightGrams} g` : ""}
                     </p>
@@ -425,7 +443,7 @@ function FulfillmentDetail() {
                         >
                           {SHIPMENT_STATUS_LABELS[p.shipment.status]}
                         </Badge>
-                        <span className="text-muted-foreground font-mono text-xs">
+                        <span className="font-mono text-xs break-words text-muted-foreground">
                           {p.shipment.trackingNumber ?? "—"}
                         </span>
                         {p.shipment.labelPath && (
@@ -483,35 +501,35 @@ function FulfillmentDetail() {
                 </div>
 
                 {p.shipment?.lastError && (
-                  <p className="text-destructive mt-2 text-xs">
+                  <p className="mt-2 text-xs break-words text-destructive">
                     {p.shipment.lastError.code}: {p.shipment.lastError.message}
                   </p>
                 )}
                 {p.shipment?.carrierCostMinor !== null && p.shipment?.currencyCode && (
-                  <p className="text-muted-foreground mt-2 text-xs">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     Versandkosten Carrier:{" "}
                     {formatMoney(p.shipment.carrierCostMinor!, p.shipment.currencyCode)}
                   </p>
                 )}
 
                 {openEvents === p.shipment?.id && (
-                  <div className="mt-3 border-t pt-3">
+                  <div className="mt-3 border-t border-border pt-3">
                     {events.isLoading ? (
                       <Skeleton className="h-16 w-full" />
                     ) : !events.data?.length ? (
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-xs text-muted-foreground">
                         Noch keine Tracking-Ereignisse.
                       </p>
                     ) : (
                       <ul className="space-y-2 text-xs">
                         {events.data.map((e) => (
-                          <li key={e.id} className="flex justify-between gap-4">
-                            <span>
+                          <li key={e.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                            <span className="min-w-0 break-words">
                               <strong>{TRACKING_STATUS_LABELS[e.normalizedStatus]}</strong>
                               {e.description ? ` — ${e.description}` : ""}
                               {e.location ? ` (${e.location})` : ""}
                             </span>
-                            <span className="text-muted-foreground whitespace-nowrap">
+                            <span className="shrink-0 text-muted-foreground tabular-nums">
                               {new Date(e.occurredAt).toLocaleString("de-DE")}
                             </span>
                           </li>
@@ -524,7 +542,7 @@ function FulfillmentDetail() {
             ))}
           </div>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }

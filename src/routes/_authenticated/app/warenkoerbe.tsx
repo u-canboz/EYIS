@@ -23,6 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { FilterBar } from "@/components/data/FilterBar";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/warenkoerbe")({
   head: () => ({
@@ -90,119 +95,168 @@ function CartsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Warenkörbe & Checkouts</h1>
-          <p className="text-muted-foreground text-sm">
-            Jeder Warenkorb hat unveränderbare, versionierte Preis-Snapshots inklusive
-            Engine-Version.
-          </p>
-        </div>
-        {can("checkout.manage") && (
-          <Button
-            variant="outline"
-            onClick={() => expireMutation.mutate()}
-            disabled={expireMutation.isPending}
-          >
-            Abgelaufene Sitzungen aufräumen
-          </Button>
-        )}
-      </header>
+  const activeFilters = status !== "all" ? 1 : 0;
 
-      <div className="flex flex-wrap gap-3">
-        <Input
-          placeholder="E-Mail suchen"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
-        />
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Status</SelectItem>
-            {Object.entries(STATUS_LABEL).map(([k, v]) => (
-              <SelectItem key={k} value={k}>
-                {v}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+  return (
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Warenkörbe & Checkouts"
+        description="Jeder Warenkorb hat unveränderbare, versionierte Preis-Snapshots inklusive Engine-Version."
+        actions={
+          can("checkout.manage") && (
+            <Button
+              variant="outline"
+              className="h-11"
+              onClick={() => expireMutation.mutate()}
+              disabled={expireMutation.isPending}
+            >
+              Abgelaufene Sitzungen aufräumen
+            </Button>
+          )
+        }
+      />
+
+      <FilterBar
+        activeCount={activeFilters}
+        onReset={() => setStatus("all")}
+        search={
+          <Input
+            className="h-11 w-full"
+            placeholder="E-Mail suchen"
+            aria-label="Warenkörbe suchen"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        }
+        filters={
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="h-11 w-full md:w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle Status</SelectItem>
+              {Object.entries(STATUS_LABEL).map(([k, v]) => (
+                <SelectItem key={k} value={k}>
+                  {v}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
 
       {carts.isLoading ? (
-        <Skeleton className="h-40 w-full" />
+        <ListSkeleton />
+      ) : carts.error ? (
+        <ErrorState description={(carts.error as Error).message} />
       ) : !carts.data?.length ? (
-        <p className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
-          Noch keine Warenkörbe. Über die Test-Storefront kannst du einen anlegen.
-        </p>
+        <EmptyState
+          title="Keine Warenkörbe"
+          description="Über die Test-Storefront kannst du einen anlegen."
+        />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="p-3 font-medium">Warenkorb</th>
-                <th className="p-3 font-medium">Status</th>
-                <th className="p-3 font-medium">E-Mail</th>
-                <th className="p-3 font-medium">Positionen</th>
-                <th className="p-3 font-medium">Summe</th>
-                <th className="p-3 font-medium">Aktualisiert</th>
-                <th className="p-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {carts.data.map((c) => (
-                <tr key={c.id} className="border-t">
-                  <td className="p-3 font-mono text-xs">{c.id.slice(0, 8)}…</td>
-                  <td className="p-3">
+        <>
+          <RecordCardList>
+            {carts.data.map((c) => (
+              <RecordCard
+                key={c.id}
+                interactive
+                title={c.email ?? "Gast"}
+                subtitle={`${c.id.slice(0, 8)}…`}
+                trailing={formatMoney(c.totalMinor, c.currencyCode)}
+                badges={
+                  <>
                     <Badge variant={c.status === "active" ? "default" : "secondary"}>
                       {STATUS_LABEL[c.status] ?? c.status}
                     </Badge>
-                    {c.hasOpenCheckout && (
-                      <Badge variant="outline" className="ml-2">
-                        Checkout offen
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="p-3">{c.email ?? "—"}</td>
-                  <td className="p-3">{c.itemCount}</td>
-                  <td className="p-3">{formatMoney(c.totalMinor, c.currencyCode)}</td>
-                  <td className="text-muted-foreground p-3 text-xs">
-                    {new Date(c.updatedAt).toLocaleString("de-DE")}
-                  </td>
-                  <td className="p-3 text-right">
-                    <Button variant="outline" size="sm" onClick={() => setOpenCart(c.id)}>
-                      Details
-                    </Button>
-                  </td>
+                    {c.hasOpenCheckout && <Badge variant="outline">Checkout offen</Badge>}
+                  </>
+                }
+                fields={[
+                  { label: "Positionen", value: c.itemCount },
+                  {
+                    label: "Aktualisiert",
+                    value: new Date(c.updatedAt).toLocaleString("de-DE"),
+                  },
+                ]}
+                actions={
+                  <Button variant="outline" size="sm" className="h-9" onClick={() => setOpenCart(c.id)}>
+                    Details
+                  </Button>
+                }
+              />
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Warenkorb</th>
+                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3 font-medium">E-Mail</th>
+                  <th className="p-3 font-medium">Positionen</th>
+                  <th className="p-3 font-medium">Summe</th>
+                  <th className="p-3 font-medium">Aktualisiert</th>
+                  <th className="p-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {carts.data.map((c) => (
+                  <tr key={c.id} className="border-t border-border">
+                    <td className="p-3 font-mono text-xs break-words">{c.id.slice(0, 8)}…</td>
+                    <td className="p-3">
+                      <Badge variant={c.status === "active" ? "default" : "secondary"}>
+                        {STATUS_LABEL[c.status] ?? c.status}
+                      </Badge>
+                      {c.hasOpenCheckout && (
+                        <Badge variant="outline" className="ml-2">
+                          Checkout offen
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="max-w-[16rem] truncate p-3">{c.email ?? "—"}</td>
+                    <td className="p-3 tabular-nums">{c.itemCount}</td>
+                    <td className="p-3 tabular-nums">{formatMoney(c.totalMinor, c.currencyCode)}</td>
+                    <td className="p-3 text-xs whitespace-nowrap tabular-nums text-muted-foreground">
+                      {new Date(c.updatedAt).toLocaleString("de-DE")}
+                    </td>
+                    <td className="p-3 text-right">
+                      <Button variant="outline" size="sm" onClick={() => setOpenCart(c.id)}>
+                        Details
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
 
       <Dialog open={!!openCart} onOpenChange={(open) => !open && setOpenCart(null)}>
-        <DialogContent className="max-h-[80vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-h-[85dvh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Warenkorb-Details</DialogTitle>
           </DialogHeader>
           {cartDetail.isLoading ? (
             <Skeleton className="h-60 w-full" />
           ) : cartDetail.data ? (
-            <div className="space-y-6 text-sm">
-              <section>
+            <div className="min-w-0 space-y-6 text-sm">
+              <section className="min-w-0">
                 <h3 className="mb-2 font-medium">Positionen</h3>
-                <ul className="space-y-1">
+                <ul className="min-w-0 space-y-1">
                   {(cartDetail.data.items as Record<string, unknown>[]).map((i) => (
-                    <li key={i["id"] as string} className="flex justify-between">
-                      <span>
+                    <li
+                      key={i["id"] as string}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2"
+                    >
+                      <span className="min-w-0 break-words">
                         {i["title_snapshot"] as string} · {i["variant_title_snapshot"] as string}
                       </span>
-                      <span className="text-muted-foreground">× {i["quantity"] as number}</span>
+                      <span className="shrink-0 tabular-nums text-muted-foreground">
+                        × {i["quantity"] as number}
+                      </span>
                     </li>
                   ))}
                   {!(cartDetail.data.items as unknown[]).length && (
@@ -211,9 +265,9 @@ function CartsPage() {
                 </ul>
               </section>
 
-              <section>
+              <section className="min-w-0">
                 <h3 className="mb-2 font-medium">Preis-Snapshots (unveränderbar)</h3>
-                <div className="overflow-x-auto rounded border">
+                <TableScroll>
                   <table className="w-full text-xs">
                     <thead className="bg-muted/50 text-left">
                       <tr>
@@ -228,32 +282,43 @@ function CartsPage() {
                     </thead>
                     <tbody>
                       {(cartDetail.data.snapshots as Record<string, unknown>[]).map((s) => (
-                        <tr key={s["id"] as string} className="border-t">
-                          <td className="p-2">v{s["version"] as number}</td>
-                          <td className="p-2">{formatMoney(Number(s["subtotal_minor"]))}</td>
-                          <td className="p-2">−{formatMoney(Number(s["discount_minor"]))}</td>
-                          <td className="p-2">{formatMoney(Number(s["shipping_minor"]))}</td>
-                          <td className="p-2">{formatMoney(Number(s["tax_minor"]))}</td>
-                          <td className="p-2 font-medium">
+                        <tr key={s["id"] as string} className="border-t border-border">
+                          <td className="p-2 tabular-nums">v{s["version"] as number}</td>
+                          <td className="p-2 tabular-nums">
+                            {formatMoney(Number(s["subtotal_minor"]))}
+                          </td>
+                          <td className="p-2 tabular-nums">
+                            −{formatMoney(Number(s["discount_minor"]))}
+                          </td>
+                          <td className="p-2 tabular-nums">
+                            {formatMoney(Number(s["shipping_minor"]))}
+                          </td>
+                          <td className="p-2 tabular-nums">{formatMoney(Number(s["tax_minor"]))}</td>
+                          <td className="p-2 font-medium tabular-nums">
                             {formatMoney(Number(s["total_minor"]))}
                           </td>
-                          <td className="text-muted-foreground p-2">
+                          <td className="p-2 break-words text-muted-foreground">
                             {s["pricing_engine_version"] as string}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </TableScroll>
               </section>
 
-              <section>
+              <section className="min-w-0">
                 <h3 className="mb-2 font-medium">Checkout-Sitzungen</h3>
-                <ul className="space-y-1">
+                <ul className="min-w-0 space-y-1">
                   {(cartDetail.data.sessions as Record<string, unknown>[]).map((s) => (
-                    <li key={s["id"] as string} className="flex justify-between">
-                      <span className="font-mono text-xs">{(s["id"] as string).slice(0, 8)}…</span>
-                      <span>
+                    <li
+                      key={s["id"] as string}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2"
+                    >
+                      <span className="shrink-0 font-mono text-xs break-words">
+                        {(s["id"] as string).slice(0, 8)}…
+                      </span>
+                      <span className="min-w-0 break-words text-right">
                         {s["status"] as string} · gültig bis{" "}
                         {new Date(s["expires_at"] as string).toLocaleString("de-DE")}
                       </span>
@@ -266,9 +331,9 @@ function CartsPage() {
               </section>
 
               {cartDetail.data.codes.length > 0 && (
-                <section>
+                <section className="min-w-0">
                   <h3 className="mb-2 font-medium">Aktionscodes</h3>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {cartDetail.data.codes.map((c) => (
                       <Badge key={c} variant="outline">
                         {c}

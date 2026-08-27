@@ -3,11 +3,11 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   title: string;
-  description?: ReactNode;
+  description?: ReactNode | undefined;
   /** Secondary context line (breadcrumb, id, status chips). */
-  eyebrow?: ReactNode;
-  actions?: ReactNode;
-  className?: string;
+  eyebrow?: ReactNode | undefined;
+  actions?: ReactNode | undefined;
+  className?: string | undefined;
 };
 
 /**
@@ -48,7 +48,7 @@ export function StickyActionBar({
   className,
 }: {
   children: ReactNode;
-  className?: string;
+  className?: string | undefined;
 }) {
   return (
     <div

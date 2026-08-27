@@ -11,11 +11,9 @@ import {
   removeDomain,
 } from "@/lib/commerce/workspace.functions";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -23,6 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/shops")({
   head: () => ({
@@ -76,93 +77,97 @@ function ShopsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (workspace.isLoading) return <Skeleton className="h-96 w-full" />;
+  if (workspace.isLoading) return <ListSkeleton />;
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-3xl font-semibold">Shops</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Jeder Shop gehört genau einer Organisation und ist strikt gegen andere Mandanten isoliert.
-        </p>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Shops"
+        description="Jeder Shop gehört genau einer Organisation und ist strikt gegen andere Mandanten isoliert."
+      />
 
-      {shops.map((shop) => {
-        const merged = { ...shop, ...draft[shop.id] } as typeof shop;
-        const patch = (v: Partial<typeof shop>) =>
-          setDraft((d) => ({ ...d, [shop.id]: { ...d[shop.id], ...v } }));
-        return (
-          <Card key={shop.id}>
-            <CardHeader>
-              <CardTitle className="text-base">{shop.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Name</Label>
-                  <Input
-                    value={merged.name}
-                    disabled={!canManage}
-                    onChange={(e) => patch({ name: e.target.value })}
-                  />
+      {shops.length === 0 ? (
+        <EmptyState title="Keine Shops" description="Für diese Organisation ist noch kein Shop angelegt." />
+      ) : (
+        shops.map((shop) => {
+          const merged = { ...shop, ...draft[shop.id] } as typeof shop;
+          const patch = (v: Partial<typeof shop>) =>
+            setDraft((d) => ({ ...d, [shop.id]: { ...d[shop.id], ...v } }));
+          return (
+            <Panel key={shop.id} title={shop.name}>
+              <div className="min-w-0 space-y-4">
+                <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+                  <div className="min-w-0 space-y-2">
+                    <Label>Name</Label>
+                    <Input
+                      className="h-11"
+                      value={merged.name}
+                      disabled={!canManage}
+                      onChange={(e) => patch({ name: e.target.value })}
+                    />
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <Label>Slug</Label>
+                    <Input
+                      className="h-11"
+                      value={merged.slug}
+                      disabled={!canManage}
+                      onChange={(e) => patch({ slug: e.target.value })}
+                    />
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <Label>Währung</Label>
+                    <Input
+                      className="h-11"
+                      value={merged.currency}
+                      disabled={!canManage}
+                      onChange={(e) => patch({ currency: e.target.value })}
+                    />
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <Label>Sprache</Label>
+                    <Input
+                      className="h-11"
+                      value={merged.locale}
+                      disabled={!canManage}
+                      onChange={(e) => patch({ locale: e.target.value })}
+                    />
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={merged.status}
+                      disabled={!canManage}
+                      onValueChange={(v) => patch({ status: v })}
+                    >
+                      <SelectTrigger className="h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">aktiv</SelectItem>
+                        <SelectItem value="inactive">inaktiv</SelectItem>
+                        <SelectItem value="archived">archiviert</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Slug</Label>
-                  <Input
-                    value={merged.slug}
-                    disabled={!canManage}
-                    onChange={(e) => patch({ slug: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Währung</Label>
-                  <Input
-                    value={merged.currency}
-                    disabled={!canManage}
-                    onChange={(e) => patch({ currency: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Sprache</Label>
-                  <Input
-                    value={merged.locale}
-                    disabled={!canManage}
-                    onChange={(e) => patch({ locale: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select
-                    value={merged.status}
-                    disabled={!canManage}
-                    onValueChange={(v) => patch({ status: v })}
+
+                {canManage && (
+                  <Button
+                    className="h-11"
+                    onClick={() => saveMutation.mutate(merged)}
+                    disabled={saveMutation.isPending}
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">aktiv</SelectItem>
-                      <SelectItem value="inactive">inaktiv</SelectItem>
-                      <SelectItem value="archived">archiviert</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    Speichern
+                  </Button>
+                )}
+
+                <Domains shopId={shop.id} orgId={orgId} canManage={!!canManage} />
               </div>
-
-              {canManage && (
-                <Button
-                  onClick={() => saveMutation.mutate(merged)}
-                  disabled={saveMutation.isPending}
-                >
-                  Speichern
-                </Button>
-              )}
-
-              <Domains shopId={shop.id} orgId={orgId} canManage={!!canManage} />
-            </CardContent>
-          </Card>
-        );
-      })}
+            </Panel>
+          );
+        })
+      )}
     </div>
   );
 }
@@ -217,16 +222,16 @@ function Domains({
   });
 
   return (
-    <div className="rounded-md border p-4">
+    <div className="min-w-0 rounded-md border border-border p-4">
       <p className="text-sm font-medium">Domains</p>
-      <div className="mt-3 space-y-2">
+      <div className="mt-3 min-w-0 space-y-2">
         {(domains.data ?? []).map((d) => (
-          <div key={d.id} className="flex items-center justify-between text-sm">
-            <span>
+          <div key={d.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm">
+            <span className="min-w-0 break-words">
               {d.domain} {d.is_primary && <span className="text-muted-foreground">· primär</span>}
             </span>
             {canManage && (
-              <Button size="sm" variant="ghost" onClick={() => removeMutation.mutate(d.id)}>
+              <Button size="sm" variant="ghost" className="h-9 shrink-0" onClick={() => removeMutation.mutate(d.id)}>
                 Entfernen
               </Button>
             )}
@@ -237,14 +242,16 @@ function Domains({
         )}
       </div>
       {canManage && (
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex min-w-0 flex-wrap gap-2">
           <Input
+            className="h-11 min-w-0 flex-1"
             value={domain}
             placeholder="shop.beispiel.de"
             onChange={(e) => setDomain(e.target.value)}
           />
           <Button
             variant="outline"
+            className="h-11"
             onClick={() => addMutation.mutate()}
             disabled={!domain || addMutation.isPending}
           >

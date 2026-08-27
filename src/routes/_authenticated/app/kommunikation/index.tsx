@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { ChevronRight } from "lucide-react";
 import {
   listCommunicationsFn,
   listTemplatesFn,
@@ -9,7 +10,9 @@ import { STATUS_LABELS } from "@/lib/commerce/communications/communication.types
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/")({
   head: () => ({
@@ -74,68 +77,70 @@ function CommunicationOverview() {
   const failed = (logs.data ?? []).filter((l) => l.status === "failed").length;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Kommunikation</h1>
-        <p className="text-sm text-muted-foreground">
-          Alle transaktionalen Nachrichten laufen über eine Engine: Ereignis, Regel, Vorlage,
-          Branding, Versand und Protokoll.
-        </p>
-      </header>
+    <div className="min-w-0 space-y-6">
+      <PageHeader
+        title="Kommunikation"
+        description="Alle transaktionalen Nachrichten laufen über eine Engine: Ereignis, Regel, Vorlage, Branding, Versand und Protokoll."
+      />
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2">
         {SECTIONS.map((s) => (
-          <Link
-            key={s.to}
-            to={s.to}
-            className="rounded-lg border p-4 transition-colors hover:bg-muted/50"
-          >
-            <p className="font-medium">{s.title}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{s.text}</p>
+          <Link key={s.to} to={s.to} className="min-w-0">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-raised transition-colors hover:border-primary/50 hover:bg-accent/5">
+              <div className="min-w-0">
+                <p className="truncate font-medium">{s.title}</p>
+                <p className="mt-1 text-sm text-pretty text-muted-foreground">{s.text}</p>
+              </div>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            </div>
           </Link>
         ))}
       </div>
 
-      <section className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border p-4">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-3">
+        <div className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-raised">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Vorlagen</p>
-          <p className="mt-1 text-2xl font-semibold">{templates.data?.length ?? "–"}</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums">{templates.data?.length ?? "–"}</p>
         </div>
-        <div className="rounded-lg border p-4">
+        <div className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-raised">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Zuletzt erzeugt</p>
-          <p className="mt-1 text-2xl font-semibold">{logs.data?.length ?? "–"}</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums">{logs.data?.length ?? "–"}</p>
         </div>
-        <div className="rounded-lg border p-4">
+        <div className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-raised">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Fehlgeschlagen</p>
-          <p className="mt-1 text-2xl font-semibold">{failed}</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums">{failed}</p>
         </div>
-      </section>
+      </div>
 
-      <section className="rounded-lg border">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <p className="font-medium">Letzte Nachrichten</p>
+      <Panel
+        title="Letzte Nachrichten"
+        actions={
           <Button asChild variant="ghost" size="sm">
             <Link to="/app/kommunikation/verlauf">Alle ansehen</Link>
           </Button>
-        </div>
+        }
+        bodyClassName="p-0"
+      >
         {logs.isLoading ? (
-          <div className="space-y-2 p-4">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
+          <div className="p-4">
+            <ListSkeleton rows={3} />
           </div>
         ) : !logs.data?.length ? (
-          <p className="p-4 text-sm text-muted-foreground">
-            Noch keine Nachrichten. Sende eine Testmail aus einer Vorlage.
-          </p>
+          <div className="p-4">
+            <EmptyState
+              title="Noch keine Nachrichten"
+              description="Sende eine Testmail aus einer Vorlage."
+            />
+          </div>
         ) : (
-          <ul className="divide-y">
+          <ul className="min-w-0 divide-y divide-border">
             {logs.data.map((l) => (
-              <li key={l.id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <li key={l.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <Link
                     to="/app/kommunikation/verlauf/$communicationId"
                     params={{ communicationId: l.id }}
-                    className="truncate text-sm font-medium hover:underline"
+                    className="block truncate text-sm font-medium hover:underline"
                   >
                     {l.subject || l.templateKey}
                   </Link>
@@ -143,14 +148,14 @@ function CommunicationOverview() {
                     {l.recipient} · {new Date(l.createdAt).toLocaleString("de-DE")}
                   </p>
                 </div>
-                <Badge variant={l.status === "failed" ? "destructive" : "secondary"}>
+                <Badge variant={l.status === "failed" ? "destructive" : "secondary"} className="shrink-0">
                   {STATUS_LABELS[l.status] ?? l.status}
                 </Badge>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }

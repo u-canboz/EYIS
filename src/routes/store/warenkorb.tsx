@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { X } from "lucide-react";
 import { useCart } from "@/lib/store-sdk/react/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  StoreContainer,
+  StoreHeading,
+  StoreNotice,
+  formatPrice,
+} from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store/warenkorb")({
   head: () => ({
@@ -23,63 +30,83 @@ export const Route = createFileRoute("/store/warenkorb")({
   component: StoreCartPage,
 });
 
-const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
-    minor / 100,
-  );
-
 function StoreCartPage() {
   const cart = useCart();
   const [code, setCode] = useState("");
 
-  if (cart.isLoading) return <Skeleton className="h-64 w-full" />;
+  if (cart.isLoading)
+    return (
+      <StoreContainer className="py-8">
+        <Skeleton className="h-64 w-full rounded-2xl" />
+      </StoreContainer>
+    );
+
   const data = cart.data;
 
   if (!data || data.items.length === 0)
     return (
-      <div className="space-y-4">
-        <h1 className="font-display text-2xl font-semibold">Warenkorb</h1>
-        <p className="text-sm text-muted-foreground">Der Warenkorb ist leer.</p>
-        <Button asChild variant="outline">
-          <Link to="/store">Zum Katalog</Link>
-        </Button>
-      </div>
+      <StoreContainer className="py-8 sm:py-12">
+        <StoreHeading title="Warenkorb" />
+        <div className="mt-6">
+          <StoreNotice
+            title="Dein Warenkorb ist leer"
+            description="Sieh dich in der Kollektion um – wir legen alles versandfertig für dich zurück."
+            action={
+              <Button asChild className="mt-2 h-11">
+                <Link to="/store">Zur Kollektion</Link>
+              </Button>
+            }
+          />
+        </div>
+      </StoreContainer>
     );
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-display text-2xl font-semibold">Warenkorb</h1>
+    <StoreContainer className="py-8 sm:py-12">
+      <StoreHeading title="Warenkorb" />
 
-      <ul className="divide-y rounded-lg border">
+      <ul className="mt-7 min-w-0 divide-y divide-border rounded-2xl border border-border">
         {data.items.map((item) => (
-          <li key={item.id} className="flex flex-wrap items-center gap-3 p-4">
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{item.title}</p>
-              <p className="text-xs text-muted-foreground">{item.variantTitle}</p>
+          <li key={item.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 p-4">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-pretty">{item.title}</p>
+              {item.variantTitle ? (
+                <p className="mt-0.5 text-xs text-muted-foreground">{item.variantTitle}</p>
+              ) : null}
+              <div className="mt-3 flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={1}
+                  className="h-11 w-20 tabular-nums"
+                  aria-label={`Menge ${item.title}`}
+                  value={item.quantity}
+                  onChange={(e) =>
+                    cart.updateItem.mutate({
+                      itemId: item.id,
+                      quantity: Number(e.target.value) || 1,
+                    })
+                  }
+                />
+                <Button
+                  variant="ghost"
+                  className="size-11 shrink-0"
+                  aria-label={`${item.title} entfernen`}
+                  onClick={() => cart.removeItem.mutate(item.id)}
+                >
+                  <X className="size-4" aria-hidden />
+                </Button>
+              </div>
             </div>
-            <Input
-              type="number"
-              min={1}
-              className="w-20"
-              aria-label={`Menge ${item.title}`}
-              value={item.quantity}
-              onChange={(e) =>
-                cart.updateItem.mutate({ itemId: item.id, quantity: Number(e.target.value) || 1 })
-              }
-            />
-            <span className="w-24 text-right text-sm">
-              {money(item.lineTotalMinor, data.currencyCode)}
+            <span className="shrink-0 text-sm font-medium tabular-nums">
+              {formatPrice(item.lineTotalMinor, data.currencyCode)}
             </span>
-            <Button variant="ghost" size="sm" onClick={() => cart.removeItem.mutate(item.id)}>
-              Entfernen
-            </Button>
           </li>
         ))}
       </ul>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-col gap-2 sm:flex-row">
         <Input
-          className="max-w-56"
+          className="h-11 sm:max-w-64"
           placeholder="Gutscheincode"
           aria-label="Gutscheincode"
           value={code}
@@ -87,6 +114,7 @@ function StoreCartPage() {
         />
         <Button
           variant="outline"
+          className="h-11"
           disabled={!code.trim() || cart.applyPromotion.isPending}
           onClick={() =>
             cart.applyPromotion.mutate(code.trim(), {
@@ -103,41 +131,47 @@ function StoreCartPage() {
       </div>
 
       {data.promotionCodes.length ? (
-        <div className="flex flex-wrap gap-2 text-sm">
+        <div className="mt-3 flex flex-wrap gap-2">
           {data.promotionCodes.map((c) => (
             <button
               key={c}
-              className="rounded-full border px-3 py-1"
+              type="button"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-sm"
               onClick={() => cart.removePromotion.mutate(c)}
             >
-              {c} ✕
+              <span className="min-w-0 break-words">{c}</span>
+              <X className="size-3.5 shrink-0" aria-hidden />
             </button>
           ))}
         </div>
       ) : null}
 
-      <dl className="space-y-1 rounded-lg border p-4 text-sm">
-        <div className="flex justify-between">
-          <dt>Zwischensumme</dt>
-          <dd>{money(data.totals.subtotalMinor, data.currencyCode)}</dd>
+      <dl className="mt-7 rounded-2xl border border-border p-5 text-sm">
+        <div className="flex justify-between gap-4 py-1">
+          <dt className="text-muted-foreground">Zwischensumme</dt>
+          <dd className="tabular-nums">{formatPrice(data.totals.subtotalMinor, data.currencyCode)}</dd>
         </div>
-        <div className="flex justify-between">
-          <dt>Rabatt</dt>
-          <dd>−{money(data.totals.discountMinor, data.currencyCode)}</dd>
+        <div className="flex justify-between gap-4 py-1">
+          <dt className="text-muted-foreground">Rabatt</dt>
+          <dd className="tabular-nums">
+            −{formatPrice(data.totals.discountMinor, data.currencyCode)}
+          </dd>
         </div>
-        <div className="flex justify-between">
-          <dt>Steuer</dt>
-          <dd>{money(data.totals.taxMinor, data.currencyCode)}</dd>
+        <div className="flex justify-between gap-4 py-1">
+          <dt className="text-muted-foreground">Steuer</dt>
+          <dd className="tabular-nums">{formatPrice(data.totals.taxMinor, data.currencyCode)}</dd>
         </div>
-        <div className="flex justify-between font-medium">
-          <dt>Gesamt</dt>
-          <dd>{money(data.totals.totalMinor, data.currencyCode)}</dd>
+        <div className="mt-2 flex justify-between gap-4 border-t border-border pt-3">
+          <dt className="font-medium">Gesamt</dt>
+          <dd className="text-base font-semibold tabular-nums">
+            {formatPrice(data.totals.totalMinor, data.currencyCode)}
+          </dd>
         </div>
       </dl>
 
-      <Button asChild className="w-full">
+      <Button asChild className="mt-6 h-12 w-full text-base">
         <Link to="/store/checkout">Zur Kasse</Link>
       </Button>
-    </div>
+    </StoreContainer>
   );
 }

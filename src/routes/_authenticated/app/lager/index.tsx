@@ -383,7 +383,7 @@ function InventoryPage() {
                         </div>
                       )}
                     </td>
-                    <td className="text-muted-foreground p-3 break-all">{row.sku ?? "—"}</td>
+                    <td className="text-muted-foreground p-3 break-words">{row.sku ?? "—"}</td>
                     <td className="p-3 text-right tabular-nums">
                       {row.track_inventory ? row.totals.on_hand : "—"}
                     </td>

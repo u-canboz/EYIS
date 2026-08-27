@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useCommerce } from "@/lib/store-sdk/react/provider";
 import { useCustomer, useCustomerOrders, commerceKeys } from "@/lib/store-sdk/react/hooks";
@@ -7,6 +7,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  StoreContainer,
+  StoreHeading,
+  StoreNotice,
+  formatPrice,
+} from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store/konto")({
   head: () => ({
@@ -29,11 +36,6 @@ export const Route = createFileRoute("/store/konto")({
   component: StoreAccountPage,
 });
 
-const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
-    minor / 100,
-  );
-
 function StoreAccountPage() {
   const client = useCommerce();
   const queryClient = useQueryClient();
@@ -45,12 +47,24 @@ function StoreAccountPage() {
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["commerce", "customer"] });
 
+  if (customer.isLoading)
+    return (
+      <StoreContainer className="py-8 sm:py-12">
+        <StoreHeading title="Konto" />
+        <div className="mt-7 space-y-3">
+          <Skeleton className="h-11 w-full rounded-lg" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+          <Skeleton className="h-12 w-full rounded-lg" />
+        </div>
+      </StoreContainer>
+    );
+
   if (!customer.data) {
     return (
-      <div className="mx-auto max-w-sm space-y-4">
-        <h1 className="font-display text-2xl font-semibold">Anmelden</h1>
+      <StoreContainer className="py-8 sm:py-12">
+        <StoreHeading eyebrow="Konto" title="Anmelden" />
         <form
-          className="space-y-3"
+          className="mt-7 min-w-0 space-y-4"
           onSubmit={async (event) => {
             event.preventDefault();
             setBusy(true);
@@ -65,33 +79,35 @@ function StoreAccountPage() {
             }
           }}
         >
-          <div>
+          <div className="min-w-0">
             <Label htmlFor="email">E-Mail</Label>
             <Input
               id="email"
               type="email"
+              className="mt-1.5 h-11"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <Label htmlFor="password">Passwort</Label>
             <Input
               id="password"
               type="password"
+              className="mt-1.5 h-11"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          <Button type="submit" className="w-full" disabled={busy}>
+          <Button type="submit" className="h-12 w-full text-base" disabled={busy}>
             Anmelden
           </Button>
         </form>
         <Button
           variant="ghost"
-          className="w-full"
+          className="mt-2 h-11 w-full"
           disabled={!email || busy}
           onClick={async () => {
             await client.customer.requestPasswordReset(email);
@@ -100,17 +116,17 @@ function StoreAccountPage() {
         >
           Passwort vergessen
         </Button>
-      </div>
+      </StoreContainer>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold">Meine Bestellungen</h1>
+    <StoreContainer className="py-8 sm:py-12">
+      <div className="flex min-w-0 items-start justify-between gap-4">
+        <StoreHeading title="Meine Bestellungen" />
         <Button
           variant="outline"
-          size="sm"
+          className="h-11 shrink-0"
           onClick={async () => {
             client.customer.logout();
             queryClient.setQueryData(commerceKeys.customer, null);
@@ -121,23 +137,51 @@ function StoreAccountPage() {
         </Button>
       </div>
 
-      {(orders.data ?? []).length === 0 ? (
-        <p className="text-sm text-muted-foreground">Noch keine Bestellungen.</p>
+      {orders.isLoading ? (
+        <div className="mt-7 space-y-3">
+          <Skeleton className="h-16 w-full rounded-2xl" />
+          <Skeleton className="h-16 w-full rounded-2xl" />
+        </div>
+      ) : orders.error ? (
+        <div className="mt-7">
+          <StoreNotice
+            tone="error"
+            title="Bestellungen konnten nicht geladen werden"
+            description={(orders.error as Error).message}
+          />
+        </div>
+      ) : (orders.data ?? []).length === 0 ? (
+        <div className="mt-7">
+          <StoreNotice
+            title="Noch keine Bestellungen"
+            description="Sobald du eine Bestellung aufgibst, erscheint sie hier."
+            action={
+              <Button asChild className="mt-2 h-11">
+                <Link to="/store">Zur Kollektion</Link>
+              </Button>
+            }
+          />
+        </div>
       ) : (
-        <ul className="divide-y rounded-lg border">
+        <ul className="mt-7 min-w-0 divide-y divide-border rounded-2xl border border-border">
           {(orders.data ?? []).map((order) => (
-            <li key={order.id} className="flex items-center justify-between gap-3 p-4 text-sm">
-              <div>
-                <p className="font-medium">{order.orderNumber}</p>
-                <p className="text-xs text-muted-foreground">
+            <li
+              key={order.id}
+              className="flex min-w-0 items-center justify-between gap-3 p-4 text-sm"
+            >
+              <div className="min-w-0">
+                <p className="min-w-0 font-medium break-words">{order.orderNumber}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {new Date(order.placedAt).toLocaleDateString("de-DE")} · {order.paymentStatus}
                 </p>
               </div>
-              <span>{money(order.totalMinor, order.currencyCode)}</span>
+              <span className="shrink-0 tabular-nums">
+                {formatPrice(order.totalMinor, order.currencyCode)}
+              </span>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </StoreContainer>
   );
 }
