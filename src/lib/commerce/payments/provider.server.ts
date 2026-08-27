@@ -68,3 +68,58 @@ export async function getProvider(id: string): Promise<PaymentProvider> {
   if (id === "mock") return (await import("./mock.server")).mockProvider;
   throw new Error(`Unbekannter Zahlungsanbieter: ${id}`);
 }
+
+/**
+ * Shop-gebundener Anbieter: verwendet die im verschlüsselten Tresor
+ * hinterlegten Zugangsdaten dieses Shops. Nur wenn dort nichts liegt, greift
+ * der plattformweite Rückfall aus getProvider().
+ */
+export async function getProviderForShop(
+  organizationId: string,
+  shopId: string,
+  id: string,
+  environment: CommerceEnvironment,
+): Promise<PaymentProvider> {
+  if (id === "stripe") {
+    const { loadCredentials } = await import("../integrations/credentials.server");
+    const creds = await loadCredentials({
+      organizationId,
+      shopId,
+      category: "payment",
+      provider: "stripe",
+      environment,
+    });
+    if (creds?.["secretKey"]) {
+      const { createStripeProvider } = await import("./stripe.server");
+      return createStripeProvider({
+        secretKey: creds["secretKey"],
+        webhookSecret: creds["webhookSecret"] ?? null,
+      });
+    }
+  }
+  return getProvider(id);
+}
+
+/** Anbieter für eine Bestellung (Erstattungen): Shop und Umgebung aus der Order. */
+export async function getProviderForOrder(
+  organizationId: string,
+  orderId: string,
+  id: string,
+): Promise<PaymentProvider> {
+  const { getAdmin } = await import("../core.server");
+  const admin = await getAdmin();
+  const { data } = await admin
+    .from("orders")
+    .select("shop_id, environment")
+    .eq("id", orderId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  const row = data as { shop_id?: string; environment?: string } | null;
+  if (!row?.shop_id) return getProvider(id);
+  return getProviderForShop(
+    organizationId,
+    row.shop_id,
+    id,
+    row.environment === "live" ? "live" : "test",
+  );
+}

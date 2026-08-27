@@ -227,6 +227,81 @@ async function probeAdapter(entry: IntegrationCatalogEntry): Promise<void> {
   getProvider(engineId);
 }
 
+/**
+ * Echter Anbieter-Aufruf mit den hinterlegten Zugangsdaten des Shops.
+ * Gibt eine kurze, secret-freie Zusammenfassung zurück.
+ */
+async function liveProbe(
+  entry: IntegrationCatalogEntry,
+  organizationId: string,
+  shopId: string,
+): Promise<{ message: string; reference: string | null } | null> {
+  const { loadCredentials, referenceFor } = await import("./credentials.server");
+
+  if (entry.category === "payment" && entry.id === "stripe") {
+    for (const environment of ["test", "live"] as const) {
+      const creds = await loadCredentials({
+        organizationId,
+        shopId,
+        category: "payment",
+        provider: "stripe",
+        environment,
+      });
+      if (!creds?.["secretKey"]) continue;
+      const { verifyStripeKey } = await import("../payments/stripe.server");
+      const account = await verifyStripeKey(creds["secretKey"]);
+      if (!account.chargesEnabled)
+        throw Object.assign(
+          new Error(
+            "Stripe-Konto erreichbar, aber für dieses Konto sind noch keine Zahlungen freigeschaltet.",
+          ),
+          { code: "charges_disabled" },
+        );
+      return {
+        message: `Stripe-Konto ${account.accountId} erreichbar (${environment === "live" ? "Live" : "Test"}, ${account.country ?? "?"}).`,
+        reference: referenceFor({
+          organizationId,
+          shopId,
+          category: "payment",
+          provider: "stripe",
+          environment,
+        }),
+      };
+    }
+    throw Object.assign(new Error("Für Stripe ist noch kein API-Schlüssel hinterlegt."), {
+      code: "not_connected",
+    });
+  }
+
+  if (entry.category === "email" && entry.id === "resend") {
+    const creds = await loadCredentials({
+      organizationId,
+      shopId,
+      category: "email",
+      provider: "resend",
+      environment: "live",
+    });
+    if (!creds?.["apiKey"])
+      throw Object.assign(new Error("Für Resend ist noch kein API-Schlüssel hinterlegt."), {
+        code: "not_connected",
+      });
+    const { resendVerifyKey } = await import("../communications/providers/resend.server");
+    const info = await resendVerifyKey(creds["apiKey"]);
+    return {
+      message: `Resend erreichbar. Domains: ${info.domainCount}, davon verifiziert: ${info.verifiedDomains.length}.`,
+      reference: referenceFor({
+        organizationId,
+        shopId,
+        category: "email",
+        provider: "resend",
+        environment: "live",
+      }),
+    };
+  }
+
+  return null;
+}
+
 export async function testConnection(input: {
   organizationId: string;
   shopId: string;
@@ -245,8 +320,16 @@ export async function testConnection(input: {
   let health: HealthStatus = "healthy";
   let errorCode: string | null = null;
   let message = "Verbindung erfolgreich geprüft.";
+  let reference: string | null = null;
   try {
     await probeAdapter(entry);
+    const live = await liveProbe(entry, input.organizationId, input.shopId);
+    if (live) {
+      message = live.message;
+      reference = live.reference;
+    } else {
+      message = "Adapter verfügbar. Dieser Anbieter kennt keine externe Kontoprüfung.";
+    }
   } catch (e) {
     health = "error";
     errorCode = (e as { code?: string }).code ?? "unknown";
@@ -264,7 +347,7 @@ export async function testConnection(input: {
         provider: entry.id,
         status: health === "healthy" ? "connected" : "error",
         environment: entry.testOnly ? "test" : "test",
-        configuration_reference: null,
+        configuration_reference: reference,
       } as never,
       { onConflict: "shop_id,category,provider,environment" },
     )
@@ -350,6 +433,14 @@ export async function disconnectIntegration(input: {
       { onConflict: "shop_id,category,provider,environment" },
     );
 
+  const { revokeCredentials } = await import("./credentials.server");
+  await revokeCredentials({
+    organizationId: input.organizationId,
+    shopId: input.shopId,
+    category: input.category,
+    provider: engineId,
+  });
+
   await writeAudit({
     organizationId: input.organizationId,
     actorId: input.actorId,
@@ -393,6 +484,25 @@ export async function listSenderDomains(
 
 const DOMAIN_RE = /^(?=.{1,253}$)([a-z0-9](-?[a-z0-9])*\.)+[a-z]{2,}$/i;
 
+async function resendKey(organizationId: string, shopId: string): Promise<string | null> {
+  const { loadCredentials } = await import("./credentials.server");
+  const creds = await loadCredentials({
+    organizationId,
+    shopId,
+    category: "email",
+    provider: "resend",
+    environment: "live",
+  });
+  return creds?.["apiKey"] ?? null;
+}
+
+function mapResendStatus(status: string): SenderDomainView["status"] {
+  if (status === "verified") return "verified";
+  if (status === "failed") return "error";
+  if (status === "pending" || status === "temporary_failure") return "verifying";
+  return "dns_required";
+}
+
 export async function addSenderDomain(input: {
   organizationId: string;
   shopId: string;
@@ -402,9 +512,28 @@ export async function addSenderDomain(input: {
   const domain = input.domain.trim().toLowerCase();
   if (!DOMAIN_RE.test(domain)) throw new Error("Ungültiger Domainname.");
   const admin = await getAdmin();
-  // DNS-Werte werden niemals erfunden: Der verwaltete Anbieter verwaltet die
-  // DNS-Zone plattformseitig; provider-seitige Werte kommen aus der jeweiligen
-  // Provider-Konfiguration, sobald ein solcher Provider angebunden ist.
+
+  // DNS-Werte werden niemals erfunden: sie kommen ausschließlich vom
+  // verbundenen Anbieter. Ohne verbundenen Anbieter bleibt die Domain
+  // ohne Einträge und kann nicht verifiziert werden.
+  let dnsRecords: SenderDomainView["dnsRecords"] = [];
+  let status: SenderDomainView["status"] = "dns_required";
+  let provider: string | null = null;
+  let providerReference: string | null = null;
+
+  const apiKey = await resendKey(input.organizationId, input.shopId);
+  if (apiKey) {
+    const { resendCreateDomain, resendFindDomain } = await import(
+      "../communications/providers/resend.server"
+    );
+    const existing = await resendFindDomain(apiKey, domain);
+    const created = existing ?? (await resendCreateDomain(apiKey, domain));
+    dnsRecords = created.records;
+    status = mapResendStatus(created.status);
+    provider = "resend";
+    providerReference = created.id;
+  }
+
   const { data, error } = await admin
     .from("sender_domains")
     .upsert(
@@ -412,8 +541,11 @@ export async function addSenderDomain(input: {
         organization_id: input.organizationId,
         shop_id: input.shopId,
         domain,
-        status: "dns_required",
-        dns_records: [],
+        status,
+        dns_records: dnsRecords as never,
+        provider,
+        provider_reference: providerReference,
+        verified_at: status === "verified" ? new Date().toISOString() : null,
       } as never,
       { onConflict: "shop_id,domain" },
     )
@@ -426,46 +558,385 @@ export async function addSenderDomain(input: {
     action: "integration.sender_domain_added",
     entityType: "sender_domain",
     entityId: domain,
-    metadata: {},
+    metadata: { provider: provider ?? "none" },
   });
   const r = data as Row;
   return {
     id: r["id"] as string,
     domain: r["domain"] as string,
     status: r["status"] as SenderDomainView["status"],
-    dnsRecords: [],
-    verifiedAt: null,
+    dnsRecords,
+    verifiedAt: (r["verified_at"] as string) ?? null,
   };
 }
 
 /**
- * Honest verification: no connected provider currently exposes
- * verifySenderDomain(), so a domain can never flip to verified by click.
+ * Echte Prüfung beim Anbieter. Ohne verbundenen Anbieter bleibt die Domain
+ * unverifiziert — ein Klick allein verifiziert niemals.
  */
 export async function recheckSenderDomain(input: {
   organizationId: string;
   shopId: string;
   domainId: string;
-}): Promise<{ verified: boolean; message: string }> {
+}): Promise<{ verified: boolean; message: string; dnsRecords?: SenderDomainView["dnsRecords"] }> {
   const admin = await getAdmin();
   const { data } = await admin
     .from("sender_domains")
-    .select("id, status")
+    .select("id, domain, status, provider, provider_reference")
     .eq("id", input.domainId)
     .eq("organization_id", input.organizationId)
     .eq("shop_id", input.shopId)
     .maybeSingle();
   if (!data) throw new Error("Absenderdomain nicht gefunden.");
-  const status = (data as Row)["status"] as string;
-  if (status === "verified") return { verified: true, message: "Domain ist verifiziert." };
+  const row = data as Row;
+  if (row["status"] === "verified") return { verified: true, message: "Domain ist verifiziert." };
+
+  const apiKey = await resendKey(input.organizationId, input.shopId);
+  if (!apiKey || row["provider"] !== "resend" || !row["provider_reference"]) {
+    await admin
+      .from("sender_domains")
+      .update({ status: "dns_required" } as never)
+      .eq("id", input.domainId);
+    return {
+      verified: false,
+      message:
+        "Für diesen Shop ist kein E-Mail-Anbieter mit Domain-Prüfung verbunden. Bitte zuerst Resend verbinden.",
+    };
+  }
+
+  const { resendVerifyDomain, resendGetDomain } = await import(
+    "../communications/providers/resend.server"
+  );
+  await resendVerifyDomain(apiKey, String(row["provider_reference"])).catch(() => undefined);
+  const domain = await resendGetDomain(apiKey, String(row["provider_reference"]));
+  const status = mapResendStatus(domain.status);
+  const verified = status === "verified";
+
   await admin
     .from("sender_domains")
-    .update({ status: "verifying" } as never)
+    .update({
+      status,
+      dns_records: domain.records as never,
+      verified_at: verified ? new Date().toISOString() : null,
+    } as never)
     .eq("id", input.domainId);
+
+  if (verified) {
+    // Absender dieser Domain gelten damit als verifiziert.
+    const suffix = `@${String(row["domain"])}`;
+    const { data: identities } = await admin
+      .from("sender_identities")
+      .select("id, sender_address")
+      .eq("organization_id", input.organizationId)
+      .eq("shop_id", input.shopId);
+    for (const identity of (identities ?? []) as Row[]) {
+      if (String(identity["sender_address"]).toLowerCase().endsWith(suffix)) {
+        await admin
+          .from("sender_identities")
+          .update({ verification_status: "verified", sender_domain_id: input.domainId } as never)
+          .eq("id", identity["id"] as string);
+      }
+    }
+  }
+
   return {
-    verified: false,
-    message:
-      "Der verbundene Anbieter bietet derzeit keine automatische Domain-Prüfung. Die Domain gilt erst als verifiziert, wenn ein Provider dies bestätigt.",
+    verified,
+    message: verified
+      ? "Domain wurde vom Anbieter verifiziert."
+      : "Der Anbieter hat die Domain noch nicht bestätigt. Bitte DNS-Einträge prüfen.",
+    dnsRecords: domain.records,
+  };
+}
+
+/* ------------------------- Verbindung mit Zugangsdaten ---------------------- */
+
+export type CredentialStatusView = {
+  connected: boolean;
+  environment: "test" | "live" | null;
+  hints: Record<string, string>;
+  updatedAt: string | null;
+  webhookUrl: string | null;
+};
+
+function appOrigin(): string {
+  return (
+    process.env["APP_ORIGIN"] ??
+    process.env["VITE_PUBLIC_APP_ORIGIN"] ??
+    "https://<Ihre-Shop-Domain>"
+  );
+}
+
+export function webhookUrlFor(provider: string): string | null {
+  if (provider === "stripe") return `${appOrigin()}/api/public/webhooks/stripe`;
+  if (provider === "resend") return `${appOrigin()}/api/public/webhooks/communications/resend`;
+  return null;
+}
+
+export async function getCredentialStatus(input: {
+  organizationId: string;
+  shopId: string;
+  category: IntegrationCategory;
+  provider: string;
+}): Promise<CredentialStatusView> {
+  const { credentialHints } = await import("./credentials.server");
+  const found = await credentialHints(input);
+  return {
+    connected: !!found,
+    environment: found?.environment ?? null,
+    hints: found?.hints ?? {},
+    updatedAt: found?.updatedAt ?? null,
+    webhookUrl: webhookUrlFor(input.provider),
+  };
+}
+
+/**
+ * Verbindet einen Anbieter mit echten Zugangsdaten. Der Schlüssel wird sofort
+ * gegen die Anbieter-API geprüft; erst danach wird verschlüsselt gespeichert
+ * und die Engine-Konfiguration aktiviert.
+ */
+export async function connectIntegration(input: {
+  organizationId: string;
+  shopId: string;
+  category: IntegrationCategory;
+  provider: string;
+  values: Record<string, string>;
+  actorId: string;
+}): Promise<{ ok: true; environment: "test" | "live"; message: string }> {
+  const entry = INTEGRATION_CATALOG.find(
+    (e) => e.category === input.category && e.id === input.provider,
+  );
+  if (!entry || !entry.implemented) throw new Error("Dieser Anbieter ist nicht verfügbar.");
+  const admin = await getAdmin();
+  const { storeCredentials } = await import("./credentials.server");
+
+  if (input.category === "payment" && input.provider === "stripe") {
+    const secretKey = (input.values["secretKey"] ?? "").trim();
+    if (!/^(sk|rk)_(test|live)_/.test(secretKey))
+      throw new Error(
+        "Bitte einen geheimen Stripe-Schlüssel eintragen (beginnt mit sk_test_ oder sk_live_).",
+      );
+    const environment: "test" | "live" = secretKey.includes("_test_") ? "test" : "live";
+    const { verifyStripeKey } = await import("../payments/stripe.server");
+    const account = await verifyStripeKey(secretKey);
+
+    const { reference } = await storeCredentials({
+      scope: {
+        organizationId: input.organizationId,
+        shopId: input.shopId,
+        category: "payment",
+        provider: "stripe",
+        environment,
+      },
+      values: {
+        secretKey,
+        webhookSecret: input.values["webhookSecret"] ?? null,
+      },
+    });
+
+    await admin.from("payment_provider_configs").upsert(
+      {
+        organization_id: input.organizationId,
+        shop_id: input.shopId,
+        provider: "stripe",
+        display_name: "Stripe",
+        environment,
+        status: "active",
+        priority: 10,
+        secret_ref: reference,
+        settings: { account_id: account.accountId, country: account.country } as never,
+      } as never,
+      { onConflict: "shop_id,provider,environment" },
+    );
+
+    const { data: conn } = await admin
+      .from("integration_connections")
+      .upsert(
+        {
+          organization_id: input.organizationId,
+          shop_id: input.shopId,
+          category: "payment",
+          provider: "stripe",
+          status: input.values["webhookSecret"] ? "connected" : "verification_required",
+          environment,
+          configuration_reference: reference,
+          metadata: { account_id: account.accountId } as never,
+        } as never,
+        { onConflict: "shop_id,category,provider,environment" },
+      )
+      .select("id")
+      .single();
+    if (conn) {
+      await admin.from("integration_health").upsert(
+        {
+          connection_id: (conn as Row)["id"] as string,
+          organization_id: input.organizationId,
+          shop_id: input.shopId,
+          status: "healthy",
+          last_checked_at: new Date().toISOString(),
+          last_success_at: new Date().toISOString(),
+          last_error_code: null,
+        } as never,
+        { onConflict: "connection_id" },
+      );
+    }
+
+    await writeAudit({
+      organizationId: input.organizationId,
+      actorId: input.actorId,
+      action: "integration.connected",
+      entityType: "integration_connection",
+      entityId: `${input.shopId}:payment:stripe`,
+      metadata: { environment, account_id: account.accountId },
+    });
+
+    return {
+      ok: true,
+      environment,
+      message: input.values["webhookSecret"]
+        ? `Stripe verbunden (${environment === "live" ? "Live" : "Test"}), Konto ${account.accountId}.`
+        : `Stripe verbunden (${environment === "live" ? "Live" : "Test"}). Bitte noch das Webhook-Secret hinterlegen.`,
+    };
+  }
+
+  if (input.category === "email" && input.provider === "resend") {
+    const apiKey = (input.values["apiKey"] ?? "").trim();
+    if (!apiKey.startsWith("re_"))
+      throw new Error("Bitte einen Resend-API-Schlüssel eintragen (beginnt mit re_).");
+    const { resendVerifyKey } = await import("../communications/providers/resend.server");
+    const info = await resendVerifyKey(apiKey);
+
+    const { reference } = await storeCredentials({
+      scope: {
+        organizationId: input.organizationId,
+        shopId: input.shopId,
+        category: "email",
+        provider: "resend",
+        environment: "live",
+      },
+      values: { apiKey, webhookSecret: input.values["webhookSecret"] ?? null },
+    });
+
+    await admin.from("communication_provider_configs").upsert(
+      {
+        organization_id: input.organizationId,
+        shop_id: input.shopId,
+        channel: "email",
+        provider: "resend",
+        display_name: "Resend",
+        status: "active",
+        test_mode: false,
+        priority: 200,
+        configuration_reference: reference,
+        capabilities: {
+          supportsDeliveryWebhooks: true,
+          supportsBounceWebhooks: true,
+        } as never,
+      } as never,
+      { onConflict: "organization_id,shop_id,channel,provider" },
+    );
+
+    const { data: conn } = await admin
+      .from("integration_connections")
+      .upsert(
+        {
+          organization_id: input.organizationId,
+          shop_id: input.shopId,
+          category: "email",
+          provider: "resend",
+          status: info.verifiedDomains.length > 0 ? "connected" : "verification_required",
+          environment: "live",
+          configuration_reference: reference,
+          metadata: { verified_domains: info.verifiedDomains } as never,
+        } as never,
+        { onConflict: "shop_id,category,provider,environment" },
+      )
+      .select("id")
+      .single();
+    if (conn) {
+      await admin.from("integration_health").upsert(
+        {
+          connection_id: (conn as Row)["id"] as string,
+          organization_id: input.organizationId,
+          shop_id: input.shopId,
+          status: "healthy",
+          last_checked_at: new Date().toISOString(),
+          last_success_at: new Date().toISOString(),
+          last_error_code: null,
+        } as never,
+        { onConflict: "connection_id" },
+      );
+    }
+
+    await writeAudit({
+      organizationId: input.organizationId,
+      actorId: input.actorId,
+      action: "integration.connected",
+      entityType: "integration_connection",
+      entityId: `${input.shopId}:email:resend`,
+      metadata: { verified_domains: info.verifiedDomains.length },
+    });
+
+    return {
+      ok: true,
+      environment: "live",
+      message:
+        info.verifiedDomains.length > 0
+          ? `Resend verbunden. Verifizierte Domains: ${info.verifiedDomains.join(", ")}.`
+          : "Resend verbunden. Es ist noch keine Absenderdomain verifiziert.",
+    };
+  }
+
+  throw new Error("Für diesen Anbieter ist keine Verbindung mit Zugangsdaten vorgesehen.");
+}
+
+/**
+ * Echte Test-E-Mail über den verbundenen Anbieter. Sie geht durch dieselbe
+ * Engine wie Bestellmails, damit der Test aussagekräftig ist.
+ */
+export async function sendProviderTestEmail(input: {
+  organizationId: string;
+  shopId: string;
+  recipient: string;
+  actorId: string;
+}): Promise<{ sent: boolean; provider: string; message: string }> {
+  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(input.recipient.trim()))
+    throw new Error("Bitte eine gültige E-Mail-Adresse eingeben.");
+
+  const { resolveProvider, resolveSenderIdentity } = await import(
+    "../communications/registry.server"
+  );
+  const { provider } = await resolveProvider(input.organizationId, input.shopId);
+  const sender = await resolveSenderIdentity(input.organizationId, input.shopId);
+  if (!sender)
+    throw new Error("Für diesen Shop ist keine Absenderadresse hinterlegt.");
+
+  const result = await provider.send({
+    to: input.recipient.trim(),
+    senderName: sender.senderName,
+    senderAddress: sender.senderAddress,
+    replyTo: sender.replyTo,
+    subject: "Testnachricht aus Commerce OS",
+    html: "<p>Diese Testnachricht bestätigt, dass Ihr E-Mail-Anbieter korrekt verbunden ist.</p>",
+    text: "Diese Testnachricht bestätigt, dass Ihr E-Mail-Anbieter korrekt verbunden ist.",
+    tags: { template: "integration_test" },
+    idempotencyKey: crypto.randomUUID(),
+  });
+
+  await writeAudit({
+    organizationId: input.organizationId,
+    actorId: input.actorId,
+    action: "integration.test_email_sent",
+    entityType: "integration_connection",
+    entityId: `${input.shopId}:email:${provider.key}`,
+    metadata: { provider: provider.key, sandbox: provider.isSandbox },
+  });
+
+  return {
+    sent: result.status !== "rejected",
+    provider: provider.key,
+    message: provider.isSandbox
+      ? "Der aktive Anbieter ist ein Sandbox-Anbieter — es wurde keine echte E-Mail zugestellt."
+      : `Test-E-Mail an ${input.recipient.trim()} übergeben (Anbieter: ${provider.key}).`,
   };
 }
 
@@ -501,6 +972,8 @@ export async function getShopReadiness(
     (c) => c["status"] === "active" && c["environment"] === "live" && c["provider"] !== "mock",
   );
   const activeEmail = configs.email.find((c) => c["status"] === "active");
+  const emailLiveProvider =
+    !!activeEmail && activeEmail["provider"] !== "test" && activeEmail["test_mode"] !== true;
   const verifiedSender = configs.identities.some(
     (i) => i["verification_status"] === "verified",
   );
@@ -525,12 +998,14 @@ export async function getShopReadiness(
       key: "email",
       label: "E-Mail",
       ready: !!activeEmail && verifiedSender,
-      liveReady: !!activeEmail && verifiedSender,
+      liveReady: emailLiveProvider && verifiedSender,
       detail: !activeEmail
         ? "Kein E-Mail-Anbieter aktiv"
-        : verifiedSender
-          ? "Absender verifiziert"
-          : "Absenderdomain nicht verifiziert",
+        : !emailLiveProvider
+          ? "Nur Sandbox-Anbieter aktiv"
+          : verifiedSender
+            ? "Absender verifiziert"
+            : "Absenderdomain nicht verifiziert",
     },
     {
       key: "shipping",

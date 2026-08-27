@@ -10,15 +10,46 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
     handlers: {
       POST: async ({ request }) => {
         const rawBody = await request.text();
-        const { getProvider } = await import("@/lib/commerce/payments/provider.server");
         const { getAdmin } = await import("@/lib/commerce/core.server");
         const payments = await import("@/lib/commerce/payments/payment.server");
+        const { createStripeProvider, stripeProvider } = await import(
+          "@/lib/commerce/payments/stripe.server"
+        );
+        const { loadCredentialsForProvider } = await import(
+          "@/lib/commerce/integrations/credentials.server"
+        );
 
+        // Stripe sendet keinen Mandanten mit: das Webhook-Secret des jeweiligen
+        // Shops entscheidet. Erst die hinterlegten Shop-Secrets, dann der
+        // plattformweite Rückfall.
+        const candidates: (() => Promise<unknown>)[] = [];
         let event;
         try {
-          event = await (await getProvider("stripe")).parseWebhook(rawBody, request.headers);
+          const stored = await loadCredentialsForProvider("payment", "stripe");
+          for (const row of stored) {
+            if (!row.values["webhookSecret"] || !row.values["secretKey"]) continue;
+            const provider = createStripeProvider({
+              secretKey: row.values["secretKey"],
+              webhookSecret: row.values["webhookSecret"],
+            });
+            candidates.push(() => provider.parseWebhook(rawBody, request.headers));
+          }
         } catch (e) {
-          console.error("stripe webhook signature rejected", e);
+          console.error("stripe webhook credential lookup failed", e);
+        }
+        if (process.env["STRIPE_WEBHOOK_SECRET"])
+          candidates.push(() => stripeProvider.parseWebhook(rawBody, request.headers));
+
+        for (const attempt of candidates) {
+          try {
+            event = (await attempt()) as Awaited<ReturnType<typeof stripeProvider.parseWebhook>>;
+            break;
+          } catch {
+            /* nächstes Secret probieren */
+          }
+        }
+        if (!event) {
+          console.error("stripe webhook signature rejected");
           return new Response("Invalid signature", { status: 401 });
         }
 

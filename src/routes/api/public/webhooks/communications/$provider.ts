@@ -25,16 +25,37 @@ export const Route = createFileRoute("/api/public/webhooks/communications/$provi
         request.headers.forEach((value, key) => {
           headers[key.toLowerCase()] = value;
         });
-        const secret = process.env["COMMUNICATION_WEBHOOK_SECRET"] ?? null;
-
-        let parsed;
+        // Mandantenspezifische Webhook-Secrets zuerst; nur wenn keine
+        // hinterlegt sind, greift das plattformweite Secret.
+        const secrets: (string | null)[] = [];
         try {
-          parsed = await provider.parseWebhook({ body, headers, secret });
+          const { loadCredentialsForProvider } = await import(
+            "@/lib/commerce/integrations/credentials.server"
+          );
+          for (const row of await loadCredentialsForProvider("email", providerKey)) {
+            const value = row.values["webhookSecret"];
+            if (value) secrets.push(value);
+          }
         } catch (error) {
-          console.error("communication webhook rejected", providerKey, error);
-          return new Response("Invalid payload", { status: 400 });
+          console.error("communication webhook credential lookup failed", providerKey, error);
         }
-        if (secret && !parsed.verified) return new Response("Invalid signature", { status: 401 });
+        if (secrets.length === 0)
+          secrets.push(process.env["COMMUNICATION_WEBHOOK_SECRET"] ?? null);
+
+        let parsed: Awaited<ReturnType<NonNullable<typeof provider.parseWebhook>>> | null = null;
+        for (const secret of secrets) {
+          try {
+            const result = await provider.parseWebhook({ body, headers, secret });
+            parsed = result;
+            if (result.verified) break;
+          } catch (error) {
+            console.error("communication webhook rejected", providerKey, error);
+            return new Response("Invalid payload", { status: 400 });
+          }
+        }
+        if (!parsed) return new Response("Invalid payload", { status: 400 });
+        if (secrets.some(Boolean) && !parsed.verified)
+          return new Response("Invalid signature", { status: 401 });
 
         for (const event of parsed.events) {
           await ingestProviderEvent({

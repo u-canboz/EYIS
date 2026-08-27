@@ -96,7 +96,7 @@ export const createRefundFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission, getAdmin } = await import("../core.server");
-    const { getProvider } = await import("../payments/provider.server");
+    const { getProviderForOrder } = await import("../payments/provider.server");
     await assertPermission(
       context.supabase,
       context.userId,
@@ -138,7 +138,7 @@ export const createRefundFn = createServerFn({ method: "POST" })
 
     if (charge?.provider_transaction_id) {
       try {
-        const provider = await getProvider(charge.provider);
+        const provider = await getProviderForOrder(data.organizationId, data.orderId, charge.provider);
         const result = await provider.refundPayment(
           charge.provider_transaction_id,
           Number(refund.amount_minor),

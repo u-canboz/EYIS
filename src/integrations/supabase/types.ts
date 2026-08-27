@@ -6175,6 +6175,72 @@ export type Database = {
           },
         ]
       }
+      provider_credentials: {
+        Row: {
+          category: Database["public"]["Enums"]["integration_category"]
+          ciphertext: string
+          created_at: string
+          environment: string
+          hints: Json
+          id: string
+          iv: string
+          key_version: number
+          organization_id: string
+          provider: string
+          reference: string
+          shop_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["integration_category"]
+          ciphertext: string
+          created_at?: string
+          environment?: string
+          hints?: Json
+          id?: string
+          iv: string
+          key_version?: number
+          organization_id: string
+          provider: string
+          reference: string
+          shop_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["integration_category"]
+          ciphertext?: string
+          created_at?: string
+          environment?: string
+          hints?: Json
+          id?: string
+          iv?: string
+          key_version?: number
+          organization_id?: string
+          provider?: string
+          reference?: string
+          shop_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_credentials_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_credentials_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       qa_fixtures: {
         Row: {
           created_at: string
@@ -6722,6 +6788,8 @@ export type Database = {
           domain: string
           id: string
           organization_id: string
+          provider: string | null
+          provider_reference: string | null
           shop_id: string
           status: Database["public"]["Enums"]["sender_domain_status"]
           updated_at: string
@@ -6733,6 +6801,8 @@ export type Database = {
           domain: string
           id?: string
           organization_id: string
+          provider?: string | null
+          provider_reference?: string | null
           shop_id: string
           status?: Database["public"]["Enums"]["sender_domain_status"]
           updated_at?: string
@@ -6744,6 +6814,8 @@ export type Database = {
           domain?: string
           id?: string
           organization_id?: string
+          provider?: string | null
+          provider_reference?: string | null
           shop_id?: string
           status?: Database["public"]["Enums"]["sender_domain_status"]
           updated_at?: string

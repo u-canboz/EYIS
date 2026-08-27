@@ -674,8 +674,12 @@ export async function settleReturn(input: {
 
   if (charge?.provider_transaction_id) {
     try {
-      const { getProvider } = await import("../payments/provider.server");
-      const provider = await getProvider(charge.provider);
+      const { getProviderForOrder } = await import("../payments/provider.server");
+      const provider = await getProviderForOrder(
+        input.organizationId,
+        detail.orderId,
+        charge.provider,
+      );
       const result = await provider.refundPayment(
         charge.provider_transaction_id,
         Number(created.amount_minor),

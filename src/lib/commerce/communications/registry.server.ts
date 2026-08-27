@@ -3,10 +3,12 @@ import { getAdmin } from "../core.server";
 import type { CommunicationProvider } from "./provider";
 import { testProvider } from "./providers/test.server";
 import { lovableProvider } from "./providers/lovable.server";
+import { resendProvider, createResendProvider } from "./providers/resend.server";
 
 const PROVIDERS: Record<string, CommunicationProvider> = {
   test: testProvider,
   lovable: lovableProvider,
+  resend: resendProvider,
 };
 
 export const AVAILABLE_PROVIDERS = Object.values(PROVIDERS).map((p) => ({
@@ -18,6 +20,31 @@ export const AVAILABLE_PROVIDERS = Object.values(PROVIDERS).map((p) => ({
 
 export function getProvider(key: string): CommunicationProvider {
   return PROVIDERS[key] ?? testProvider;
+}
+
+/**
+ * Bindet den Anbieter an die im Tresor hinterlegten Zugangsdaten des Shops.
+ * Ohne Zugangsdaten bleibt der unkonfigurierte Adapter — er schlägt beim
+ * Versand ehrlich fehl statt still auf eine Sandbox auszuweichen.
+ */
+export async function bindProvider(
+  key: string,
+  organizationId: string,
+  shopId: string,
+): Promise<CommunicationProvider> {
+  if (key === "resend") {
+    const { loadCredentials } = await import("../integrations/credentials.server");
+    const creds = await loadCredentials({
+      organizationId,
+      shopId,
+      category: "email",
+      provider: "resend",
+      environment: "live",
+    });
+    const apiKey = creds?.["apiKey"] ?? null;
+    return createResendProvider(apiKey);
+  }
+  return getProvider(key);
 }
 
 type Row = Record<string, unknown>;
@@ -39,7 +66,7 @@ export async function resolveProvider(organizationId: string, shopId: string) {
   const row = (data?.[0] ?? null) as Row | null;
   const key = (row?.["provider"] as string) ?? "test";
   return {
-    provider: getProvider(key),
+    provider: await bindProvider(key, organizationId, shopId),
     configId: (row?.["id"] as string) ?? null,
     testMode: row ? Boolean(row["test_mode"]) : true,
   };
