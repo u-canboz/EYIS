@@ -189,12 +189,13 @@ export async function verifySvixSignature(input: {
     .some((candidate) => candidate && timingSafeEqual(candidate, expected));
 }
 
-const EVENT_MAP: Record<string, InboundEvent["type"]> = {
+const EVENT_MAP: Record<string, InboundEvent["deliveryStatus"]> = {
   "email.sent": "sent",
   "email.delivered": "delivered",
-  "email.delivery_delayed": "deferred",
-  "email.bounced": "bounce",
-  "email.complained": "complaint",
+  "email.delivery_delayed": "unknown",
+  "email.bounced": "hard_bounce",
+  "email.complained": "complained",
+  "email.failed": "rejected",
 };
 
 /* --------------------------------- Provider -------------------------------- */
@@ -254,14 +255,13 @@ export function createResendProvider(apiKey: string | null): CommunicationProvid
     },
 
     async parseWebhook(input) {
-      if (!input.secret)
-        return { verified: false, events: [], reason: "Kein Webhook-Secret hinterlegt." };
+      if (!input.secret) return { verified: false, events: [] };
       const verified = await verifySvixSignature({
         body: input.body,
         headers: input.headers,
         secret: input.secret,
       });
-      if (!verified) return { verified: false, events: [], reason: "Ungültige Signatur." };
+      if (!verified) return { verified: false, events: [] };
 
       const payload = JSON.parse(input.body) as Json;
       const type = String(payload["type"] ?? "");
@@ -271,19 +271,17 @@ export function createResendProvider(apiKey: string | null): CommunicationProvid
       const data = (payload["data"] ?? {}) as Json;
       const to = data["to"];
       const recipient = Array.isArray(to) ? String(to[0] ?? "") : String(to ?? "");
+      const emailId = (data["email_id"] as string) ?? (data["id"] as string) ?? null;
       return {
         verified: true,
         events: [
           {
-            providerEventId: String(data["email_id"] ?? payload["created_at"] ?? crypto.randomUUID()),
-            type: mapped,
-            providerMessageId: (data["email_id"] as string) ?? null,
-            recipient,
+            providerEventId: `${emailId ?? "resend"}:${type}:${String(payload["created_at"] ?? "")}`,
+            providerMessageId: emailId,
+            eventType: type,
+            deliveryStatus: mapped,
+            recipient: recipient || null,
             occurredAt: String(payload["created_at"] ?? new Date().toISOString()),
-            reason:
-              (((data["bounce"] ?? {}) as Json)["message"] as string) ??
-              (data["reason"] as string) ??
-              null,
             payload: payload as Json,
           },
         ],
