@@ -32,6 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ArrowLeft } from "lucide-react";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { ScrollTabs } from "@/components/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/dokumente/einstellungen")({
   head: () => ({
@@ -163,13 +166,20 @@ function DocumentSettingsPage() {
     onError: fail,
   });
 
-  if (setup.isLoading || !setup.data) return <Skeleton className="h-96 w-full" />;
+  if (setup.isLoading || !setup.data)
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    );
   const disabled = !can("documents.settings");
 
   const field = (key: string, label: string, placeholder?: string) => (
-    <div className="grid gap-1.5">
+    <div className="grid min-w-0 gap-1.5">
       <Label className="text-xs">{label}</Label>
       <Input
+        className="h-11"
         value={String(settings[key] ?? "")}
         placeholder={placeholder}
         disabled={disabled}
@@ -179,7 +189,7 @@ function DocumentSettingsPage() {
   );
 
   const toggle = (key: string, label: string, description: string) => (
-    <div className="flex items-start justify-between gap-4 rounded-md border p-3">
+    <div className="flex min-w-0 items-start justify-between gap-4 rounded-lg border border-border p-3">
       <div>
         <p className="text-sm font-medium">{label}</p>
         <p className="text-muted-foreground text-xs">{description}</p>
@@ -193,21 +203,25 @@ function DocumentSettingsPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <header>
-        <Link to="/app/dokumente" className="text-muted-foreground text-xs hover:underline">
-          ← Dokumente
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Dokumenteinstellungen</h1>
-        <p className="text-muted-foreground text-sm">
-          Diese Angaben landen als unveränderbare Momentaufnahme auf jeder ausgestellten Rechnung.
-        </p>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/dokumente"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Dokumente
+          </Link>
+        }
+        title="Dokumenteinstellungen"
+        description="Diese Angaben landen als unveränderbare Momentaufnahme auf jeder ausgestellten Rechnung."
+      />
 
       {!!setup.data.missing.length && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+        <div className="min-w-0 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
           <p className="font-medium">Noch offen</p>
-          <ul className="text-muted-foreground mt-1 list-inside list-disc">
+          <ul className="mt-1 list-inside list-disc text-muted-foreground">
             {setup.data.missing.map((m) => (
               <li key={m}>{SETUP_LABELS[m] ?? m}</li>
             ))}
@@ -216,15 +230,17 @@ function DocumentSettingsPage() {
       )}
 
       <Tabs defaultValue="company">
-        <TabsList>
-          <TabsTrigger value="company">Unternehmen</TabsTrigger>
-          <TabsTrigger value="sequences">Nummernkreise</TabsTrigger>
-          <TabsTrigger value="layout">Layout</TabsTrigger>
-          <TabsTrigger value="automation">Automatisierung</TabsTrigger>
-        </TabsList>
+        <ScrollTabs>
+          <TabsList>
+            <TabsTrigger value="company">Unternehmen</TabsTrigger>
+            <TabsTrigger value="sequences">Nummernkreise</TabsTrigger>
+            <TabsTrigger value="layout">Layout</TabsTrigger>
+            <TabsTrigger value="automation">Automatisierung</TabsTrigger>
+          </TabsList>
+        </ScrollTabs>
 
-        <TabsContent value="company" className="space-y-4 pt-4">
-          <section className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
+        <TabsContent value="company" className="min-w-0 space-y-4 pt-4">
+          <section className="grid min-w-0 gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">
             {field("company_name", "Firmenname", "Muster GmbH")}
             {field("legal_form", "Rechtsform", "GmbH")}
             {field("address_line1", "Straße und Hausnummer")}
@@ -242,15 +258,16 @@ function DocumentSettingsPage() {
             {field("website", "Website")}
           </section>
 
-          <section className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
+          <section className="grid min-w-0 gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">
             <h2 className="col-span-full font-medium">Bankverbindung & Zahlungsziel</h2>
             {field("bank_account_holder", "Kontoinhaber")}
             {field("bank_name", "Bank")}
             {field("bank_iban", "IBAN")}
             {field("bank_bic", "BIC")}
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label className="text-xs">Zahlungsziel in Tagen</Label>
               <Input
+                className="h-11"
                 type="number"
                 min={0}
                 value={String(settings["payment_terms_days"] ?? 14)}
@@ -263,6 +280,7 @@ function DocumentSettingsPage() {
           </section>
 
           <Button
+            className="h-11"
             disabled={disabled || settingsMutation.isPending}
             onClick={() => settingsMutation.mutate()}
           >
@@ -270,7 +288,7 @@ function DocumentSettingsPage() {
           </Button>
         </TabsContent>
 
-        <TabsContent value="sequences" className="space-y-4 pt-4">
+        <TabsContent value="sequences" className="min-w-0 space-y-4 pt-4">
           {SEQUENCE_TYPES.map((type) => {
             const seq = setup.data.sequences.find((s) => s.documentType === type);
             return (
@@ -292,19 +310,21 @@ function DocumentSettingsPage() {
           })}
         </TabsContent>
 
-        <TabsContent value="layout" className="space-y-4 pt-4">
-          <section className="grid gap-4 rounded-lg border p-4">
-            <div className="grid gap-1.5 sm:max-w-xs">
+        <TabsContent value="layout" className="min-w-0 space-y-4 pt-4">
+          <section className="grid min-w-0 gap-4 rounded-xl border border-border bg-card p-4">
+            <div className="grid min-w-0 gap-1.5 sm:max-w-xs">
               <Label className="text-xs">Akzentfarbe</Label>
               <Input
+                className="h-11"
                 value={String(branding["primary_color"] ?? "#1F2937")}
                 disabled={disabled}
                 onChange={(e) => setBranding((p) => ({ ...p, primary_color: e.target.value }))}
               />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid min-w-0 gap-1.5">
               <Label className="text-xs">Absenderzeile über der Anschrift</Label>
               <Input
+                className="h-11"
                 value={String(branding["sender_block"] ?? "")}
                 disabled={disabled}
                 placeholder="Muster GmbH · Musterstraße 1 · 10115 Berlin"
@@ -349,6 +369,7 @@ function DocumentSettingsPage() {
             </div>
           </section>
           <Button
+            className="h-11"
             disabled={disabled || brandingMutation.isPending}
             onClick={() => brandingMutation.mutate()}
           >
@@ -356,16 +377,16 @@ function DocumentSettingsPage() {
           </Button>
         </TabsContent>
 
-        <TabsContent value="automation" className="space-y-4 pt-4">
-          <section className="space-y-3 rounded-lg border p-4">
-            <div className="grid gap-1.5 sm:max-w-sm">
+        <TabsContent value="automation" className="min-w-0 space-y-3 pt-4">
+          <section className="space-y-3 rounded-xl border border-border bg-card p-4">
+            <div className="grid min-w-0 gap-1.5 sm:max-w-sm">
               <Label className="text-xs">Wann soll eine Rechnung entstehen?</Label>
               <Select
                 value={String(settings["invoice_creation_strategy"] ?? "on_order_paid")}
                 disabled={disabled}
                 onValueChange={(v) => setSettings((p) => ({ ...p, invoice_creation_strategy: v }))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -405,6 +426,7 @@ function DocumentSettingsPage() {
             {field("leitweg_id", "Leitweg-ID (öffentliche Auftraggeber)")}
           </section>
           <Button
+            className="h-11"
             disabled={disabled || settingsMutation.isPending}
             onClick={() => settingsMutation.mutate()}
           >
@@ -449,22 +471,24 @@ function SequenceCard(props: {
   const preview = `${prefix}${includePeriod && period ? `-${period}` : ""}-${String(nextNumber).padStart(padding, "0")}`;
 
   return (
-    <section className="grid gap-4 rounded-lg border p-4 sm:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
-      <div className="col-span-full flex items-center justify-between">
-        <h2 className="font-medium">{DOCUMENT_TYPE_LABELS[props.type]}</h2>
-        <span className="text-muted-foreground font-mono text-xs">{preview}</span>
+    <section className="grid min-w-0 gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
+      <div className="col-span-full flex min-w-0 items-center justify-between">
+        <h2 className="min-w-0 truncate font-medium">{DOCUMENT_TYPE_LABELS[props.type]}</h2>
+        <span className="shrink-0 font-mono text-xs text-muted-foreground">{preview}</span>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid min-w-0 gap-1.5">
         <Label className="text-xs">Präfix</Label>
         <Input
+          className="h-11"
           value={prefix}
           disabled={props.disabled}
           onChange={(e) => setPrefix(e.target.value)}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid min-w-0 gap-1.5">
         <Label className="text-xs">Stellen</Label>
         <Input
+          className="h-11"
           type="number"
           min={1}
           max={12}
@@ -473,14 +497,14 @@ function SequenceCard(props: {
           onChange={(e) => setPadding(Number(e.target.value || 1))}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid min-w-0 gap-1.5">
         <Label className="text-xs">Rücksetzung</Label>
         <Select
           value={resetPolicy}
           disabled={props.disabled}
           onValueChange={(v) => setResetPolicy(v as SequenceResetPolicy)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -492,9 +516,10 @@ function SequenceCard(props: {
           </SelectContent>
         </Select>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid min-w-0 gap-1.5">
         <Label className="text-xs">Nächste Nummer</Label>
         <Input
+          className="h-11"
           type="number"
           min={1}
           value={nextNumber}
@@ -513,6 +538,7 @@ function SequenceCard(props: {
         </label>
         <Button
           size="sm"
+          className="h-11"
           variant="outline"
           disabled={props.disabled}
           onClick={() =>

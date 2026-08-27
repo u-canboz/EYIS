@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -20,6 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { FilterBar } from "@/components/data/FilterBar";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/preise/")({
   head: () => ({
@@ -133,40 +138,40 @@ function PricingOverviewPage() {
   const toggle = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
-  return (
-    <div className="space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Preise</h1>
-          <p className="text-sm text-muted-foreground">
-            Alle gespeicherten Preiszeilen. Massenänderungen wirken immer auf die ausgewählten
-            Zeilen, nie auf einen berechneten Preis.
-          </p>
-        </div>
-        <Button asChild variant="outline">
-          <Link to="/app/preise/testen">Preis testen</Link>
-        </Button>
-      </header>
+  const activeFilters = typeFilter !== "all" ? 1 : 0;
 
-      <section className="rounded-lg border bg-card p-6">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="min-w-[220px] flex-1">
-            <Label>Suche</Label>
+  return (
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Preise"
+        description="Alle gespeicherten Preiszeilen. Massenänderungen wirken immer auf die ausgewählten Zeilen, nie auf einen berechneten Preis."
+        actions={
+          <Button asChild variant="outline" className="h-11">
+            <Link to="/app/preise/testen">Preis testen</Link>
+          </Button>
+        }
+      />
+
+      <Panel title="Preiszeilen">
+        <FilterBar
+          activeCount={activeFilters}
+          onReset={() => setTypeFilter("all")}
+          search={
             <Input
-              className="mt-2"
+              className="h-11 w-full"
               placeholder="Produkt oder Variante"
+              aria-label="Preiszeilen suchen"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
-          <div className="w-[220px]">
-            <Label>Preisart</Label>
+          }
+          filters={
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="mt-2">
-                <SelectValue />
+              <SelectTrigger className="h-11 w-full md:w-48">
+                <SelectValue placeholder="Preisart" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle</SelectItem>
+                <SelectItem value="all">Alle Preisarten</SelectItem>
                 {Object.entries(PRICE_TYPE_LABELS).map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
@@ -174,88 +179,148 @@ function PricingOverviewPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          }
+        />
+
+        <div className="mt-5">
+          {overviewQuery.isLoading ? (
+            <ListSkeleton />
+          ) : overviewQuery.error ? (
+            <ErrorState description={(overviewQuery.error as Error).message} />
+          ) : items.length === 0 ? (
+            <EmptyState
+              title="Keine Preise angelegt"
+              description="Preise pflegst du im Produkt-Editor im Tab „Preise“."
+            />
+          ) : (
+            <>
+              <RecordCardList>
+                {items.map((item) => (
+                  <RecordCard
+                    key={item.id}
+                    title={item.productName}
+                    subtitle={item.variantTitle ?? "Ohne Variante"}
+                    trailing={formatMoney(item.amount_minor, item.currency_code)}
+                    badges={
+                      <>
+                        <Badge variant="secondary">
+                          {PRICE_TYPE_LABELS[item.type] ?? item.type}
+                        </Badge>
+                        {canManage && (
+                          <label className="ml-auto flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+                            <Checkbox
+                              checked={selected.includes(item.id)}
+                              onCheckedChange={() => toggle(item.id)}
+                              aria-label="Preiszeile auswählen"
+                            />
+                            auswählen
+                          </label>
+                        )}
+                      </>
+                    }
+                    fields={[
+                      {
+                        label: "Gültigkeit",
+                        value:
+                          item.starts_at || item.ends_at
+                            ? `${item.starts_at ? new Date(item.starts_at).toLocaleDateString("de-DE") : "…"} – ${
+                                item.ends_at ? new Date(item.ends_at).toLocaleDateString("de-DE") : "…"
+                              }`
+                            : "dauerhaft",
+                      },
+                      {
+                        label: "Menge",
+                        value: `${item.min_quantity ? `ab ${item.min_quantity}` : "—"}${
+                          item.max_quantity ? ` bis ${item.max_quantity}` : ""
+                        }`,
+                      },
+                      {
+                        label: "Gruppe",
+                        value: item.customer_group_id
+                          ? (groupName_.get(item.customer_group_id) ?? "Gruppe")
+                          : "—",
+                      },
+                    ]}
+                  />
+                ))}
+              </RecordCardList>
+
+              <TableScroll desktopOnly>
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-left">
+                    <tr>
+                      <th className="w-10 p-3" />
+                      <th className="p-3 font-medium">Produkt</th>
+                      <th className="p-3 font-medium">Variante</th>
+                      <th className="p-3 font-medium">Art</th>
+                      <th className="p-3 font-medium">Gültigkeit</th>
+                      <th className="p-3 font-medium">Menge</th>
+                      <th className="p-3 font-medium">Gruppe</th>
+                      <th className="p-3 text-right font-medium">Betrag</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => (
+                      <tr key={item.id} className="border-t border-border">
+                        <td className="p-3">
+                          <Checkbox
+                            checked={selected.includes(item.id)}
+                            onCheckedChange={() => toggle(item.id)}
+                            aria-label="Preiszeile auswählen"
+                          />
+                        </td>
+                        <td className="max-w-[16rem] p-3">
+                          <Link
+                            to="/app/produkte/$productId"
+                            params={{ productId: item.productId }}
+                            className="truncate font-medium hover:underline"
+                          >
+                            {item.productName}
+                          </Link>
+                        </td>
+                        <td className="p-3 text-muted-foreground">{item.variantTitle ?? "—"}</td>
+                        <td className="p-3">
+                          <Badge variant="secondary">
+                            {PRICE_TYPE_LABELS[item.type] ?? item.type}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-xs text-muted-foreground">
+                          {item.starts_at || item.ends_at
+                            ? `${item.starts_at ? new Date(item.starts_at).toLocaleDateString("de-DE") : "…"} – ${
+                                item.ends_at ? new Date(item.ends_at).toLocaleDateString("de-DE") : "…"
+                              }`
+                            : "dauerhaft"}
+                        </td>
+                        <td className="p-3 text-xs text-muted-foreground">
+                          {item.min_quantity ? `ab ${item.min_quantity}` : "—"}
+                          {item.max_quantity ? ` bis ${item.max_quantity}` : ""}
+                        </td>
+                        <td className="p-3 text-xs text-muted-foreground">
+                          {item.customer_group_id
+                            ? (groupName_.get(item.customer_group_id) ?? "Gruppe")
+                            : "—"}
+                        </td>
+                        <td className="p-3 text-right font-medium tabular-nums">
+                          {formatMoney(item.amount_minor, item.currency_code)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </TableScroll>
+            </>
+          )}
         </div>
 
-        {overviewQuery.isLoading ? (
-          <Skeleton className="mt-6 h-40 w-full" />
-        ) : items.length === 0 ? (
-          <p className="mt-6 text-sm text-muted-foreground">
-            Noch keine Preise angelegt. Preise pflegst du im Produkt-Editor im Tab „Preise“.
-          </p>
-        ) : (
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase text-muted-foreground">
-                <tr className="border-b">
-                  <th className="w-10 py-2" />
-                  <th className="py-2">Produkt</th>
-                  <th className="py-2">Variante</th>
-                  <th className="py-2">Art</th>
-                  <th className="py-2">Gültigkeit</th>
-                  <th className="py-2">Menge</th>
-                  <th className="py-2">Gruppe</th>
-                  <th className="py-2 text-right">Betrag</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.id} className="border-b">
-                    <td className="py-2">
-                      <Checkbox
-                        checked={selected.includes(item.id)}
-                        onCheckedChange={() => toggle(item.id)}
-                        aria-label="Preiszeile auswählen"
-                      />
-                    </td>
-                    <td className="py-2">
-                      <Link
-                        to="/app/produkte/$productId"
-                        params={{ productId: item.productId }}
-                        className="font-medium hover:underline"
-                      >
-                        {item.productName}
-                      </Link>
-                    </td>
-                    <td className="py-2 text-muted-foreground">{item.variantTitle ?? "—"}</td>
-                    <td className="py-2">
-                      <Badge variant="secondary">{PRICE_TYPE_LABELS[item.type] ?? item.type}</Badge>
-                    </td>
-                    <td className="py-2 text-xs text-muted-foreground">
-                      {item.starts_at || item.ends_at
-                        ? `${item.starts_at ? new Date(item.starts_at).toLocaleDateString("de-DE") : "…"} – ${
-                            item.ends_at ? new Date(item.ends_at).toLocaleDateString("de-DE") : "…"
-                          }`
-                        : "dauerhaft"}
-                    </td>
-                    <td className="py-2 text-xs text-muted-foreground">
-                      {item.min_quantity ? `ab ${item.min_quantity}` : "—"}
-                      {item.max_quantity ? ` bis ${item.max_quantity}` : ""}
-                    </td>
-                    <td className="py-2 text-xs text-muted-foreground">
-                      {item.customer_group_id
-                        ? (groupName_.get(item.customer_group_id) ?? "Gruppe")
-                        : "—"}
-                    </td>
-                    <td className="py-2 text-right font-medium">
-                      {formatMoney(item.amount_minor, item.currency_code)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {canManage && (
-          <div className="mt-6 flex flex-wrap items-end gap-3 rounded-md border border-dashed p-4">
+        {canManage && items.length > 0 && (
+          <div className="mt-5 flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-border p-4">
             <p className="w-full text-sm font-medium">
               Massenänderung ({selected.length} ausgewählt)
             </p>
-            <div className="w-[240px]">
+            <div className="w-full sm:w-[240px]">
               <Label>Aktion</Label>
               <Select value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -267,15 +332,16 @@ function PricingOverviewPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-[160px]">
+            <div className="w-full sm:w-[160px]">
               <Label>{mode.endsWith("percent") ? "Prozent" : "Betrag"}</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={modeValue}
                 onChange={(e) => setModeValue(e.target.value)}
               />
             </div>
             <Button
+              className="h-11"
               disabled={selected.length === 0 || bulkMutation.isPending}
               onClick={() => bulkMutation.mutate()}
             >
@@ -286,18 +352,22 @@ function PricingOverviewPage() {
             </p>
           </div>
         )}
-      </section>
+      </Panel>
 
-      <section className="rounded-lg border bg-card p-6">
-        <p className="font-medium">Kundengruppen</p>
-        <div className="mt-4 space-y-2">
+      <Panel title="Kundengruppen">
+        <div className="space-y-2">
           {(groupsQuery.data?.groups ?? []).map((group) => (
-            <div key={group.id} className="flex items-center justify-between border-b py-2">
-              <div>
-                <span className="text-sm font-medium">{group.name}</span>
-                <span className="ml-2 text-xs text-muted-foreground">/{group.handle}</span>
+            <div
+              key={group.id}
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border py-2 last:border-b-0"
+            >
+              <div className="min-w-0">
+                <span className="truncate text-sm font-medium">{group.name}</span>
+                <span className="ml-2 truncate text-xs text-muted-foreground">/{group.handle}</span>
               </div>
-              <Badge variant="secondary">{group.status}</Badge>
+              <Badge variant="secondary" className="shrink-0">
+                {group.status}
+              </Badge>
             </div>
           ))}
           {(groupsQuery.data?.groups ?? []).length === 0 && (
@@ -305,17 +375,18 @@ function PricingOverviewPage() {
           )}
         </div>
         {canManageGroups && (
-          <div className="mt-6 flex items-end gap-3">
-            <div className="flex-1">
+          <div className="mt-5 flex flex-col items-end gap-3 sm:flex-row">
+            <div className="w-full flex-1">
               <Label>Neue Kundengruppe</Label>
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
                 placeholder="z. B. B2B"
               />
             </div>
             <Button
+              className="h-11 w-full sm:w-auto"
               disabled={!groupName.trim() || groupMutation.isPending}
               onClick={() => groupMutation.mutate()}
             >
@@ -323,7 +394,7 @@ function PricingOverviewPage() {
             </Button>
           </div>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }

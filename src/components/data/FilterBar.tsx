@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   /** Always-visible search field (or any primary control). */
-  search?: ReactNode;
+  search?: ReactNode | undefined;
   /** Secondary filters: inline from `md`, inside a sheet below. */
   filters: ReactNode;
   /** Number of active filters, shown on the mobile trigger. */
-  activeCount?: number;
-  onReset?: () => void;
-  className?: string;
+  activeCount?: number | undefined;
+  onReset?: () => void | undefined;
+  className?: string | undefined;
 };
 
 export function FilterBar({ search, filters, activeCount = 0, onReset, className }: Props) {

@@ -4,8 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { getJobsOverviewFn } from "@/lib/commerce/system/system.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/system/jobs")({
   head: () => ({
@@ -45,8 +46,8 @@ function SystemJobs() {
   if (isLoading || !data) {
     return (
       <div>
-        <h1 className="font-display text-2xl font-semibold">Jobs & Queues</h1>
-        <Skeleton className="mt-6 h-40 w-full" />
+        <PageHeader title="Jobs & Queues" />
+        <ListSkeleton rows={3} />
       </div>
     );
   }
@@ -57,45 +58,45 @@ function SystemJobs() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Jobs & Queues</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+      <PageHeader
+        title="Jobs & Queues"
+        description={
+          <>
             Read-only Live-Ansicht. Aktualisiert alle 15 Sekunden. Zuletzt:{" "}
             {new Date(dataUpdatedAt).toLocaleTimeString("de-DE")}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Badge variant={data.stuckRunning ? "destructive" : "secondary"}>
-            {data.stuckRunning} hängend
-          </Badge>
-          <Badge variant={data.duePending ? "default" : "secondary"}>
-            {data.duePending} fällig
-          </Badge>
-        </div>
-      </div>
+          </>
+        }
+        actions={
+          <>
+            <Badge variant={data.stuckRunning ? "destructive" : "secondary"}>
+              {data.stuckRunning} hängend
+            </Badge>
+            <Badge variant={data.duePending ? "default" : "secondary"}>
+              {data.duePending} fällig
+            </Badge>
+          </>
+        }
+      />
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <section className="rounded-md border p-4">
-          <h2 className="text-sm font-semibold">Automation-Jobs</h2>
-          <ul className="mt-2 space-y-1 text-sm">
+      <div className="grid gap-4 md:grid-cols-3">
+        <Panel title="Automation-Jobs">
+          <ul className="space-y-1 text-sm">
             {jobStatuses.length === 0 && <li className="text-muted-foreground">keine Jobs</li>}
             {jobStatuses.map(([status, count]) => (
-              <li key={status} className="flex items-center justify-between">
+              <li key={status} className="flex items-center justify-between gap-2">
                 <Badge variant={statusVariant(status)}>{status}</Badge>
-                <span className="font-mono">{count}</span>
+                <span className="tabular-nums">{count}</span>
               </li>
             ))}
           </ul>
-        </section>
-        <section className="rounded-md border p-4">
-          <h2 className="text-sm font-semibold">Outbox-Events</h2>
-          <ul className="mt-2 space-y-1 text-sm">
+        </Panel>
+        <Panel title="Outbox-Events">
+          <ul className="space-y-1 text-sm">
             {outboxStatuses.length === 0 && <li className="text-muted-foreground">keine Events</li>}
             {outboxStatuses.map(([status, count]) => (
-              <li key={status} className="flex items-center justify-between">
+              <li key={status} className="flex items-center justify-between gap-2">
                 <Badge variant={statusVariant(status)}>{status}</Badge>
-                <span className="font-mono">{count}</span>
+                <span className="tabular-nums">{count}</span>
               </li>
             ))}
           </ul>
@@ -104,43 +105,40 @@ function SystemJobs() {
               Ältestes offenes Event: {new Date(data.outboxOldestPendingAt).toLocaleString("de-DE")}
             </p>
           )}
-        </section>
-        <section className="rounded-md border p-4">
-          <h2 className="text-sm font-semibold">Kommunikations-Queue</h2>
-          <ul className="mt-2 space-y-1 text-sm">
+        </Panel>
+        <Panel title="Kommunikations-Queue">
+          <ul className="space-y-1 text-sm">
             {commStatuses.length === 0 && <li className="text-muted-foreground">keine Nachrichten</li>}
             {commStatuses.map(([status, count]) => (
-              <li key={status} className="flex items-center justify-between">
+              <li key={status} className="flex items-center justify-between gap-2">
                 <Badge variant={statusVariant(status)}>{status}</Badge>
-                <span className="font-mono">{count}</span>
+                <span className="tabular-nums">{count}</span>
               </li>
             ))}
           </ul>
-        </section>
+        </Panel>
       </div>
 
-      <Separator className="my-6" />
-
-      <section>
-        <h2 className="text-base font-semibold">Letzte Jobs</h2>
+      <section className="mt-6">
+        <h2 className="mb-3 font-display text-base font-semibold">Letzte Jobs</h2>
         {data.recentJobs.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">Noch keine Jobs vorhanden.</p>
+          <EmptyState title="Noch keine Jobs vorhanden." />
         ) : (
-          <ul className="mt-3 space-y-2">
+          <ul className="space-y-2">
             {data.recentJobs.slice(0, 20).map((job) => (
-              <li key={job.id} className="rounded-md border p-3 text-sm">
+              <li key={job.id} className="min-w-0 rounded-xl border border-border bg-card p-3 text-sm">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant={statusVariant(job.status)}>{job.status}</Badge>
-                  <code className="text-xs">{job.jobType}</code>
+                  <code className="min-w-0 break-words text-xs">{job.jobType}</code>
                   <span className="text-xs text-muted-foreground">
                     Versuch {job.attempts}/{job.maxAttempts}
                   </span>
-                  <span className="ml-auto text-xs text-muted-foreground">
+                  <span className="ml-auto shrink-0 text-xs text-muted-foreground">
                     {new Date(job.updatedAt).toLocaleString("de-DE")}
                   </span>
                 </div>
                 {job.lastError && (
-                  <p className="mt-2 text-xs text-destructive">
+                  <p className="mt-2 break-words text-xs text-destructive">
                     {job.lastErrorCode ? `[${job.lastErrorCode}] ` : ""}
                     {job.lastError}
                   </p>
@@ -151,25 +149,26 @@ function SystemJobs() {
         )}
       </section>
 
-      <Separator className="my-6" />
-
-      <section>
-        <h2 className="text-base font-semibold">Letzte Automation-Ausführungen</h2>
+      <section className="mt-6">
+        <h2 className="mb-3 font-display text-base font-semibold">Letzte Automation-Ausführungen</h2>
         {data.recentExecutions.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">Noch keine Ausführungen vorhanden.</p>
+          <EmptyState title="Noch keine Ausführungen vorhanden." />
         ) : (
-          <ul className="mt-3 space-y-2">
+          <ul className="space-y-2">
             {data.recentExecutions.map((ex) => (
-              <li key={ex.id} className="flex flex-wrap items-center gap-2 rounded-md border p-3 text-sm">
+              <li
+                key={ex.id}
+                className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3 text-sm"
+              >
                 <Badge variant={statusVariant(ex.status)}>{ex.status}</Badge>
-                <code className="text-xs">{ex.triggerType}</code>
+                <code className="min-w-0 break-words text-xs">{ex.triggerType}</code>
                 {ex.durationMs != null && (
-                  <span className="text-xs text-muted-foreground">{ex.durationMs} ms</span>
+                  <span className="text-xs text-muted-foreground tabular-nums">{ex.durationMs} ms</span>
                 )}
-                <span className="ml-auto text-xs text-muted-foreground">
+                <span className="ml-auto shrink-0 text-xs text-muted-foreground">
                   {ex.startedAt ? new Date(ex.startedAt).toLocaleString("de-DE") : "—"}
                 </span>
-                {ex.error && <p className="w-full text-xs text-destructive">{ex.error}</p>}
+                {ex.error && <p className="w-full break-words text-xs text-destructive">{ex.error}</p>}
               </li>
             ))}
           </ul>

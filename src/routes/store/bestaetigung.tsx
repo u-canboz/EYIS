@@ -4,6 +4,12 @@ import { useCommerce } from "@/lib/store-sdk/react/provider";
 import type { StoreOrder } from "@/lib/store-sdk";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  StoreContainer,
+  StoreHeading,
+  StoreNotice,
+  formatPrice,
+} from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store/bestaetigung")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -26,11 +32,6 @@ export const Route = createFileRoute("/store/bestaetigung")({
   }),
   component: StoreConfirmationPage,
 });
-
-const money = (minor: number, currency: string) =>
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
-    minor / 100,
-  );
 
 function StoreConfirmationPage() {
   const client = useCommerce();
@@ -90,43 +91,67 @@ function StoreConfirmationPage() {
 
   if (error)
     return (
-      <div className="space-y-4">
-        <h1 className="font-display text-2xl font-semibold">Bestellung</h1>
-        <p className="text-sm text-destructive">{error}</p>
-        <Button asChild variant="outline">
-          <Link to="/store">Zum Katalog</Link>
-        </Button>
-      </div>
+      <StoreContainer className="py-8 sm:py-12">
+        <StoreHeading title="Bestellung" />
+        <div className="mt-6">
+          <StoreNotice
+            tone="error"
+            title="Bestellung konnte nicht bestätigt werden"
+            description={error}
+            action={
+              <Button asChild variant="outline" className="mt-2 h-11">
+                <Link to="/store">Zum Katalog</Link>
+              </Button>
+            }
+          />
+        </div>
+      </StoreContainer>
     );
 
-  if (!order) return <Skeleton className="h-56 w-full" />;
+  if (!order)
+    return (
+      <StoreContainer className="py-8 sm:py-12">
+        <StoreHeading title="Bestellung" />
+        <div className="mt-7 space-y-4">
+          <Skeleton className="h-6 w-1/2" />
+          <Skeleton className="h-40 w-full rounded-2xl" />
+        </div>
+      </StoreContainer>
+    );
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-display text-2xl font-semibold">Vielen Dank für die Bestellung</h1>
-      <p className="text-sm text-muted-foreground">Bestellnummer: {order.orderNumber}</p>
+    <StoreContainer className="py-8 sm:py-12">
+      <StoreHeading
+        eyebrow="Bestätigt"
+        title="Vielen Dank für die Bestellung"
+        description={
+          <span className="min-w-0 break-words">Bestellnummer: {order.orderNumber}</span>
+        }
+      />
 
-      <ul className="divide-y rounded-lg border">
+      <ul className="mt-7 min-w-0 divide-y divide-border rounded-2xl border border-border">
         {order.items.map((item, index) => (
           <li
             key={`${item.sku ?? item.title}-${index}`}
-            className="flex justify-between gap-3 p-4 text-sm"
+            className="flex min-w-0 items-start justify-between gap-3 p-4 text-sm"
           >
-            <span>
+            <span className="min-w-0 text-pretty">
               {item.quantity} × {item.title}
             </span>
-            <span>{money(item.lineTotalMinor, order.currencyCode)}</span>
+            <span className="shrink-0 tabular-nums">
+              {formatPrice(item.lineTotalMinor, order.currencyCode)}
+            </span>
           </li>
         ))}
       </ul>
 
-      <p className="text-right font-medium">
-        Gesamt: {money(order.totalMinor, order.currencyCode)}
+      <p className="mt-4 text-right text-base font-semibold tabular-nums">
+        Gesamt: {formatPrice(order.totalMinor, order.currencyCode)}
       </p>
 
-      <Button asChild variant="outline">
+      <Button asChild variant="outline" className="mt-6 h-12 w-full text-base">
         <Link to="/store">Weiter einkaufen</Link>
       </Button>
-    </div>
+    </StoreContainer>
   );
 }

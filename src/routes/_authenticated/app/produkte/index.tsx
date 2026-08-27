@@ -270,7 +270,7 @@ function ProductsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-10"
+                        className="min-h-11"
                         disabled={duplicateMutation.isPending}
                         onClick={() => duplicateMutation.mutate(item.id)}
                       >
@@ -281,7 +281,7 @@ function ProductsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-10"
+                        className="min-h-11"
                         disabled={archiveMutation.isPending}
                         onClick={() => archiveMutation.mutate(item.id)}
                       >
@@ -374,21 +374,21 @@ function ProductsPage() {
 
 
       {total > pageSize && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <Button
             variant="outline"
-            size="sm"
+            className="min-h-11"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
           >
             Zurück
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm tabular-nums text-muted-foreground">
             Seite {page} von {Math.ceil(total / pageSize)}
           </span>
           <Button
             variant="outline"
-            size="sm"
+            className="min-h-11"
             disabled={page >= Math.ceil(total / pageSize)}
             onClick={() => setPage(page + 1)}
           >

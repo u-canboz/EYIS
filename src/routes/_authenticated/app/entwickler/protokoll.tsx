@@ -6,8 +6,18 @@ import { listStoreKeysFn, listStoreLogsFn } from "@/lib/commerce/store/store.fun
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { FilterBar } from "@/components/data/FilterBar";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/entwickler/protokoll")({
   head: () => ({
@@ -52,71 +62,119 @@ function StoreApiLogs() {
     queryFn: () => fetchLogs({ data: { organizationId, shopId, keyId, onlyErrors } }),
   });
 
-  return (
-    <div className="space-y-6">
-      <header className="space-y-1">
-        <Link to="/app/entwickler" className="text-sm text-muted-foreground hover:underline">
-          ← Entwickler
-        </Link>
-        <h1 className="font-display text-2xl font-semibold">Store-API-Protokoll</h1>
-        <p className="text-sm text-muted-foreground">
-          Jede Anfrage erhält eine Request-ID. IP-Adressen werden nur als täglich neu gesalzener
-          Hash gespeichert und nie angezeigt.
-        </p>
-      </header>
+  const activeFilters = (keyId ? 1 : 0) + (onlyErrors ? 1 : 0);
 
-      <div className="flex flex-wrap items-center gap-2">
-        <select
-          className="h-9 rounded-md border bg-background px-3 text-sm"
-          value={keyId ?? ""}
-          onChange={(e) => setKeyId(e.target.value || null)}
-        >
-          <option value="">Alle Keys</option>
-          {(keys.data ?? []).map((k) => (
-            <option key={k.id} value={k.id}>
-              {k.name} ({k.environment})
-            </option>
-          ))}
-        </select>
-        <Button
-          variant={onlyErrors ? "default" : "outline"}
-          size="sm"
-          onClick={() => setOnlyErrors((v) => !v)}
-        >
-          Nur Fehler
-        </Button>
-      </div>
+  return (
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link to="/app/entwickler" className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground hover:underline">
+            ← Entwickler
+          </Link>
+        }
+        title="Store-API-Protokoll"
+        description="Jede Anfrage erhält eine Request-ID. IP-Adressen werden nur als täglich neu gesalzener Hash gespeichert und nie angezeigt."
+      />
+
+      <FilterBar
+        activeCount={activeFilters}
+        onReset={() => {
+          setKeyId(null);
+          setOnlyErrors(false);
+        }}
+        filters={
+          <>
+            <Select value={keyId ?? "all"} onValueChange={(v) => setKeyId(v === "all" ? null : v)}>
+              <SelectTrigger className="h-11 w-full md:w-56">
+                <SelectValue placeholder="Alle Keys" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle Keys</SelectItem>
+                {(keys.data ?? []).map((k) => (
+                  <SelectItem key={k.id} value={k.id}>
+                    {k.name} ({k.environment})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant={onlyErrors ? "default" : "outline"}
+              className="h-11 w-full md:w-auto"
+              onClick={() => setOnlyErrors((v) => !v)}
+            >
+              Nur Fehler
+            </Button>
+          </>
+        }
+      />
 
       {logs.isLoading ? (
-        <Skeleton className="h-64 w-full" />
+        <ListSkeleton />
       ) : (logs.data ?? []).length === 0 ? (
-        <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-          Noch keine Anfragen protokolliert.
-        </p>
+        <EmptyState title="Noch keine Anfragen protokolliert" description="Sobald eine Storefront die Store API nutzt, erscheinen hier die Anfragen." />
       ) : (
-        <Card>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {(logs.data ?? []).map((log) => (
-                <div key={log.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
-                  <Badge variant={log.statusCode >= 400 ? "destructive" : "secondary"}>
-                    {log.statusCode}
-                  </Badge>
-                  <span className="font-mono text-xs">{log.method}</span>
-                  <span className="flex-1 truncate font-mono text-xs">{log.route}</span>
-                  <span className="text-xs text-muted-foreground">{log.durationMs} ms</span>
-                  {log.errorCode ? (
-                    <span className="text-xs text-destructive">{log.errorCode}</span>
-                  ) : null}
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(log.createdAt).toLocaleString("de-DE")}
-                  </span>
-                  <code className="w-full text-[10px] text-muted-foreground">{log.requestId}</code>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <>
+          <RecordCardList>
+            {(logs.data ?? []).map((log) => (
+              <RecordCard
+                key={log.id}
+                title={<span className="font-mono text-sm">{log.method} {log.route}</span>}
+                subtitle={new Date(log.createdAt).toLocaleString("de-DE")}
+                trailing={`${log.durationMs} ms`}
+                badges={
+                  <>
+                    <Badge variant={log.statusCode >= 400 ? "destructive" : "secondary"}>
+                      {log.statusCode}
+                    </Badge>
+                    {log.errorCode ? (
+                      <Badge variant="outline" className="text-destructive">
+                        {log.errorCode}
+                      </Badge>
+                    ) : null}
+                  </>
+                }
+                fields={[{ label: "Request-ID", value: log.requestId }]}
+              />
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Status</th>
+                  <th className="p-3 font-medium">Methode</th>
+                  <th className="p-3 font-medium">Route</th>
+                  <th className="p-3 font-medium">Dauer</th>
+                  <th className="p-3 font-medium">Fehler</th>
+                  <th className="p-3 font-medium">Zeitpunkt</th>
+                  <th className="p-3 font-medium">Request-ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(logs.data ?? []).map((log) => (
+                  <tr key={log.id} className="border-t hover:bg-muted/40">
+                    <td className="p-3">
+                      <Badge variant={log.statusCode >= 400 ? "destructive" : "secondary"}>
+                        {log.statusCode}
+                      </Badge>
+                    </td>
+                    <td className="p-3 font-mono text-xs">{log.method}</td>
+                    <td className="max-w-[20rem] truncate p-3 font-mono text-xs">{log.route}</td>
+                    <td className="p-3 tabular-nums">{log.durationMs} ms</td>
+                    <td className="p-3 text-xs text-destructive">{log.errorCode ?? "—"}</td>
+                    <td className="p-3 whitespace-nowrap tabular-nums text-xs text-muted-foreground">
+                      {new Date(log.createdAt).toLocaleString("de-DE")}
+                    </td>
+                    <td className="max-w-[10rem] truncate p-3 font-mono text-[10px] text-muted-foreground">
+                      {log.requestId}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
     </div>
   );

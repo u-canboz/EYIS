@@ -309,7 +309,7 @@ function InventoryPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-10"
+                      className="min-h-11"
                       disabled={!canReceive || !row.track_inventory}
                       onClick={() => openDialog(row, "receive")}
                     >
@@ -318,7 +318,7 @@ function InventoryPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-10"
+                      className="min-h-11"
                       disabled={!canAdjust || !row.track_inventory}
                       onClick={() => openDialog(row, "adjust")}
                     >
@@ -327,7 +327,7 @@ function InventoryPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-10"
+                      className="min-h-11"
                       disabled={!canAdjust || !row.track_inventory}
                       onClick={() => openDialog(row, "damage")}
                     >
@@ -383,7 +383,7 @@ function InventoryPage() {
                         </div>
                       )}
                     </td>
-                    <td className="text-muted-foreground p-3 break-all">{row.sku ?? "—"}</td>
+                    <td className="text-muted-foreground p-3 break-words">{row.sku ?? "—"}</td>
                     <td className="p-3 text-right tabular-nums">
                       {row.track_inventory ? row.totals.on_hand : "—"}
                     </td>

@@ -5,6 +5,7 @@ export function DemoBanner() {
   return (
     <div
       role="status"
+      data-demo-banner=""
       className="flex items-start gap-2 rounded-xl border border-signal/40 bg-signal/10 px-3 py-2 text-xs leading-relaxed text-foreground sm:text-sm"
     >
       <FlaskConical className="mt-0.5 size-4 shrink-0 text-signal" aria-hidden />

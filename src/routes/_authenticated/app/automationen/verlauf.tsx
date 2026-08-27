@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   listExecutionsFn,
   getExecutionFn,
@@ -24,6 +25,9 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { EmptyState } from "@/components/data/States";
 
 type Search = { executionId?: string | undefined; status?: string | undefined };
 
@@ -100,61 +104,63 @@ function ExecutionHistory() {
   });
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link to="/app/automationen" className="text-sm text-muted-foreground hover:underline">
-            ← Automationen
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/automationen"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Automationen
           </Link>
-          <h1 className="font-display text-2xl font-semibold">Verlauf</h1>
-          <p className="text-sm text-muted-foreground">
-            Jeder Lauf mit Auslöser, Ergebnis und Fehlerursache.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {FILTERS.map((f) => (
-            <Button
-              key={f.value || "all"}
-              size="sm"
-              variant={(search.status ?? "") === f.value ? "default" : "outline"}
-              onClick={() =>
-                void navigate({ search: (s: Search) => ({ ...s, status: f.value || undefined }) })
-              }
-            >
-              {f.label}
-            </Button>
-          ))}
-        </div>
-      </header>
+        }
+        title="Verlauf"
+        description="Jeder Lauf mit Auslöser, Ergebnis und Fehlerursache."
+      />
+
+      <ScrollTabs>
+        {FILTERS.map((f) => (
+          <Button
+            key={f.value || "all"}
+            size="sm"
+            className="min-h-11"
+            variant={(search.status ?? "") === f.value ? "default" : "outline"}
+            onClick={() =>
+              void navigate({ search: (s: Search) => ({ ...s, status: f.value || undefined }) })
+            }
+          >
+            {f.label}
+          </Button>
+        ))}
+      </ScrollTabs>
 
       {executions.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : (executions.data ?? []).length === 0 ? (
-        <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-          Noch keine Läufe aufgezeichnet.
-        </p>
+        <EmptyState title="Noch keine Läufe aufgezeichnet." />
       ) : (
-        <ul className="divide-y rounded-lg border bg-card">
+        <ul className="min-w-0 divide-y divide-border rounded-xl border border-border bg-card text-sm">
           {(executions.data ?? []).map((e) => (
             <li
               key={e.id}
-              className="flex flex-wrap items-center justify-between gap-3 p-3 text-sm"
+              className="grid min-w-0 grid-cols-1 gap-3 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
             >
               <div className="min-w-0">
-                <p className="font-medium">{e.ruleName}</p>
-                <p className="text-muted-foreground">
+                <p className="truncate font-medium">{e.ruleName}</p>
+                <p className="min-w-0 break-words text-muted-foreground">
                   {e.eventType ? eventLabel(e.eventType) : "Zeitgesteuert"} ·{" "}
                   {new Date(e.createdAt).toLocaleString("de-DE")}
                   {e.durationMs != null ? ` · ${e.durationMs} ms` : ""}
                 </p>
                 {e.errorCode && (
-                  <p className="text-destructive">
+                  <p className="min-w-0 break-words text-destructive">
                     {ERROR_CODE_LABELS[e.errorCode] ?? e.errorCode}
                     {e.error ? `: ${e.error}` : ""}
                   </p>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <Badge variant={e.status === "failed" ? "destructive" : "secondary"}>
                   {EXECUTION_STATUS_LABELS[e.status as keyof typeof EXECUTION_STATUS_LABELS] ??
                     e.status}
@@ -180,7 +186,7 @@ function ExecutionHistory() {
           if (!open) void navigate({ search: (s: Search) => ({ ...s, executionId: undefined }) });
         }}
       >
-        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+        <SheetContent className="w-full max-h-[85dvh] overflow-y-auto sm:max-w-xl">
           <SheetHeader>
             <SheetTitle>Lauf-Details</SheetTitle>
             <SheetDescription>
@@ -190,9 +196,9 @@ function ExecutionHistory() {
           {detail.isLoading ? (
             <Skeleton className="mt-6 h-64 w-full" />
           ) : detail.data ? (
-            <div className="mt-6 space-y-5 text-sm">
-              <div>
-                <p className="font-medium">{detail.data.ruleName}</p>
+            <div className="mt-6 min-w-0 space-y-5 px-4 pb-6 text-sm">
+              <div className="min-w-0">
+                <p className="min-w-0 break-words font-medium">{detail.data.ruleName}</p>
                 <p className="text-muted-foreground">
                   Version {detail.data.version} ·{" "}
                   {EXECUTION_STATUS_LABELS[
@@ -201,37 +207,44 @@ function ExecutionHistory() {
                 </p>
               </div>
               {detail.data.errorCode && (
-                <div className="rounded-md border border-destructive/40 p-3 text-destructive">
+                <div className="min-w-0 break-words rounded-md border border-destructive/40 p-3 text-destructive">
                   {ERROR_CODE_LABELS[detail.data.errorCode] ?? detail.data.errorCode}
                   {detail.data.error ? `: ${detail.data.error}` : ""}
                 </div>
               )}
-              <div>
+              <div className="min-w-0">
                 <p className="mb-2 font-medium">Aktionen</p>
                 <ul className="space-y-2">
                   {detail.data.actions.map((a) => (
-                    <li key={a.id} className="rounded-md border p-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <span>
+                    <li key={a.id} className="min-w-0 rounded-md border border-border p-2">
+                      <div className="flex min-w-0 items-center justify-between gap-2">
+                        <span className="min-w-0 truncate">
                           {a.position}. {actionLabel(a.actionType)}
                         </span>
-                        <Badge variant={a.status === "failed" ? "destructive" : "secondary"}>
+                        <Badge
+                          variant={a.status === "failed" ? "destructive" : "secondary"}
+                          className="shrink-0"
+                        >
                           {a.status}
                         </Badge>
                       </div>
                       {a.errorMessage && (
-                        <p className="mt-1 text-xs text-destructive">{a.errorMessage}</p>
+                        <p className="mt-1 min-w-0 break-words text-xs text-destructive">
+                          {a.errorMessage}
+                        </p>
                       )}
                       {a.skippedReason && (
-                        <p className="mt-1 text-xs text-muted-foreground">{a.skippedReason}</p>
+                        <p className="mt-1 min-w-0 break-words text-xs text-muted-foreground">
+                          {a.skippedReason}
+                        </p>
                       )}
                     </li>
                   ))}
                 </ul>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="mb-2 font-medium">Ausgangsdaten</p>
-                <pre className="max-h-64 overflow-auto rounded-md bg-muted p-3 text-xs">
+                <pre className="max-h-64 min-w-0 overflow-auto rounded-md bg-muted p-3 text-xs break-words">
                   {JSON.stringify(detail.data.context, null, 2)}
                 </pre>
               </div>

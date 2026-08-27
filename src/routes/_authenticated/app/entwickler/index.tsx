@@ -13,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/entwickler/")({
   head: () => ({
@@ -94,60 +95,59 @@ function DeveloperKeys() {
   });
 
   return (
-    <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="font-display text-2xl font-semibold">Entwickler</h1>
-        <p className="text-sm text-muted-foreground">
-          Publishable Keys identifizieren einen Shop gegenüber der Store API. Sie sind{" "}
-          <strong>kein Geheimnis</strong> und dürfen im Browser-Bundle stehen. Jeder sensible
-          Zugriff braucht zusätzlich einen echten Zugriffsnachweis (Cart-Token, Kunden-Session oder
-          Guest-Token).
-        </p>
-        <div className="flex flex-wrap gap-3 text-sm">
-          <Link to="/app/entwickler/api" className="text-primary hover:underline">
-            API-Referenz
-          </Link>
-          <Link to="/app/entwickler/protokoll" className="text-primary hover:underline">
-            Anfrage-Protokoll
-          </Link>
-        </div>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Entwickler"
+        description={
+          <>
+            Publishable Keys identifizieren einen Shop gegenüber der Store API. Sie sind{" "}
+            <strong>kein Geheimnis</strong> und dürfen im Browser-Bundle stehen. Jeder sensible
+            Zugriff braucht zusätzlich einen echten Zugriffsnachweis (Cart-Token, Kunden-Session
+            oder Guest-Token).
+          </>
+        }
+        eyebrow={
+          <>
+            <Link to="/app/entwickler/api" className="min-h-11 items-center hover:text-foreground hover:underline">
+              API-Referenz
+            </Link>
+            <Link to="/app/entwickler/protokoll" className="min-h-11 items-center hover:text-foreground hover:underline">
+              Anfrage-Protokoll
+            </Link>
+          </>
+        }
+      />
 
       {freshKey ? (
-        <Card className="border-primary">
-          <CardHeader>
-            <CardTitle className="text-base">Neuer Key</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <code className="block break-all rounded-md bg-muted p-3 font-mono text-sm">
+        <Panel title="Neuer Key" className="border-primary">
+          <div className="min-w-0 space-y-2">
+            <code className="block min-w-0 break-all rounded-md bg-muted p-3 font-mono text-sm">
               {freshKey}
             </code>
             <p className="text-xs text-muted-foreground">
               Für Storefronts als <code>VITE_COMMERCE_PUBLISHABLE_KEY</code> hinterlegen. Wird nach
               dem Verlassen der Seite nicht erneut angezeigt.
             </p>
-            <Button variant="secondary" size="sm" onClick={() => setFreshKey(null)}>
+            <Button variant="secondary" size="sm" className="h-11" onClick={() => setFreshKey(null)}>
               Verstanden
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-3 lg:col-span-2">
+      <div className="grid min-w-0 gap-5 lg:grid-cols-3">
+        <div className="min-w-0 space-y-3 lg:col-span-2">
           {keys.isLoading ? (
-            <Skeleton className="h-40 w-full" />
+            <ListSkeleton rows={3} />
           ) : (keys.data ?? []).length === 0 ? (
-            <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-              Noch kein Key vorhanden.
-            </p>
+            <EmptyState title="Noch kein Key vorhanden" description="Erstelle rechts einen ersten Publishable Key für deine Storefront." />
           ) : (
             (keys.data ?? []).map((key) => (
-              <Card key={key.id}>
-                <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-6">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{key.name}</span>
+              <Panel key={key.id}>
+                <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="min-w-0 truncate font-medium">{key.name}</span>
                       <Badge variant={key.environment === "live" ? "default" : "secondary"}>
                         {key.environment}
                       </Badge>
@@ -155,8 +155,10 @@ function DeveloperKeys() {
                         <Badge variant="destructive">widerrufen</Badge>
                       ) : null}
                     </div>
-                    <code className="font-mono text-xs text-muted-foreground">{key.prefix}…</code>
-                    <p className="text-xs text-muted-foreground">
+                    <code className="block break-words font-mono text-xs text-muted-foreground">
+                      {key.prefix}…
+                    </code>
+                    <p className="break-words text-xs text-muted-foreground">
                       Origins: {key.allowedOrigins.length ? key.allowedOrigins.join(", ") : "keine"}{" "}
                       · zuletzt genutzt:{" "}
                       {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString("de-DE") : "nie"}
@@ -166,27 +168,26 @@ function DeveloperKeys() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="min-h-11 shrink-0"
                       onClick={() => revoke.mutate(key.id)}
                       disabled={revoke.isPending}
                     >
                       Widerrufen
                     </Button>
                   ) : null}
-                </CardContent>
-              </Card>
+                </div>
+              </Panel>
             ))
           )}
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Key erstellen</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <Panel title="Key erstellen">
+          <div className="min-w-0 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="key-name">Name</Label>
               <Input
                 id="key-name"
+                className="h-11"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Web-Storefront"
@@ -196,7 +197,7 @@ function DeveloperKeys() {
               <Label htmlFor="key-env">Umgebung</Label>
               <select
                 id="key-env"
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                className="h-11 w-full rounded-md border bg-background px-3 text-sm"
                 value={environment}
                 onChange={(e) => setEnvironment(e.target.value as "test" | "live")}
               >
@@ -218,14 +219,14 @@ function DeveloperKeys() {
               </p>
             </div>
             <Button
-              className="w-full"
+              className="h-11 w-full"
               onClick={() => create.mutate()}
               disabled={!name.trim() || create.isPending}
             >
               Key erstellen
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
       </div>
     </div>
   );

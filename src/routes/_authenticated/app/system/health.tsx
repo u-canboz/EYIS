@@ -13,7 +13,9 @@ import {
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { PermissionState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/system/health")({
   head: () => ({
@@ -60,84 +62,77 @@ function SystemHealth() {
   });
 
   if (!isLoading && !allowed) {
-    return (
-      <div>
-        <h1 className="font-display text-2xl font-semibold">System Health</h1>
-        <p className="mt-4 text-sm text-muted-foreground">
-          Nur Inhaber, Administratoren und Operations dürfen Integritätsprüfungen ausführen.
-        </p>
-      </div>
-    );
+    return <PermissionState what="Integritätsprüfungen" />;
   }
 
   const areas = report ? Object.keys(AREA_LABELS) : [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">System Health</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Read-only Integritätsprüfung. Es werden keine Daten verändert oder repariert.
-          </p>
-        </div>
-        <Button onClick={() => run.mutate()} disabled={run.isPending || !organizationId}>
-          {run.isPending ? "Prüfung läuft…" : "Checks ausführen"}
-        </Button>
-      </div>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="System Health"
+        description="Read-only Integritätsprüfung. Es werden keine Daten verändert oder repariert."
+        actions={
+          <Button className="h-11" onClick={() => run.mutate()} disabled={run.isPending || !organizationId}>
+            {run.isPending ? "Prüfung läuft…" : "Checks ausführen"}
+          </Button>
+        }
+      />
 
       {report && (
-        <div className="mt-6 space-y-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge
-              variant={
-                report.status === "ok"
-                  ? "secondary"
+        <div className="min-w-0 space-y-5">
+          <Panel title="Ergebnis">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <Badge
+                variant={
+                  report.status === "ok"
+                    ? "secondary"
+                    : report.status === "critical"
+                      ? "destructive"
+                      : "default"
+                }
+              >
+                {report.status === "ok"
+                  ? "Status: OK"
                   : report.status === "critical"
-                    ? "destructive"
-                    : "default"
-              }
-            >
-              {report.status === "ok"
-                ? "Status: OK"
-                : report.status === "critical"
-                  ? "Status: Kritisch"
-                  : "Status: Warnung"}
-            </Badge>
-            {SEVERITY_ORDER.map((s) => (
-              <span key={s} className="text-sm text-muted-foreground">
-                {SEVERITY_LABELS[s]}: <strong>{report.bySeverity[s]}</strong>
+                    ? "Status: Kritisch"
+                    : "Status: Warnung"}
+              </Badge>
+              {SEVERITY_ORDER.map((s) => (
+                <span key={s} className="text-sm text-muted-foreground">
+                  {SEVERITY_LABELS[s]}: <strong className="tabular-nums">{report.bySeverity[s]}</strong>
+                </span>
+              ))}
+              <span className="text-xs tabular-nums text-muted-foreground">
+                Lauf: {new Date(report.runAt).toLocaleString("de-DE")}
               </span>
-            ))}
-            <span className="text-xs text-muted-foreground">
-              Lauf: {new Date(report.runAt).toLocaleString("de-DE")}
-            </span>
-          </div>
-
-          <Separator />
+            </div>
+          </Panel>
 
           {areas.map((area) => {
             const findings = report.findings.filter((f) => f.area === area);
             return (
-              <section key={area}>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base font-semibold">{AREA_LABELS[area]}</h2>
+              <Panel
+                key={area}
+                title={AREA_LABELS[area]}
+                actions={
                   <Badge variant={findings.length ? "default" : "secondary"}>
                     {findings.length ? `${findings.length} Befund(e)` : "OK"}
                   </Badge>
-                </div>
-                {findings.length > 0 && (
-                  <ul className="mt-3 space-y-2">
+                }
+              >
+                {findings.length > 0 ? (
+                  <ul className="min-w-0 space-y-2">
                     {findings.map((f, i) => (
-                      <li key={`${f.code}-${i}`} className="rounded-md border p-3 text-sm">
-                        <div className="flex flex-wrap items-center gap-2">
+                      <li key={`${f.code}-${i}`} className="min-w-0 rounded-md border border-border p-3 text-sm">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <Badge variant={severityVariant(f.severity)}>
                             {SEVERITY_LABELS[f.severity]}
                           </Badge>
                           <code className="text-xs text-muted-foreground">{f.code}</code>
                         </div>
-                        <p className="mt-2">{f.message}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
+                        <p className="mt-2 min-w-0 break-words">{f.message}</p>
+                        <p className="mt-1 min-w-0 break-words text-xs text-muted-foreground">
                           {f.entityType}
                           {f.entityId ? ` · ${f.entityId}` : ""}
                           {f.shopId ? ` · Shop ${f.shopId}` : ""}
@@ -145,8 +140,10 @@ function SystemHealth() {
                       </li>
                     ))}
                   </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Keine Befunde.</p>
                 )}
-              </section>
+              </Panel>
             );
           })}
         </div>

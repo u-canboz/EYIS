@@ -12,8 +12,8 @@ export function TableScroll({
   desktopOnly,
 }: {
   children: ReactNode;
-  className?: string;
-  desktopOnly?: boolean;
+  className?: string | undefined;
+  desktopOnly?: boolean | undefined;
 }) {
   return (
     <div

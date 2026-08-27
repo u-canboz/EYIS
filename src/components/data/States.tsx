@@ -12,10 +12,10 @@ export function EmptyState({
   className,
 }: {
   title: string;
-  description?: ReactNode;
-  action?: ReactNode;
-  icon?: typeof Inbox;
-  className?: string;
+  description?: ReactNode | undefined;
+  action?: ReactNode | undefined;
+  icon?: typeof Inbox | undefined;
+  className?: string | undefined;
 }) {
   return (
     <div
@@ -40,10 +40,10 @@ export function ErrorState({
   action,
   className,
 }: {
-  title?: string;
-  description?: ReactNode;
-  action?: ReactNode;
-  className?: string;
+  title?: string | undefined;
+  description?: ReactNode | undefined;
+  action?: ReactNode | undefined;
+  className?: string | undefined;
 }) {
   return (
     <div

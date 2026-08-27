@@ -2,15 +2,19 @@
  * Reference storefront.
  *
  * Boundary rule: this subtree may ONLY import from `@/lib/store-sdk/**`,
- * `@/components/ui/**` and React/Router. No `@/lib/commerce/**`, no Supabase.
- * The ESLint boundary rule in eslint.config.js fails the build on violations.
+ * `@/components/ui/**`, `@/components/storefront/**` and React/Router.
+ * No `@/lib/commerce/**`, no Supabase. The ESLint boundary rule in
+ * eslint.config.js fails the build on violations.
  */
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { ShoppingBag, User } from "lucide-react";
 import { CommerceProvider } from "@/lib/store-sdk/react/provider";
 import type { CommerceClientConfig } from "@/lib/store-sdk";
+import { useCart } from "@/lib/store-sdk/react/hooks";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { StoreContainer } from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store")({
   component: StoreLayout,
@@ -49,14 +53,15 @@ function StoreLayout() {
 
   if (!publishableKey) {
     return (
-      <div className="mx-auto max-w-md space-y-4 p-8">
-        <h1 className="font-display text-xl font-semibold">Publishable Key erforderlich</h1>
-        <p className="text-sm text-muted-foreground">
-          Der Publishable Key identifiziert den Shop und ist kein Geheimnis. Setze
-          <code className="mx-1">VITE_COMMERCE_PUBLISHABLE_KEY</code>oder trage ihn hier ein.
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-4 px-5 py-10">
+        <h1 className="font-display text-xl font-semibold">Shop wird noch verbunden</h1>
+        <p className="text-sm text-pretty text-muted-foreground">
+          Diese Storefront braucht den Publishable Key des Shops. Er identifiziert den Shop und ist
+          kein Geheimnis. Setze <code className="mx-0.5">VITE_COMMERCE_PUBLISHABLE_KEY</code> oder
+          trage ihn hier einmalig ein.
         </p>
         <form
-          className="flex gap-2"
+          className="flex flex-col gap-2 sm:flex-row"
           onSubmit={(event) => {
             event.preventDefault();
             const value = new FormData(event.currentTarget).get("key");
@@ -66,8 +71,10 @@ function StoreLayout() {
             }
           }}
         >
-          <Input name="key" placeholder="pk_..." aria-label="Publishable Key" />
-          <Button type="submit">Laden</Button>
+          <Input name="key" className="h-11" placeholder="pk_…" aria-label="Publishable Key" />
+          <Button type="submit" className="h-11">
+            Shop laden
+          </Button>
         </form>
       </div>
     );
@@ -75,29 +82,64 @@ function StoreLayout() {
 
   return (
     <CommerceProvider config={config}>
-      <div className="min-h-screen bg-background">
-        <header className="border-b">
-          <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4">
-            <Link to="/store" className="font-display text-lg font-semibold">
-              Referenz-Storefront
-            </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link to="/store" className="hover:underline">
-                Katalog
-              </Link>
-              <Link to="/store/warenkorb" className="hover:underline">
-                Warenkorb
-              </Link>
-              <Link to="/store/konto" className="hover:underline">
-                Konto
-              </Link>
-            </nav>
-          </div>
-        </header>
-        <main className="mx-auto max-w-4xl px-4 py-6">
+      <div className="flex min-h-dvh flex-col bg-background">
+        <StoreHeader />
+        <main className="flex-1 pb-16">
           <Outlet />
         </main>
+        <footer className="border-t border-border py-8">
+          <StoreContainer wide>
+            <p className="text-xs text-muted-foreground">
+              Referenz-Storefront · Preise inkl. gesetzlicher Umsatzsteuer, zzgl. Versand.
+            </p>
+          </StoreContainer>
+        </footer>
       </div>
     </CommerceProvider>
+  );
+}
+
+function StoreHeader() {
+  const cart = useCart();
+  const count = cart.data?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0;
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+      <StoreContainer wide className="flex min-h-16 items-center gap-4">
+        <Link
+          to="/store"
+          className="min-w-0 shrink-0 font-display text-base font-semibold tracking-tight sm:text-lg"
+        >
+          Atelier
+        </Link>
+        <nav className="ml-auto flex items-center gap-1">
+          <Link
+            to="/store"
+            className="hidden min-h-11 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground sm:inline-flex"
+          >
+            Katalog
+          </Link>
+          <Link
+            to="/store/konto"
+            aria-label="Konto"
+            className="inline-flex size-11 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
+          >
+            <User className="size-5" aria-hidden />
+          </Link>
+          <Link
+            to="/store/warenkorb"
+            aria-label={`Warenkorb, ${count} Artikel`}
+            className="relative inline-flex size-11 items-center justify-center rounded-lg text-foreground"
+          >
+            <ShoppingBag className="size-5" aria-hidden />
+            {count > 0 ? (
+              <span className="absolute top-1.5 right-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] leading-4 font-semibold text-primary-foreground tabular-nums">
+                {count}
+              </span>
+            ) : null}
+          </Link>
+        </nav>
+      </StoreContainer>
+    </header>
   );
 }

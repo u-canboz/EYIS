@@ -40,7 +40,11 @@ export default tseslint.config(
     // Storefront boundary: the reference storefront and the SDK itself may only
     // talk to the public Store API — never to internal commerce modules or the
     // backend client.
-    files: ["src/routes/store/**/*.{ts,tsx}", "src/lib/store-sdk/**/*.{ts,tsx}"],
+    files: [
+      "src/routes/store/**/*.{ts,tsx}",
+      "src/lib/store-sdk/**/*.{ts,tsx}",
+      "src/components/storefront/**/*.{ts,tsx}",
+    ],
     rules: {
       "no-restricted-imports": [
         "error",

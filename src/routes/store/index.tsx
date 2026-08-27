@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 import { useProducts, useSearch } from "@/lib/store-sdk/react/hooks";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  ProductGrid,
+  ProductMedia,
+  StoreContainer,
+  StoreHeading,
+  StoreNotice,
+  formatPrice,
+} from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store/")({
   head: () => ({
@@ -26,68 +34,79 @@ export const Route = createFileRoute("/store/")({
   component: StoreCatalog,
 });
 
-function price(minor: number, currency: string) {
-  return new Intl.NumberFormat("de-DE", { style: "currency", currency: currency || "EUR" }).format(
-    minor / 100,
-  );
-}
-
 function StoreCatalog() {
   const [term, setTerm] = useState("");
   const list = useProducts({ pageSize: 24 });
   const search = useSearch(term);
   const active = term.trim().length > 1 ? search : list;
+  const products = active.data?.data ?? [];
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-display text-2xl font-semibold">Katalog</h1>
-      <Input
-        value={term}
-        onChange={(e) => setTerm(e.target.value)}
-        placeholder="Produkte suchen…"
-        aria-label="Produkte suchen"
+    <StoreContainer wide className="py-8 sm:py-12">
+      <StoreHeading
+        eyebrow="Kollektion"
+        title="Ausgewählte Stücke"
+        description="Sorgfältig kuratiert, in kleinen Auflagen gefertigt und direkt versandbereit."
       />
 
+      <div className="relative mt-7 mb-9 max-w-md">
+        <Search
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
+        <Input
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
+          placeholder="Produkte suchen…"
+          aria-label="Produkte suchen"
+          className="h-11 pl-9"
+        />
+      </div>
+
       {active.isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Skeleton className="h-40" />
-          <Skeleton className="h-40" />
-        </div>
+        <ProductGrid>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="aspect-square w-full rounded-2xl" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+          ))}
+        </ProductGrid>
       ) : active.error ? (
-        <p className="rounded-lg border border-destructive/40 p-4 text-sm text-destructive">
-          {(active.error as Error).message}
-        </p>
-      ) : (active.data?.data ?? []).length === 0 ? (
-        <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-          Keine Produkte gefunden.
-        </p>
+        <StoreNotice
+          tone="error"
+          title="Der Katalog konnte nicht geladen werden"
+          description={(active.error as Error).message}
+        />
+      ) : products.length === 0 ? (
+        <StoreNotice
+          title="Keine Produkte gefunden"
+          description="Versuche einen anderen Suchbegriff oder sieh dir die gesamte Kollektion an."
+        />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {(active.data?.data ?? []).map((product) => (
-            <Link key={product.id} to="/store/produkt/$handle" params={{ handle: product.handle }}>
-              <Card className="h-full transition hover:border-primary">
-                <CardContent className="space-y-2 pt-6">
-                  {product.image ? (
-                    <img
-                      src={product.image.url}
-                      alt={product.image.alt ?? product.title}
-                      className="aspect-square w-full rounded-md object-cover"
-                      loading="lazy"
-                    />
-                  ) : null}
-                  <h2 className="font-medium">{product.title}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {price(
-                      product.price?.unitAmountMinor ?? 0,
-                      product.price?.currencyCode ?? "EUR",
-                    )}
-                  </p>
-                </CardContent>
-              </Card>
+        <ProductGrid>
+          {products.map((product) => (
+            <Link
+              key={product.id}
+              to="/store/produkt/$handle"
+              params={{ handle: product.handle }}
+              className="group min-w-0"
+            >
+              <ProductMedia src={product.image?.url} alt={product.image?.alt ?? product.title} />
+              <h2 className="mt-3 min-w-0 text-sm font-medium text-pretty sm:text-base">
+                {product.title}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground tabular-nums">
+                {formatPrice(
+                  product.price?.unitAmountMinor ?? 0,
+                  product.price?.currencyCode ?? "EUR",
+                )}
+              </p>
             </Link>
           ))}
-        </div>
+        </ProductGrid>
       )}
-    </div>
+    </StoreContainer>
   );
 }

@@ -6,7 +6,11 @@ import { listTemplatesFn } from "@/lib/commerce/communications/communication.fun
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/vorlagen/")({
   head: () => ({
@@ -52,71 +56,111 @@ function TemplatesPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Vorlagen</h1>
-          <p className="text-sm text-muted-foreground">
-            Systemvorlagen bleiben unverändert. Beim Bearbeiten entsteht eine eigene Fassung für
-            diesen Shop.
-          </p>
-        </div>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/app/kommunikation">Zur Übersicht</Link>
-        </Button>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Vorlagen"
+        description="Systemvorlagen bleiben unverändert. Beim Bearbeiten entsteht eine eigene Fassung für diesen Shop."
+        actions={
+          <Button asChild variant="outline" size="sm" className="h-11">
+            <Link to="/app/kommunikation">Zur Übersicht</Link>
+          </Button>
+        }
+      />
 
-      <div className="flex flex-wrap gap-2">
+      <ScrollTabs>
         {categories.map((c) => (
-          <button
+          <Button
             key={c}
+            size="sm"
+            variant={category === c ? "default" : "outline"}
+            className="min-h-11 shrink-0 rounded-full"
             onClick={() => setCategory(c)}
-            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-              category === c ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-            }`}
           >
             {c === "all" ? "Alle" : (CATEGORY_LABELS[c] ?? c)}
-          </button>
+          </Button>
         ))}
-      </div>
+      </ScrollTabs>
 
       {templates.isLoading ? (
-        <div className="space-y-2">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-        </div>
+        <ListSkeleton rows={3} />
+      ) : !visible.length ? (
+        <EmptyState title="Keine Vorlagen" description="Für diese Kategorie gibt es keine Vorlagen." />
       ) : (
-        <ul className="divide-y rounded-lg border">
-          {visible.map((t) => (
-            <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-              <div className="min-w-0">
-                <Link
-                  to="/app/kommunikation/vorlagen/$templateId"
-                  params={{ templateId: t.id }}
-                  className="font-medium hover:underline"
-                >
-                  {t.name}
-                </Link>
-                <p className="text-xs text-muted-foreground">
-                  {CATEGORY_LABELS[t.category] ?? t.category} · {t.key}
-                  {t.eventTypes.length ? ` · ${t.eventTypes.join(", ")}` : ""}
-                </p>
-                {t.description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{t.description}</p>
-                )}
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <Badge variant={t.isSystem ? "outline" : "secondary"}>
-                  {t.isSystem ? "System" : "Eigene Fassung"}
-                </Badge>
-                <Badge variant={t.status === "active" ? "secondary" : "outline"}>
-                  {t.status === "active" ? "Aktiv" : "Deaktiviert"}
-                </Badge>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <RecordCardList>
+            {visible.map((t) => (
+              <Link
+                key={t.id}
+                to="/app/kommunikation/vorlagen/$templateId"
+                params={{ templateId: t.id }}
+                className="min-w-0"
+              >
+                <RecordCard
+                  interactive
+                  title={t.name}
+                  subtitle={`${CATEGORY_LABELS[t.category] ?? t.category} · ${t.key}`}
+                  badges={
+                    <>
+                      <Badge variant={t.isSystem ? "outline" : "secondary"}>
+                        {t.isSystem ? "System" : "Eigene Fassung"}
+                      </Badge>
+                      <Badge variant={t.status === "active" ? "secondary" : "outline"}>
+                        {t.status === "active" ? "Aktiv" : "Deaktiviert"}
+                      </Badge>
+                    </>
+                  }
+                  fields={
+                    t.description ? [{ label: "Beschreibung", value: t.description }] : undefined
+                  }
+                />
+              </Link>
+            ))}
+          </RecordCardList>
+
+          <TableScroll desktopOnly>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Name</th>
+                  <th className="p-3 font-medium">Kategorie</th>
+                  <th className="p-3 font-medium">Ereignisse</th>
+                  <th className="p-3 font-medium">Herkunft</th>
+                  <th className="p-3 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((t) => (
+                  <tr key={t.id} className="border-t border-border hover:bg-muted/40">
+                    <td className="max-w-[18rem] p-3">
+                      <Link
+                        to="/app/kommunikation/vorlagen/$templateId"
+                        params={{ templateId: t.id }}
+                        className="block truncate font-medium hover:underline"
+                      >
+                        {t.name}
+                      </Link>
+                      <span className="block truncate text-xs text-muted-foreground">{t.key}</span>
+                    </td>
+                    <td className="p-3">{CATEGORY_LABELS[t.category] ?? t.category}</td>
+                    <td className="max-w-[16rem] truncate p-3 text-xs text-muted-foreground">
+                      {t.eventTypes.join(", ") || "—"}
+                    </td>
+                    <td className="p-3">
+                      <Badge variant={t.isSystem ? "outline" : "secondary"}>
+                        {t.isSystem ? "System" : "Eigene Fassung"}
+                      </Badge>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant={t.status === "active" ? "secondary" : "outline"}>
+                        {t.status === "active" ? "Aktiv" : "Deaktiviert"}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+        </>
       )}
     </div>
   );

@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { getSystemErrorsFn } from "@/lib/commerce/system/system.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/system/errors")({
   head: () => ({
@@ -47,45 +48,51 @@ function SystemErrors() {
   if (isLoading || !data) {
     return (
       <div>
-        <h1 className="font-display text-2xl font-semibold">Systemfehler</h1>
-        <Skeleton className="mt-6 h-40 w-full" />
+        <PageHeader title="Systemfehler" />
+        <ListSkeleton rows={4} />
       </div>
     );
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Systemfehler</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+      <PageHeader
+        title="Systemfehler"
+        description={
+          <>
             Read-only Fehler-Feed aller Subsysteme. Zuletzt:{" "}
             {new Date(dataUpdatedAt).toLocaleTimeString("de-DE")}
-          </p>
-        </div>
-        <Badge variant={data.length ? "destructive" : "secondary"}>
-          {data.length ? `${data.length} Fehler` : "keine Fehler"}
-        </Badge>
-      </div>
+          </>
+        }
+        actions={
+          <Badge variant={data.length ? "destructive" : "secondary"}>
+            {data.length ? `${data.length} Fehler` : "keine Fehler"}
+          </Badge>
+        }
+      />
 
       {data.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          Aktuell liegen keine fehlgeschlagenen Jobs, Nachrichten, Zahlungen oder API-Aufrufe vor.
-        </p>
+        <EmptyState
+          title="Keine Fehler"
+          description="Aktuell liegen keine fehlgeschlagenen Jobs, Nachrichten, Zahlungen oder API-Aufrufe vor."
+        />
       ) : (
-        <ul className="mt-6 space-y-2">
+        <ul className="space-y-2">
           {data.map((err, i) => (
-            <li key={`${err.source}-${err.entityId}-${i}`} className="rounded-md border p-3 text-sm">
+            <li
+              key={`${err.source}-${err.entityId}-${i}`}
+              className="min-w-0 rounded-xl border border-border bg-card p-3 text-sm"
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="destructive">{SOURCE_LABELS[err.source] ?? err.source}</Badge>
                 {err.code && <code className="text-xs text-muted-foreground">{err.code}</code>}
-                <span className="ml-auto text-xs text-muted-foreground">
+                <span className="ml-auto shrink-0 text-xs text-muted-foreground">
                   {new Date(err.at).toLocaleString("de-DE")}
                 </span>
               </div>
-              <p className="mt-2">{err.message}</p>
+              <p className="mt-2 break-words">{err.message}</p>
               {err.entityId && (
-                <p className="mt-1 font-mono text-xs text-muted-foreground">{err.entityId}</p>
+                <p className="mt-1 break-words font-mono text-xs text-muted-foreground">{err.entityId}</p>
               )}
             </li>
           ))}

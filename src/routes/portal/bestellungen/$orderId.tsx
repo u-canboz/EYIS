@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -8,6 +8,7 @@ import {
   getPortalOrderFn,
 } from "@/lib/commerce/portal/portal.functions";
 import { PortalOrderView } from "@/components/portal/PortalOrderView";
+import { PortalCard, PortalPage } from "@/components/portal/PortalChrome";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/portal/bestellungen/$orderId")({
@@ -27,12 +28,20 @@ export const Route = createFileRoute("/portal/bestellungen/$orderId")({
   }),
   component: PortalOrderPage,
   errorComponent: ({ error }) => (
-    <main className="mx-auto max-w-3xl p-6">
-      <p className="rounded-lg border p-6 text-sm text-destructive">{(error as Error).message}</p>
-    </main>
+    <PortalPage back={{ to: "/portal", label: "Zu meinen Bestellungen" }}>
+      <PortalCard title="Bestellung konnte nicht geladen werden">
+        <p className="text-sm text-pretty text-muted-foreground">{(error as Error).message}</p>
+      </PortalCard>
+    </PortalPage>
   ),
   notFoundComponent: () => (
-    <main className="mx-auto max-w-3xl p-6 text-sm">Bestellung nicht gefunden.</main>
+    <PortalPage back={{ to: "/portal", label: "Zu meinen Bestellungen" }}>
+      <PortalCard title="Bestellung nicht gefunden">
+        <p className="text-sm text-muted-foreground">
+          Diese Bestellung gehört nicht zu deinem Konto oder existiert nicht mehr.
+        </p>
+      </PortalCard>
+    </PortalPage>
   ),
 });
 
@@ -54,26 +63,24 @@ function PortalOrderPage() {
   });
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <Link to="/portal" className="text-xs text-muted-foreground hover:underline">
-        ← Zurück zu meinen Bestellungen
-      </Link>
-      <div className="mt-4">
-        {order.isLoading || !order.data ? (
-          <Skeleton className="h-96 w-full" />
-        ) : (
-          <PortalOrderView
-            order={order.data}
-            eligibility={eligibility.data ?? null}
-            onDocument={(kind, documentId) => documentUrl({ data: { orderId, documentId, kind } })}
-            onCreateReturn={async (input) => {
-              await createReturn({ data: { orderId, ...input } });
-              await queryClient.invalidateQueries({ queryKey: ["portal-order", orderId] });
-              await queryClient.invalidateQueries({ queryKey: ["portal-eligibility", orderId] });
-            }}
-          />
-        )}
-      </div>
-    </main>
+    <PortalPage back={{ to: "/portal", label: "Zu meinen Bestellungen" }}>
+      {order.isLoading || !order.data ? (
+        <div className="space-y-3">
+          <Skeleton className="h-28 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
+        </div>
+      ) : (
+        <PortalOrderView
+          order={order.data}
+          eligibility={eligibility.data ?? null}
+          onDocument={(kind, documentId) => documentUrl({ data: { orderId, documentId, kind } })}
+          onCreateReturn={async (input) => {
+            await createReturn({ data: { orderId, ...input } });
+            await queryClient.invalidateQueries({ queryKey: ["portal-order", orderId] });
+            await queryClient.invalidateQueries({ queryKey: ["portal-eligibility", orderId] });
+          }}
+        />
+      )}
+    </PortalPage>
   );
 }

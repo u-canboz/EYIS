@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/medien")({
   head: () => ({
@@ -104,51 +105,48 @@ function MediaPage() {
   const canUpload = can("media.upload");
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Medien</h1>
-          <p className="text-sm text-muted-foreground">
-            Zentrale Bibliothek für alle Produktbilder deiner Organisation.
-          </p>
-        </div>
-        {canUpload && (
-          <div>
-            <input
-              ref={inputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleFiles(e.target.files)}
-            />
-            <Button disabled={uploading} onClick={() => inputRef.current?.click()}>
-              {uploading ? "Lädt hoch…" : "Dateien hochladen"}
-            </Button>
-          </div>
-        )}
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Medien"
+        description="Zentrale Bibliothek für alle Produktbilder deiner Organisation."
+        actions={
+          canUpload ? (
+            <>
+              <input
+                ref={inputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFiles(e.target.files)}
+              />
+              <Button className="h-11" disabled={uploading} onClick={() => inputRef.current?.click()}>
+                {uploading ? "Lädt hoch…" : "Dateien hochladen"}
+              </Button>
+            </>
+          ) : undefined
+        }
+      />
 
       <Input
+        className="h-11 w-full sm:max-w-sm"
         placeholder="Dateien suchen"
+        aria-label="Dateien suchen"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="max-w-sm"
       />
 
       {mediaQuery.isLoading ? (
-        <Skeleton className="h-64 w-full" />
+        <ListSkeleton />
       ) : (mediaQuery.data ?? []).length === 0 ? (
-        <div className="rounded-lg border bg-card p-10 text-center">
-          <p className="font-medium">Noch keine Dateien</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Lade Bilder hoch, um sie anschließend Produkten zuzuordnen.
-          </p>
-        </div>
+        <EmptyState
+          title="Noch keine Dateien"
+          description="Lade Bilder hoch, um sie anschließend Produkten zuzuordnen."
+        />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {(mediaQuery.data ?? []).map((asset) => (
-            <div key={asset.id} className="rounded-lg border bg-card p-3">
+            <div key={asset.id} className="min-w-0 rounded-xl border border-border bg-card p-3 shadow-raised">
               {asset.url ? (
                 <img
                   src={asset.url}
@@ -159,14 +157,16 @@ function MediaPage() {
               ) : (
                 <div className="aspect-video w-full rounded bg-muted" />
               )}
-              <div className="mt-3 flex items-center justify-between gap-2">
-                <p className="truncate text-sm font-medium">{asset.filename}</p>
-                <Badge variant="secondary">{asset.usage_count}× verwendet</Badge>
+              <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                <p className="min-w-0 truncate text-sm font-medium">{asset.filename}</p>
+                <Badge variant="secondary" className="shrink-0 tabular-nums">
+                  {asset.usage_count}× verwendet
+                </Badge>
               </div>
               <div className="mt-3">
                 <Label className="text-xs">Alternativtext</Label>
                 <Input
-                  className="mt-1"
+                  className="mt-1 h-11"
                   defaultValue={asset.alt_text ?? ""}
                   disabled={!canUpload}
                   onBlur={(e) =>

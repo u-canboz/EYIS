@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import { resolvePrice } from "@/lib/commerce/pricing.functions";
 import { listCustomerGroups } from "@/lib/commerce/customer-groups.functions";
 import { listProducts, getProduct } from "@/lib/commerce/products.functions";
@@ -20,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/preise/testen")({
   head: () => ({
@@ -104,21 +107,27 @@ function PricingPreviewPage() {
   const variants = productQuery.data?.variants ?? [];
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Preis testen</h1>
-        <p className="text-sm text-muted-foreground">
-          Dieselbe Engine, die später Warenkorb und Checkout nutzen – inklusive Begründung jeder
-          Regel.
-        </p>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        eyebrow={
+          <Link
+            to="/app/preise"
+            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+            Alle Preise
+          </Link>
+        }
+        title="Preis testen"
+        description="Dieselbe Engine, die später Warenkorb und Checkout nutzen – inklusive Begründung jeder Regel."
+      />
 
-      <section className="rounded-lg border bg-card p-6">
+      <Panel title="Simulation">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label>Produkt</Label>
             <Select value={productId} onValueChange={setProductId}>
-              <SelectTrigger className="mt-2">
+              <SelectTrigger className="mt-2 h-11">
                 <SelectValue placeholder="Produkt wählen" />
               </SelectTrigger>
               <SelectContent>
@@ -133,7 +142,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Variante</Label>
             <Select value={variantId} onValueChange={setVariantId} disabled={!variants.length}>
-              <SelectTrigger className="mt-2">
+              <SelectTrigger className="mt-2 h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -149,7 +158,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Menge</Label>
             <Input
-              className="mt-2"
+              className="mt-2 h-11"
               type="number"
               min={1}
               value={quantity}
@@ -159,7 +168,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Kundengruppe</Label>
             <Select value={groupId} onValueChange={setGroupId}>
-              <SelectTrigger className="mt-2">
+              <SelectTrigger className="mt-2 h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -175,7 +184,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Gutscheincode</Label>
             <Input
-              className="mt-2"
+              className="mt-2 h-11"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="optional"
@@ -183,7 +192,7 @@ function PricingPreviewPage() {
           </div>
           <div className="flex items-end">
             <Button
-              className="w-full"
+              className="h-11 w-full"
               disabled={!productId || resolveMutation.isPending}
               onClick={() => resolveMutation.mutate()}
             >
@@ -191,126 +200,134 @@ function PricingPreviewPage() {
             </Button>
           </div>
         </div>
-      </section>
+      </Panel>
 
       {result && (
-        <section className="grid gap-6 lg:grid-cols-[2fr_3fr]">
-          <div className="rounded-lg border bg-card p-6">
-            <p className="font-medium">Ergebnis</p>
-            <dl className="mt-4 space-y-2 text-sm">
-              <Row
-                label="Normalpreis"
-                value={formatMoney(result.baseAmount, result.currencyCode)}
-              />
-              <Row
-                label="Aufgelöster Stückpreis"
-                value={formatMoney(result.resolvedUnitAmount, result.currencyCode)}
-              />
-              <Row
-                label={`Zwischensumme (${result.quantity} ×)`}
-                value={formatMoney(result.subtotal, result.currencyCode)}
-              />
-              <Row
-                label="Rabatte"
-                value={`− ${formatMoney(result.discounts, result.currencyCode)}`}
-              />
-              <div className="flex items-center justify-between border-t pt-3">
-                <dt className="font-medium">Endpreis</dt>
-                <dd className="font-display text-xl font-semibold">
-                  {formatMoney(result.total, result.currencyCode)}
-                </dd>
-              </div>
-            </dl>
-            {result.shippingDiscountEligible && (
-              <Badge className="mt-4" variant="secondary">
-                Gratisversand berechtigt
-              </Badge>
-            )}
-          </div>
+        <DetailLayout
+          main={
+            <>
+              <Panel title="Erklärung">
+                <ol className="min-w-0 space-y-2 text-sm">
+                  {result.explanation.map((step, i) => (
+                    <li
+                      key={i}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-border pb-2 last:border-b-0"
+                    >
+                      <span className="min-w-0 break-words">
+                        {step.label}
+                        <span className="ml-2 text-xs text-muted-foreground">{step.source}</span>
+                      </span>
+                      <span className="shrink-0 tabular-nums">
+                        {step.deltaMinor !== undefined && step.deltaMinor !== 0
+                          ? `${step.deltaMinor < 0 ? "−" : "+"} ${formatMoney(Math.abs(step.deltaMinor), result.currencyCode)}`
+                          : formatMoney(step.amountMinor, result.currencyCode)}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </Panel>
 
-          <div className="space-y-6">
-            <div className="rounded-lg border bg-card p-6">
-              <p className="font-medium">Erklärung</p>
-              <ol className="mt-4 space-y-2 text-sm">
-                {result.explanation.map((step, i) => (
-                  <li key={i} className="flex items-center justify-between border-b pb-2">
-                    <span>
-                      {step.label}
-                      <span className="ml-2 text-xs text-muted-foreground">{step.source}</span>
-                    </span>
-                    <span className="tabular-nums">
-                      {step.deltaMinor !== undefined && step.deltaMinor !== 0
-                        ? `${step.deltaMinor < 0 ? "−" : "+"} ${formatMoney(Math.abs(step.deltaMinor), result.currencyCode)}`
-                        : formatMoney(step.amountMinor, result.currencyCode)}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            <div className="rounded-lg border bg-card p-6">
-              <p className="font-medium">Angewendete Regeln</p>
-              <div className="mt-4 space-y-2 text-sm">
-                {result.appliedPriceRules.map((rule) => (
-                  <div key={rule.priceId} className="flex items-center justify-between">
-                    <span>
-                      {rule.label}
-                      <Badge variant="secondary" className="ml-2">
-                        {PRICE_TYPE_LABELS[rule.type] ?? rule.type}
-                      </Badge>
-                    </span>
-                    <span>{formatMoney(rule.amountMinor, result.currencyCode)}</span>
-                  </div>
-                ))}
-                {result.appliedPromotions.map((promo) => (
-                  <div key={promo.promotionId} className="flex items-center justify-between">
-                    <span>
-                      {promo.name}
-                      <Badge variant="secondary" className="ml-2">
-                        {PROMOTION_TYPE_LABELS[promo.type] ?? promo.type}
-                      </Badge>
-                    </span>
-                    <span>− {formatMoney(promo.discountMinor, result.currencyCode)}</span>
-                  </div>
-                ))}
-              </div>
-
-              {result.pendingPromotions.length > 0 && (
-                <div className="mt-4 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground">Vorbereitet, noch nicht anwendbar</p>
-                  {result.pendingPromotions.map((promo) => (
-                    <p key={promo.promotionId} className="mt-1">
-                      {promo.name} – benötigt Warenkorb bzw. Bestellungen (Phase 3+).
-                    </p>
+              <Panel title="Angewendete Regeln">
+                <div className="min-w-0 space-y-2 text-sm">
+                  {result.appliedPriceRules.map((rule) => (
+                    <div
+                      key={rule.priceId}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"
+                    >
+                      <span className="min-w-0 break-words">
+                        {rule.label}
+                        <Badge variant="secondary" className="ml-2">
+                          {PRICE_TYPE_LABELS[rule.type] ?? rule.type}
+                        </Badge>
+                      </span>
+                      <span className="shrink-0 tabular-nums">
+                        {formatMoney(rule.amountMinor, result.currencyCode)}
+                      </span>
+                    </div>
+                  ))}
+                  {result.appliedPromotions.map((promo) => (
+                    <div
+                      key={promo.promotionId}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"
+                    >
+                      <span className="min-w-0 break-words">
+                        {promo.name}
+                        <Badge variant="secondary" className="ml-2">
+                          {PROMOTION_TYPE_LABELS[promo.type] ?? promo.type}
+                        </Badge>
+                      </span>
+                      <span className="shrink-0 tabular-nums">
+                        − {formatMoney(promo.discountMinor, result.currencyCode)}
+                      </span>
+                    </div>
                   ))}
                 </div>
-              )}
 
-              {result.rejectedPriceRules.length > 0 && (
-                <details className="mt-4 text-xs text-muted-foreground">
-                  <summary className="cursor-pointer">
-                    Nicht angewendete Preisregeln ({result.rejectedPriceRules.length})
-                  </summary>
-                  <ul className="mt-2 space-y-1">
-                    {result.rejectedPriceRules.map((r) => (
-                      <li key={r.priceId}>{r.reason}</li>
+                {result.pendingPromotions.length > 0 && (
+                  <div className="mt-4 rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                    <p className="font-medium text-foreground">Vorbereitet, noch nicht anwendbar</p>
+                    {result.pendingPromotions.map((promo) => (
+                      <p key={promo.promotionId} className="mt-1 break-words">
+                        {promo.name} – benötigt Warenkorb bzw. Bestellungen (Phase 3+).
+                      </p>
                     ))}
-                  </ul>
-                </details>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-    </div>
-  );
-}
+                  </div>
+                )}
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="tabular-nums">{value}</dd>
+                {result.rejectedPriceRules.length > 0 && (
+                  <details className="mt-4 text-xs text-muted-foreground">
+                    <summary className="cursor-pointer">
+                      Nicht angewendete Preisregeln ({result.rejectedPriceRules.length})
+                    </summary>
+                    <ul className="mt-2 space-y-1">
+                      {result.rejectedPriceRules.map((r) => (
+                        <li key={r.priceId} className="break-words">
+                          {r.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </Panel>
+            </>
+          }
+          aside={
+            <Panel title="Ergebnis">
+              <dl className="min-w-0">
+                <DataRow
+                  label="Normalpreis"
+                  value={formatMoney(result.baseAmount, result.currencyCode)}
+                />
+                <DataRow
+                  label="Aufgelöster Stückpreis"
+                  value={formatMoney(result.resolvedUnitAmount, result.currencyCode)}
+                />
+                <DataRow
+                  label={`Zwischensumme (${result.quantity} ×)`}
+                  value={formatMoney(result.subtotal, result.currencyCode)}
+                />
+                <DataRow
+                  label="Rabatte"
+                  value={`− ${formatMoney(result.discounts, result.currencyCode)}`}
+                />
+                <DataRow
+                  label={<span className="font-semibold text-foreground">Endpreis</span>}
+                  value={
+                    <span className="text-base font-semibold">
+                      {formatMoney(result.total, result.currencyCode)}
+                    </span>
+                  }
+                />
+              </dl>
+              {result.shippingDiscountEligible && (
+                <Badge className="mt-4" variant="secondary">
+                  Gratisversand berechtigt
+                </Badge>
+              )}
+            </Panel>
+          }
+        />
+      )}
     </div>
   );
 }

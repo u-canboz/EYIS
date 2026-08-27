@@ -1,0 +1,61 @@
+{
+  "passed": 11,
+  "total": 11,
+  "results": [
+    {
+      "name": "Auth-Session f\u00fcr Backoffice-Pr\u00fcfung verf\u00fcgbar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U1 kein horizontaler Seiten\u00fcberlauf (320\u20131440 px)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U7 Tablet-Zweig bei 768 px ohne \u00dcberlauf",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U4 keine buchstabenweisen Umbr\u00fcche (break-all)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Touch-Ziele >= 40 px auf Mobil",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U2 mobile Navigation erreichbar und vollst\u00e4ndig",
+      "ok": true,
+      "detail": "Trigger=True, Links=94"
+    },
+    {
+      "name": "U3 Demo-Banner bricht um und wird nicht abgeschnitten",
+      "ok": true,
+      "detail": "{\"o\": 0, \"h\": 76.5}"
+    },
+    {
+      "name": "U5 Bestellliste zeigt auf Mobil Karten statt Tabelle",
+      "ok": true,
+      "detail": "Tabellen sichtbar=0, Karten=72"
+    },
+    {
+      "name": "U6 Filter mobil im Sheet geb\u00fcndelt",
+      "ok": true,
+      "detail": "Filter-Trigger=1"
+    },
+    {
+      "name": "U8 Demo & QA: Aktionen liegen im Viewport",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "U9 Storefront: verst\u00e4ndlicher Zustand ohne Key, kein \u00dcberlauf",
+      "ok": true,
+      "detail": "overflow=0"
+    }
+  ]
+}

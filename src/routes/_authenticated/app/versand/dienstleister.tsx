@@ -17,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
@@ -26,6 +25,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/versand/dienstleister")({
   head: () => ({
@@ -163,20 +167,19 @@ function CarrierSettings() {
   const manage = can("shipping_settings.manage");
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Versanddienstleister</h1>
-        <p className="text-muted-foreground text-sm">
-          Nur aktive Dienstleister können Labels erzeugen. Zugangsdaten liegen als Secrets, nie in
-          der Datenbank.
-        </p>
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Versanddienstleister"
+        description="Nur aktive Dienstleister können Labels erzeugen. Zugangsdaten liegen als Secrets, nie in der Datenbank."
+      />
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-medium">Aktive Dienstleister</h2>
-          {manage && (
+      <Panel
+        title="Aktive Dienstleister"
+        actions={
+          manage ? (
             <Button
+              size="sm"
+              className="min-h-11"
               onClick={() =>
                 setConfig({
                   id: null,
@@ -191,149 +194,238 @@ function CarrierSettings() {
             >
               Dienstleister hinzufügen
             </Button>
-          )}
-        </div>
+          ) : undefined
+        }
+      >
         {configs.isLoading ? (
-          <Skeleton className="h-32 w-full" />
+          <ListSkeleton rows={3} />
         ) : !configs.data?.length ? (
-          <p className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
-            Noch kein Dienstleister aktiv. Ohne Dienstleister können keine Labels erzeugt werden.
-          </p>
+          <EmptyState
+            title="Noch kein Dienstleister aktiv"
+            description="Ohne Dienstleister können keine Labels erzeugt werden."
+          />
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left">
-                <tr>
-                  <th className="p-3 font-medium">Dienstleister</th>
-                  <th className="p-3 font-medium">Anzeigename</th>
-                  <th className="p-3 font-medium">Modus</th>
-                  <th className="p-3 font-medium">Priorität</th>
-                  <th className="p-3 font-medium">Status</th>
-                  <th className="p-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {configs.data.map((c) => (
-                  <tr key={c.id} className="border-t">
-                    <td className="p-3 font-medium">{carrierLabel(c.provider)}</td>
-                    <td className="p-3">{c.displayName}</td>
-                    <td className="p-3">{c.testMode ? "Test" : "Live"}</td>
-                    <td className="p-3">{c.priority}</td>
-                    <td className="p-3">
+          <>
+            <RecordCardList>
+              {configs.data.map((c) => (
+                <RecordCard
+                  key={c.id}
+                  title={carrierLabel(c.provider)}
+                  subtitle={c.displayName}
+                  badges={
+                    <>
                       <Badge variant={c.status === "active" ? "default" : "secondary"}>
                         {c.status}
                       </Badge>
-                    </td>
-                    <td className="p-3 text-right">
-                      {manage && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            setConfig({
-                              id: c.id,
-                              provider: c.provider,
-                              displayName: c.displayName,
-                              status: c.status,
-                              testMode: c.testMode,
-                              priority: String(c.priority),
-                              webhookSecretName: "",
-                            })
-                          }
-                        >
-                          Bearbeiten
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                      <Badge variant="outline">{c.testMode ? "Test" : "Live"}</Badge>
+                    </>
+                  }
+                  fields={[{ label: "Priorität", value: c.priority }]}
+                  actions={
+                    manage ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          setConfig({
+                            id: c.id,
+                            provider: c.provider,
+                            displayName: c.displayName,
+                            status: c.status,
+                            testMode: c.testMode,
+                            priority: String(c.priority),
+                            webhookSecretName: "",
+                          })
+                        }
+                      >
+                        Bearbeiten
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              ))}
+            </RecordCardList>
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-medium">Verpackungs-Presets</h2>
-          {manage && (
-            <Button variant="outline" onClick={() => setPreset({ ...EMPTY_PRESET })}>
-              Preset anlegen
-            </Button>
-          )}
-        </div>
-        {presets.isLoading ? (
-          <Skeleton className="h-24 w-full" />
-        ) : !presets.data?.length ? (
-          <p className="text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-            Noch keine Presets. Presets beschleunigen das Verpacken.
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left">
-                <tr>
-                  <th className="p-3 font-medium">Name</th>
-                  <th className="p-3 font-medium">Gewicht</th>
-                  <th className="p-3 font-medium">Maße (mm)</th>
-                  <th className="p-3 font-medium">Typ</th>
-                  <th className="p-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {presets.data.map((p) => (
-                  <tr key={p.id} className="border-t">
-                    <td className="p-3 font-medium">
-                      {p.name} {p.isDefault && <Badge variant="secondary">Standard</Badge>}
-                    </td>
-                    <td className="p-3">{p.weightGrams ? `${p.weightGrams} g` : "—"}</td>
-                    <td className="p-3">
-                      {[p.lengthMm, p.widthMm, p.heightMm].every((v) => v === null)
-                        ? "—"
-                        : `${p.lengthMm ?? "?"} × ${p.widthMm ?? "?"} × ${p.heightMm ?? "?"}`}
-                    </td>
-                    <td className="p-3">{p.packagingType ?? "—"}</td>
-                    <td className="p-3 text-right">
-                      {manage && (
-                        <div className="flex justify-end gap-2">
+            <TableScroll desktopOnly>
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left">
+                  <tr>
+                    <th className="p-3 font-medium">Dienstleister</th>
+                    <th className="p-3 font-medium">Anzeigename</th>
+                    <th className="p-3 font-medium">Modus</th>
+                    <th className="p-3 font-medium">Priorität</th>
+                    <th className="p-3 font-medium">Status</th>
+                    <th className="p-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {configs.data.map((c) => (
+                    <tr key={c.id} className="border-t border-border hover:bg-muted/40">
+                      <td className="p-3 font-medium">{carrierLabel(c.provider)}</td>
+                      <td className="p-3">{c.displayName}</td>
+                      <td className="p-3">{c.testMode ? "Test" : "Live"}</td>
+                      <td className="p-3 tabular-nums">{c.priority}</td>
+                      <td className="p-3">
+                        <Badge variant={c.status === "active" ? "default" : "secondary"}>
+                          {c.status}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-right">
+                        {manage && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() =>
-                              setPreset({
-                                id: p.id,
-                                name: p.name,
-                                weight: p.weightGrams === null ? "" : String(p.weightGrams),
-                                length: p.lengthMm === null ? "" : String(p.lengthMm),
-                                width: p.widthMm === null ? "" : String(p.widthMm),
-                                height: p.heightMm === null ? "" : String(p.heightMm),
-                                packagingType: p.packagingType ?? "",
-                                isDefault: p.isDefault,
+                              setConfig({
+                                id: c.id,
+                                provider: c.provider,
+                                displayName: c.displayName,
+                                status: c.status,
+                                testMode: c.testMode,
+                                priority: String(c.priority),
+                                webhookSecretName: "",
                               })
                             }
                           >
                             Bearbeiten
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => presetDelete.mutate(p.id)}
-                          >
-                            Löschen
-                          </Button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TableScroll>
+          </>
         )}
-      </section>
+      </Panel>
+
+      <Panel
+        title="Verpackungs-Presets"
+        actions={
+          manage ? (
+            <Button size="sm" variant="outline" className="min-h-11" onClick={() => setPreset({ ...EMPTY_PRESET })}>
+              Preset anlegen
+            </Button>
+          ) : undefined
+        }
+      >
+        {presets.isLoading ? (
+          <ListSkeleton rows={2} />
+        ) : !presets.data?.length ? (
+          <EmptyState title="Noch keine Presets" description="Presets beschleunigen das Verpacken." />
+        ) : (
+          <>
+            <RecordCardList>
+              {presets.data.map((p) => (
+                <RecordCard
+                  key={p.id}
+                  title={p.name}
+                  badges={p.isDefault ? <Badge variant="secondary">Standard</Badge> : undefined}
+                  fields={[
+                    { label: "Gewicht", value: p.weightGrams ? `${p.weightGrams} g` : "—" },
+                    {
+                      label: "Maße (mm)",
+                      value:
+                        [p.lengthMm, p.widthMm, p.heightMm].every((v) => v === null)
+                          ? "—"
+                          : `${p.lengthMm ?? "?"} × ${p.widthMm ?? "?"} × ${p.heightMm ?? "?"}`,
+                    },
+                    { label: "Typ", value: p.packagingType ?? "—" },
+                  ]}
+                  actions={
+                    manage ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            setPreset({
+                              id: p.id,
+                              name: p.name,
+                              weight: p.weightGrams === null ? "" : String(p.weightGrams),
+                              length: p.lengthMm === null ? "" : String(p.lengthMm),
+                              width: p.widthMm === null ? "" : String(p.widthMm),
+                              height: p.heightMm === null ? "" : String(p.heightMm),
+                              packagingType: p.packagingType ?? "",
+                              isDefault: p.isDefault,
+                            })
+                          }
+                        >
+                          Bearbeiten
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => presetDelete.mutate(p.id)}>
+                          Löschen
+                        </Button>
+                      </>
+                    ) : undefined
+                  }
+                />
+              ))}
+            </RecordCardList>
+
+            <TableScroll desktopOnly>
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left">
+                  <tr>
+                    <th className="p-3 font-medium">Name</th>
+                    <th className="p-3 font-medium">Gewicht</th>
+                    <th className="p-3 font-medium">Maße (mm)</th>
+                    <th className="p-3 font-medium">Typ</th>
+                    <th className="p-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {presets.data.map((p) => (
+                    <tr key={p.id} className="border-t border-border hover:bg-muted/40">
+                      <td className="p-3 font-medium">
+                        {p.name} {p.isDefault && <Badge variant="secondary">Standard</Badge>}
+                      </td>
+                      <td className="p-3">{p.weightGrams ? `${p.weightGrams} g` : "—"}</td>
+                      <td className="p-3">
+                        {[p.lengthMm, p.widthMm, p.heightMm].every((v) => v === null)
+                          ? "—"
+                          : `${p.lengthMm ?? "?"} × ${p.widthMm ?? "?"} × ${p.heightMm ?? "?"}`}
+                      </td>
+                      <td className="p-3">{p.packagingType ?? "—"}</td>
+                      <td className="p-3 text-right">
+                        {manage && (
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                setPreset({
+                                  id: p.id,
+                                  name: p.name,
+                                  weight: p.weightGrams === null ? "" : String(p.weightGrams),
+                                  length: p.lengthMm === null ? "" : String(p.lengthMm),
+                                  width: p.widthMm === null ? "" : String(p.widthMm),
+                                  height: p.heightMm === null ? "" : String(p.heightMm),
+                                  packagingType: p.packagingType ?? "",
+                                  isDefault: p.isDefault,
+                                })
+                              }
+                            >
+                              Bearbeiten
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => presetDelete.mutate(p.id)}>
+                              Löschen
+                            </Button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TableScroll>
+          </>
+        )}
+      </Panel>
 
       <Dialog open={!!config} onOpenChange={(open) => !open && setConfig(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[85dvh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {config?.id ? "Dienstleister bearbeiten" : "Dienstleister hinzufügen"}
@@ -348,7 +440,7 @@ function CarrierSettings() {
                   onValueChange={(v) => setConfig({ ...config, provider: v })}
                   disabled={!!config.id}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -364,6 +456,7 @@ function CarrierSettings() {
               <div className="grid gap-2">
                 <Label>Anzeigename</Label>
                 <Input
+                  className="h-11"
                   value={config.displayName}
                   placeholder={carrierLabel(config.provider)}
                   onChange={(e) => setConfig({ ...config, displayName: e.target.value })}
@@ -373,6 +466,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Priorität</Label>
                   <Input
+                    className="h-11"
                     value={config.priority}
                     onChange={(e) => setConfig({ ...config, priority: e.target.value })}
                   />
@@ -385,7 +479,7 @@ function CarrierSettings() {
                       setConfig({ ...config, status: v as ConfigDraft["status"] })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -399,15 +493,16 @@ function CarrierSettings() {
               <div className="grid gap-2">
                 <Label>Webhook-Secret (Name des Secrets)</Label>
                 <Input
+                  className="h-11"
                   value={config.webhookSecretName}
                   placeholder="z. B. DHL_WEBHOOK_SECRET"
                   onChange={(e) => setConfig({ ...config, webhookSecretName: e.target.value })}
                 />
               </div>
-              <div className="flex items-center justify-between rounded-md border p-3">
+              <div className="flex items-center justify-between rounded-md border border-border p-3">
                 <div>
                   <p className="text-sm font-medium">Testmodus</p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-xs text-muted-foreground">
                     Im Testmodus werden keine echten Labels gekauft.
                   </p>
                 </div>
@@ -417,6 +512,7 @@ function CarrierSettings() {
                 />
               </div>
               <Button
+                className="h-11"
                 onClick={() => configMutation.mutate(config)}
                 disabled={configMutation.isPending}
               >
@@ -428,7 +524,7 @@ function CarrierSettings() {
       </Dialog>
 
       <Dialog open={!!preset} onOpenChange={(open) => !open && setPreset(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[85dvh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{preset?.id ? "Preset bearbeiten" : "Preset anlegen"}</DialogTitle>
           </DialogHeader>
@@ -437,6 +533,7 @@ function CarrierSettings() {
               <div className="grid gap-2">
                 <Label>Name</Label>
                 <Input
+                  className="h-11"
                   value={preset.name}
                   onChange={(e) => setPreset({ ...preset, name: e.target.value })}
                 />
@@ -445,6 +542,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Gewicht (g)</Label>
                   <Input
+                    className="h-11"
                     value={preset.weight}
                     onChange={(e) => setPreset({ ...preset, weight: e.target.value })}
                   />
@@ -452,6 +550,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Verpackungstyp</Label>
                   <Input
+                    className="h-11"
                     value={preset.packagingType}
                     onChange={(e) => setPreset({ ...preset, packagingType: e.target.value })}
                   />
@@ -461,6 +560,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Länge</Label>
                   <Input
+                    className="h-11"
                     value={preset.length}
                     onChange={(e) => setPreset({ ...preset, length: e.target.value })}
                   />
@@ -468,6 +568,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Breite</Label>
                   <Input
+                    className="h-11"
                     value={preset.width}
                     onChange={(e) => setPreset({ ...preset, width: e.target.value })}
                   />
@@ -475,12 +576,13 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Höhe</Label>
                   <Input
+                    className="h-11"
                     value={preset.height}
                     onChange={(e) => setPreset({ ...preset, height: e.target.value })}
                   />
                 </div>
               </div>
-              <div className="flex items-center justify-between rounded-md border p-3">
+              <div className="flex items-center justify-between rounded-md border border-border p-3">
                 <p className="text-sm font-medium">Als Standard verwenden</p>
                 <Switch
                   checked={preset.isDefault}
@@ -488,6 +590,7 @@ function CarrierSettings() {
                 />
               </div>
               <Button
+                className="h-11"
                 onClick={() => presetMutation.mutate(preset)}
                 disabled={presetMutation.isPending}
               >

@@ -19,7 +19,6 @@ import { formatMoney } from "@/lib/commerce/money";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -28,6 +27,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { FilterBar } from "@/components/data/FilterBar";
+import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
+import { TableScroll } from "@/components/data/TableScroll";
+import { EmptyState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/dokumente/")({
   head: () => ({
@@ -99,140 +104,247 @@ function DocumentsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dokumente</h1>
-          <p className="text-muted-foreground text-sm">
-            Rechnungen, Gutschriften und Lieferscheine — nummeriert, unveränderbar, als PDF
-            archiviert.
-          </p>
-        </div>
-        {can("documents.settings") && (
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/app/dokumente/einstellungen">Einstellungen</Link>
-          </Button>
-        )}
-      </header>
+    <div className="min-w-0 space-y-5">
+      <PageHeader
+        title="Dokumente"
+        description="Rechnungen, Gutschriften und Lieferscheine — nummeriert, unveränderbar, als PDF archiviert."
+        actions={
+          can("documents.settings") ? (
+            <Button variant="outline" className="h-11" asChild>
+              <Link to="/app/dokumente/einstellungen">Einstellungen</Link>
+            </Button>
+          ) : undefined
+        }
+      />
 
       {!!setup.data?.missing.length && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+        <div className="min-w-0 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
           <p className="font-medium">Rechnungsstellung noch nicht einsatzbereit</p>
-          <ul className="text-muted-foreground mt-1 list-inside list-disc">
+          <ul className="mt-1 list-inside list-disc text-muted-foreground">
             {setup.data.missing.map((m) => (
               <li key={m}>{SETUP_LABELS[m] ?? m}</li>
             ))}
           </ul>
-          <Button variant="outline" size="sm" className="mt-3" asChild>
+          <Button variant="outline" className="mt-3 h-11" asChild>
             <Link to="/app/dokumente/einstellungen">Jetzt einrichten</Link>
           </Button>
         </div>
       )}
 
       <Tabs defaultValue="invoices">
-        <TabsList>
-          <TabsTrigger value="invoices">Rechnungen</TabsTrigger>
-          <TabsTrigger value="delivery">Lieferscheine</TabsTrigger>
-        </TabsList>
+        <ScrollTabs>
+          <TabsList>
+            <TabsTrigger value="invoices">Rechnungen</TabsTrigger>
+            <TabsTrigger value="delivery">Lieferscheine</TabsTrigger>
+          </TabsList>
+        </ScrollTabs>
 
-        <TabsContent value="invoices" className="space-y-4 pt-4">
-          <div className="flex flex-wrap gap-2">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Nummer, Kunde oder Bestellung"
-              className="max-w-xs"
-            />
-            <Select value={status} onValueChange={(v) => setStatus(v as InvoiceStatus | "all")}>
-              <SelectTrigger className="w-56">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle Status</SelectItem>
-                {Object.entries(INVOICE_STATUS_LABELS).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <TabsContent value="invoices" className="min-w-0 space-y-4 pt-4">
+          <FilterBar
+            search={
+              <Input
+                className="h-11 w-full"
+                aria-label="Rechnungen suchen"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Nummer, Kunde oder Bestellung"
+              />
+            }
+            filters={
+              <Select value={status} onValueChange={(v) => setStatus(v as InvoiceStatus | "all")}>
+                <SelectTrigger className="h-11 w-full md:w-56">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Status</SelectItem>
+                  {Object.entries(INVOICE_STATUS_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            }
+          />
 
           {invoices.isLoading ? (
-            <Skeleton className="h-56 w-full" />
+            <ListSkeleton />
           ) : !invoices.data?.length ? (
-            <p className="text-muted-foreground text-sm">
-              Noch keine Rechnungen. Rechnungen entstehen aus einer Bestellung heraus.
-            </p>
+            <EmptyState
+              title="Noch keine Rechnungen"
+              description="Rechnungen entstehen aus einer Bestellung heraus."
+            />
           ) : (
-            <ul className="divide-y rounded-lg border">
-              {invoices.data.map((inv) => (
-                <li key={inv.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                  <div>
-                    <Link
-                      to="/app/dokumente/$invoiceId"
-                      params={{ invoiceId: inv.id }}
-                      className="font-medium hover:underline"
-                    >
-                      {inv.invoiceNumber ?? "Entwurf"}
-                    </Link>
-                    <p className="text-muted-foreground text-xs">
-                      {inv.orderNumber ?? "—"} · {inv.customerName ?? "ohne Namen"} ·{" "}
-                      {new Date(inv.createdAt).toLocaleDateString("de-DE")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant={inv.status === "issued" ? "default" : "outline"}>
-                      {INVOICE_STATUS_LABELS[inv.status]}
-                    </Badge>
-                    <span className="text-sm font-medium">
-                      {formatMoney(inv.totalGrossMinor, inv.currencyCode)}
-                    </span>
-                    {inv.hasPdf && (
-                      <Button size="sm" variant="ghost" onClick={() => open(inv.id)}>
-                        PDF
-                      </Button>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <>
+              <RecordCardList>
+                {invoices.data.map((inv) => (
+                  <RecordCard
+                    key={inv.id}
+                    title={
+                      <Link to="/app/dokumente/$invoiceId" params={{ invoiceId: inv.id }}>
+                        {inv.invoiceNumber ?? "Entwurf"}
+                      </Link>
+                    }
+                    subtitle={`${inv.orderNumber ?? "—"} · ${inv.customerName ?? "ohne Namen"}`}
+                    trailing={formatMoney(inv.totalGrossMinor, inv.currencyCode)}
+                    badges={
+                      <Badge variant={inv.status === "issued" ? "default" : "outline"}>
+                        {INVOICE_STATUS_LABELS[inv.status]}
+                      </Badge>
+                    }
+                    fields={[
+                      {
+                        label: "Erstellt",
+                        value: new Date(inv.createdAt).toLocaleDateString("de-DE"),
+                      },
+                    ]}
+                    actions={
+                      inv.hasPdf ? (
+                        <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(inv.id)}>
+                          PDF
+                        </Button>
+                      ) : undefined
+                    }
+                  />
+                ))}
+              </RecordCardList>
+
+              <TableScroll desktopOnly>
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-left">
+                    <tr>
+                      <th className="p-3 font-medium">Nummer</th>
+                      <th className="p-3 font-medium">Bestellung</th>
+                      <th className="p-3 font-medium">Kunde</th>
+                      <th className="p-3 font-medium">Status</th>
+                      <th className="p-3 text-right font-medium">Summe</th>
+                      <th className="p-3 font-medium">Erstellt</th>
+                      <th className="p-3" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoices.data.map((inv) => (
+                      <tr key={inv.id} className="border-t hover:bg-muted/40">
+                        <td className="p-3">
+                          <Link
+                            to="/app/dokumente/$invoiceId"
+                            params={{ invoiceId: inv.id }}
+                            className="font-medium underline-offset-2 hover:underline"
+                          >
+                            {inv.invoiceNumber ?? "Entwurf"}
+                          </Link>
+                        </td>
+                        <td className="p-3">{inv.orderNumber ?? "—"}</td>
+                        <td className="max-w-[14rem] truncate p-3">
+                          {inv.customerName ?? "ohne Namen"}
+                        </td>
+                        <td className="p-3">
+                          <Badge variant={inv.status === "issued" ? "default" : "outline"}>
+                            {INVOICE_STATUS_LABELS[inv.status]}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-right tabular-nums">
+                          {formatMoney(inv.totalGrossMinor, inv.currencyCode)}
+                        </td>
+                        <td className="p-3 tabular-nums text-muted-foreground">
+                          {new Date(inv.createdAt).toLocaleDateString("de-DE")}
+                        </td>
+                        <td className="p-3 text-right">
+                          {inv.hasPdf && (
+                            <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(inv.id)}>
+                              PDF
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </TableScroll>
+            </>
           )}
         </TabsContent>
 
-        <TabsContent value="delivery" className="space-y-4 pt-4">
+        <TabsContent value="delivery" className="min-w-0 space-y-4 pt-4">
           {deliveryNotes.isLoading ? (
-            <Skeleton className="h-40 w-full" />
+            <ListSkeleton />
           ) : !deliveryNotes.data?.length ? (
-            <p className="text-muted-foreground text-sm">
-              Noch keine Lieferscheine. Sie entstehen beim Verpacken im Versand-Workspace.
-            </p>
+            <EmptyState
+              title="Noch keine Lieferscheine"
+              description="Sie entstehen beim Verpacken im Versand-Workspace."
+            />
           ) : (
-            <ul className="divide-y rounded-lg border">
-              {deliveryNotes.data.map((dn) => (
-                <li key={dn.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                  <div>
-                    <p className="font-medium">{dn.documentNumber ?? "Entwurf"}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {dn.orderNumber ?? "—"} · {dn.itemCount} Position(en) ·{" "}
-                      {new Date(dn.createdAt).toLocaleDateString("de-DE")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Link
-                      to="/app/bestellungen/$orderId"
-                      params={{ orderId: dn.orderId }}
-                      className="text-muted-foreground text-xs hover:underline"
-                    >
-                      Bestellung
-                    </Link>
-                    <Button size="sm" variant="ghost" onClick={() => open(dn.id)}>
-                      PDF
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <>
+              <RecordCardList>
+                {deliveryNotes.data.map((dn) => (
+                  <RecordCard
+                    key={dn.id}
+                    title={dn.documentNumber ?? "Entwurf"}
+                    subtitle={`${dn.itemCount} Position(en)`}
+                    fields={[
+                      { label: "Bestellung", value: dn.orderNumber ?? "—" },
+                      {
+                        label: "Erstellt",
+                        value: new Date(dn.createdAt).toLocaleDateString("de-DE"),
+                      },
+                    ]}
+                    actions={
+                      <>
+                        <Link
+                          to="/app/bestellungen/$orderId"
+                          params={{ orderId: dn.orderId }}
+                          className="inline-flex min-h-9 items-center text-xs text-muted-foreground hover:underline"
+                        >
+                          Bestellung
+                        </Link>
+                        <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(dn.id)}>
+                          PDF
+                        </Button>
+                      </>
+                    }
+                  />
+                ))}
+              </RecordCardList>
+
+              <TableScroll desktopOnly>
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-left">
+                    <tr>
+                      <th className="p-3 font-medium">Nummer</th>
+                      <th className="p-3 font-medium">Bestellung</th>
+                      <th className="p-3 text-right font-medium">Positionen</th>
+                      <th className="p-3 font-medium">Erstellt</th>
+                      <th className="p-3" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deliveryNotes.data.map((dn) => (
+                      <tr key={dn.id} className="border-t hover:bg-muted/40">
+                        <td className="p-3 font-medium">{dn.documentNumber ?? "Entwurf"}</td>
+                        <td className="p-3">
+                          <Link
+                            to="/app/bestellungen/$orderId"
+                            params={{ orderId: dn.orderId }}
+                            className="hover:underline"
+                          >
+                            {dn.orderNumber ?? "—"}
+                          </Link>
+                        </td>
+                        <td className="p-3 text-right tabular-nums">{dn.itemCount}</td>
+                        <td className="p-3 tabular-nums text-muted-foreground">
+                          {new Date(dn.createdAt).toLocaleDateString("de-DE")}
+                        </td>
+                        <td className="p-3 text-right">
+                          <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(dn.id)}>
+                            PDF
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </TableScroll>
+            </>
           )}
         </TabsContent>
       </Tabs>

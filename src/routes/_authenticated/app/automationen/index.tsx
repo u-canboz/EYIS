@@ -19,7 +19,9 @@ import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { Panel } from "@/components/shell/DetailLayout";
+import { EmptyState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/automationen/")({
   head: () => ({
@@ -111,31 +113,28 @@ function AutomationOverview() {
   const data = inbox.data;
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">Automationen</h1>
-          <p className="text-sm text-muted-foreground">
-            Wiederkehrende Abläufe einmal festlegen — das System erledigt sie danach zuverlässig und
-            nachvollziehbar.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/app/automationen/aufgaben">Aufgaben</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/app/automationen/verlauf">Verlauf</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/app/automationen/regel/$ruleId" params={{ ruleId: "neu" }}>
-              Neue Automation
-            </Link>
-          </Button>
-        </div>
-      </header>
+    <div className="min-w-0 space-y-6">
+      <PageHeader
+        title="Automationen"
+        description="Wiederkehrende Abläufe einmal festlegen — das System erledigt sie danach zuverlässig und nachvollziehbar."
+        actions={
+          <>
+            <Button variant="outline" className="h-11" asChild>
+              <Link to="/app/automationen/aufgaben">Aufgaben</Link>
+            </Button>
+            <Button variant="outline" className="h-11" asChild>
+              <Link to="/app/automationen/verlauf">Verlauf</Link>
+            </Button>
+            <Button className="h-11" asChild>
+              <Link to="/app/automationen/regel/$ruleId" params={{ ruleId: "neu" }}>
+                Neue Automation
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Aktive Automationen"
           value={data?.activeCount ?? 0}
@@ -156,29 +155,34 @@ function AutomationOverview() {
       </section>
 
       {!!data?.pausedRules.length && (
-        <Card className="border-amber-500/40">
-          <CardHeader>
-            <CardTitle className="text-base">Automatisch pausiert</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <Panel title="Automatisch pausiert" className="border-amber-500/40">
+          <div className="space-y-3">
             {data.pausedRules.map((r) => (
-              <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                <div>
-                  <p className="font-medium">{r.name}</p>
-                  <p className="text-muted-foreground">
+              <div
+                key={r.id}
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-sm"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{r.name}</p>
+                  <p className="min-w-0 break-words text-muted-foreground">
                     {r.autoPauseReason ?? "Zu viele Fehler in kurzer Zeit."}
                   </p>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => resetMutation.mutate(r.id)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0"
+                  onClick={() => resetMutation.mutate(r.id)}
+                >
                   Wieder freigeben
                 </Button>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
       )}
 
-      <section className="space-y-3">
+      <section className="min-w-0 space-y-3">
         <h2 className="font-display text-lg font-semibold">Ihre Automationen</h2>
         {rules.isLoading ? (
           <div className="space-y-2">
@@ -186,20 +190,21 @@ function AutomationOverview() {
             <Skeleton className="h-20 w-full" />
           </div>
         ) : list.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-            Noch keine Automation. Starten Sie unten mit einer fertigen Vorlage.
-          </p>
+          <EmptyState
+            title="Noch keine Automation"
+            description="Starten Sie unten mit einer fertigen Vorlage."
+          />
         ) : (
-          <ul className="space-y-2">
+          <ul className="min-w-0 space-y-2">
             {list.map((rule) => (
-              <li key={rule.id} className="rounded-lg border bg-card p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+              <li key={rule.id} className="min-w-0 rounded-xl border border-border bg-card p-4">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
                       <Link
                         to="/app/automationen/regel/$ruleId"
                         params={{ ruleId: rule.id }}
-                        className="font-medium hover:underline"
+                        className="min-w-0 truncate font-medium hover:underline"
                       >
                         {rule.name}
                       </Link>
@@ -210,16 +215,16 @@ function AutomationOverview() {
                       </Badge>
                       {rule.autoPausedAt && <Badge variant="destructive">Notbremse</Badge>}
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 min-w-0 break-words text-sm text-muted-foreground">
                       {describeTrigger(rule.triggerType, rule.triggerConfig)} · {rule.actionCount}{" "}
                       Aktion
                       {rule.actionCount === 1 ? "" : "en"}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs tabular-nums text-muted-foreground">
                       {rule.runs24h} Läufe / 24 h · {rule.failures24h} Fehler
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2">
                     {rule.status === "active" ? (
                       <Button
                         size="sm"
@@ -251,50 +256,48 @@ function AutomationOverview() {
         )}
       </section>
 
-      <section className="space-y-3">
+      <section className="min-w-0 space-y-3">
         <div>
           <h2 className="font-display text-lg font-semibold">Fertige Vorlagen</h2>
           <p className="text-sm text-muted-foreground">
             Ein Klick erstellt einen Entwurf, den Sie vor der Aktivierung noch anpassen können.
           </p>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {AUTOMATION_TEMPLATES.map((t) => (
-            <Card key={t.key}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">{t.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{t.description}</p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={installMutation.isPending}
-                  onClick={() => installMutation.mutate(t.key)}
-                >
-                  Vorlage verwenden
-                </Button>
-              </CardContent>
-            </Card>
+            <Panel key={t.key} title={t.name} bodyClassName="space-y-3">
+              <p className="text-sm text-muted-foreground">{t.description}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={installMutation.isPending}
+                onClick={() => installMutation.mutate(t.key)}
+              >
+                Vorlage verwenden
+              </Button>
+            </Panel>
           ))}
         </div>
       </section>
 
       {!!data?.failures.length && (
-        <section className="space-y-3">
+        <section className="min-w-0 space-y-3">
           <h2 className="font-display text-lg font-semibold">Zuletzt fehlgeschlagen</h2>
-          <ul className="divide-y rounded-lg border bg-card text-sm">
+          <ul className="min-w-0 divide-y divide-border rounded-xl border border-border bg-card text-sm">
             {data.failures.slice(0, 8).map((f) => (
-              <li key={f.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
+              <li
+                key={f.id}
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3"
+              >
                 <div className="min-w-0">
-                  <p className="font-medium">{f.ruleName}</p>
-                  <p className="text-muted-foreground">
+                  <p className="truncate font-medium">{f.ruleName}</p>
+                  <p className="min-w-0 break-words text-muted-foreground">
                     {EXECUTION_STATUS_LABELS[f.status as keyof typeof EXECUTION_STATUS_LABELS] ??
                       f.status}
                     {f.error ? ` · ${f.error}` : ""}
                   </p>
                 </div>
-                <Button size="sm" variant="ghost" asChild>
+                <Button size="sm" variant="ghost" className="shrink-0" asChild>
                   <Link to="/app/automationen/verlauf" search={{ executionId: f.id }}>
                     Details
                   </Link>
@@ -320,13 +323,13 @@ function StatCard({
   tone?: "warn" | undefined;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-4">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+    <div className="min-w-0 rounded-xl border border-border bg-card p-4">
+      <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       {loading ? (
         <Skeleton className="mt-2 h-7 w-16" />
       ) : (
         <p
-          className={`mt-1 font-display text-2xl font-semibold ${
+          className={`mt-1 font-display text-2xl font-semibold tabular-nums ${
             tone === "warn" ? "text-destructive" : ""
           }`}
         >
