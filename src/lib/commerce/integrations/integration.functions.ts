@@ -134,3 +134,56 @@ export const getShopReadinessFn = createServerFn({ method: "POST" })
     const { getShopReadiness } = await import("./integration.server");
     return getShopReadiness(data.organizationId, data.shopId);
   });
+
+export const connectIntegrationFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (
+      data: OrgShop & {
+        category: IntegrationCategory;
+        provider: string;
+        values: Record<string, string>;
+      },
+    ) => data,
+  )
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    const { connectIntegration, MANAGE_PERMISSION } = await import("./integration.server");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      MANAGE_PERMISSION[data.category],
+    );
+    return connectIntegration({ ...data, actorId: context.userId });
+  });
+
+export const getCredentialStatusFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: OrgShop & { category: IntegrationCategory; provider: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    const { getCredentialStatus, READ_PERMISSION } = await import("./integration.server");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      READ_PERMISSION[data.category],
+    );
+    return getCredentialStatus(data);
+  });
+
+export const sendProviderTestEmailFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: OrgShop & { recipient: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "communications.settings",
+    );
+    const { sendProviderTestEmail } = await import("./integration.server");
+    return sendProviderTestEmail({ ...data, actorId: context.userId });
+  });
