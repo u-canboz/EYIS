@@ -21,7 +21,13 @@ describe("payment method catalogue", () => {
   });
 
   it("prüft Land und Währung", () => {
-    const method = { method: "ideal", label: "iDEAL", flow: "redirect", countries: ["NL"], currencies: ["EUR"] } as const;
+    const method = {
+      method: "ideal",
+      label: "iDEAL",
+      flow: "redirect" as const,
+      countries: ["NL"],
+      currencies: ["EUR"],
+    };
     expect(methodMatchesContext(method, { country: "NL", currency: "EUR" })).toBe(true);
     expect(methodMatchesContext(method, { country: "DE", currency: "EUR" })).toBe(false);
     expect(methodMatchesContext(method, { country: "NL", currency: "USD" })).toBe(false);
