@@ -3293,6 +3293,121 @@ export type Database = {
           },
         ]
       }
+      integration_connections: {
+        Row: {
+          category: Database["public"]["Enums"]["integration_category"]
+          configuration_reference: string | null
+          created_at: string
+          environment: string
+          id: string
+          metadata: Json
+          organization_id: string
+          provider: string
+          shop_id: string
+          status: Database["public"]["Enums"]["integration_status"]
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["integration_category"]
+          configuration_reference?: string | null
+          created_at?: string
+          environment?: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          provider: string
+          shop_id: string
+          status?: Database["public"]["Enums"]["integration_status"]
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["integration_category"]
+          configuration_reference?: string | null
+          created_at?: string
+          environment?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          provider?: string
+          shop_id?: string
+          status?: Database["public"]["Enums"]["integration_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_connections_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_connections_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_health: {
+        Row: {
+          connection_id: string
+          created_at: string
+          last_checked_at: string | null
+          last_error_code: string | null
+          last_success_at: string | null
+          organization_id: string
+          shop_id: string
+          status: Database["public"]["Enums"]["integration_health_status"]
+          updated_at: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          last_checked_at?: string | null
+          last_error_code?: string | null
+          last_success_at?: string | null
+          organization_id: string
+          shop_id: string
+          status?: Database["public"]["Enums"]["integration_health_status"]
+          updated_at?: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          last_checked_at?: string | null
+          last_error_code?: string | null
+          last_success_at?: string | null
+          organization_id?: string
+          shop_id?: string
+          status?: Database["public"]["Enums"]["integration_health_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_health_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: true
+            referencedRelation: "integration_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_health_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_health_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_items: {
         Row: {
           allow_backorder: boolean
@@ -4284,6 +4399,54 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oauth_states: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          organization_id: string
+          provider: string
+          shop_id: string
+          state_hash: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          organization_id: string
+          provider: string
+          shop_id: string
+          state_hash: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          provider?: string
+          shop_id?: string
+          state_hash?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oauth_states_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oauth_states_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
         ]
@@ -6552,6 +6715,57 @@ export type Database = {
         }
         Relationships: []
       }
+      sender_domains: {
+        Row: {
+          created_at: string
+          dns_records: Json
+          domain: string
+          id: string
+          organization_id: string
+          shop_id: string
+          status: Database["public"]["Enums"]["sender_domain_status"]
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          dns_records?: Json
+          domain: string
+          id?: string
+          organization_id: string
+          shop_id: string
+          status?: Database["public"]["Enums"]["sender_domain_status"]
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          dns_records?: Json
+          domain?: string
+          id?: string
+          organization_id?: string
+          shop_id?: string
+          status?: Database["public"]["Enums"]["sender_domain_status"]
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sender_domains_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sender_domains_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sender_identities: {
         Row: {
           channel: Database["public"]["Enums"]["communication_channel"]
@@ -6564,6 +6778,7 @@ export type Database = {
           provider_reference: string | null
           reply_to: string | null
           sender_address: string
+          sender_domain_id: string | null
           sender_name: string
           shop_id: string
           status: Database["public"]["Enums"]["entity_status"]
@@ -6581,6 +6796,7 @@ export type Database = {
           provider_reference?: string | null
           reply_to?: string | null
           sender_address: string
+          sender_domain_id?: string | null
           sender_name: string
           shop_id: string
           status?: Database["public"]["Enums"]["entity_status"]
@@ -6598,6 +6814,7 @@ export type Database = {
           provider_reference?: string | null
           reply_to?: string | null
           sender_address?: string
+          sender_domain_id?: string | null
           sender_name?: string
           shop_id?: string
           status?: Database["public"]["Enums"]["entity_status"]
@@ -6610,6 +6827,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sender_identities_sender_domain_id_fkey"
+            columns: ["sender_domain_id"]
+            isOneToOne: false
+            referencedRelation: "sender_domains"
             referencedColumns: ["id"]
           },
           {
@@ -8688,6 +8912,15 @@ export type Database = {
         | "shipped"
         | "delivered"
         | "cancelled"
+      integration_category: "payment" | "email" | "carrier"
+      integration_health_status: "healthy" | "warning" | "error" | "unknown"
+      integration_status:
+        | "not_connected"
+        | "setup_required"
+        | "verification_required"
+        | "connected"
+        | "error"
+        | "disabled"
       inventory_movement_type:
         | "initial_stock"
         | "receipt"
@@ -8802,6 +9035,12 @@ export type Database = {
         | "completed"
         | "cancelled"
       return_window_start: "order_date" | "shipping_date" | "delivery_date"
+      sender_domain_status:
+        | "not_configured"
+        | "dns_required"
+        | "verifying"
+        | "verified"
+        | "error"
       sender_verification_status:
         | "unverified"
         | "pending"
@@ -9077,6 +9316,16 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      integration_category: ["payment", "email", "carrier"],
+      integration_health_status: ["healthy", "warning", "error", "unknown"],
+      integration_status: [
+        "not_connected",
+        "setup_required",
+        "verification_required",
+        "connected",
+        "error",
+        "disabled",
+      ],
       inventory_movement_type: [
         "initial_stock",
         "receipt",
@@ -9209,6 +9458,13 @@ export const Constants = {
         "cancelled",
       ],
       return_window_start: ["order_date", "shipping_date", "delivery_date"],
+      sender_domain_status: [
+        "not_configured",
+        "dns_required",
+        "verifying",
+        "verified",
+        "error",
+      ],
       sender_verification_status: [
         "unverified",
         "pending",
