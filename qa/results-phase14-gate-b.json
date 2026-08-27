@@ -1,0 +1,82 @@
+{
+  "gate": "B",
+  "ranAt": "2026-08-27T13:10:00Z",
+  "areas": [
+    {
+      "area": "B1 Visuelle Regression",
+      "total": 14,
+      "passed": 14,
+      "status": "PASS",
+      "source": "qa/results-phase14-visual.json"
+    },
+    {
+      "area": "B2 Accessibility",
+      "total": 9,
+      "passed": 9,
+      "status": "PASS (B2.9 OFFEN)",
+      "source": "qa/results-phase14-accessibility.json"
+    },
+    {
+      "area": "B3 Performance",
+      "total": 15,
+      "passed": 15,
+      "status": "PASS",
+      "source": "qa/results-phase14-performance.json"
+    },
+    {
+      "area": "B4 Datenschutz",
+      "total": 26,
+      "passed": 26,
+      "status": "PASS",
+      "source": "qa/results-phase14-privacy.json"
+    },
+    {
+      "area": "B5 Storage-Sicherheit",
+      "total": 35,
+      "passed": 35,
+      "status": "PASS",
+      "source": "qa/results-phase14-storage.json"
+    },
+    {
+      "area": "B8 Provider-Readiness",
+      "total": 14,
+      "passed": 14,
+      "status": "PASS (2 BLOCKED)",
+      "source": "qa/results-phase14-providers.json"
+    }
+  ],
+  "regression": {
+    "docs:validate": "PASS",
+    "typecheck": "PASS",
+    "test": "PASS",
+    "build": "PASS",
+    "qa:store-api": "52/52",
+    "qa:security": "32/32",
+    "qa:rls": "52/52",
+    "qa:health": "15/15",
+    "qa:jobs": "21/21",
+    "qa:migrations": "10/10",
+    "qa:demo": "44/44"
+  },
+  "blocked": [
+    "Staging-Umgebung",
+    "Production-Umgebung",
+    "Staging-E2E",
+    "Stripe Live",
+    "E-Mail-Domain und Provider",
+    "Carrier-Labels",
+    "Schema-Replay auf frischem Projekt"
+  ],
+  "open": [
+    "Screenreader-Stichprobe",
+    "Production-Performance-Budgets",
+    "Lastprofil >10 parallel",
+    "Retention-Löschjobs",
+    "Datenexport",
+    "Virenscan",
+    "Designabnahme",
+    "CSP durchsetzend",
+    "Monitoring (Gate C)"
+  ],
+  "failed": []
+}
