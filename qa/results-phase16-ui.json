@@ -1,5 +1,5 @@
 {
-  "passed": 10,
+  "passed": 11,
   "total": 11,
   "results": [
     {
@@ -24,8 +24,8 @@
     },
     {
       "name": "Touch-Ziele >= 40 px auf Mobil",
-      "ok": false,
-      "detail": "preise@320:['Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16']; preise@375:['Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16']; preise@390:['Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16']; preise@430:['Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16', 'Preiszeile ausw\u00e4hlen@16']"
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "U2 mobile Navigation erreichbar und vollst\u00e4ndig",
