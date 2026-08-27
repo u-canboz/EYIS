@@ -1,0 +1,282 @@
+{
+  "phase": "18 — Integration Center",
+  "generatedAt": "2026-08-27",
+  "total": 39,
+  "passed": 39,
+  "failed": 0,
+  "checks": [
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Katalog enthält alle drei Kategorien",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Nicht implementierte Anbieter sind markiert",
+      "ok": true,
+      "detail": "healthCheckSupported=false für nicht implementierte Anbieter"
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Keine Secrets in Katalog-Metadaten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "listIntegrations liefert Katalog",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Keine Secret-Werte in Integration-Views",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "OAuth-State wird gehasht gespeichert",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "OAuth-State einmalig konsumierbar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "OAuth-State-Replay abgelehnt",
+      "ok": true,
+      "detail": "OAuth-State wurde bereits verwendet."
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Cross-Tenant-State abgelehnt",
+      "ok": true,
+      "detail": "OAuth-State gehört nicht zu diesem Shop oder Anbieter."
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Absenderdomain angelegt (dns_required)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Verifizierung simuliert keinen Erfolg",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Domain bleibt unverifiziert",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Verbindungstest Mock-Payment healthy",
+      "ok": true,
+      "detail": "Verbindung erfolgreich geprüft."
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "SMTP ehrlich als nicht verfügbar",
+      "ok": true,
+      "detail": "Dieser Anbieter ist noch nicht verfügbar."
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "oauth_states nur service-role erreichbar (kein authenticated Grant)",
+      "ok": true,
+      "detail": "admin ok; Policies geprüft in qa:rls"
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Readiness liefert 6 Bereiche",
+      "ok": true,
+      "detail": "payments:ready, email:offen, shipping:ready, taxes:offen, invoices:ready, storefront:ready"
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "GET /payment-methods antwortet",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "suite": "integrations",
+      "status": "PASS",
+      "name": "Payment-Methods ohne Secrets",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Readiness: sechs Bereiche, serverseitig abgeleitet",
+      "ok": true,
+      "detail": "payments:READY, email:OFFEN, shipping:READY, taxes:OFFEN, invoices:READY, storefront:READY"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Readiness: kein Live-Ready im Testmodus",
+      "ok": true,
+      "detail": "liveReady=false"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Discovery: /payment-methods liefert aktive Methoden für Shop A",
+      "ok": true,
+      "detail": "status=200 methods=mock"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Discovery: nur implementierte Provider",
+      "ok": true,
+      "detail": "mock"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Discovery: Test-Provider ist als testOnly markiert",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Discovery: keine Secrets in der Antwort",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Cross-Tenant: Shop B sieht ausschließlich eigene Methoden",
+      "ok": true,
+      "detail": "shopB=0 configsB=0 configsA=1"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Cross-Tenant: Integrationsansichten sind shop-gebunden",
+      "ok": true,
+      "detail": "A=16 B=16"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Cross-Tenant: jede Verbindung ist org- und shop-gebunden",
+      "ok": true,
+      "detail": "rows=0"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Secret-Leakage: Registry client-sicher (kein Server-Import)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Secret-Leakage: kein Secret im Client-Bundle",
+      "ok": true,
+      "detail": "0 Treffer"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Secret-Leakage: Storefront-Checkout ohne hartcodierte Zahlungsarten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "E2E: Test-Zahlungsart aus Discovery gewählt",
+      "ok": true,
+      "detail": "mock"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "E2E: Checkout validiert",
+      "ok": true,
+      "detail": "total=5480"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "E2E: Payment Session mit entdecktem Provider",
+      "ok": true,
+      "detail": "mock/test 5480 EUR"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "E2E: Order finalisiert",
+      "ok": true,
+      "detail": "{\"created\":true,\"order_id\":\"0215e942-86fb-4dee-8467-278fe7c5d732\",\"order_number\":\"ORD-000021\",\"reservations_committed\":1"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "E2E: Zahlungsstatus paid",
+      "ok": true,
+      "detail": "paid"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "E2E: Bestellstatus gesetzt",
+      "ok": true,
+      "detail": "confirmed"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "E2E: Payment Session final",
+      "ok": true,
+      "detail": "paid"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Readiness nach E2E: Zahlungen READY",
+      "ok": true,
+      "detail": "payments:READY, email:OFFEN, shipping:READY, taxes:OFFEN, invoices:READY, storefront:READY"
+    },
+    {
+      "suite": "e2e",
+      "status": "PASS",
+      "name": "Readiness nach E2E: Livebetrieb weiterhin nicht freigegeben (Testmodus)",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}
