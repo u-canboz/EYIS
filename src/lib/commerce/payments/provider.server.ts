@@ -68,3 +68,34 @@ export async function getProvider(id: string): Promise<PaymentProvider> {
   if (id === "mock") return (await import("./mock.server")).mockProvider;
   throw new Error(`Unbekannter Zahlungsanbieter: ${id}`);
 }
+
+/**
+ * Shop-gebundener Anbieter: verwendet die im verschlüsselten Tresor
+ * hinterlegten Zugangsdaten dieses Shops. Nur wenn dort nichts liegt, greift
+ * der plattformweite Rückfall aus getProvider().
+ */
+export async function getProviderForShop(
+  organizationId: string,
+  shopId: string,
+  id: string,
+  environment: CommerceEnvironment,
+): Promise<PaymentProvider> {
+  if (id === "stripe") {
+    const { loadCredentials } = await import("../integrations/credentials.server");
+    const creds = await loadCredentials({
+      organizationId,
+      shopId,
+      category: "payment",
+      provider: "stripe",
+      environment,
+    });
+    if (creds?.["secretKey"]) {
+      const { createStripeProvider } = await import("./stripe.server");
+      return createStripeProvider({
+        secretKey: creds["secretKey"],
+        webhookSecret: creds["webhookSecret"] ?? null,
+      });
+    }
+  }
+  return getProvider(id);
+}
