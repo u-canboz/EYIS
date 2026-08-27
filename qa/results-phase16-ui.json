@@ -25,7 +25,7 @@
     {
       "name": "Touch-Ziele >= 40 px auf Mobil",
       "ok": false,
-      "detail": "dokumente@320:['Rechnungen@28', 'Lieferscheine@28']; dokumente@375:['Rechnungen@28', 'Lieferscheine@28']; dokumente@390:['Rechnungen@28', 'Lieferscheine@28']; dokumente@430:['Rechnungen@28', 'Lieferscheine@28']"
+      "detail": "versand@320:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']; versand@375:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']; versand@390:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']; versand@430:['Neu@36', 'Kommissionierung@36', 'Verpackt@36', 'Versendet@36', 'Zugestellt@36']"
     },
     {
       "name": "U2 mobile Navigation erreichbar und vollst\u00e4ndig",
