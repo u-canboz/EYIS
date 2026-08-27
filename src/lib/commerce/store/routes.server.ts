@@ -114,6 +114,34 @@ export const storeRoutes: RouteDef[] = [
     },
   },
   {
+    /**
+     * Additive v1 discovery endpoint: which payment methods can this
+     * storefront offer right now? Derived exclusively from active engine
+     * provider configurations — the storefront never guesses or hardcodes.
+     * Secret references and settings never leave the server.
+     */
+    method: "GET",
+    path: "/payment-methods",
+    profile: "catalog_read",
+    handler: async (ctx) => {
+      const admin = await getAdmin();
+      const { data } = await admin
+        .from("payment_provider_configs")
+        .select("provider, display_name, environment")
+        .eq("organization_id", ctx.key.organizationId)
+        .eq("shop_id", ctx.key.shopId)
+        .eq("status", "active")
+        .order("priority", { ascending: true });
+      return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+        id: `${String(row["provider"])}-${String(row["environment"])}`,
+        provider: String(row["provider"]),
+        name: String(row["display_name"]),
+        environment: row["environment"] === "live" ? "live" : "test",
+        testOnly: row["provider"] === "mock",
+      }));
+    },
+  },
+  {
     method: "GET",
     path: "/products",
     profile: "catalog_read",
