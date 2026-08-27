@@ -18,8 +18,657 @@
     {
       "name": "Guard: Audit-Eintrag security.demo_seed_blocked",
       "ok": true,
-      "detail": "28 Einträge"
+      "detail": "34 Einträge"
+    },
+    {
+      "name": "Seed: alle Schritte als vollständig gemeldet",
+      "ok": true,
+      "detail": "{\"foundation\":true,\"catalog\":true,\"media\":true,\"customers\":true,\"promotions\":true,\"inventory\":true,\"orders\":true}"
+    },
+    {
+      "name": "Zähler: 32 Produkte",
+      "ok": true,
+      "detail": "32"
+    },
+    {
+      "name": "Zähler: Varianten je Produkt vorhanden",
+      "ok": true,
+      "detail": "32"
+    },
+    {
+      "name": "Zähler: Kategorien vorhanden (Seed-Definition: 6)",
+      "ok": true,
+      "detail": "6"
+    },
+    {
+      "name": "Zähler: Kollektionen vorhanden (Seed-Definition: 3)",
+      "ok": true,
+      "detail": "3"
+    },
+    {
+      "name": "Zähler: 12 Produktbilder",
+      "ok": true,
+      "detail": "12"
+    },
+    {
+      "name": "Zähler: Produktbild-Zuordnungen vorhanden",
+      "ok": true,
+      "detail": "32"
+    },
+    {
+      "name": "Zähler: Preise >= Varianten",
+      "ok": true,
+      "detail": "39"
+    },
+    {
+      "name": "Zähler: Promotions >= 3",
+      "ok": true,
+      "detail": "3"
+    },
+    {
+      "name": "Zähler: Bestände über Inventory Movements",
+      "ok": true,
+      "detail": "145"
+    },
+    {
+      "name": "Zähler: 12 Kunden",
+      "ok": true,
+      "detail": "12"
+    },
+    {
+      "name": "Zähler: Kundengruppen >= 2",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "name": "Zähler: 40 Bestellvorgänge (36 Bestellungen + 4 offene Zahlungen)",
+      "ok": true,
+      "detail": "36 Bestellungen / 40 Checkouts"
+    },
+    {
+      "name": "Zähler: Bestellpositionen vorhanden",
+      "ok": true,
+      "detail": "54"
+    },
+    {
+      "name": "Flow: Zahlungssitzungen je Bestellung",
+      "ok": true,
+      "detail": "40"
+    },
+    {
+      "name": "Flow: Checkout-Sessions vorhanden",
+      "ok": true,
+      "detail": "40"
+    },
+    {
+      "name": "Folgedaten: Rechnungen",
+      "ok": true,
+      "detail": "8"
+    },
+    {
+      "name": "Folgedaten: Versand/Fulfillment",
+      "ok": true,
+      "detail": "17 Sendungen / 21 Fulfillments"
+    },
+    {
+      "name": "Folgedaten: Kommunikation",
+      "ok": true,
+      "detail": "63"
+    },
+    {
+      "name": "Folgedaten: Steuer-Snapshots",
+      "ok": true,
+      "detail": "40"
+    },
+    {
+      "name": "Blueprints: mindestens 5 unterschiedliche belegt",
+      "ok": true,
+      "detail": "textil, lebensmittel, elektronik, moebel, schmuck, kosmetik"
+    },
+    {
+      "name": "Integrität: Health-Engine ohne kritische Befunde",
+      "ok": true,
+      "detail": "0 nachrangige Hinweise"
+    },
+    {
+      "name": "Bestellungen: mehrere Zustände abgedeckt",
+      "ok": true,
+      "detail": "confirmed/cancelled | paid/partially_refunded/refunded"
+    },
+    {
+      "name": "Idempotenz: keine Dubletten beim zweiten Lauf",
+      "ok": true,
+      "detail": "alle Zähler identisch"
+    },
+    {
+      "name": "Fixture mixed_tax_order: erzeugt",
+      "ok": true,
+      "detail": "{\"scenario\":\"mixed_tax_order\",\"run_ref\":\"47ouy5\",\"organization_id\":\"9b879550-4976-434d-9ff5-22e77b4e2720\",\"shop_id\":\"61705efd-77ec-4596-b15f-74a836709fa0\",\"order_id\":\"422706cb-5548-410b-a3a3-8e66e5f7f"
+    },
+    {
+      "name": "Fixture mixed_tax_order: zerstört ohne DB-Reste",
+      "ok": true,
+      "detail": "Fixture vollständig zerstört (Organisation kaskadiert gelöscht)."
+    },
+    {
+      "name": "Fixture mixed_tax_order: keine Storage-Dateien",
+      "ok": true,
+      "detail": "0 Dateien"
+    },
+    {
+      "name": "Fixture partial_fulfillment: erzeugt",
+      "ok": true,
+      "detail": "{\"scenario\":\"partial_fulfillment\",\"run_ref\":\"0w39t9\",\"organization_id\":\"1e194d35-15ee-4d0a-9ed7-734e845cec93\",\"shop_id\":\"de8cf0c7-d008-4fdb-acfc-2354d6c04ba5\",\"order_id\":\"66da0512-ac43-4e2d-b5d5-833be"
+    },
+    {
+      "name": "Fixture partial_fulfillment: zerstört ohne DB-Reste",
+      "ok": true,
+      "detail": "Fixture vollständig zerstört (Organisation kaskadiert gelöscht)."
+    },
+    {
+      "name": "Fixture partial_fulfillment: keine Storage-Dateien",
+      "ok": true,
+      "detail": "0 Dateien"
+    },
+    {
+      "name": "Fixture shipping_exception: erzeugt",
+      "ok": true,
+      "detail": "{\"scenario\":\"shipping_exception\",\"run_ref\":\"qp2ttx\",\"organization_id\":\"11742ad4-01c6-460f-bd33-453cf739c0ad\",\"shop_id\":\"b1ad2395-ba18-4aab-946d-08a7fa28b62d\",\"order_id\":\"e35ab836-e370-4440-89eb-0ad408"
+    },
+    {
+      "name": "Fixture shipping_exception: zerstört ohne DB-Reste",
+      "ok": true,
+      "detail": "Fixture vollständig zerstört (Organisation kaskadiert gelöscht)."
+    },
+    {
+      "name": "Fixture shipping_exception: keine Storage-Dateien",
+      "ok": true,
+      "detail": "0 Dateien"
+    },
+    {
+      "name": "Fixture return_full: erzeugt",
+      "ok": true,
+      "detail": "{\"scenario\":\"return_full\",\"run_ref\":\"6m662b\",\"organization_id\":\"e4582210-145b-4732-b6e7-205aa8d9cb4e\",\"shop_id\":\"95e9e440-a244-46f3-9af7-1626aef63ea4\",\"order_id\":\"d446844a-56b6-4a0a-a807-a2d2fc2c4250\""
+    },
+    {
+      "name": "Fixture return_full: zerstört ohne DB-Reste",
+      "ok": true,
+      "detail": "Fixture vollständig zerstört (Organisation kaskadiert gelöscht)."
+    },
+    {
+      "name": "Fixture return_full: keine Storage-Dateien",
+      "ok": true,
+      "detail": "0 Dateien"
+    },
+    {
+      "name": "Reset: Demo-Organisation entfernt",
+      "ok": true,
+      "detail": "gelöscht"
+    },
+    {
+      "name": "Reset: keine Datenreste",
+      "ok": true,
+      "detail": "0 Zeilen"
+    },
+    {
+      "name": "Reset: Storage bereinigt",
+      "ok": true,
+      "detail": "0 Dateien"
+    },
+    {
+      "name": "Reseed: identischer Ausgangszustand",
+      "ok": true,
+      "detail": "alle Zähler identisch"
     }
   ],
-  "error": "DemoSeedForbidden: Demo-/QA-Seed in dieser Umgebung nicht zulässig (Produktions-Signale aktiv)."
+  "report": {
+    "guard": {
+      "guardSeed": "Demo-/QA-Seed in dieser Umgebung nicht zulässig (Produktions-Signale aktiv).",
+      "guardReset": "Demo-/QA-Seed in dieser Umgebung nicht zulässig (Produktions-Signale aktiv).",
+      "auditBlocked": 34
+    },
+    "seed_run1": {
+      "detail": {
+        "foundation": "Foundation bereit (Organisation c10845cc…, Steuern, Versand, Dokumente, Kommunikation, Mock-Anbieter).",
+        "catalog": "Katalog bereit (32 Produkte, 32 neu, 6 Kategorien, 3 Kollektionen).",
+        "media": "Medien bereit (12 hochgeladen, 32 Produktbilder zugeordnet).",
+        "inventory": "Inventar bereit (32 Wareneingänge gebucht).",
+        "customers": "Kunden bereit (12 Kunden, 12 neu, 2 Gruppen).",
+        "promotions": "Promotions bereit (3 Codes, 3 neu).",
+        "orders": "40/40 Bestellungen über den echten Checkout-Fluss. (40/40)"
+      },
+      "counts": {
+        "products": 32,
+        "product_variants": 32,
+        "categories": 6,
+        "collections": 3,
+        "media_assets": 12,
+        "product_media": 32,
+        "prices": 39,
+        "promotions": 3,
+        "inventory_items": 32,
+        "inventory_levels": 32,
+        "inventory_movements": 145,
+        "customers": 12,
+        "customer_addresses": 12,
+        "customer_groups": 2,
+        "carts": 40,
+        "checkout_sessions": 40,
+        "orders": 36,
+        "order_items": 54,
+        "payment_sessions": 40,
+        "payment_transactions": 42,
+        "invoices": 8,
+        "fulfillments": 21,
+        "shipments": 17,
+        "tracking_events": 0,
+        "communications": 63,
+        "returns": 2,
+        "refunds": 6,
+        "tax_snapshots": 40
+      },
+      "seconds": 457
+    },
+    "blueprints": {
+      "used": [
+        "textil",
+        "lebensmittel",
+        "elektronik",
+        "moebel",
+        "schmuck",
+        "kosmetik"
+      ],
+      "available": [
+        "standard",
+        "textil",
+        "lebensmittel",
+        "kosmetik",
+        "elektronik",
+        "moebel",
+        "schmuck",
+        "digital",
+        "dienstleistung"
+      ]
+    },
+    "health": [],
+    "order_states": {
+      "states": [
+        "confirmed",
+        "cancelled"
+      ],
+      "payment": [
+        "paid",
+        "partially_refunded",
+        "refunded"
+      ]
+    },
+    "idempotency": {
+      "counts": {
+        "products": 32,
+        "product_variants": 32,
+        "categories": 6,
+        "collections": 3,
+        "media_assets": 12,
+        "product_media": 32,
+        "prices": 39,
+        "promotions": 3,
+        "inventory_items": 32,
+        "inventory_levels": 32,
+        "inventory_movements": 145,
+        "customers": 12,
+        "customer_addresses": 12,
+        "customer_groups": 2,
+        "carts": 40,
+        "checkout_sessions": 40,
+        "orders": 36,
+        "order_items": 54,
+        "payment_sessions": 40,
+        "payment_transactions": 42,
+        "invoices": 8,
+        "fulfillments": 21,
+        "shipments": 17,
+        "tracking_events": 0,
+        "communications": 63,
+        "returns": 2,
+        "refunds": 6,
+        "tax_snapshots": 40
+      },
+      "diffs": []
+    },
+    "fixtures": [
+      {
+        "scenario": "mixed_tax_order",
+        "manifest": {
+          "scenario": "mixed_tax_order",
+          "run_ref": "47ouy5",
+          "organization_id": "9b879550-4976-434d-9ff5-22e77b4e2720",
+          "shop_id": "61705efd-77ec-4596-b15f-74a836709fa0",
+          "order_id": "422706cb-5548-410b-a3a3-8e66e5f7fd8d",
+          "note": "Bestellung mit 19 %- und 7 %-Positionen."
+        },
+        "before": {
+          "products": 2,
+          "product_variants": 2,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 2,
+          "promotions": 0,
+          "inventory_items": 2,
+          "inventory_levels": 2,
+          "inventory_movements": 6,
+          "customers": 0,
+          "customer_addresses": 0,
+          "customer_groups": 0,
+          "carts": 1,
+          "checkout_sessions": 1,
+          "orders": 1,
+          "order_items": 2,
+          "payment_sessions": 1,
+          "payment_transactions": 1,
+          "invoices": 0,
+          "fulfillments": 0,
+          "shipments": 0,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 0,
+          "refunds": 0,
+          "tax_snapshots": 1
+        },
+        "after": {
+          "products": 0,
+          "product_variants": 0,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 0,
+          "promotions": 0,
+          "inventory_items": 0,
+          "inventory_levels": 0,
+          "inventory_movements": 0,
+          "customers": 0,
+          "customer_addresses": 0,
+          "customer_groups": 0,
+          "carts": 0,
+          "checkout_sessions": 0,
+          "orders": 0,
+          "order_items": 0,
+          "payment_sessions": 0,
+          "payment_transactions": 0,
+          "invoices": 0,
+          "fulfillments": 0,
+          "shipments": 0,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 0,
+          "refunds": 0,
+          "tax_snapshots": 0
+        },
+        "residual": [],
+        "files": 0
+      },
+      {
+        "scenario": "partial_fulfillment",
+        "manifest": {
+          "scenario": "partial_fulfillment",
+          "run_ref": "0w39t9",
+          "organization_id": "1e194d35-15ee-4d0a-9ed7-734e845cec93",
+          "shop_id": "de8cf0c7-d008-4fdb-acfc-2354d6c04ba5",
+          "order_id": "66da0512-ac43-4e2d-b5d5-833bee0a9065"
+        },
+        "before": {
+          "products": 2,
+          "product_variants": 2,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 2,
+          "promotions": 0,
+          "inventory_items": 2,
+          "inventory_levels": 2,
+          "inventory_movements": 6,
+          "customers": 0,
+          "customer_addresses": 0,
+          "customer_groups": 0,
+          "carts": 1,
+          "checkout_sessions": 1,
+          "orders": 1,
+          "order_items": 2,
+          "payment_sessions": 1,
+          "payment_transactions": 1,
+          "invoices": 0,
+          "fulfillments": 1,
+          "shipments": 0,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 0,
+          "refunds": 0,
+          "tax_snapshots": 1
+        },
+        "after": {
+          "products": 0,
+          "product_variants": 0,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 0,
+          "promotions": 0,
+          "inventory_items": 0,
+          "inventory_levels": 0,
+          "inventory_movements": 0,
+          "customers": 0,
+          "customer_addresses": 0,
+          "customer_groups": 0,
+          "carts": 0,
+          "checkout_sessions": 0,
+          "orders": 0,
+          "order_items": 0,
+          "payment_sessions": 0,
+          "payment_transactions": 0,
+          "invoices": 0,
+          "fulfillments": 0,
+          "shipments": 0,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 0,
+          "refunds": 0,
+          "tax_snapshots": 0
+        },
+        "residual": [],
+        "files": 0
+      },
+      {
+        "scenario": "shipping_exception",
+        "manifest": {
+          "scenario": "shipping_exception",
+          "run_ref": "qp2ttx",
+          "organization_id": "11742ad4-01c6-460f-bd33-453cf739c0ad",
+          "shop_id": "b1ad2395-ba18-4aab-946d-08a7fa28b62d",
+          "order_id": "e35ab836-e370-4440-89eb-0ad408fcfc40",
+          "shipment_id": "7b1d9df7-765d-4fa1-a43f-9202d3012c04"
+        },
+        "before": {
+          "products": 1,
+          "product_variants": 1,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 1,
+          "promotions": 0,
+          "inventory_items": 1,
+          "inventory_levels": 1,
+          "inventory_movements": 3,
+          "customers": 0,
+          "customer_addresses": 0,
+          "customer_groups": 0,
+          "carts": 1,
+          "checkout_sessions": 1,
+          "orders": 1,
+          "order_items": 1,
+          "payment_sessions": 1,
+          "payment_transactions": 1,
+          "invoices": 0,
+          "fulfillments": 1,
+          "shipments": 1,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 0,
+          "refunds": 0,
+          "tax_snapshots": 1
+        },
+        "after": {
+          "products": 0,
+          "product_variants": 0,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 0,
+          "promotions": 0,
+          "inventory_items": 0,
+          "inventory_levels": 0,
+          "inventory_movements": 0,
+          "customers": 0,
+          "customer_addresses": 0,
+          "customer_groups": 0,
+          "carts": 0,
+          "checkout_sessions": 0,
+          "orders": 0,
+          "order_items": 0,
+          "payment_sessions": 0,
+          "payment_transactions": 0,
+          "invoices": 0,
+          "fulfillments": 0,
+          "shipments": 0,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 0,
+          "refunds": 0,
+          "tax_snapshots": 0
+        },
+        "residual": [],
+        "files": 0
+      },
+      {
+        "scenario": "return_full",
+        "manifest": {
+          "scenario": "return_full",
+          "run_ref": "6m662b",
+          "organization_id": "e4582210-145b-4732-b6e7-205aa8d9cb4e",
+          "shop_id": "95e9e440-a244-46f3-9af7-1626aef63ea4",
+          "order_id": "d446844a-56b6-4a0a-a807-a2d2fc2c4250",
+          "return_id": "7f7e4344-95ee-4b1c-bccd-4fb9090e76be"
+        },
+        "before": {
+          "products": 1,
+          "product_variants": 1,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 1,
+          "promotions": 0,
+          "inventory_items": 1,
+          "inventory_levels": 1,
+          "inventory_movements": 3,
+          "customers": 1,
+          "customer_addresses": 1,
+          "customer_groups": 0,
+          "carts": 1,
+          "checkout_sessions": 1,
+          "orders": 1,
+          "order_items": 1,
+          "payment_sessions": 1,
+          "payment_transactions": 1,
+          "invoices": 0,
+          "fulfillments": 1,
+          "shipments": 1,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 1,
+          "refunds": 0,
+          "tax_snapshots": 1
+        },
+        "after": {
+          "products": 0,
+          "product_variants": 0,
+          "categories": 0,
+          "collections": 0,
+          "media_assets": 0,
+          "product_media": 0,
+          "prices": 0,
+          "promotions": 0,
+          "inventory_items": 0,
+          "inventory_levels": 0,
+          "inventory_movements": 0,
+          "customers": 0,
+          "customer_addresses": 0,
+          "customer_groups": 0,
+          "carts": 0,
+          "checkout_sessions": 0,
+          "orders": 0,
+          "order_items": 0,
+          "payment_sessions": 0,
+          "payment_transactions": 0,
+          "invoices": 0,
+          "fulfillments": 0,
+          "shipments": 0,
+          "tracking_events": 0,
+          "communications": 0,
+          "returns": 0,
+          "refunds": 0,
+          "tax_snapshots": 0
+        },
+        "residual": [],
+        "files": 0
+      }
+    ],
+    "reset": {
+      "leftovers": [],
+      "files": 0
+    },
+    "reseed": {
+      "counts": {
+        "products": 32,
+        "product_variants": 32,
+        "categories": 6,
+        "collections": 3,
+        "media_assets": 12,
+        "product_media": 32,
+        "prices": 39,
+        "promotions": 3,
+        "inventory_items": 32,
+        "inventory_levels": 32,
+        "inventory_movements": 145,
+        "customers": 12,
+        "customer_addresses": 12,
+        "customer_groups": 2,
+        "carts": 40,
+        "checkout_sessions": 40,
+        "orders": 36,
+        "order_items": 54,
+        "payment_sessions": 40,
+        "payment_transactions": 42,
+        "invoices": 8,
+        "fulfillments": 21,
+        "shipments": 17,
+        "tracking_events": 0,
+        "communications": 63,
+        "returns": 2,
+        "refunds": 6,
+        "tax_snapshots": 40
+      },
+      "diffs": []
+    },
+    "demo_org_id": "7af7c319-a3d2-4469-b420-a68b37651b7d",
+    "demo_user": {
+      "email": "qa-demo-owner@commerce-qa.test",
+      "password": "QaPhase15!Demo-Owner"
+    }
+  }
 }
