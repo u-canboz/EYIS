@@ -89,7 +89,8 @@ MEASURE = """
     if (getComputedStyle(el).display.startsWith('inline') && !el.className) return;
     if (r.height < 40) smallTargets.push((el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 40) + `@${Math.round(r.height)}`);
   });
-  const breakAll = document.querySelectorAll('.break-all').length;
+  // break-all ist nur in <code>-Blöcken (Token, URLs) zulässig, nie in Fachdaten wie SKUs.
+  const breakAll = [...document.querySelectorAll('.break-all')].filter((el) => el.tagName !== 'CODE').length;
   return { overflow, wide: wide.slice(0, 5), smallTargets: smallTargets.slice(0, 5), breakAll };
 }
 """
