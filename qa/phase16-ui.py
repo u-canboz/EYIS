@@ -87,7 +87,14 @@ MEASURE = """
     if (r.width === 0 || r.height === 0) return;
     if (el.closest('table')) return;
     if (getComputedStyle(el).display.startsWith('inline') && !el.className) return;
-    if (r.height < 40) smallTargets.push((el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 40) + `@${Math.round(r.height)}`);
+    // Checkbox/Switch/Radio: wirksame Trefferflaeche inkl. ::after-Hitarea messen
+    const role = el.getAttribute('role');
+    let h = r.height;
+    if (role === 'checkbox' || role === 'switch' || role === 'radio') {
+      const top = parseFloat(getComputedStyle(el, '::after').top || '0');
+      if (!Number.isNaN(top) && top < 0) h += Math.abs(top) * 2;
+    }
+    if (h < 40) smallTargets.push((el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 40) + `@${Math.round(h)}`);
   });
   // break-all ist nur in <code>-Blöcken (Token, URLs) zulässig, nie in Fachdaten wie SKUs.
   const breakAll = [...document.querySelectorAll('.break-all')].filter((el) => el.tagName !== 'CODE').length;
