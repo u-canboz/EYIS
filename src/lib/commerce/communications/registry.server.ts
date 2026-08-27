@@ -45,10 +45,12 @@ export async function bindProvider(
     });
     if (key === "resend") return createResendProvider(creds?.["apiKey"] ?? null);
     if (!creds?.["host"] || !creds["username"] || !creds["password"]) return createSmtpProvider(null);
+    const { resolveTlsMode } = await import("./providers/smtp.server");
+    const port = Number(creds["port"] ?? 587);
     return createSmtpProvider({
       host: creds["host"],
-      port: Number(creds["port"] ?? 587),
-      encryption: creds["encryption"] === "tls" ? "tls" : "starttls",
+      port,
+      encryption: resolveTlsMode(creds["encryption"], port),
       username: creds["username"],
       password: creds["password"],
       senderAddress: creds["senderAddress"] ?? null,
