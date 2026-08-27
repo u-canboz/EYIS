@@ -251,7 +251,7 @@ export function buildMimeMessage(
   const boundary = `co_${message.idempotencyKey.replace(/[^a-zA-Z0-9]/g, "").slice(0, 24)}_b`;
   const headers = [
     `From: ${from}`,
-    `To: ${message.to}`,
+    `To: ${addressOf(message.to)}`,
     ...(message.replyTo ? [`Reply-To: ${addressOf(message.replyTo)}`] : []),
     `Subject: ${encodeHeader(message.subject)}`,
     `Date: ${new Date().toUTCString()}`,
