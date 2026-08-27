@@ -124,7 +124,7 @@ function ExecutionHistory() {
           <Button
             key={f.value || "all"}
             size="sm"
-            className="h-9"
+            className="h-10"
             variant={(search.status ?? "") === f.value ? "default" : "outline"}
             onClick={() =>
               void navigate({ search: (s: Search) => ({ ...s, status: f.value || undefined }) })
