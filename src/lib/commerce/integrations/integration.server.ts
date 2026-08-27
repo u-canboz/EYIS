@@ -1489,9 +1489,8 @@ export async function getShopReadiness(
         ? "Kein E-Mail-Anbieter aktiv"
         : !emailLiveProvider
           ? "Nur Sandbox-Anbieter aktiv"
-          : verifiedSender
-            ? "Absender verifiziert"
-            : "Absenderdomain nicht verifiziert",
+          : (emailDetailOverride ??
+            (verifiedSender ? "Absender verifiziert" : "Absenderdomain nicht verifiziert")),
     },
     {
       key: "shipping",
