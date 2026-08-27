@@ -94,12 +94,20 @@ async function runtimeConnect(): Promise<SmtpConnect> {
   } catch {
     /* Laufzeit ohne Rohsockets */
   }
+  try {
+    // Node-Laufzeit (Entwicklungsserver, Node-Deployment).
+    const { nodeSmtpConnect } = await import("./smtp-node.server");
+    return await nodeSmtpConnect();
+  } catch {
+    /* Keine Node-Sockets verfügbar */
+  }
   throw new CommunicationError(
     "provider_unavailable",
     "Diese Laufzeit stellt keine SMTP-Verbindung bereit. Bitte einen HTTP-basierten E-Mail-Anbieter verwenden.",
     false,
   );
 }
+
 
 function classify(code: number, text: string): CommunicationError {
   if (code === 421 || code === 450 || code === 451 || code === 452)
