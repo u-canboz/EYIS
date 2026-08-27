@@ -171,7 +171,7 @@ function TeamPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="mt-2 h-9"
+                  className="mt-2 min-h-11"
                   onClick={() => {
                     navigator.clipboard.writeText(inviteLink);
                     toast.success("Link kopiert.");
