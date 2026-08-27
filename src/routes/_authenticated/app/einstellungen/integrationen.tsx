@@ -295,7 +295,13 @@ function ConnectDialog({
   const connect = useServerFn(connectIntegrationFn);
   const fetchStatus = useServerFn(getCredentialStatusFn);
   const fields = CREDENTIAL_FIELDS[view.id] ?? [];
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      (CREDENTIAL_FIELDS[view.id] ?? [])
+        .filter((f) => f.defaultValue)
+        .map((f) => [f.name, f.defaultValue as string]),
+    ),
+  );
 
   const statusQuery = useQuery({
     queryKey: ["credential-status", organizationId, shopId, view.id],
