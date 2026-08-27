@@ -524,7 +524,7 @@ function ReturnDetailPage() {
               <div className="flex shrink-0 items-center gap-3">
                 <span className="tabular-nums">{formatMoney(it.refundAmountMinor ?? 0, r.currencyCode)}</span>
                 {it.restockDecision === "restock" && !it.restockedAt && can("inventory.manage") && (
-                  <Button size="sm" className="h-9" variant="outline" onClick={() => restockM.mutate(it.id)}>
+                  <Button size="sm" className="min-h-11" variant="outline" onClick={() => restockM.mutate(it.id)}>
                     Einlagern
                   </Button>
                 )}

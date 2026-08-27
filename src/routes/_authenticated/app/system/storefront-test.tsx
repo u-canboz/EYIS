@@ -160,7 +160,7 @@ function StorefrontTest() {
                       <span className="text-muted-foreground">{v.variantTitle}</span>
                     </span>
                     <Button
-                      className="h-9"
+                      className="min-h-11"
                       size="sm"
                       variant="outline"
                       onClick={() =>
@@ -360,7 +360,7 @@ function StorefrontTest() {
                     {methods.map((m) => (
                       <Button
                         key={m.id}
-                        className="h-9"
+                        className="min-h-11"
                         size="sm"
                         variant={checkout.shippingMethod?.id === m.id ? "default" : "outline"}
                         onClick={() =>

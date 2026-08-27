@@ -179,7 +179,7 @@ function CarrierSettings() {
           manage ? (
             <Button
               size="sm"
-              className="h-9"
+              className="min-h-11"
               onClick={() =>
                 setConfig({
                   id: null,
@@ -304,7 +304,7 @@ function CarrierSettings() {
         title="Verpackungs-Presets"
         actions={
           manage ? (
-            <Button size="sm" variant="outline" className="h-9" onClick={() => setPreset({ ...EMPTY_PRESET })}>
+            <Button size="sm" variant="outline" className="min-h-11" onClick={() => setPreset({ ...EMPTY_PRESET })}>
               Preset anlegen
             </Button>
           ) : undefined

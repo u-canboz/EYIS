@@ -137,7 +137,7 @@ function TaxonomyPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-9"
+                className="min-h-11"
                 onClick={() => categoryDeleteMutation.mutate(node.id)}
               >
                 Löschen
@@ -229,7 +229,7 @@ function TaxonomyPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-9"
+                      className="min-h-11"
                       onClick={() => collectionDeleteMutation.mutate(col.id)}
                     >
                       Löschen

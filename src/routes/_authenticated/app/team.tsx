@@ -267,7 +267,7 @@ function TeamPage() {
                     }
                   </Badge>
                   {canManage && i.status === "pending" && (
-                    <Button size="sm" variant="ghost" className="h-9" onClick={() => revokeMutation.mutate(i.id)}>
+                    <Button size="sm" variant="ghost" className="min-h-11" onClick={() => revokeMutation.mutate(i.id)}>
                       Widerrufen
                     </Button>
                   )}

@@ -180,7 +180,7 @@ function CartsPage() {
                   },
                 ]}
                 actions={
-                  <Button variant="outline" size="sm" className="h-9" onClick={() => setOpenCart(c.id)}>
+                  <Button variant="outline" size="sm" className="min-h-11" onClick={() => setOpenCart(c.id)}>
                     Details
                   </Button>
                 }

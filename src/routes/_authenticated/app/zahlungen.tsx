@@ -222,7 +222,7 @@ function PaymentSettingsPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-9"
+                        className="min-h-11"
                         disabled={!can("payment_settings.manage")}
                         onClick={() =>
                           save.mutate({

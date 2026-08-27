@@ -295,7 +295,7 @@ function FulfillmentDetail() {
           can("fulfillment.pick") && (view.status === "ready" || view.status === "draft") ? (
             <Button
               size="sm"
-              className="h-9"
+              className="min-h-11"
               onClick={() => startMutation.mutate()}
               disabled={startMutation.isPending}
             >
@@ -352,7 +352,7 @@ function FulfillmentDetail() {
           <div className="flex justify-end p-4 pt-0">
             <Button
               size="sm"
-              className="h-9"
+              className="min-h-11"
               onClick={() => pickMutation.mutate()}
               disabled={pickMutation.isPending}
             >

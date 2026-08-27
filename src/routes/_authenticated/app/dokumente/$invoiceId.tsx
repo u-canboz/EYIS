@@ -325,7 +325,7 @@ function InvoiceDetailPage() {
                       </span>
                       <span className="flex shrink-0 items-center gap-2 tabular-nums">
                         {formatMoney(cn.totalGrossMinor, cn.currencyCode)}
-                        <Button size="sm" variant="ghost" className="h-9" onClick={() => open(cn.id)}>
+                        <Button size="sm" variant="ghost" className="min-h-11" onClick={() => open(cn.id)}>
                           PDF
                         </Button>
                       </span>
