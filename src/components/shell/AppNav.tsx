@@ -43,7 +43,7 @@ export function AppNav({
                 "flex w-full min-w-0 items-center gap-2.5 rounded-lg px-3 text-left text-[13px] font-medium transition-colors",
                 dense ? "min-h-10" : "min-h-11",
                 groupActive && !expanded
-                  ? "text-sidebar-primary"
+                  ? "text-primary"
                   : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               )}
             >
@@ -72,7 +72,7 @@ export function AppNav({
                           "flex min-w-0 items-center gap-2 rounded-md px-2.5 text-sm transition-colors",
                           dense ? "min-h-10 lg:min-h-9" : "min-h-11",
                           active
-                            ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                            ? "bg-card font-semibold text-sidebar-accent-foreground shadow-raised"
                             : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
                         )}
                       >
@@ -80,7 +80,7 @@ export function AppNav({
                           aria-hidden
                           className={cn(
                             "h-4 w-0.5 shrink-0 rounded-full",
-                            active ? "bg-sidebar-primary" : "bg-transparent",
+                            active ? "bg-primary" : "bg-transparent",
                           )}
                         />
                         <span className="min-w-0 truncate">{item.label}</span>
