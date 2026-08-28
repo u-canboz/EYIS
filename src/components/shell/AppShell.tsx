@@ -105,7 +105,7 @@ function Wordmark({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
     >
       <span
         aria-hidden
-        className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary font-display text-sm font-bold text-sidebar-primary-foreground"
+        className="grid size-8 shrink-0 place-items-center rounded-md bg-primary font-display text-sm font-bold text-primary-foreground"
       >
         C
       </span>
@@ -130,7 +130,7 @@ function SidebarBody(
           <button
             type="button"
             onClick={props.onSearch}
-            className="mt-3 flex min-h-10 w-full min-w-0 items-center gap-2 rounded-lg border border-sidebar-border px-2.5 text-left text-sm text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className="mt-3 flex min-h-10 w-full min-w-0 items-center gap-2 rounded-lg border border-sidebar-border bg-card px-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
             <Search className="size-4 shrink-0" aria-hidden />
             <span className="min-w-0 flex-1 truncate">Suchen</span>
@@ -236,7 +236,7 @@ export function AppShell(props: Props) {
                       {active ? (
                         <span
                           aria-hidden
-                          className="absolute top-1/2 left-0 h-5 w-0.5 -translate-y-1/2 rounded-full bg-sidebar-primary"
+                          className="absolute top-1/2 left-0 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary"
                         />
                       ) : null}
                       <Icon className="size-5" aria-hidden />
@@ -268,7 +268,7 @@ export function AppShell(props: Props) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile topbar */}
-        <header className="sticky top-0 z-30 grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-1 border-b border-border bg-background/95 px-2 backdrop-blur md:hidden">
+        <header className="sticky top-0 z-30 grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-1 border-b border-border bg-surface/95 px-2 backdrop-blur md:hidden">
           {navSheet}
           <Link
             to="/app"
@@ -288,7 +288,7 @@ export function AppShell(props: Props) {
         </header>
 
         {/* Desktop / tablet topbar */}
-        <header className="sticky top-0 z-30 hidden min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur md:grid xl:px-8">
+        <header className="sticky top-0 z-30 hidden min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur md:grid xl:px-8">
           <div className="flex min-w-0 items-center gap-1.5 text-sm">
             <span className="truncate text-muted-foreground">{trail.group ?? "Commerce OS"}</span>
             {trail.item ? (
@@ -322,7 +322,7 @@ export function AppShell(props: Props) {
         {/* Mobile bottom tabs */}
         <nav
           aria-label="Schnellzugriff"
-          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background/95 pb-safe backdrop-blur md:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-surface/95 pb-safe backdrop-blur md:hidden"
         >
           {BOTTOM_TABS.map((item) => {
             const Icon = item.icon;

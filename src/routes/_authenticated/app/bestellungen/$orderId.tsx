@@ -3,7 +3,15 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  CreditCard,
+  FileText,
+  RotateCcw,
+  Settings2,
+  Truck,
+  Users,
+} from "lucide-react";
 import {
   getOrderFn,
   setOrderNoteFn,
@@ -32,10 +40,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/data/StatusBadge";
+import { orderTone, paymentTone, fulfillmentTone } from "@/components/data/status-tones";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
+import { DetailLayout, Panel, DataRow, RelatedLinks } from "@/components/shell/DetailLayout";
 import { EmptyState, ErrorState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/bestellungen/$orderId")({
@@ -178,11 +188,11 @@ function OrderDetailPage() {
       />
 
       <div className="flex min-w-0 flex-wrap gap-2">
-        <Badge variant="secondary">{ORDER_STATUS_LABELS[o.orderStatus]}</Badge>
-        <Badge variant={o.paymentStatus === "paid" ? "default" : "outline"}>
+        <StatusBadge tone={orderTone(o.orderStatus)}>{ORDER_STATUS_LABELS[o.orderStatus]}</StatusBadge>
+        <StatusBadge tone={paymentTone(o.paymentStatus)}>
           {PAYMENT_STATUS_LABELS[o.paymentStatus]}
-        </Badge>
-        <Badge variant="outline">{FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}</Badge>
+        </StatusBadge>
+        <StatusBadge tone={fulfillmentTone(o.fulfillmentStatus)}>{FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}</StatusBadge>
         {o.environment === "test" && <Badge variant="outline">Test</Badge>}
       </div>
 
@@ -488,7 +498,49 @@ function OrderDetailPage() {
         }
         aside={
           <>
+            <RelatedLinks
+              items={[
+                {
+                  to: "/app/versand",
+                  label: "Versand & Fulfillment",
+                  hint: "Kommissionierung, Pakete, Labels",
+                  icon: Truck,
+                },
+                {
+                  to: "/app/versand/versandarten",
+                  label: "Versandarten",
+                  hint: "Preise und Regeln je Shop",
+                  icon: Settings2,
+                },
+                {
+                  to: "/app/zahlungen",
+                  label: "Zahlungen",
+                  hint: "Buchungen und Erstattungen",
+                  icon: CreditCard,
+                },
+                {
+                  to: "/app/dokumente",
+                  label: "Belege",
+                  hint: "Rechnungen und Gutschriften",
+                  icon: FileText,
+                },
+                {
+                  to: "/app/retouren",
+                  label: "Retouren",
+                  hint: "Rücksendungen zu dieser Bestellung",
+                  icon: RotateCcw,
+                },
+                {
+                  to: "/app/kunden",
+                  label: "Kunde",
+                  hint: o.email ?? "Gastbestellung",
+                  icon: Users,
+                },
+              ]}
+            />
+
             <Panel title="Interne Notiz" bodyClassName="space-y-3">
+
               <Textarea
                 rows={4}
                 value={note ?? o.internalNote ?? ""}

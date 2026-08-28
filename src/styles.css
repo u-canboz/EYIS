@@ -84,12 +84,13 @@
   --elevation-1: 0 1px 2px oklch(0.2 0.005 60 / 5%);
   --elevation-2: 0 12px 32px -18px oklch(0.2 0.005 60 / 30%);
 
-  /* Graphit & Kupfer — neutrale Flächen, ein warmer Signalakzent. */
-  --background: oklch(0.985 0.002 70);
+  /* Helle Arbeitsfläche (Shopify-Prinzip): ruhiger grauer Hintergrund, weiße Panels. */
+  --background: oklch(0.962 0.002 70);
   --foreground: oklch(0.22 0.005 60);
 
-  --surface: oklch(0.963 0.003 70);
+  --surface: oklch(0.985 0.002 70);
   --surface-foreground: oklch(0.22 0.005 60);
+
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.22 0.005 60);
   --popover: oklch(1 0 0);
@@ -125,14 +126,15 @@
   --chart-4: oklch(0.55 0.11 155);
   --chart-5: oklch(0.68 0.13 75);
 
-  --sidebar: oklch(0.205 0.004 60);
-  --sidebar-foreground: oklch(0.93 0.003 70);
-  --sidebar-primary: oklch(0.62 0.165 40);
-  --sidebar-primary-foreground: oklch(0.99 0.003 70);
-  --sidebar-accent: oklch(0.27 0.005 60);
-  --sidebar-accent-foreground: oklch(0.97 0.003 70);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.62 0.165 40);
+  --sidebar: oklch(0.947 0.002 70);
+  --sidebar-foreground: oklch(0.32 0.005 60);
+  --sidebar-primary: oklch(1 0 0);
+  --sidebar-primary-foreground: oklch(0.2 0.005 60);
+  --sidebar-accent: oklch(0.915 0.003 70);
+  --sidebar-accent-foreground: oklch(0.22 0.005 60);
+  --sidebar-border: oklch(0.885 0.003 70);
+  --sidebar-ring: oklch(0.585 0.163 40);
+
 }
 
 .dark {
