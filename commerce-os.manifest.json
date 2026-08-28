@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-28T12:28:03.933Z",
-  "source_commit": "6bc5106219f4ab77bc3f9ed255b5f148e87d214a",
-  "latest_migration": "20260827211754_23d9f9f3-4f0a-4c2e-b17e-40076c51b3b6.sql",
+  "generated_at": "2026-08-28T13:23:20.799Z",
+  "source_commit": "3008837ca991ef6ee4fbcd81e195ae13c9b0e9ee",
+  "latest_migration": "20260828131048_11f3caa1-a233-4ef9-a524-94fffedb1e4c.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
@@ -47,9 +47,9 @@
   ],
   "counts": {
     "modules": 19,
-    "routes": 82,
+    "routes": 87,
     "store_api_endpoints": 36,
-    "migrations": 51,
+    "migrations": 52,
     "public_tables": 112
   },
   "entry_points": {
@@ -93,7 +93,12 @@
     "qa:storage": "bun run qa/phase14-storage.ts",
     "qa:providers": "bun run qa/phase14-providers.ts",
     "qa:integrations": "bun run qa/phase18-integrations.ts",
-    "qa:integrations-e2e": "bun run qa/phase18-e2e.ts"
+    "qa:integrations-e2e": "bun run qa/phase18-e2e.ts",
+    "commerce:bootstrap": "bun run scripts/commerce-bootstrap.ts",
+    "commerce:doctor": "bun run scripts/commerce-doctor.ts",
+    "qa:dedicated-bootstrap": "bun run qa/phase21-bootstrap.ts",
+    "qa:dedicated-doctor": "bun run qa/phase21-doctor.ts",
+    "qa:dedicated-security": "bun run qa/phase21-security.ts"
   },
   "blocked_integrations": [
     "stripe-live",
