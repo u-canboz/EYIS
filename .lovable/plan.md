@@ -63,10 +63,12 @@ Dünnes CLI über eine Server-Route, keine Datenbanklogik im Skript. Erzeugt **k
 keinen Shop und keinen Owner.
 
 **Bootstrap Security (verbindlich).** Der Bootstrap ist ausschließlich über ein serverseitiges,
-einmaliges Credential `COMMERCE_BOOTSTRAP_SECRET` erreichbar (timing-sicherer Vergleich). Kein
-anonymer und kein normal authentifizierter HTTP-Aufruf darf ihn starten. Nach erfolgreicher
-Initialisierung ist der Endpunkt dauerhaft gesperrt; jeder weitere Versuch antwortet mit
-`403 INSTALLATION_ALREADY_INITIALIZED`. Das Secret erscheint nie im Client, in Git, im Audit, in
+einmaliges Credential `COMMERCE_BOOTSTRAP_SECRET` erreichbar (timing-sicherer Vergleich). Das
+Credential wird **ausschließlich als HTTP-Header** (`x-commerce-bootstrap-secret`) übergeben —
+niemals als URL-Parameter (History-, Log- und Referrer-Leck). Kein anonymer und kein normal
+authentifizierter HTTP-Aufruf darf ihn starten. Nach erfolgreicher Initialisierung ist der
+Endpunkt dauerhaft gesperrt; jeder weitere Versuch antwortet mit `403
+INSTALLATION_ALREADY_INITIALIZED`. Das Secret erscheint nie im Client, in Git, im Audit, in
 der Outbox oder in Logs und wird nach der Installation entfernt bzw. rotiert (Runbook-Schritt).
 
 Vorbedingungen (harte Abbruchmatrix):
@@ -105,12 +107,21 @@ Der erste beliebige registrierte Benutzer darf eine Instanz **niemals** automati
 
 ```text
 Bootstrap erzeugt Claim-Token (nur Hash in der DB, kurze Gültigkeit)
-→ Owner öffnet /app/setup?claim=...
+→ Owner öffnet /app/setup (kein Token in der URL)
+→ fügt den Claim-Code einmalig in ein Eingabefeld ein
+→ Claim-Code wird sofort serverseitig gegen eine kurzlebige,
+  httpOnly-Setup-Session getauscht; der Klartext verbleibt nicht
+  in Browser-History, Logs oder Referrer
 → registriert sich bzw. meldet sich an
 → Claim serverseitig geprüft (Hash, Ablauf, unbenutzt)
 → Organization + Main Shop + Owner-Membership
 → Token irreversibel invalidiert
 ```
+
+**Claim-Transport (verbindlich).** Der Claim-Token erscheint zu keinem Zeitpunkt als
+`?claim=...`-Query-Parameter. Übergabe ausschließlich per Formular-Eingabe (POST-Body) an
+`/app/setup`, danach sofortiger Tausch gegen eine kurzlebige, sichere Setup-Session
+(httpOnly, SameSite=Strict). Kein Token in URLs, Browser-History, Referrer-Headern oder Logs.
 
 Alternativ darf eine vorab konfigurierte Owner-E-Mail als zusätzlicher Claim-Faktor dienen; ohne
 gültigen Claim entsteht kein Owner.
@@ -169,8 +180,18 @@ Central Commerce Auth dependency:     NONE
 Central Commerce Storage dependency:  NONE
 ```
 
-Erlaubte ausgehende Ziele sind ausschließlich echte Provider (Stripe, PayPal, Mollie, Resend,
-SMTP, Carrier) sowie explizit konfigurierte Integrationen. Jeder andere Fremdhost ist ein FAIL.
+„NONE" bedeutet präzise: **keine Abhängigkeit von einer anderen zentralen Commerce-OS-Instanz**
+(Shared-Commerce-Host). Als erlaubt zählen ausdrücklich:
+
+- die **eigene Dedicated-Infrastruktur** dieser Installation (eigene Lovable-Cloud-/Postgres-
+  Instanz, eigene Auth, eigener Storage — konfiguriert über die eigenen Environment-Variablen)
+- **explizit konfigurierte externe Provider** (Stripe, PayPal, Mollie, Resend, SMTP, Carrier)
+  sowie sonstige bewusst eingerichtete Integrationen
+
+Verboten und damit FAIL ist ausschließlich jeder Zugriff auf fremde Commerce-OS-Hosts
+(API, Datenbank, Auth oder Storage einer anderen Instanz). Der Doctor prüft die aufgelösten
+Verbindungsziele gegen eine interne Blockliste zentraler Commerce-Hosts, nicht gegen die eigene
+Instanz oder legitime Provider-Endpunkte.
 
 Dieselben Prüfungen speisen die bestehende Seite `/app/system/release-readiness`, ergänzt um den
 Block „Installation“.
