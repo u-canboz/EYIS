@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-08-28T18:09:28.904Z",
-  "source_commit": "ca0db48817663890f033b12ba2ce5c152c7ae681",
-  "latest_migration": "20260828180020_060d5775-f1f3-4fcf-8356-82f5a8f46c7c.sql",
+  "generated_at": "2026-08-28T21:39:26.618Z",
+  "source_commit": "a5976fc4c8bcb58233c37cd372974638a5f01d63",
+  "latest_migration": "20260828213156_2f8211d8-7184-4737-a30b-9e37d2d18b66.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 88,
+  "total": 89,
   "by_kind": {
     "backoffice": 62,
     "public-api": 3,
     "job-endpoint": 3,
-    "public-store-api": 1,
+    "public-store-api": 2,
     "webhook": 5,
     "public-page": 4,
     "customer-portal": 3,
@@ -706,6 +706,16 @@
         "POST",
         "PATCH",
         "DELETE"
+      ],
+      "auth": "publishable key (X-Commerce-Key) + optional cart/customer/guest token",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/store/v1/runtime-config",
+      "source": "src/routes/api/public/store/v1/runtime-config.ts",
+      "kind": "public-store-api",
+      "methods": [
+        "GET"
       ],
       "auth": "publishable key (X-Commerce-Key) + optional cart/customer/guest token",
       "ssr": true
