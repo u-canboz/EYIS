@@ -488,7 +488,49 @@ function OrderDetailPage() {
         }
         aside={
           <>
+            <RelatedLinks
+              items={[
+                {
+                  to: "/app/versand",
+                  label: "Versand & Fulfillment",
+                  hint: "Kommissionierung, Pakete, Labels",
+                  icon: Truck,
+                },
+                {
+                  to: "/app/versand/versandarten",
+                  label: "Versandarten",
+                  hint: "Preise und Regeln je Shop",
+                  icon: Settings2,
+                },
+                {
+                  to: "/app/zahlungen",
+                  label: "Zahlungen",
+                  hint: "Buchungen und Erstattungen",
+                  icon: CreditCard,
+                },
+                {
+                  to: "/app/dokumente",
+                  label: "Belege",
+                  hint: "Rechnungen und Gutschriften",
+                  icon: FileText,
+                },
+                {
+                  to: "/app/retouren",
+                  label: "Retouren",
+                  hint: "Rücksendungen zu dieser Bestellung",
+                  icon: RotateCcw,
+                },
+                {
+                  to: "/app/kunden",
+                  label: "Kunde",
+                  hint: o.email ?? "Gastbestellung",
+                  icon: Users,
+                },
+              ]}
+            />
+
             <Panel title="Interne Notiz" bodyClassName="space-y-3">
+
               <Textarea
                 rows={4}
                 value={note ?? o.internalNote ?? ""}
