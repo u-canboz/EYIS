@@ -19,18 +19,22 @@ export function DetailLayout({
   return (
     <div
       className={cn(
-        "grid min-w-0 grid-cols-1 items-start gap-5",
+        "grid min-w-0 grid-cols-1 items-start gap-4",
         aside && "lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]",
         className,
       )}
     >
-      <div className="flex min-w-0 flex-col gap-5">{main}</div>
+      <div className="flex min-w-0 flex-col gap-4">{main}</div>
       {aside ? <div className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20">{aside}</div> : null}
     </div>
   );
 }
 
-/** Panel used across detail pages — replaces ad-hoc Card stacks. */
+/**
+ * Panel used across detail pages. On mobile the sections run edge to edge and
+ * connect visually into one work surface; from `sm` they become cards with a
+ * single hairline border and no shadow.
+ */
 export function Panel({
   title,
   description,
@@ -48,7 +52,10 @@ export function Panel({
 }) {
   return (
     <section
-      className={cn("min-w-0 rounded-xl border border-border bg-card shadow-raised", className)}
+      className={cn(
+        "-mx-4 min-w-0 border-y border-border bg-card sm:mx-0 sm:rounded-xl sm:border",
+        className,
+      )}
     >
       {title ? (
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3">

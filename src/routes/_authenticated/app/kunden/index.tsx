@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,8 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
-import { TableScroll } from "@/components/data/TableScroll";
+import { TabsBar } from "@/components/data/TabsBar";
+import { SectionPanel } from "@/components/data/SectionPanel";
+import { RecordList, RecordRow, RecordThumb } from "@/components/data/RecordRow";
 import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kunden/")({
@@ -111,7 +112,7 @@ function CustomersPage() {
   }
 
   return (
-    <div className="min-w-0 space-y-5">
+    <div className="min-w-0">
       <PageHeader
         title="Kunden"
         description="Konten, Bestellhistorie, Gruppen und Sperren – zentral pro Shop."
@@ -124,7 +125,14 @@ function CustomersPage() {
         }
       />
 
-      <div className="min-w-0 space-y-3">
+      <TabsBar
+        ariaLabel="Kunden filtern"
+        value={tab}
+        onChange={setTab}
+        items={STATUS_FILTERS.map((f) => ({ value: f.key, label: f.label }))}
+      />
+
+      <div className="mt-3">
         <Input
           className="h-11 w-full md:max-w-sm"
           placeholder="Name oder E-Mail suchen"
@@ -132,108 +140,53 @@ function CustomersPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="scroll-x -mx-4 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
-          {STATUS_FILTERS.map((f) => (
-            <Button
-              key={f.key}
-              size="sm"
-              className="h-11 shrink-0 lg:h-10"
-              variant={tab === f.key ? "default" : "outline"}
-              onClick={() => setTab(f.key)}
-            >
-              {f.label}
-            </Button>
-          ))}
-        </div>
       </div>
 
-      {customers.isLoading ? (
-        <ListSkeleton />
-      ) : customers.error ? (
-        <ErrorState description={(customers.error as Error).message} />
-      ) : !customers.data?.length ? (
-        <EmptyState
-          title="Keine Kunden in dieser Auswahl"
-          description="Wechsle den Statusfilter oder lege einen Kunden an."
-        />
-      ) : (
-        <>
-          <RecordCardList>
-            {customers.data.map((c) => (
-              <Link key={c.id} to="/app/kunden/$customerId" params={{ customerId: c.id }}>
-                <RecordCard
-                  interactive
-                  title={[c.firstName, c.lastName].filter(Boolean).join(" ") || c.email}
-                  subtitle={c.email}
-                  trailing={formatMoney(c.totalSpentMinor, c.currencyCode)}
-                  badges={
-                    <>
-                      <Badge variant={c.status === "blocked" ? "destructive" : "secondary"}>
-                        {CUSTOMER_STATUS_LABELS[c.status]}
-                      </Badge>
-                      {c.hasAccount ? <Badge variant="outline">Konto</Badge> : null}
-                    </>
-                  }
-                  fields={[
-                    { label: "Bestellungen", value: c.orderCount },
-                    {
-                      label: "Letzte Bestellung",
-                      value: c.lastOrderAt
-                        ? new Date(c.lastOrderAt).toLocaleDateString("de-DE")
-                        : "—",
-                    },
-                  ]}
-                />
-              </Link>
-            ))}
-          </RecordCardList>
-
-          <TableScroll desktopOnly>
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-3">Kunde</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Bestellungen</th>
-                  <th className="px-4 py-3 text-right">Umsatz</th>
-                  <th className="px-4 py-3">Letzte Bestellung</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.data.map((c) => (
-                  <tr key={c.id} className="border-t hover:bg-muted/30">
-                    <td className="max-w-[22rem] px-4 py-3">
-                      <Link
-                        to="/app/kunden/$customerId"
-                        params={{ customerId: c.id }}
-                        className="font-medium hover:underline"
-                      >
-                        {[c.firstName, c.lastName].filter(Boolean).join(" ") || c.email}
-                      </Link>
-                      <p className="truncate text-xs text-muted-foreground">{c.email}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant={c.status === "blocked" ? "destructive" : "secondary"}>
-                        {CUSTOMER_STATUS_LABELS[c.status]}
-                      </Badge>
-                      {c.hasAccount && (
-                        <span className="ml-2 text-xs text-muted-foreground">Konto</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">{c.orderCount}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {formatMoney(c.totalSpentMinor, c.currencyCode)}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
-                      {c.lastOrderAt ? new Date(c.lastOrderAt).toLocaleDateString("de-DE") : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </TableScroll>
-        </>
-      )}
+      <div className="mt-4">
+        {customers.isLoading ? (
+          <ListSkeleton />
+        ) : customers.error ? (
+          <ErrorState description={(customers.error as Error).message} />
+        ) : !customers.data?.length ? (
+          <EmptyState
+            title="Keine Kunden in dieser Auswahl"
+            description="Wechsle den Statusfilter oder lege einen Kunden an."
+          />
+        ) : (
+          <SectionPanel flush>
+            <RecordList>
+              {customers.data.map((c) => {
+                const name = [c.firstName, c.lastName].filter(Boolean).join(" ") || c.email;
+                return (
+                  <RecordRow
+                    key={c.id}
+                    to="/app/kunden/$customerId"
+                    params={{ customerId: c.id }}
+                    leading={<RecordThumb alt={name} className="rounded-full" />}
+                    title={name}
+                    subtitle={`${c.email} · ${c.orderCount} ${
+                      c.orderCount === 1 ? "Bestellung" : "Bestellungen"
+                    }${
+                      c.lastOrderAt
+                        ? ` · zuletzt ${new Date(c.lastOrderAt).toLocaleDateString("de-DE")}`
+                        : ""
+                    }`}
+                    badges={
+                      c.status === "active" ? null : (
+                        <Badge variant={c.status === "blocked" ? "destructive" : "secondary"}>
+                          {CUSTOMER_STATUS_LABELS[c.status]}
+                        </Badge>
+                      )
+                    }
+                    trailing={formatMoney(c.totalSpentMinor, c.currencyCode)}
+                    trailingHint={c.hasAccount ? "Konto" : "Gast"}
+                  />
+                );
+              })}
+            </RecordList>
+          </SectionPanel>
+        )}
+      </div>
 
 
       <Dialog open={open} onOpenChange={setOpen}>

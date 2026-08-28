@@ -1,19 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import type { ReactNode } from "react";
-import {
-  AlertTriangle,
-  ArrowRight,
-  ClipboardList,
-  CheckSquare,
-  Mail,
-  PackageCheck,
-  RotateCcw,
-  Truck,
-  Warehouse,
-  Workflow,
-} from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { listOrdersFn } from "@/lib/commerce/orders/order.functions";
 import { listReturnsFn } from "@/lib/commerce/returns/return.functions";
@@ -23,11 +11,20 @@ import { listCommunicationsFn } from "@/lib/commerce/communications/communicatio
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 import { formatMoney } from "@/lib/commerce/money";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
+import { SectionPanel, SectionLink } from "@/components/data/SectionPanel";
+import { RecordList, RecordRow } from "@/components/data/RecordRow";
+import {
+  AttentionList,
+  DistributionBar,
+  LeadMetric,
+  SubMetric,
+} from "@/components/data/Metrics";
+import { StatusBadge } from "@/components/data/StatusBadge";
+import { paymentTone } from "@/components/data/status-tones";
+import { PAYMENT_STATUS_LABELS } from "@/lib/commerce/payments/payment-types";
 import { EmptyState, ListSkeleton } from "@/components/data/States";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({
@@ -36,12 +33,12 @@ export const Route = createFileRoute("/_authenticated/app/")({
       {
         name: "description",
         content:
-          "Operative Startseite: offene Bestellungen, Retouren, Bestände, Versand, Kommunikation und Aufgaben auf einen Blick.",
+          "Operative Startseite: Umsatz, offene Bestellungen, Zahlungen, Bestände und Aktivitäten auf einen Blick.",
       },
       { property: "og:title", content: "Betriebsübersicht – Commerce OS" },
       {
         property: "og:description",
-        content: "Was heute Aufmerksamkeit braucht — Bestellungen, Retouren, Bestände, Aufgaben.",
+        content: "Umsatz, offene Bestellungen, Zahlungen und Bestände in einer Ansicht.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -50,15 +47,11 @@ export const Route = createFileRoute("/_authenticated/app/")({
   component: Overview,
 });
 
-type Attention = {
-  key: string;
-  label: string;
-  count: number;
-  hint: string;
-  to: string;
-  icon: typeof ClipboardList;
-  tone: "critical" | "warn" | "neutral";
-};
+const DAY = 86_400_000;
+
+function dayKey(iso: string) {
+  return iso.slice(0, 10);
+}
 
 function Overview() {
   const { orgId } = useWorkspaceStore();
@@ -107,12 +100,39 @@ function Overview() {
 
   const org = workspace.data?.organizations.find((o) => o.id === orgId);
   const orderRows = orders.data ?? [];
+  const billable = orderRows.filter((o) => o.orderStatus !== "cancelled");
+  const currency = orderRows[0]?.currencyCode ?? "EUR";
+
+  const todayKey = dayKey(new Date().toISOString());
+  const revenueToday = billable
+    .filter((o) => dayKey(o.placedAt) === todayKey)
+    .reduce((sum, o) => sum + o.totalMinor, 0);
+  const ordersToday = billable.filter((o) => dayKey(o.placedAt) === todayKey).length;
+
+  // 14-Tage-Verlauf aus echten Bestelldaten.
+  const series: number[] = [];
+  let prevWeek = 0;
+  let thisWeek = 0;
+  for (let i = 13; i >= 0; i--) {
+    const key = dayKey(new Date(Date.now() - i * DAY).toISOString());
+    const value = billable
+      .filter((o) => dayKey(o.placedAt) === key)
+      .reduce((sum, o) => sum + o.totalMinor, 0);
+    series.push(value);
+    if (i >= 7) prevWeek += value;
+    else thisWeek += value;
+  }
+  const trend = prevWeek > 0 ? ((thisWeek - prevWeek) / prevWeek) * 100 : undefined;
+
   const openOrders = orderRows.filter(
     (o) => o.orderStatus !== "cancelled" && o.fulfillmentStatus !== "fulfilled",
   );
   const unpaid = orderRows.filter(
     (o) => o.paymentStatus === "unpaid" || o.paymentStatus === "failed",
   );
+  const paidMinor = billable
+    .filter((o) => o.paymentStatus === "paid")
+    .reduce((sum, o) => sum + o.totalMinor, 0);
   const shippingIssues = orderRows.filter(
     (o) => o.fulfillmentStatus === "partially_fulfilled" && o.orderStatus !== "cancelled",
   );
@@ -123,179 +143,228 @@ function Overview() {
   const openTasks = inbox.data?.tasks ?? [];
   const automationFailures = inbox.data?.failures ?? [];
   const failedComms = comms.data ?? [];
+  const outOfStock = stock.data?.out ?? 0;
+  const lowStock = stock.data?.low ?? 0;
 
-  const loading = orders.isLoading || returns.isLoading || inbox.isLoading;
+  const loading = orders.isLoading || workspace.isLoading;
 
-  const attention: Attention[] = [
+  const fulfillment = [
     {
-      key: "orders",
-      label: "Offene Bestellungen",
-      count: openOrders.length,
-      hint: "warten auf Bearbeitung",
-      to: "/app/bestellungen",
-      icon: ClipboardList,
-      tone: openOrders.length > 0 ? "warn" : "neutral",
+      key: "open",
+      label: "Offen",
+      value: billable.filter((o) => o.fulfillmentStatus === "unfulfilled").length,
+      className: "bg-warning",
     },
     {
-      key: "payments",
-      label: "Zahlung offen",
-      count: unpaid.length,
-      hint: "ausstehend oder fehlgeschlagen",
-      to: "/app/zahlungen",
-      icon: PackageCheck,
-      tone: unpaid.length > 0 ? "critical" : "neutral",
+      key: "partial",
+      label: "Teilweise",
+      value: billable.filter((o) => o.fulfillmentStatus === "partially_fulfilled").length,
+      className: "bg-info",
     },
     {
-      key: "returns",
-      label: "Retouren",
-      count: openReturns.length,
-      hint: "in Bearbeitung",
-      to: "/app/retouren",
-      icon: RotateCcw,
-      tone: openReturns.length > 0 ? "warn" : "neutral",
+      key: "done",
+      label: "Versendet",
+      value: billable.filter((o) => o.fulfillmentStatus === "fulfilled").length,
+      className: "bg-success",
     },
     {
-      key: "stock",
-      label: "Niedrige Bestände",
-      count: (stock.data?.low ?? 0) + (stock.data?.out ?? 0),
-      hint: `${stock.data?.out ?? 0} ausverkauft`,
-      to: "/app/lager",
-      icon: Warehouse,
-      tone: (stock.data?.out ?? 0) > 0 ? "critical" : "warn",
-    },
-    {
-      key: "shipping",
-      label: "Versandprobleme",
-      count: shippingIssues.length,
-      hint: "teilweise versendet",
-      to: "/app/versand",
-      icon: Truck,
-      tone: shippingIssues.length > 0 ? "warn" : "neutral",
-    },
-    {
-      key: "comms",
-      label: "Fehlgeschlagene E-Mails",
-      count: failedComms.length,
-      hint: "nicht zugestellt",
-      to: "/app/kommunikation/verlauf",
-      icon: Mail,
-      tone: failedComms.length > 0 ? "critical" : "neutral",
-    },
-    {
-      key: "automation",
-      label: "Automationsfehler",
-      count: automationFailures.length,
-      hint: "fehlgeschlagene Läufe",
-      to: "/app/automationen/verlauf",
-      icon: Workflow,
-      tone: automationFailures.length > 0 ? "critical" : "neutral",
-    },
-    {
-      key: "tasks",
-      label: "Offene Aufgaben",
-      count: openTasks.length,
-      hint: "zugewiesen im Team",
-      to: "/app/automationen/aufgaben",
-      icon: CheckSquare,
-      tone: openTasks.length > 0 ? "warn" : "neutral",
+      key: "cancelled",
+      label: "Storniert",
+      value: orderRows.filter((o) => o.orderStatus === "cancelled").length,
+      className: "bg-muted-foreground",
     },
   ];
 
   return (
     <div className="min-w-0">
-      <PageHeader
-        eyebrow={<span className="truncate">Betrieb</span>}
-        title={org?.name ?? "Übersicht"}
-        description="Was heute Aufmerksamkeit braucht. Jede Kachel führt direkt in die zuständige Ansicht."
-      />
+      <PageHeader eyebrow={<span className="truncate">Betrieb</span>} title={org?.name ?? "Übersicht"} />
 
-      {loading ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-xl" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-          {attention.map((a) => (
-            <AttentionTile {...a} key={a.key} />
-          ))}
-        </div>
-      )}
+      <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
+        {/* 1 — Umsatz: die eine große Zahl, mit dem einzigen Diagramm der Seite. */}
+        <SectionPanel>
+          {loading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-48" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : (
+            <>
+              <LeadMetric
+                label="Umsatz heute"
+                value={formatMoney(revenueToday, currency)}
+                caption={`${ordersToday} Bestellungen heute · 14-Tage-Verlauf`}
+                {...(typeof trend === "number" ? { trendPercent: trend } : {})}
+                series={series}
+              />
+              {/* 2 — Bestellungen & Zahlungen direkt darunter. */}
+              <div className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4">
+                <SubMetric
+                  label="Bestellungen gesamt"
+                  value={orderRows.length}
+                  caption={`${openOrders.length} offen`}
+                  to="/app/bestellungen"
+                />
+                <SubMetric
+                  label="Zahlungseingang"
+                  value={formatMoney(paidMinor, currency)}
+                  caption={`${unpaid.length} offen oder fehlgeschlagen`}
+                  to="/app/zahlungen"
+                />
+              </div>
+            </>
+          )}
+        </SectionPanel>
 
-      <div className="mt-5 grid min-w-0 gap-4 xl:grid-cols-2">
-        <Panel
-          title="Zuletzt eingegangen"
-          description="Die zehn jüngsten Bestellungen"
-          actions={
-            <Link
-              to="/app/bestellungen"
-              className="-mr-2 inline-flex min-h-11 min-w-11 items-center justify-end gap-1 px-2 text-xs font-medium text-primary"
-            >
-              Alle <ArrowRight className="size-3.5" aria-hidden />
-            </Link>
-          }
-          bodyClassName="p-0"
+        {/* 3 — Operative Aufmerksamkeit als eine scanbare Liste. */}
+        <SectionPanel title="Braucht Aufmerksamkeit" flush bodyClassName="px-4 pb-3 sm:px-5">
+          {loading ? (
+            <ListSkeleton rows={4} />
+          ) : (
+            <AttentionList
+              items={[
+                {
+                  key: "payments",
+                  label: "Zahlung offen",
+                  count: unpaid.length,
+                  hint: "ausstehend oder fehlgeschlagen",
+                  to: "/app/zahlungen",
+                  tone: "critical",
+                },
+                {
+                  key: "orders",
+                  label: "Bestellungen zu bearbeiten",
+                  count: openOrders.length,
+                  hint: "noch nicht versendet",
+                  to: "/app/bestellungen",
+                  tone: "warn",
+                },
+                {
+                  key: "shipping",
+                  label: "Versandprobleme",
+                  count: shippingIssues.length,
+                  hint: "teilweise versendet",
+                  to: "/app/versand",
+                  tone: "warn",
+                },
+                {
+                  key: "returns",
+                  label: "Retouren",
+                  count: openReturns.length,
+                  hint: "in Bearbeitung",
+                  to: "/app/retouren",
+                  tone: "warn",
+                },
+                {
+                  key: "comms",
+                  label: "Fehlgeschlagene E-Mails",
+                  count: failedComms.length,
+                  hint: "nicht zugestellt",
+                  to: "/app/kommunikation/verlauf",
+                  tone: "critical",
+                },
+                {
+                  key: "automation",
+                  label: "Automationsfehler",
+                  count: automationFailures.length,
+                  hint: "fehlgeschlagene Läufe",
+                  to: "/app/automationen/verlauf",
+                  tone: "critical",
+                },
+                {
+                  key: "tasks",
+                  label: "Offene Aufgaben",
+                  count: openTasks.length,
+                  hint: "zugewiesen im Team",
+                  to: "/app/automationen/aufgaben",
+                  tone: "neutral",
+                },
+              ]}
+            />
+          )}
+        </SectionPanel>
+
+        <div className="grid min-w-0 gap-4 sm:gap-5 xl:grid-cols-2">
+          {/* 4 — Bestellstatus. */}
+          <SectionPanel title="Bestellstatus" description="Verteilung über alle Bestellungen">
+            {loading ? <Skeleton className="h-16 w-full" /> : <DistributionBar segments={fulfillment} />}
+          </SectionPanel>
+
+          {/* 5 — Kritische Bestände. */}
+          <SectionPanel
+            title="Kritische Bestände"
+            action={<SectionLink to="/app/lager">Lager</SectionLink>}
+          >
+            {stock.isLoading ? (
+              <Skeleton className="h-16 w-full" />
+            ) : outOfStock + lowStock === 0 ? (
+              <EmptyState
+                title="Bestände in Ordnung"
+                description="Kein Artikel unter dem Meldebestand."
+              />
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <SubMetric
+                  label="Ausverkauft"
+                  value={outOfStock}
+                  caption="sofort nachbestellen"
+                  to="/app/lager"
+                />
+                <SubMetric
+                  label="Niedriger Bestand"
+                  value={lowStock}
+                  caption="unter Meldebestand"
+                  to="/app/lager"
+                />
+              </div>
+            )}
+          </SectionPanel>
+        </div>
+
+        {/* 6 — Letzte Bestellungen und Aktivitäten. */}
+        <SectionPanel
+          title="Letzte Bestellungen"
+          action={<SectionLink to="/app/bestellungen" />}
+          flush
         >
           {orders.isLoading ? (
-            <div className="p-4">
+            <div className="px-4 pb-4 sm:px-5">
               <ListSkeleton rows={4} />
             </div>
           ) : orderRows.length === 0 ? (
-            <div className="p-4">
+            <div className="px-4 pb-4 sm:px-5">
               <EmptyState
                 title="Noch keine Bestellungen"
                 description="Sobald ein Checkout abgeschlossen wird, erscheint die Bestellung hier."
               />
             </div>
           ) : (
-            <ul className="min-w-0 divide-y divide-border">
-              {orderRows.slice(0, 10).map((o) => (
-                <li key={o.id} className="min-w-0">
-                  <Link
-                    to="/app/bestellungen/$orderId"
-                    params={{ orderId: o.id }}
-                    className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 hover:bg-muted/60"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium tabular-nums">
-                        {o.orderNumber}
-                      </span>
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {o.email ?? "Gast"}
-                      </span>
-                    </span>
-                    <span className="flex shrink-0 items-center gap-2">
-                      <StatusDot status={o.paymentStatus} />
-                      <span className="text-sm font-medium tabular-nums">
-                        {formatMoney(o.totalMinor, o.currencyCode)}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
+            <RecordList className="border-t border-border">
+              {orderRows.slice(0, 8).map((o) => (
+                <RecordRow
+                  key={o.id}
+                  to="/app/bestellungen/$orderId"
+                  params={{ orderId: o.id }}
+                  title={o.orderNumber}
+                  subtitle={o.email ?? "Gast"}
+                  badges={<StatusBadge tone={paymentTone(o.paymentStatus)}>{PAYMENT_STATUS_LABELS[o.paymentStatus]}</StatusBadge>}
+                  trailing={formatMoney(o.totalMinor, o.currencyCode)}
+                  trailingHint={new Date(o.placedAt).toLocaleDateString("de-DE", {
+                    day: "2-digit",
+                    month: "2-digit",
+                  })}
+                />
               ))}
-            </ul>
+            </RecordList>
           )}
-        </Panel>
+        </SectionPanel>
 
-        <Panel
-          title="Aufgaben & Störungen"
-          description="Offene Arbeit aus Automationen und Team"
-          bodyClassName="p-0"
-        >
-          {openTasks.length === 0 && automationFailures.length === 0 ? (
-            <div className="p-4">
-              <EmptyState
-                title="Nichts blockiert"
-                description="Keine offenen Aufgaben und keine fehlgeschlagenen Automationsläufe."
-              />
-            </div>
-          ) : (
-            <ul className="min-w-0 divide-y divide-border">
-              {automationFailures.slice(0, 5).map((f) => (
+        {(automationFailures.length > 0 || openTasks.length > 0) && (
+          <SectionPanel title="Aktivitäten" description="Aufgaben und Störungen" flush>
+            <ul className="min-w-0 divide-y divide-border border-t border-border">
+              {automationFailures.slice(0, 4).map((f) => (
                 <li
                   key={f.id}
-                  className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3 px-4 py-3"
+                  className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3 px-4 py-3 sm:px-5"
                 >
                   <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
                   <div className="min-w-0">
@@ -308,10 +377,10 @@ function Overview() {
                   </div>
                 </li>
               ))}
-              {openTasks.slice(0, 6).map((t) => (
+              {openTasks.slice(0, 5).map((t) => (
                 <li
                   key={t.id}
-                  className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
+                  className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-5"
                 >
                   <p className="min-w-0 truncate text-sm">{t.title}</p>
                   <Badge variant="outline" className="shrink-0 capitalize">
@@ -320,63 +389,9 @@ function Overview() {
                 </li>
               ))}
             </ul>
-          )}
-        </Panel>
+          </SectionPanel>
+        )}
       </div>
     </div>
   );
 }
-
-function AttentionTile({ label, count, hint, to, icon: Icon, tone }: Attention) {
-  const alert = count > 0;
-  return (
-    <Link
-      to={to}
-      className={cn(
-        "group grid min-w-0 grid-rows-[auto_auto_auto] gap-1 rounded-xl border bg-card p-3.5 transition-colors hover:border-primary/50 hover:bg-muted/40",
-        alert && tone === "critical"
-          ? "border-destructive/40"
-          : alert && tone === "warn"
-            ? "border-warning/45"
-            : "border-border",
-      )}
-    >
-      <span className="flex min-w-0 items-center gap-2">
-        <Icon
-          className={cn(
-            "size-4 shrink-0",
-            !alert
-              ? "text-muted-foreground"
-              : tone === "critical"
-                ? "text-destructive"
-                : "text-warning",
-          )}
-          aria-hidden
-        />
-        <span className="min-w-0 truncate text-xs font-medium text-muted-foreground">{label}</span>
-      </span>
-      <span
-        className={cn(
-          "font-display text-2xl leading-none font-semibold tabular-nums",
-          !alert && "text-muted-foreground",
-        )}
-      >
-        {count}
-      </span>
-      <span className="min-w-0 truncate text-xs text-muted-foreground">{hint}</span>
-    </Link>
-  );
-}
-
-function StatusDot({ status }: { status: string }): ReactNode {
-  const tone =
-    status === "paid"
-      ? "bg-success"
-      : status === "failed"
-        ? "bg-destructive"
-        : status === "refunded"
-          ? "bg-muted-foreground"
-          : "bg-warning";
-  return <span className={cn("size-2 shrink-0 rounded-full", tone)} aria-label={status} />;
-}
-
