@@ -70,6 +70,21 @@ Read-only. Prüft u. a. Environment, Deployment Mode, zentrale Abhängigkeiten (
 Infrastruktur und konfigurierte Provider sind erlaubt; zentrale EYIS-Hosts nicht),
 Datenbank, Storage, RLS-Sperren und Claim-/Setup-Status. Exit-Code 1 bei FAIL.
 
+## Dedicated Runtime Config (keine manuelle SDK-Konfiguration)
+
+Im Dedicated Mode konfiguriert sich die Storefront selbst:
+
+- `GET /api/public/store/v1/runtime-config` liefert Same-Origin API-Basis, Shop-Kontext und den
+  Publishable Key der Installation. Enthält niemals Secrets.
+- Der Publishable Key wird beim Owner-Claim bzw. bei der Übernahme automatisch erzeugt
+  (idempotent, genau ein Storefront-Key) und in `commerce_installation` hinterlegt.
+- `VITE_COMMERCE_API_URL` und `VITE_COMMERCE_PUBLISHABLE_KEY` sind damit **nicht** erforderlich;
+  sie wirken nur noch als Override für Remote-Storefronts (Betriebsart B).
+- Bestehende Instanzen mit Organisation und Shop werden über
+  `/app/system/einrichtung` → „Installation übernehmen" registriert (nur Owner).
+- `commerce:doctor` weist die Unabhängigkeit nach: Store API (same-origin), Runtime Config,
+  Publishable Key (auto), Store SDK Binding, Dedicated Independence.
+
 ## Storefront-URL
 
 Die öffentliche Basis-URL der Storefront wird im Setup-Wizard oder als
