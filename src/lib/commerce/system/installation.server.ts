@@ -458,7 +458,6 @@ export async function adoptInstallation(userId: string, organizationId: string) 
       api_version: "v1",
       schema_version: environment,
       owner_claimed_at: new Date().toISOString(),
-      owner_user_id: userId,
       organization_id: organizationId,
       shop_id: shopId,
       health_status: { adopted: true, environment },
@@ -470,7 +469,6 @@ export async function adoptInstallation(userId: string, organizationId: string) 
       .update({
         mode,
         owner_claimed_at: existing.owner_claimed_at ?? new Date().toISOString(),
-        owner_user_id: existing.owner_user_id ?? userId,
         organization_id: organizationId,
         shop_id: shopId,
       } as never)
