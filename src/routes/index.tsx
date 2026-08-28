@@ -164,17 +164,10 @@ function Landing() {
     <div className="min-h-dvh bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 sm:px-6">
-          <span className="flex min-w-0 items-center gap-2.5">
-            <span
-              aria-hidden
-              className="grid size-8 shrink-0 place-items-center rounded-md bg-primary font-display text-sm font-bold text-primary-foreground"
-            >
-              C
-            </span>
-            <span className="min-w-0 truncate font-display text-base font-semibold tracking-tight">
-              {SITE.name}
-            </span>
-          </span>
+          <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="EYIS Startseite">
+            <EyisLogo variant="mark" width={28} decorative />
+            <EyisLogo variant="wordmark" width={92} />
+          </Link>
           <span className="flex shrink-0 items-center gap-2">
             <Link
               to="/entwickler"
@@ -428,8 +421,9 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto grid max-w-6xl gap-4 px-5 py-8 text-xs text-muted-foreground sm:grid-cols-[minmax(0,1fr)_auto] sm:px-6">
-          <span className="min-w-0">
-            {SITE.name} · {SITE.release}
+          <span className="flex min-w-0 flex-col gap-2">
+            <EyisLogo variant="wordmark-claim" width={200} />
+            <span className="min-w-0">{SITE.name} · {SITE.release}</span>
           </span>
           <span className="flex flex-wrap gap-4">
             <Link to="/entwickler" className="hover:text-foreground">
