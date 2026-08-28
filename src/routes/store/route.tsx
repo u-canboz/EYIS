@@ -10,10 +10,9 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { ShoppingBag, User } from "lucide-react";
 import { CommerceProvider } from "@/lib/store-sdk/react/provider";
-import type { CommerceClientConfig } from "@/lib/store-sdk";
+import type { CommerceClientConfig, ResolvedRuntime } from "@/lib/store-sdk";
+import { resolveRuntime } from "@/lib/store-sdk";
 import { useCart } from "@/lib/store-sdk/react/hooks";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { StoreContainer } from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store")({
@@ -21,61 +20,62 @@ export const Route = createFileRoute("/store")({
 });
 
 /**
- * Resolves the publishable key. It is a shop identifier, NOT a secret, so it
- * may live in a client bundle, a URL parameter or localStorage.
+ * Dedicated: die Storefront fragt die eigene Installation nach ihrem
+ * öffentlichen Shop-Kontext (Same-Origin). Keine ENV-Variable, keine
+ * manuelle Key-Eingabe. Remote-Overrides greifen nur, wenn die Installation
+ * nicht im Dedicated-Modus läuft.
  */
-function resolvePublishableKey(): string {
-  const envKey = import.meta.env["VITE_COMMERCE_PUBLISHABLE_KEY"] as string | undefined;
-  if (typeof window === "undefined") return envKey ?? "";
-  const fromUrl = new URLSearchParams(window.location.search).get("key");
-  if (fromUrl) window.localStorage.setItem("commerce.publishableKey", fromUrl);
-  return fromUrl ?? envKey ?? window.localStorage.getItem("commerce.publishableKey") ?? "";
-}
-
 function StoreLayout() {
-  const [publishableKey, setPublishableKey] = useState<string>(
-    () => (import.meta.env["VITE_COMMERCE_PUBLISHABLE_KEY"] as string | undefined) ?? "",
-  );
+  const [runtime, setRuntime] = useState<ResolvedRuntime | null>(null);
 
-  // URL/localStorage are only readable after hydration.
   useEffect(() => {
-    setPublishableKey(resolvePublishableKey());
+    let active = true;
+    void resolveRuntime({
+      publishableKey: import.meta.env["VITE_COMMERCE_PUBLISHABLE_KEY"] as string | undefined,
+      baseUrl: import.meta.env["VITE_COMMERCE_API_URL"] as string | undefined,
+    }).then((resolved) => {
+      if (active) setRuntime(resolved);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
-  const config = useMemo<CommerceClientConfig>(
-    () => ({
-      baseUrl:
-        (typeof window === "undefined" ? "" : window.location.origin) + "/api/public/store/v1",
-      publishableKey,
-      locale: "de-DE",
-    }),
-    [publishableKey],
+
+  const config = useMemo<CommerceClientConfig | null>(
+    () =>
+      runtime?.status === "ready"
+        ? {
+            baseUrl: runtime.baseUrl,
+            publishableKey: runtime.publishableKey,
+            locale: runtime.locale,
+          }
+        : null,
+    [runtime],
   );
 
-  if (!publishableKey) {
+  if (!runtime) {
+    return (
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-3 px-5 py-10">
+        <p className="text-sm text-muted-foreground">Shop wird geladen …</p>
+      </div>
+    );
+  }
+
+  if (!config) {
     return (
       <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-4 px-5 py-10">
-        <h1 className="font-display text-xl font-semibold">Shop wird noch verbunden</h1>
+        <h1 className="font-display text-xl font-semibold">Shop ist noch nicht eingerichtet</h1>
         <p className="text-sm text-pretty text-muted-foreground">
-          Diese Storefront braucht den Publishable Key des Shops. Er identifiziert den Shop und ist
-          kein Geheimnis. Setze <code className="mx-0.5">VITE_COMMERCE_PUBLISHABLE_KEY</code> oder
-          trage ihn hier einmalig ein.
+          {runtime.status === "setup_required"
+            ? "Diese EYIS-Installation hat noch keinen Owner und keinen Hauptshop. Die Einrichtung erfolgt im Backoffice."
+            : "Für diese Storefront ist kein Shop erreichbar. Prüfe die Installation im Backoffice."}
         </p>
-        <form
-          className="flex flex-col gap-2 sm:flex-row"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const value = new FormData(event.currentTarget).get("key");
-            if (typeof value === "string" && value.trim()) {
-              window.localStorage.setItem("commerce.publishableKey", value.trim());
-              setPublishableKey(value.trim());
-            }
-          }}
+        <a
+          href="/app/setup"
+          className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
         >
-          <Input name="key" className="h-11" placeholder="pk_…" aria-label="Publishable Key" />
-          <Button type="submit" className="h-11">
-            Shop laden
-          </Button>
-        </form>
+          Einrichtung öffnen
+        </a>
       </div>
     );
   }
