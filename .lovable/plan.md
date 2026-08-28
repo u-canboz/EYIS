@@ -4,21 +4,21 @@ Ziel: Commerce OS so paketieren, dass derselbe Core auch als eigenständige Inst
 neuen Kundenprojekt läuft — eigene Datenbank, eigene Auth, eigener Storage, eigene Secrets, ohne
 Verbindung zu einer zentralen Instanz. Es entsteht **keine** zweite Engine.
 
-## 0. Was die Plattform kann und was nicht (ehrliche Grenze)
+## 0. Drei getrennte Phasen: Provisioning → Migration → Bootstrap
 
-Geprüft im Repository: Migrationen liegen als 51 Dateien in `supabase/migrations/`, werden aber
-über die Plattform-Migration angewandt, nicht über ein eigenes CLI. Ein Projekt kann sich selbst
-keine zweite Cloud-/Postgres-Instanz erzeugen.
+Verbindlich getrennt. Eine leere Instanz kann noch keine Commerce-Serverfunktion aufrufen.
 
-Daraus folgt die Aufteilung:
+**Phase 1 — Provisioning (einzige externe Plattformaktion).** Owner/Agent legt das neue
+Lovable-Projekt mit eigener Cloud-Instanz an: Datenbank, Auth, Storage. Wird dokumentiert, nicht
+simuliert.
 
-| Schritt | Wer |
-| --- | --- |
-| Neues Lovable-Projekt + eigene Cloud-Instanz (DB, Auth, Storage) | Plattformaktion durch Owner/Agent im neuen Projekt — dokumentiert, nicht simuliert |
-| Schema anlegen (alle Migrationen in Reihenfolge) | Agent im neuen Projekt über die Migrations-Datei-Liste des Templates |
-| Storage-Buckets, Auth-Einstellungen, Cron | Agent über die Plattform-Tools, mit exakter Checkliste |
-| System Seed, Organization, Main Shop, Owner, Defaults, Publishable Key | automatisiert über `commerce:bootstrap` bzw. Setup-Wizard |
-| Prüfung des Gesamtzustands | automatisiert über `commerce:doctor` + Readiness-Seite |
+**Phase 2 — Migration.** Alle Commerce-OS-Migrationen (aktuell 51 Dateien in
+`supabase/migrations/`) werden in Reihenfolge angewendet und gegen Manifest- und Schemaversion
+geprüft. Storage-Buckets, Auth-Einstellungen und Cron werden nach Checkliste eingerichtet.
+
+**Phase 3 — Bootstrap.** Erst danach: System Seed, Organization, Main Shop, Owner-Verknüpfung,
+Default-Settings, Integration Center, Health Check — automatisiert über `commerce:bootstrap`
+bzw. den Setup-Wizard.
 
 Es wird **keine** Installer-UI gebaut, die Provisionierung nur vortäuscht.
 
@@ -35,8 +35,11 @@ Es wird **keine** Installer-UI gebaut, die Provisionierung nur vortäuscht.
 
 Eine neue Tabelle `commerce_installation` (eine Zeile pro Instanz) mit `installation_id`, `mode`,
 `core_version`, `schema_version`, `api_version`, `sdk_version`, `installed_at`,
-`last_migrated_at`, `setup_completed_at`, `health_status`. Grants + RLS nach Projektregel:
-lesbar für Organisationsmitglieder, schreibbar nur serverseitig.
+`last_migrated_at`, `setup_completed_at`, `health_status`.
+
+**Server-only.** RLS aktiv ohne Lesepolicy für normale Mitglieder; Grants nur an `service_role`.
+Das Backoffice liest den Installationsstatus ausschließlich über eine geprüfte Server-Funktion,
+die vorher die Rolle des Aufrufers verifiziert.
 
 Begründung: Bestehende Settings-Tabellen sind shop-gebunden; ein Installationszustand ist
 instanzweit und wird von Bootstrap, Doctor und Update-Pfad gebraucht.
@@ -46,21 +49,40 @@ instanzweit und wird von Bootstrap, Doctor und Update-Pfad gebraucht.
 `bun run commerce:bootstrap` — dünnes CLI über eine bestehende Server-Route/Server-Funktion,
 keine eigene Datenbanklogik im Skript.
 
-Ablauf, strikt idempotent und in dieser Reihenfolge:
+### Vorbedingungen (harte Abbruchmatrix)
+
+| Zustand | Ergebnis |
+| --- | --- |
+| Schema vorhanden, Commerce OS nicht initialisiert | Installation möglich |
+| Commerce OS bereits initialisiert | STOP — keine zweite Installation |
+| Migrationen fehlen | STOP — fehlende Migrationen werden aufgelistet |
+| `APP_ENV` unbekannt oder ungültig | STOP |
+| Modus `dedicated`, aber Verbindung/Konfiguration zu einem Shared-Commerce-Host erkannt | STOP |
+| Kein authentifizierter Benutzer für die Owner-Verknüpfung | STOP |
+
+### Ablauf, strikt idempotent
 
 ```text
-1  Umgebung auflösen (unknown -> Abbruch)
-2  Datenbankverbindung + Schemaversion prüfen
-3  Migrationsstand prüfen (fehlende Migration -> Abbruch mit Liste)
-4  Storage-Buckets prüfen
-5  System Seed (Rollen, Permissions, Blueprints, Referenzdaten)
-6  Organization + Main Shop + Owner-Membership
-7  Default-, Tax-, Invoice-, Return-, Shipping-Settings
-8  Integration Center initialisieren (alle Provider: not_connected)
-9  Publishable Key erzeugen (Origin-Restriction leer, muss gesetzt werden)
-10 Cron/Jobs prüfen
-11 Health-Lauf, Ergebnis in commerce_installation schreiben
+1  Umgebung auflösen und Deployment Mode prüfen
+2  Zentral-Abhängigkeiten prüfen (siehe Abbruchmatrix)
+3  Datenbankverbindung + Schemaversion prüfen
+4  Migrationsstand gegen Manifest prüfen
+5  Storage-Buckets prüfen
+6  System Seed (Rollen, Permissions, Blueprints, Referenzdaten)
+7  Organization + Main Shop
+8  Owner-Verknüpfung: den echten, authentifizierten ersten Auth-User als Owner eintragen
+9  Default-, Tax-, Invoice-, Return-, Shipping-Settings
+10 Integration Center initialisieren (alle Provider: not_connected)
+11 Publishable Key als disabled/setup_required anlegen
+12 Cron/Jobs prüfen
+13 Health-Lauf, Ergebnis in commerce_installation schreiben
 ```
+
+Es wird **kein** künstlicher Owner in der Datenbank erzeugt. Existiert noch kein echter Auth-User,
+bricht Bootstrap mit einer klaren Anweisung ab (erst registrieren, dann Bootstrap).
+
+Der Publishable Key wird nie aktiv mit leerer Origin-Allowlist ausgeliefert. Er wird erst
+aktiviert, wenn im Setup-Wizard eine Storefront-Origin hinterlegt ist.
 
 Zweiter Lauf meldet „Installation bereits vorhanden“ und ändert nichts.
 Production-Guard bleibt aktiv: kein Demo-Seed, keine QA-Fixtures, keine Test-Provider als Live.
