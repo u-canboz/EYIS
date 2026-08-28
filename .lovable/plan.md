@@ -1,168 +1,70 @@
-# Phase 22 — Update Center & One-Click Updater (EYIS Dedicated)
+# EYIS Dedicated — Installation in diesem Projekt abschließen
 
-## 0. Zuerst geklärt: Gibt es einen echten Deployment-Weg?
+## Vorabbestätigung (verbindlich)
 
-Ja — aber nicht in der laufenden App selbst. Eine laufende Lovable-Instanz kann ihren eigenen
-kompilierten Quellcode nicht überschreiben. Deshalb:
+1. Dieses Projekt wird als EYIS **Dedicated** betrieben.
+2. Es wird **keine externe EYIS-API** benötigt.
+3. Es wird **kein vorhandener Publishable Key** benötigt oder abgefragt.
+4. Es wird **kein zweites EYIS-Projekt** benötigt.
+5. EYIS läuft vollständig auf der **eigenen Infrastruktur dieses Projekts** (eigene Datenbank, Auth, Storage, Secrets, Jobs).
+6. Die bestehende Storefront/Website bleibt in Design, Layout und Branding **unverändert**.
+7. Das SDK wird **erst nach** Bootstrap → Owner → Organisation → Shop → Key verbunden.
 
-- **Transport: GitHub.** Die Installation löst per `repository_dispatch` einen Deploy-Workflow im
-  Repo `u-canboz/EYIS` aus (Fine-grained Token, serverseitig als Secret, nie im Client).
-- **Registry: GitHub Releases** desselben Repos. Manifest, Checksum und Signatur liegen als
-  Release-Assets. Keine erfundene Domain; eine eigene HTTPS-Registry bleibt konfigurierbar.
-- **Ohne Token/Workflow/Registry-Konfiguration** zeigt das Update Center `SETUP REQUIRED` —
-  niemals „Update erfolgreich“. Kein Fake-Updater, keine simulierten Schritte.
+## Befund der Analyse
 
-Was der Händler sieht, bleibt trotzdem: *Update verfügbar → Jetzt aktualisieren → Fertig*.
+Dieses Projekt **ist** bereits die EYIS-Codebasis, kein Kundenprojekt mit externem Backend:
 
-## 1. Ownership-Grenzen
+- Commerce Core vollständig unter `src/lib/commerce/**` (Katalog, Pricing, Inventory, Cart, Checkout, Orders, Tax, Shipping, Documents, Returns, Communications, Automation, Integrations, System).
+- Backoffice unter `/app`, Portal unter `/portal`, Store API unter `/api/public/store/v1` (echter Gateway, keine Mock-API), SDK unter `src/lib/store-sdk/**`.
+- Dedicated-Modus existiert bereits: `commerce_installation`, Bootstrap (`/api/public/install/bootstrap`), Claim-Session, Doctor, Setup-Wizard, CLI `commerce:bootstrap` / `commerce:doctor`.
+- Eigene Cloud-Infrastruktur ist aktiv. Es wird **nichts importiert, kopiert oder neu aufgebaut**, keine zweite Datenbank, keine Migration erneut ausgeführt, keine Daten gelöscht.
 
-EYIS-owned (updatefähig): Commerce Engines, Backoffice Core, Store API, Store SDK, Systemmodule,
-Integration Center, Security Layer, Migrationen, System-Seeds, Doctor, Update Center.
+Damit sind die Phasen A–K aus dem Auftrag bereits erfüllt. Offen sind genau die Punkte, die den Kreisschluss „SDK fragt nach Key" verursachen.
 
-Customer-owned (nie still überschrieben): Storefront-Design, Branding, Content, kundenspezifische
-Seiten, dokumentierte Custom Components und Extensions.
+## Was tatsächlich gebaut wird
 
-Die Zuordnung wird als Manifest (`eyis-ownership.json`) im Repo gepflegt und vom Preflight gegen
-Datei-Hashes geprüft. Kollision = Preflight FAIL mit Konfliktliste, Update startet nicht.
+### 1. Dedicated Runtime Config (Same-Origin, ohne manuelle Eingabe)
 
-## 2. Datenmodell (eine Migration)
+- Neuer öffentlicher Store-API-Endpunkt `GET /api/public/store/v1/runtime-config` als zusätzliche Route in der bestehenden Route-Registry (additiv, kein Breaking Change an v1).
+- Liefert ausschließlich öffentliche Daten: `deploymentMode`, `apiVersion`, `publishableKey` (der Dedicated-Hauptshop-Key), `shopHandle`, `locale`, `currency`.
+- Antwort nur im Dedicated-Modus mit geclaimter Installation; sonst `mode: "shared"` ohne Key. Keine Secrets, keine Provider-Credentials, keine internen IDs über die bestehende DTO-Allowlist hinaus.
+- Der Endpunkt läuft bewusst vor der Publishable-Key-Prüfung des Gateways (er liefert den Key ja erst aus) und bleibt read-only + ratelimitiert.
 
-- `commerce_installation` erweitern: `installed_release_id`, `update_channel` (stable|beta|
-  development, Default stable), `last_update_check_at`, `last_successful_update_at`,
-  `system_seed_version`, `auto_update_policy` (manual|security_only|patch, Default manual),
-  `maintenance_state`.
-- `update_runs`: from/to-Version, `release_id`, Status, `initiated_by`, Zeiten,
-  `deployment_reference`, `migration_from/to`, `backup_reference`, `current_step`, `error_code`,
-  `safe_error_message`, `rollback_status`, `metadata`. Append-only, keine Löschung.
-- `update_run_steps`: Position, Step, Status, Zeiten, `output_summary`, `error_code`.
-- **Concurrency:** Partieller Unique-Index — höchstens ein Run in aktivem Status. Zwei Klicks
-  erzeugen genau einen Run.
-- Server-only wie `commerce_installation` (RLS an, keine Member-Policies, Zugriff nur über
-  redaktierende Server Functions), plus GRANTs für `service_role`.
-- Permissions: `system_updates.read|manage|install|channel`; Installation nur Owner/Administrator,
-  Operations liest.
+### 2. Automatische Key-Erzeugung beim Shop-Anlegen
 
-## 3. Release-Verifikation (Sicherheitskern)
+- Beim Owner-Claim bzw. beim Anlegen des Hauptshops wird — falls noch kein aktiver Publishable Key für diesen Shop existiert — automatisch einer erzeugt und dem Shop zugeordnet. Idempotent: vorhandener aktiver Key wird wiederverwendet, kein zweiter Key.
 
-`src/lib/commerce/updates/registry.server.ts`
+### 3. SDK-Bootstrapping ohne ENV und ohne Formular
 
-1. Manifest über HTTPS von der Registry laden (nur Metadaten).
-2. SHA-256-Checksum des Artifacts prüfen.
-3. Signatur gegen den in der Installation hinterlegten **öffentlichen** Verifikationsschlüssel
-   prüfen (Ed25519 via WebCrypto). Private Keys existieren nie in Kundeninstallationen.
-4. Kompatibilität prüfen: `minimum_version`, Upgrade-Pfad, `api_version`, `sdk_version`,
-   `schema_version`, `breaking`, `rollback_supported`.
+- `src/routes/store/route.tsx`: Reihenfolge wird `runtime-config` zuerst, ENV/URL/localStorage nur noch als Remote-Fallback. Das manuelle Key-Eingabeformular entfällt im Dedicated-Modus; statt dessen ein neutraler Ladezustand bzw. ein Hinweis auf `/app/setup`, wenn die Installation noch nicht geclaimt ist.
+- `baseUrl` bleibt Same-Origin `/api/public/store/v1` — funktioniert in Preview, Staging, Production und auf Custom Domain ohne Codeänderung.
+- Remote-Modus bleibt vollständig erhalten und strikt getrennt (`deploymentMode === "remote"` verlangt weiterhin API-URL + Key). Keine Vermischung.
+- Design, Layout, Branding und Komponenten der Storefront bleiben unangetastet — nur die Konfigurationsquelle ändert sich.
 
-Fehlschlag → `UPDATE_SIGNATURE_INVALID` / `UPDATE_CHECKSUM_INVALID`, sofortiger Abbruch.
-Registry nicht erreichbar → Shop läuft normal weiter, UI meldet „Update-Prüfung derzeit nicht
-möglich“.
+### 4. Doctor: Dedicated Independence
 
-## 4. Deployment-Adapter
+- Der bestehende Doctor bekommt zusätzliche Prüfungen: `runtime_config_reachable`, `publishable_key_present`, `sdk_same_origin`, `no_external_commerce_runtime`.
+- Ergebnis dokumentiert ausdrücklich: `Deployment Mode: DEDICATED`, `External EYIS Runtime Dependency: NONE`.
 
-```ts
-interface UpdateDeploymentProvider {
-  capabilities(); prepareRelease(); deployRelease();
-  getDeploymentStatus(); cancelDeployment(); rollbackDeployment?();
-}
-```
+### 5. Frisch-Installations-E2E + Network Assertion
 
-- `github-actions.server.ts` — real: `repository_dispatch`, Workflow-Run-Polling, Status-Mapping.
-- `manual.server.ts` — real, aber ohne Automatik: erzeugt Anweisungen, Owner bestätigt Deployment.
-- Nicht implementierte Adapter erscheinen nicht als verfügbar.
+- Neuer Harness `qa/phase23-dedicated-install.ts` (`bun run qa:dedicated-install`), der gegen Dev/Preview prüft: Runtime Config liefert Key → SDK-Client ohne ENV initialisierbar → Produkt aus dem Backoffice erscheint über Store API in der Storefront → Cart-Add funktioniert → keine Commerce-Anfrage an eine fremde EYIS-Runtime-Domain.
+- Unit-Tests für Runtime-Config-Redaktion (keine Secrets), Idempotenz der Key-Erzeugung und die Dedicated/Remote-Auflösung im SDK.
 
-Konfiguration und Status (Repo, Branch, letzter erfolgreicher Release) laufen über das bestehende
-Integration Center, Muster wie bei Stripe/Resend; Token nur serverseitig als Secret.
+### 6. Dokumentation und Agentenregel
 
-## 5. Update-Ablauf (State Machine)
+- `docs/production/INSTALLATION.md`: Same-Origin-Runtime-Config, automatische Key-Erzeugung, keine manuellen API-/Key-Eingaben.
+- `docs/agent/NEW_STOREFRONT_RUNBOOK.md`: klare Trennung Dedicated (Same-Origin, keine ENV) vs. Remote (ENV nötig).
+- `AGENTS.md`: verbindliche Regel — „EYIS installieren" bedeutet ohne Rückfrage **dedicated**; Remote nur bei ausdrücklicher Nennung. Verbotene Fragen (API-URL, Publishable Key, externes Projekt) werden explizit gelistet.
+- `qa/PHASE23-DEDICATED-INSTALL-REPORT.md` mit Statusmatrix (PASS/FAIL/OFFEN/BLOCKED) und Abschlussbericht im geforderten Format.
 
-`available → preflight → ready → backup_check → maintenance → deploying → migrating → seeding →
-verifying → completed`, dazu `failed`, `rolling_back`, `rolled_back`, `manual_attention`.
-Übergänge nur über die Engine, keine freie Statusmutation.
+## Nicht Teil dieser Arbeit
 
-**Preflight** prüft Installation (Dedicated, Versionen), System (Doctor, Health, RLS, Jobs,
-Storage), Kompatibilität, Custom Overrides, Backup-Readiness, Betriebszustand (keine laufende
-Payment-Finalisierung, keine laufende Migration, Queue akzeptabel), Deployment-Adapter.
-Erst bei durchgehend PASS wird „Jetzt aktualisieren“ aktiv.
+- Keine neuen Commerce-Features, keine Änderung an Pricing/Tax/Inventory/Order-Logik.
+- Keine Änderung an bestehenden Migrationen; sofern die automatische Key-Erzeugung eine Spalte braucht, wird nur additiv migriert (CREATE → GRANT → RLS → POLICY).
+- Keine Provider-Aktivierung: Stripe Live, echter E-Mail-Versand, SMTP-Produktivbetrieb und Carrier bleiben BLOCKED und blockieren die Installation nicht (`NOT CONFIGURED`).
+- Keine destruktiven Operationen, kein Schema-Reset.
 
-**Backup Gate:** Schemaändernde Updates ohne bekannte Restore-Möglichkeit = BLOCKED. Für Patches
-gilt die Policy, aber der Schutz wird nie still umgangen.
+## Abschluss
 
-**Maintenance Mode** (`maintenance_state = updating`): Katalog bleibt optional lesbar; Checkout-
-Start, Payment-Session, neue Orders und kritische Mutationen werden mit klarem Fehlercode
-blockiert. Laufende Zahlungen werden nicht abgebrochen — das Update wartet.
-
-**Migrationen** kommen ausschließlich aus dem signierten Release, laufen als Chain von der
-aktuellen `schema_version` aus, jede genau einmal. Empfohlene Strategie ist Expand → Deploy →
-Migrate/Backfill → Contract; Breaking Changes werden nie in einem Schritt gefahren.
-
-**System-Seeds** sind versioniert und idempotent, keine Demo-Daten, keine Kundendaten überschreiben.
-
-**Verifikation** nach Deployment/Migration: `commerce:doctor`, Health Checks (DB, Schema, RLS,
-Storage, Auth, Store API, SDK, Jobs, Provider Vault) und Smoke-Tests (Storefront-Config, Katalog,
-Produktdetail, Cart, Checkout-Initialisierung, Admin-Login, Product Read, Order Read) — ohne echte
-Zahlung.
-
-**Aktivierung** erst wenn Deployment, Migration, Seed, Doctor, Health und Smoke PASS sind: dann
-`core_version = newVersion`, Maintenance aus.
-
-**Fehler:** Vor DB-Mutation → alter Stand bleibt aktiv. Nach Migration → kein blindes Zurück-
-Deployment; Forward-Fix oder Restore, Zustand `manual_attention`. Rollback-Button nur wenn das
-Manifest `rollback_supported: true` trägt.
-
-**Recovery:** Der Run läuft serverseitig; Fortschritt kommt aus `update_runs`, nichts hängt am
-Browser.
-
-## 6. UI — `/app/system/updates`
-
-Navigation „System → Updates“ mit Badge (`•1`), stärkere Kennzeichnung bei Security-Releases,
-keine Bannerflut.
-
-Installierte Version, verfügbare Version, Security-Kennzeichnung, verständliche Release Notes
-(Neu / Verbessert / Behoben / Sicherheit, technische Details aufklappbar), Preflight-Ergebnis als
-Statusliste, ein Button. Danach vertikale Step-Liste mit Live-Status; Mobil 390 px als primäre
-Referenz, keine technischen Tabellen. Bestehende Bausteine (`SectionPanel`, `RecordRow`,
-`StatusBadge`, `ActionMenu`) werden wiederverwendet.
-
-Zusätzlich: Update-Historie aus `update_runs`, Kanal-Umschaltung nur für Owner/Developer.
-
-## 7. Job, CLI, Audit
-
-- Täglicher Job `checkForEyisUpdates()` unter `src/routes/api/public/jobs/` mit
-  `authenticateCronRequest` — holt nur Manifeste, installiert nie.
-- `bun run commerce:update-check` und `bun run commerce:update --to=<version>` nutzen exakt
-  dieselbe Orchestrierung; kein zweiter, unsicherer Pfad.
-- Audit: `update.check|started|completed|failed|rollback_started|rollback_completed|channel_changed`
-  — ohne Secrets oder Artifact-Tokens.
-
-## 8. QA und Nachweise
-
-- `qa:update-e2e` — echter isolierter 1.0 → 1.1 Upgrade-Test auf Fixture (Organisation, Shop,
-  Produkte, Preise, Bestand, Kunden, Orders, Rechnung, Provider-Config): Kundendaten, Storefront,
-  Provider-Credentials, Orders und Rechnungen unverändert, neues Schema vorhanden, Doctor PASS.
-- `qa:update-failures` — Failure Injection: falsche Signatur, falsche Checksum, inkompatible
-  Ausgangsversion, Backup nicht bereit, Deployment-/Migration-/Seed-/Doctor-/Health-Fehler,
-  Browser geschlossen, Doppelklick, Registry offline.
-- Storefront-DOM-/Screenshot-Regression vor und nach dem Update.
-- Provider-Regression: Stripe, PayPal, Mollie, Resend, SMTP weiterhin konfiguriert; Secrets werden
-  nicht neu geschrieben.
-- `bun run verify` grün, `qa/PHASE22-UPDATE-CENTER-REPORT.md` + `results-phase22-updates.json`.
-
-## 9. Dokumentation
-
-`AGENTS.md`, `docs/agent/DEDICATED_UPDATE_STRATEGY.md` (neu),
-`docs/agent/DEDICATED_DEPLOYMENT.md`, `docs/agent/MODULE_REGISTRY.md`,
-`docs/production/OPERATIONS_RUNBOOK.md`, `docs/production/INCIDENT_RESPONSE.md`.
-Agentenregel: Bei einer Dedicated-Instanz mit funktionsfähigem Update Center werden Core-Updates
-nicht mehr durch manuelles Kopieren von Core-Dateien durchgeführt.
-
-## 10. Status-Ehrlichkeit
-
-Alles ohne realen Nachweis bleibt `SETUP REQUIRED`, `OFFEN` oder `BLOCKED`: der GitHub-Token und
-der Deploy-Workflow im Repo, der veröffentlichte Signing-Key samt erstem signierten Release und
-die Backup-/Restore-Strategie sind betreiberseitige Schritte. Der Code dafür wird vollständig
-gebaut und getestet, der Schalter bleibt beim Owner.
-
-## 11. Grenzen
-
-Commerce-Logik, Store API v1, RLS-Modell und bestehende Sicherheitsschichten bleiben unverändert;
-neu sind ausschließlich das Update-Modul, sein Datenmodell und seine Oberfläche.
+`bun run generate:manifests`, `bun run verify` (docs, typecheck, tests, build), `commerce:doctor` gegen Dev sowie der neue Install-E2E müssen grün sein. Kein PASS ohne Nachweis.
