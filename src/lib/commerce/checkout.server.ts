@@ -34,7 +34,7 @@ export type SessionRow = {
   vat_validation_id: string | null;
 };
 
-const OPEN_STATES = ["open", "validated", "awaiting_payment"];
+const OPEN_STATES = ["open", "validated", "awaiting_payment"] as const;
 
 export async function loadSession(sessionId: string) {
   const admin = await getAdmin();
@@ -83,7 +83,7 @@ export async function findActiveSessionForCart(cart: CartRow): Promise<SessionRo
     )
     .eq("organization_id", cart.organization_id)
     .eq("cart_id", cart.id)
-    .in("status", OPEN_STATES)
+    .in("status", [...OPEN_STATES])
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
