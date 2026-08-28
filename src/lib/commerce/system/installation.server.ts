@@ -118,6 +118,14 @@ export async function runBootstrap(): Promise<BootstrapResult> {
   const mode = resolveDeploymentMode();
   steps.push(`environment=${environment}, mode=${mode}`);
 
+  // 2a Bootstrap ist ausschließlich für Dedicated-Instanzen (Abbruchmatrix)
+  if (mode !== "dedicated") {
+    throw new InstallationError(
+      "INSTALLATION_NOT_DEDICATED",
+      "COMMERCE_DEPLOYMENT_MODE ist nicht 'dedicated' — Bootstrap abgebrochen. Auf geteilten SaaS-Instanzen wird kein Bootstrap ausgeführt.",
+    );
+  }
+
   // 3  Zentral-Abhängigkeiten
   const central = findCentralDependencies();
   if (central.length > 0) {
