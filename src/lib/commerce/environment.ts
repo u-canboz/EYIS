@@ -91,3 +91,51 @@ export function assertOperationAllowed(
   }
   return environment;
 }
+
+// ---------------------------------------------------------------------------
+// Deployment Mode (Phase 21: Dedicated Deployment)
+// ---------------------------------------------------------------------------
+
+export type DeploymentMode = "shared" | "dedicated";
+
+export class DeploymentModeError extends Error {
+  code = "DEPLOYMENT_MODE_INVALID";
+  constructor(message: string) {
+    super(message);
+    this.name = "DeploymentModeError";
+  }
+}
+
+/**
+ * Liest `COMMERCE_DEPLOYMENT_MODE`. Fehlend/leer ergibt "shared"
+ * (Bestandsinstallationen haben die Variable nicht). Ein unbekannter Wert
+ * ist ein harter Fehler — kein stilles Default.
+ */
+export function resolveDeploymentMode(
+  env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
+): DeploymentMode {
+  const raw = (env["COMMERCE_DEPLOYMENT_MODE"] ?? "").trim().toLowerCase();
+  if (raw === "") return "shared";
+  if (raw === "shared" || raw === "dedicated") return raw;
+  throw new DeploymentModeError(
+    `Ungültiger COMMERCE_DEPLOYMENT_MODE-Wert "${raw}". Erlaubt: shared, dedicated.`,
+  );
+}
+
+/**
+ * Dedicated-Isolation: schlägt fehl, wenn die Instanz auf einen zentralen
+ * Commerce-OS-Host konfiguriert ist. Erlaubt ist ausschließlich die eigene
+ * Infrastruktur plus explizit konfigurierte Provider.
+ */
+export function findCentralDependencies(
+  env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
+): string[] {
+  const hits: string[] = [];
+  for (const [key, value] of Object.entries(env)) {
+    if (!value) continue;
+    if (/^(COMMERCE_CENTRAL_|SHARED_COMMERCE_|COMMERCE_OS_HUB_)/.test(key)) {
+      hits.push(key);
+    }
+  }
+  return hits;
+}

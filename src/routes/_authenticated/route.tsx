@@ -42,10 +42,28 @@ function AuthenticatedLayout() {
     }
   }, [data, orgId, setOrgId]);
 
+  // Phase 21: Dedicated-Instanz ohne Owner → ausschließlich der Claim-/Setup-Prozess.
+  const requiresOwnerClaim = (data as { requiresOwnerClaim?: boolean } | undefined)?.requiresOwnerClaim === true;
+  useEffect(() => {
+    if (requiresOwnerClaim && pathname !== "/app/setup" && pathname !== "/app/setup/") {
+      navigate({ to: "/app/setup" });
+    }
+  }, [requiresOwnerClaim, pathname, navigate]);
+
   const activeOrg = data?.organizations.find((o) => o.id === orgId) ?? data?.organizations[0];
   const isDemoOrg =
     !!activeOrg &&
     (activeOrg.slug.startsWith("commerce-os-demo") || activeOrg.slug.startsWith("qa-fixture-"));
+
+  if (requiresOwnerClaim) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container py-10">
+          <Outlet />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <AppShell

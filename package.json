@@ -31,7 +31,12 @@
     "qa:storage": "bun run qa/phase14-storage.ts",
     "qa:providers": "bun run qa/phase14-providers.ts",
     "qa:integrations": "bun run qa/phase18-integrations.ts",
-    "qa:integrations-e2e": "bun run qa/phase18-e2e.ts"
+    "qa:integrations-e2e": "bun run qa/phase18-e2e.ts",
+    "commerce:bootstrap": "bun run scripts/commerce-bootstrap.ts",
+    "commerce:doctor": "bun run scripts/commerce-doctor.ts",
+    "qa:dedicated-bootstrap": "bun run qa/phase21-bootstrap.ts",
+    "qa:dedicated-doctor": "bun run qa/phase21-doctor.ts",
+    "qa:dedicated-security": "bun run qa/phase21-security.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

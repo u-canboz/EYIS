@@ -1449,6 +1449,75 @@ export type Database = {
           },
         ]
       }
+      commerce_installation: {
+        Row: {
+          api_version: string
+          claim_token_expires_at: string | null
+          claim_token_hash: string | null
+          claim_token_used_at: string | null
+          core_version: string
+          created_at: string
+          health_status: Json
+          id: string
+          installation_id: string
+          installed_at: string
+          last_migrated_at: string | null
+          mode: string
+          owner_claimed_at: string | null
+          schema_version: string | null
+          sdk_version: string | null
+          setup_completed_at: string | null
+          setup_progress: Json
+          singleton: boolean
+          storefront_origin: string | null
+          updated_at: string
+        }
+        Insert: {
+          api_version?: string
+          claim_token_expires_at?: string | null
+          claim_token_hash?: string | null
+          claim_token_used_at?: string | null
+          core_version: string
+          created_at?: string
+          health_status?: Json
+          id?: string
+          installation_id: string
+          installed_at?: string
+          last_migrated_at?: string | null
+          mode?: string
+          owner_claimed_at?: string | null
+          schema_version?: string | null
+          sdk_version?: string | null
+          setup_completed_at?: string | null
+          setup_progress?: Json
+          singleton?: boolean
+          storefront_origin?: string | null
+          updated_at?: string
+        }
+        Update: {
+          api_version?: string
+          claim_token_expires_at?: string | null
+          claim_token_hash?: string | null
+          claim_token_used_at?: string | null
+          core_version?: string
+          created_at?: string
+          health_status?: Json
+          id?: string
+          installation_id?: string
+          installed_at?: string
+          last_migrated_at?: string | null
+          mode?: string
+          owner_claimed_at?: string | null
+          schema_version?: string | null
+          sdk_version?: string | null
+          setup_completed_at?: string | null
+          setup_progress?: Json
+          singleton?: boolean
+          storefront_origin?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       communication_attempts: {
         Row: {
           attempt_number: number
@@ -8310,6 +8379,17 @@ export type Database = {
           _shop: string
           _snapshot: string
           _ttl_minutes?: number
+        }
+        Returns: Json
+      }
+      claim_installation_owner: {
+        Args: {
+          _claim_hash: string
+          _org_name: string
+          _org_slug: string
+          _shop_name: string
+          _shop_slug: string
+          _user_id: string
         }
         Returns: Json
       }

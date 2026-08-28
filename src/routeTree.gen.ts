@@ -66,6 +66,7 @@ import { Route as AuthenticatedAppProdukteNeuRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_authenticated/app/retouren/index'
 import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
 import { Route as AuthenticatedAppRetourenEinstellungenRouteImport } from './routes/_authenticated/app/retouren/einstellungen'
+import { Route as AuthenticatedAppSetupIndexRouteImport } from './routes/_authenticated/app/setup/index'
 import { Route as AuthenticatedAppSystemDemoDatenRouteImport } from './routes/_authenticated/app/system/demo-daten'
 import { Route as AuthenticatedAppSystemErrorsRouteImport } from './routes/_authenticated/app/system/errors'
 import { Route as AuthenticatedAppSystemHealthRouteImport } from './routes/_authenticated/app/system/health'
@@ -77,6 +78,9 @@ import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
 import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './routes/_authenticated/app/versand/dienstleister'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
+import { Route as ApiPublicInstallBootstrapRouteImport } from './routes/api/public/install/bootstrap'
+import { Route as ApiPublicInstallClaimSessionRouteImport } from './routes/api/public/install/claim-session'
+import { Route as ApiPublicInstallDoctorRouteImport } from './routes/api/public/install/doctor'
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicJobsExpirationRouteImport } from './routes/api/public/jobs/expiration'
@@ -88,6 +92,7 @@ import { Route as AuthenticatedAppKommunikationVerlaufIndexRouteImport } from '.
 import { Route as AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport } from './routes/_authenticated/app/kommunikation/verlauf/$communicationId'
 import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
 import { Route as AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/$templateId'
+import { Route as AuthenticatedAppSystemEinrichtungIndexRouteImport } from './routes/_authenticated/app/system/einrichtung/index'
 import { Route as ApiPublicStoreV1SplatRouteImport } from './routes/api/public/store/v1/$'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
 import { Route as ApiPublicWebhooksCommunicationsProviderRouteImport } from './routes/api/public/webhooks/communications/$provider'
@@ -413,6 +418,12 @@ const AuthenticatedAppRetourenEinstellungenRoute =
     path: '/app/retouren/einstellungen',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppSetupIndexRoute =
+  AuthenticatedAppSetupIndexRouteImport.update({
+    id: '/app/setup/',
+    path: '/app/setup/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemDemoDatenRoute =
   AuthenticatedAppSystemDemoDatenRouteImport.update({
     id: '/app/system/demo-daten',
@@ -479,6 +490,23 @@ const AuthenticatedAppVersandVersandartenRoute =
     path: '/app/versand/versandarten',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicInstallBootstrapRoute =
+  ApiPublicInstallBootstrapRouteImport.update({
+    id: '/api/public/install/bootstrap',
+    path: '/api/public/install/bootstrap',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicInstallClaimSessionRoute =
+  ApiPublicInstallClaimSessionRouteImport.update({
+    id: '/api/public/install/claim-session',
+    path: '/api/public/install/claim-session',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicInstallDoctorRoute = ApiPublicInstallDoctorRouteImport.update({
+  id: '/api/public/install/doctor',
+  path: '/api/public/install/doctor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicJobsAutomationRoute = ApiPublicJobsAutomationRouteImport.update({
   id: '/api/public/jobs/automation',
   path: '/api/public/jobs/automation',
@@ -538,6 +566,12 @@ const AuthenticatedAppKommunikationVorlagenTemplateIdRoute =
   AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport.update({
     id: '/app/kommunikation/vorlagen/$templateId',
     path: '/app/kommunikation/vorlagen/$templateId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppSystemEinrichtungIndexRoute =
+  AuthenticatedAppSystemEinrichtungIndexRouteImport.update({
+    id: '/app/system/einrichtung/',
+    path: '/app/system/einrichtung/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiPublicStoreV1SplatRoute = ApiPublicStoreV1SplatRouteImport.update({
@@ -615,6 +649,9 @@ export interface FileRoutesByFullPath {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
+  '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
+  '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -631,6 +668,7 @@ export interface FileRoutesByFullPath {
   '/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
+  '/app/setup/': typeof AuthenticatedAppSetupIndexRoute
   '/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
@@ -640,6 +678,7 @@ export interface FileRoutesByFullPath {
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/app/kommunikation/verlauf/': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
   '/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
+  '/app/system/einrichtung/': typeof AuthenticatedAppSystemEinrichtungIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -697,6 +736,9 @@ export interface FileRoutesByTo {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
+  '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
+  '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -713,6 +755,7 @@ export interface FileRoutesByTo {
   '/app/preise': typeof AuthenticatedAppPreiseIndexRoute
   '/app/produkte': typeof AuthenticatedAppProdukteIndexRoute
   '/app/retouren': typeof AuthenticatedAppRetourenIndexRoute
+  '/app/setup': typeof AuthenticatedAppSetupIndexRoute
   '/app/versand': typeof AuthenticatedAppVersandIndexRoute
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
@@ -722,6 +765,7 @@ export interface FileRoutesByTo {
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/app/kommunikation/verlauf': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
   '/app/kommunikation/vorlagen': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
+  '/app/system/einrichtung': typeof AuthenticatedAppSystemEinrichtungIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -782,6 +826,9 @@ export interface FileRoutesById {
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
+  '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
+  '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -798,6 +845,7 @@ export interface FileRoutesById {
   '/_authenticated/app/preise/': typeof AuthenticatedAppPreiseIndexRoute
   '/_authenticated/app/produkte/': typeof AuthenticatedAppProdukteIndexRoute
   '/_authenticated/app/retouren/': typeof AuthenticatedAppRetourenIndexRoute
+  '/_authenticated/app/setup/': typeof AuthenticatedAppSetupIndexRoute
   '/_authenticated/app/versand/': typeof AuthenticatedAppVersandIndexRoute
   '/_authenticated/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
@@ -807,6 +855,7 @@ export interface FileRoutesById {
   '/api/public/webhooks/communications/$provider': typeof ApiPublicWebhooksCommunicationsProviderRoute
   '/_authenticated/app/kommunikation/verlauf/': typeof AuthenticatedAppKommunikationVerlaufIndexRoute
   '/_authenticated/app/kommunikation/vorlagen/': typeof AuthenticatedAppKommunikationVorlagenIndexRoute
+  '/_authenticated/app/system/einrichtung/': typeof AuthenticatedAppSystemEinrichtungIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -867,6 +916,9 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/install/bootstrap'
+    | '/api/public/install/claim-session'
+    | '/api/public/install/doctor'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -883,6 +935,7 @@ export interface FileRouteTypes {
     | '/app/preise/'
     | '/app/produkte/'
     | '/app/retouren/'
+    | '/app/setup/'
     | '/app/versand/'
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
@@ -892,6 +945,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/communications/$provider'
     | '/app/kommunikation/verlauf/'
     | '/app/kommunikation/vorlagen/'
+    | '/app/system/einrichtung/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -949,6 +1003,9 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/install/bootstrap'
+    | '/api/public/install/claim-session'
+    | '/api/public/install/doctor'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -965,6 +1022,7 @@ export interface FileRouteTypes {
     | '/app/preise'
     | '/app/produkte'
     | '/app/retouren'
+    | '/app/setup'
     | '/app/versand'
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
@@ -974,6 +1032,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/communications/$provider'
     | '/app/kommunikation/verlauf'
     | '/app/kommunikation/vorlagen'
+    | '/app/system/einrichtung'
   id:
     | '__root__'
     | '/'
@@ -1033,6 +1092,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
     | '/_authenticated/app/versand/versandarten'
+    | '/api/public/install/bootstrap'
+    | '/api/public/install/claim-session'
+    | '/api/public/install/doctor'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -1049,6 +1111,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/preise/'
     | '/_authenticated/app/produkte/'
     | '/_authenticated/app/retouren/'
+    | '/_authenticated/app/setup/'
     | '/_authenticated/app/versand/'
     | '/_authenticated/app/automationen/regel/$ruleId'
     | '/_authenticated/app/kommunikation/verlauf/$communicationId'
@@ -1058,6 +1121,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/communications/$provider'
     | '/_authenticated/app/kommunikation/verlauf/'
     | '/_authenticated/app/kommunikation/vorlagen/'
+    | '/_authenticated/app/system/einrichtung/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1070,6 +1134,9 @@ export interface RootRouteChildren {
   PortalGastRoute: typeof PortalGastRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
+  ApiPublicInstallBootstrapRoute: typeof ApiPublicInstallBootstrapRoute
+  ApiPublicInstallClaimSessionRoute: typeof ApiPublicInstallClaimSessionRoute
+  ApiPublicInstallDoctorRoute: typeof ApiPublicInstallDoctorRoute
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicJobsExpirationRoute: typeof ApiPublicJobsExpirationRoute
@@ -1482,6 +1549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRetourenEinstellungenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/setup/': {
+      id: '/_authenticated/app/setup/'
+      path: '/app/setup'
+      fullPath: '/app/setup/'
+      preLoaderRoute: typeof AuthenticatedAppSetupIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/demo-daten': {
       id: '/_authenticated/app/system/demo-daten'
       path: '/app/system/demo-daten'
@@ -1559,6 +1633,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppVersandVersandartenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/install/bootstrap': {
+      id: '/api/public/install/bootstrap'
+      path: '/api/public/install/bootstrap'
+      fullPath: '/api/public/install/bootstrap'
+      preLoaderRoute: typeof ApiPublicInstallBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/install/claim-session': {
+      id: '/api/public/install/claim-session'
+      path: '/api/public/install/claim-session'
+      fullPath: '/api/public/install/claim-session'
+      preLoaderRoute: typeof ApiPublicInstallClaimSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/install/doctor': {
+      id: '/api/public/install/doctor'
+      path: '/api/public/install/doctor'
+      fullPath: '/api/public/install/doctor'
+      preLoaderRoute: typeof ApiPublicInstallDoctorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/automation': {
       id: '/api/public/jobs/automation'
       path: '/api/public/jobs/automation'
@@ -1634,6 +1729,13 @@ declare module '@tanstack/react-router' {
       path: '/app/kommunikation/vorlagen/$templateId'
       fullPath: '/app/kommunikation/vorlagen/$templateId'
       preLoaderRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/system/einrichtung/': {
+      id: '/_authenticated/app/system/einrichtung/'
+      path: '/app/system/einrichtung'
+      fullPath: '/app/system/einrichtung/'
+      preLoaderRoute: typeof AuthenticatedAppSystemEinrichtungIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/store/v1/$': {
@@ -1713,12 +1815,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppPreiseIndexRoute: typeof AuthenticatedAppPreiseIndexRoute
   AuthenticatedAppProdukteIndexRoute: typeof AuthenticatedAppProdukteIndexRoute
   AuthenticatedAppRetourenIndexRoute: typeof AuthenticatedAppRetourenIndexRoute
+  AuthenticatedAppSetupIndexRoute: typeof AuthenticatedAppSetupIndexRoute
   AuthenticatedAppVersandIndexRoute: typeof AuthenticatedAppVersandIndexRoute
   AuthenticatedAppAutomationenRegelRuleIdRoute: typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   AuthenticatedAppKommunikationVerlaufCommunicationIdRoute: typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   AuthenticatedAppKommunikationVorlagenTemplateIdRoute: typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   AuthenticatedAppKommunikationVerlaufIndexRoute: typeof AuthenticatedAppKommunikationVerlaufIndexRoute
   AuthenticatedAppKommunikationVorlagenIndexRoute: typeof AuthenticatedAppKommunikationVorlagenIndexRoute
+  AuthenticatedAppSystemEinrichtungIndexRoute: typeof AuthenticatedAppSystemEinrichtungIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1797,6 +1901,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppPreiseIndexRoute: AuthenticatedAppPreiseIndexRoute,
   AuthenticatedAppProdukteIndexRoute: AuthenticatedAppProdukteIndexRoute,
   AuthenticatedAppRetourenIndexRoute: AuthenticatedAppRetourenIndexRoute,
+  AuthenticatedAppSetupIndexRoute: AuthenticatedAppSetupIndexRoute,
   AuthenticatedAppVersandIndexRoute: AuthenticatedAppVersandIndexRoute,
   AuthenticatedAppAutomationenRegelRuleIdRoute:
     AuthenticatedAppAutomationenRegelRuleIdRoute,
@@ -1808,6 +1913,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppKommunikationVerlaufIndexRoute,
   AuthenticatedAppKommunikationVorlagenIndexRoute:
     AuthenticatedAppKommunikationVorlagenIndexRoute,
+  AuthenticatedAppSystemEinrichtungIndexRoute:
+    AuthenticatedAppSystemEinrichtungIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1845,6 +1952,9 @@ const rootRouteChildren: RootRouteChildren = {
   PortalGastRoute: PortalGastRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
+  ApiPublicInstallBootstrapRoute: ApiPublicInstallBootstrapRoute,
+  ApiPublicInstallClaimSessionRoute: ApiPublicInstallClaimSessionRoute,
+  ApiPublicInstallDoctorRoute: ApiPublicInstallDoctorRoute,
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicJobsExpirationRoute: ApiPublicJobsExpirationRoute,
