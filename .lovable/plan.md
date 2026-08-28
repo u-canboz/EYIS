@@ -22,6 +22,10 @@ Die Shell existiert bereits mit Sidebar (xl), Icon-Rail (md), Sheet-Drawer, Bott
 10. **Nur echte Demo-Daten** — lange Namen, Varianten, reale Statuskombinationen und große Beträge sind schon während des Designs sichtbar.
 11. **Jede Seite wird sichtbar kompakter** als bisher: mehr relevante Information pro Bildschirm, ohne eng oder unruhig zu wirken.
 12. **Bei Unsicherheit entscheiden die Referenzbilder** in `references/` über Proportion, Dichte und Hierarchie. Keine Mockup-Texte oder -Zahlen übernehmen.
+13. **RecordRow ist Standard, nicht Dogma.** Wo eine zweizeilige native Liste besser funktioniert, wird keine unnötige Card drumherum gebaut.
+14. **Mobil Divider statt einzelner weißer Rahmenkarten** — dadurch wirkt es wesentlich mehr wie eine echte App.
+15. **Produkteditor und Bestelldetail: Sections dürfen visuell zusammenhängen.** Nicht jedes Formularfeld oder jede Gruppe erneut in eine eigene Box sperren.
+
 
 
 ## 1. Design-Tokens (`src/styles.css`)
