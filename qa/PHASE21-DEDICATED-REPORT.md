@@ -11,7 +11,7 @@ Keine Commerce-Logik geändert; Store API v1 unverändert (keine Breaking Change
 
 | Prüfung | Nachweis | Status |
 | --- | --- | --- |
-| Migration `commerce_installation` + `claim_installation_owner` | `supabase/migrations/20260828120000_dedicated-installation.sql` angewendet | PASS |
+| Migration `commerce_installation` + `claim_installation_owner` | `supabase/migrations/20260828131048_11f3caa1-a233-4ef9-a524-94fffedb1e4c.sql` angewendet | PASS |
 | Server-only-Tabelle (RLS, keine Policies, anon blockiert) | `qa:dedicated-security` 1/2 | PASS |
 | Bootstrap-Endpunkt: Header-Credential, timing-safe, nach Init gesperrt | `qa:dedicated-bootstrap` 1–3 | PASS |
 | Abbruchmatrix: unknown env / shared mode / zentrale Deps / fehlendes Schema | `runBootstrap` + Harness 3–4 | PASS |
