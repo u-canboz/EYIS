@@ -1,13 +1,14 @@
 {
-  "generated_at": "2026-08-28T12:28:03.875Z",
-  "source_commit": "6bc5106219f4ab77bc3f9ed255b5f148e87d214a",
-  "latest_migration": "20260827211754_23d9f9f3-4f0a-4c2e-b17e-40076c51b3b6.sql",
+  "generated_at": "2026-08-28T13:23:20.731Z",
+  "source_commit": "3008837ca991ef6ee4fbcd81e195ae13c9b0e9ee",
+  "latest_migration": "20260828131048_11f3caa1-a233-4ef9-a524-94fffedb1e4c.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 82,
+  "total": 87,
   "by_kind": {
-    "backoffice": 59,
+    "backoffice": 61,
+    "public-api": 3,
     "job-endpoint": 3,
     "public-store-api": 1,
     "webhook": 5,
@@ -437,6 +438,16 @@
       "ssr": true
     },
     {
+      "url": "/app/setup",
+      "source": "src/routes/_authenticated/app/setup/index.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
       "url": "/app/shops",
       "source": "src/routes/_authenticated/app/shops.tsx",
       "kind": "backoffice",
@@ -459,6 +470,16 @@
     {
       "url": "/app/system/demo-daten",
       "source": "src/routes/_authenticated/app/system/demo-daten.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/system/einrichtung",
+      "source": "src/routes/_authenticated/app/system/einrichtung/index.tsx",
       "kind": "backoffice",
       "methods": [
         "GET"
@@ -605,6 +626,36 @@
       ],
       "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
       "ssr": false
+    },
+    {
+      "url": "/api/public/install/bootstrap",
+      "source": "src/routes/api/public/install/bootstrap.ts",
+      "kind": "public-api",
+      "methods": [
+        "POST"
+      ],
+      "auth": "server-side check in handler",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/install/claim-session",
+      "source": "src/routes/api/public/install/claim-session.ts",
+      "kind": "public-api",
+      "methods": [
+        "POST"
+      ],
+      "auth": "server-side check in handler",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/install/doctor",
+      "source": "src/routes/api/public/install/doctor.ts",
+      "kind": "public-api",
+      "methods": [
+        "GET"
+      ],
+      "auth": "server-side check in handler",
+      "ssr": true
     },
     {
       "url": "/api/public/jobs/automation",

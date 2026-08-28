@@ -57,6 +57,23 @@ export const getWorkspace = createServerFn({ method: "GET" })
     let memberships = (rawMemberships ?? []) as unknown as MembershipRow[];
 
     if (memberships.length === 0) {
+      // Dedicated Mode: ohne abgeschlossenen Owner-Claim wird keine
+      // Organisation automatisch angelegt — /app zeigt ausschließlich den
+      // Claim-/Setup-Prozess (Phase 21, Sicherheitsinvariante).
+      const { resolveDeploymentMode } = await import("./environment");
+      if (resolveDeploymentMode() === "dedicated") {
+        const { getInstallation } = await import("./system/installation.server");
+        const installation = await getInstallation();
+        if (!installation || installation.owner_claimed_at == null) {
+          return {
+            userId,
+            email,
+            organizations: [],
+            shops: [],
+            requiresOwnerClaim: true,
+          };
+        }
+      }
       const admin = await getAdmin();
       const baseName = email ? `${email.split("@")[0]} Handel` : "Meine Organisation";
       const slug = `${slugify(baseName)}-${Math.random().toString(36).slice(2, 7)}`;

@@ -22,6 +22,7 @@ import {
   Activity,
   ServerCog,
   Gauge,
+  Wand2,
   TriangleAlert,
   FlaskConical,
   Code2,
@@ -171,6 +172,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "System",
     icon: Activity,
     items: [
+      { to: "/app/system/einrichtung", label: "Einrichtung", icon: Wand2 },
       { to: "/app/system/health", label: "Health", icon: Activity },
       { to: "/app/system/jobs", label: "Jobs & Queues", icon: ServerCog },
       { to: "/app/system/status", label: "Status", icon: Gauge },
