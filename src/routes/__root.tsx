@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Commerce OS – Multi-Shop Handelsplattform" },
+      { title: "EYIS – Alles, was dein Shop braucht." },
       {
         name: "description",
         content:
-          "Commerce OS: Organisationen, Shops, Rollen und Einladungen zentral verwalten – mit lückenlosem Audit-Log.",
+          "EYIS: Organisationen, Shops, Rollen und Einladungen zentral verwalten – mit lückenlosem Audit-Log.",
       },
-      { property: "og:title", content: "Commerce OS – Multi-Shop Handelsplattform" },
+      { property: "og:title", content: "EYIS – Alles, was dein Shop braucht." },
       {
         property: "og:description",
         content:
@@ -93,14 +93,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "theme-color", content: "#ED4800" },
+      { name: "apple-mobile-web-app-title", content: "EYIS" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/brand/eyis/eyis-favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "/brand/eyis/png/favicon/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "apple-touch-icon", href: "/brand/eyis/png/app/eyis-app-icon-180x180.png", sizes: "180x180" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
