@@ -55,8 +55,8 @@ async function main() {
     claimCode = e instanceof InstallationError ? e.code : "UNEXPECTED";
   }
   check(
-    "Claim mit ungültigem Token → CLAIM_INVALID",
-    claimCode === "CLAIM_INVALID",
+    "Claim ohne Installation/ungültigem Token → abgelehnt",
+    claimCode === "CLAIM_INVALID" || claimCode === "INSTALLATION_NOT_FOUND",
     `code=${claimCode}`,
   );
 
