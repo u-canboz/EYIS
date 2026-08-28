@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/app/automationen/")({
 
 const STATUS_TONE: Record<string, string> = {
   active: "bg-primary/15 text-primary",
-  paused: "bg-amber-500/15 text-amber-700 ,
+  paused: "bg-amber-500/15 text-amber-700",
   draft: "bg-muted text-muted-foreground",
   archived: "bg-muted text-muted-foreground",
 };
