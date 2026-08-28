@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EntwicklerRouteImport } from './routes/entwickler'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as StoreRouteRouteImport } from './routes/store/route'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
@@ -103,6 +104,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntwicklerRoute = EntwicklerRouteImport.update({
+  id: '/entwickler',
+  path: '/entwickler',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InviteRoute = InviteRouteImport.update({
@@ -556,6 +562,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/store': typeof StoreRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/entwickler': typeof EntwicklerRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
   '/store/bestaetigung': typeof StoreBestaetigungRoute
@@ -637,6 +644,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/entwickler': typeof EntwicklerRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
   '/store/bestaetigung': typeof StoreBestaetigungRoute
@@ -721,6 +729,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/store': typeof StoreRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/entwickler': typeof EntwicklerRoute
   '/invite': typeof InviteRoute
   '/portal/gast': typeof PortalGastRoute
   '/store/bestaetigung': typeof StoreBestaetigungRoute
@@ -805,6 +814,7 @@ export interface FileRouteTypes {
     | '/'
     | '/store'
     | '/auth'
+    | '/entwickler'
     | '/invite'
     | '/portal/gast'
     | '/store/bestaetigung'
@@ -886,6 +896,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/entwickler'
     | '/invite'
     | '/portal/gast'
     | '/store/bestaetigung'
@@ -969,6 +980,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/store'
     | '/auth'
+    | '/entwickler'
     | '/invite'
     | '/portal/gast'
     | '/store/bestaetigung'
@@ -1053,6 +1065,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   StoreRouteRoute: typeof StoreRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  EntwicklerRoute: typeof EntwicklerRoute
   InviteRoute: typeof InviteRoute
   PortalGastRoute: typeof PortalGastRoute
   PortalIndexRoute: typeof PortalIndexRoute
@@ -1089,6 +1102,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entwickler': {
+      id: '/entwickler'
+      path: '/entwickler'
+      fullPath: '/entwickler'
+      preLoaderRoute: typeof EntwicklerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invite': {
@@ -1820,6 +1840,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   StoreRouteRoute: StoreRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  EntwicklerRoute: EntwicklerRoute,
   InviteRoute: InviteRoute,
   PortalGastRoute: PortalGastRoute,
   PortalIndexRoute: PortalIndexRoute,

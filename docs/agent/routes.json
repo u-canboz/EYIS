@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-08-27T21:55:46.541Z",
-  "source_commit": "466e32d0e1a587bc442e7289ea2c1867b60b90a4",
+  "generated_at": "2026-08-28T12:28:03.875Z",
+  "source_commit": "6bc5106219f4ab77bc3f9ed255b5f148e87d214a",
   "latest_migration": "20260827211754_23d9f9f3-4f0a-4c2e-b17e-40076c51b3b6.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 81,
+  "total": 82,
   "by_kind": {
     "backoffice": 59,
     "job-endpoint": 3,
     "public-store-api": 1,
     "webhook": 5,
-    "public-page": 3,
+    "public-page": 4,
     "customer-portal": 3,
     "storefront": 7
   },
@@ -702,6 +702,16 @@
     {
       "url": "/auth",
       "source": "src/routes/auth.tsx",
+      "kind": "public-page",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
+    },
+    {
+      "url": "/entwickler",
+      "source": "src/routes/entwickler.tsx",
       "kind": "public-page",
       "methods": [
         "GET"
