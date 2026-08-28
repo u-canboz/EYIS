@@ -10,10 +10,9 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { ShoppingBag, User } from "lucide-react";
 import { CommerceProvider } from "@/lib/store-sdk/react/provider";
-import type { CommerceClientConfig } from "@/lib/store-sdk";
+import type { CommerceClientConfig, ResolvedRuntime } from "@/lib/store-sdk";
+import { resolveRuntime } from "@/lib/store-sdk";
 import { useCart } from "@/lib/store-sdk/react/hooks";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { StoreContainer } from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store")({
