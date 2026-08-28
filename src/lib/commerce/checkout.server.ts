@@ -34,7 +34,7 @@ export type SessionRow = {
   vat_validation_id: string | null;
 };
 
-const OPEN_STATES = ["open", "validated", "awaiting_payment"];
+const OPEN_STATES = ["open", "validated", "awaiting_payment"] as const;
 
 export async function loadSession(sessionId: string) {
   const admin = await getAdmin();
@@ -71,6 +71,24 @@ export async function expireDueSessions(organizationId: string | null = null) {
   );
   if (error) throw new Error(error.message);
   return (data ?? { expired_sessions: 0 }) as { expired_sessions: number };
+}
+
+/** Latest still-open session of a cart, if any. Makes checkout start idempotent. */
+export async function findActiveSessionForCart(cart: CartRow): Promise<SessionRow | null> {
+  const admin = await getAdmin();
+  const { data, error } = await admin
+    .from("checkout_sessions")
+    .select(
+      "id, organization_id, shop_id, cart_id, status, email, shipping_address_id, billing_address_id, billing_same_as_shipping, shipping_option_id, price_snapshot_id, expires_at, customer_type, company_name, customer_vat_id, vat_validation_id",
+    )
+    .eq("organization_id", cart.organization_id)
+    .eq("cart_id", cart.id)
+    .in("status", [...OPEN_STATES])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as SessionRow | null) ?? null;
 }
 
 export async function startCheckout(cart: CartRow, email: string | null, ttlMinutes = 20) {
@@ -247,7 +265,8 @@ export async function buildCheckoutView(session: SessionRow, cart: CartRow): Pro
   });
 
   const issues: string[] = [];
-  if (!OPEN_STATES.includes(session.status)) issues.push(`Sitzung ist ${session.status}.`);
+  if (!(OPEN_STATES as readonly string[]).includes(session.status))
+    issues.push(`Sitzung ist ${session.status}.`);
   if (Date.parse(session.expires_at) <= Date.now())
     issues.push("Die Checkout-Sitzung ist abgelaufen.");
   if (!cartView.items.length) issues.push("Der Warenkorb ist leer.");
