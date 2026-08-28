@@ -242,6 +242,9 @@ Es wird nichts aus dem Datenmodell entfernt.
   Publishable Key → Demo-Seed (nur Dev) → Referenz-Storefront → Cart → Checkout → Testzahlung →
   Order → Rechnung → Admin → vollständiger Cleanup
 - `qa:dedicated-doctor` — Doctor gegen Dev, Prüfung aller Statuszeilen
+- `qa:dedicated-security` — Negativtests: ungültiger Claim, abgelaufener Claim, Replay eines
+  bereits verwendeten Claims, zwei parallele Owner-Claims (genau ein Gewinner), Bootstrap-Replay
+  nach Installation, anonymer Bootstrap-Zugriff, Bootstrap mit falschem Credential
 - Isolationstest: keine Anfrage an eine zentrale Commerce-Instanz (nur Provider-Hosts erlaubt)
 - Bericht `qa/PHASE21-DEDICATED-REPORT.md` + `qa/results-phase21-dedicated.json`,
   Status ausschließlich PASS, FAIL, OFFEN, BLOCKED
