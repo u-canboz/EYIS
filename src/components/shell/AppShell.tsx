@@ -141,7 +141,6 @@ function SidebarBody(
 export function AppShell(props: Props) {
   const [open, setOpen] = useState(false);
   const palette = useCommandPalette();
-  const theme = useTheme();
   const trail = navTrail(props.pathname);
 
   const navSheet = (
