@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Github, Terminal } from "lucide-react";
+import { EyisLogo } from "@/components/brand/EyisLogo";
 import { CodeBlock } from "@/components/site/CodeBlock";
 import { SITE } from "@/lib/site-meta";
 
@@ -15,8 +16,7 @@ export const Route = createFileRoute("/entwickler")({
       { property: "og:title", content: "Entwickler & Agenten-Setup – EYIS" },
       {
         property: "og:description",
-        content:
-          "Installation, Agenten-Regeln, Store API v1 und SDK-Beispiele für EYIS.",
+        content: "Installation, Agenten-Regeln, Store API v1 und SDK-Beispiele für EYIS.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -109,7 +109,7 @@ function DeveloperPage() {
             className="inline-flex min-w-0 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="size-4 shrink-0" aria-hidden />
-            <span className="truncate">{SITE.name}</span>
+            <EyisLogo variant="full" width={110} />
           </Link>
           <a
             href={SITE.repoUrl}
@@ -132,14 +132,15 @@ function DeveloperPage() {
           Von null auf erste Bestellung.
         </h1>
         <p className="mt-5 max-w-2xl text-base text-pretty text-muted-foreground">
-          EYIS ist so gebaut, dass Menschen und KI-Agenten dieselben Regeln lesen. Diese
-          Seite fasst Installation, Agenten-Setup, API und SDK zusammen.
+          EYIS ist so gebaut, dass Menschen und KI-Agenten dieselben Regeln lesen. Diese Seite fasst
+          Installation, Agenten-Setup, API und SDK zusammen.
         </p>
 
         <section className="mt-14">
           <h2 className="font-display text-xl font-semibold tracking-tight">1 · Installation</h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Voraussetzung ist bun. Datenbank wird für <code className="rounded bg-muted px-1.5 py-0.5 text-xs">dev</code>,{" "}
+            Voraussetzung ist bun. Datenbank wird für{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 text-xs">dev</code>,{" "}
             <code className="rounded bg-muted px-1.5 py-0.5 text-xs">test</code> und{" "}
             <code className="rounded bg-muted px-1.5 py-0.5 text-xs">build</code> nicht benötigt.
           </p>
@@ -226,8 +227,13 @@ function DeveloperPage() {
         </section>
       </main>
 
-      <footer className="border-t border-border px-5 py-8 text-center text-xs text-muted-foreground sm:px-6">
-        {SITE.name} · {SITE.release}
+      <footer className="border-t border-border px-5 py-8 sm:px-6">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 text-xs text-muted-foreground">
+          <EyisLogo variant="full" width={140} />
+          <span>
+            {SITE.name} · {SITE.release}
+          </span>
+        </div>
       </footer>
     </div>
   );
