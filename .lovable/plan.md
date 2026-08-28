@@ -107,6 +107,18 @@ Fortschrittszustand. Provider werden nie automatisch als bereit markiert.
 System Seeds, Store API, SDK-Kompatibilität, Jobs/Cron, Provider Vault, Health. Ausgabe als
 Tabelle mit `PASS | FAIL | SETUP REQUIRED | BLOCKED`, Exit-Code ungleich 0 bei FAIL.
 
+Zusätzlich weist der Doctor die Unabhängigkeit ausdrücklich nach:
+
+```text
+Central Commerce API dependency:      NONE
+Central Commerce DB dependency:       NONE
+Central Commerce Auth dependency:     NONE
+Central Commerce Storage dependency:  NONE
+```
+
+Erlaubte ausgehende Ziele sind ausschließlich echte Provider (Stripe, PayPal, Mollie, Resend,
+SMTP, Carrier) sowie explizit konfigurierte Integrationen. Jeder andere Fremdhost ist ein FAIL.
+
 Dieselben Prüfungen speisen die bestehende Seite `/app/system/release-readiness`, ergänzt um den
 Block „Installation“.
 
