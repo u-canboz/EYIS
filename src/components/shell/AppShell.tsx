@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, LogOut, Search, Moon, Sun, ChevronRight } from "lucide-react";
+import { Menu, LogOut, Search, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -38,28 +38,6 @@ type Props = {
   children: ReactNode;
 };
 
-function useTheme() {
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem("cos-theme");
-    const prefers = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const next = stored ? stored === "dark" : prefers;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-  }, []);
-
-  const toggle = () => {
-    setDark((prev) => {
-      const next = !prev;
-      document.documentElement.classList.toggle("dark", next);
-      window.localStorage.setItem("cos-theme", next ? "dark" : "light");
-      return next;
-    });
-  };
-
-  return { dark, toggle };
-}
 
 function OrgPicker({
   organizations,
@@ -163,7 +141,6 @@ function SidebarBody(
 export function AppShell(props: Props) {
   const [open, setOpen] = useState(false);
   const palette = useCommandPalette();
-  const theme = useTheme();
   const trail = navTrail(props.pathname);
 
   const navSheet = (
@@ -190,17 +167,6 @@ export function AppShell(props: Props) {
     </Sheet>
   );
 
-  const themeButton = (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="tap size-11 text-muted-foreground"
-      aria-label={theme.dark ? "Helles Design" : "Dunkles Design"}
-      onClick={theme.toggle}
-    >
-      {theme.dark ? <Sun className="size-5" aria-hidden /> : <Moon className="size-5" aria-hidden />}
-    </Button>
-  );
 
   return (
     <div className="flex min-h-dvh w-full bg-background">
@@ -284,7 +250,6 @@ export function AppShell(props: Props) {
           >
             <Search className="size-5" aria-hidden />
           </button>
-          {themeButton}
         </header>
 
         {/* Desktop / tablet topbar */}
@@ -308,7 +273,6 @@ export function AppShell(props: Props) {
               <span>Suchen</span>
               <kbd className="rounded border border-border px-1.5 py-0.5 text-[10px]">⌘K</kbd>
             </button>
-            {themeButton}
           </div>
         </header>
 

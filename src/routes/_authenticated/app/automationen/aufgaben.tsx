@@ -55,7 +55,7 @@ export const Route = createFileRoute("/_authenticated/app/automationen/aufgaben"
 
 const PRIORITY_TONE: Record<string, string> = {
   urgent: "bg-destructive/15 text-destructive",
-  high: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+  high: "bg-amber-500/15 text-amber-700",
   normal: "bg-muted text-muted-foreground",
   low: "bg-muted text-muted-foreground",
 };
