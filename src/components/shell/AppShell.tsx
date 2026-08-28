@@ -167,17 +167,6 @@ export function AppShell(props: Props) {
     </Sheet>
   );
 
-  const themeButton = (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="tap size-11 text-muted-foreground"
-      aria-label={theme.dark ? "Helles Design" : "Dunkles Design"}
-      onClick={theme.toggle}
-    >
-      {theme.dark ? <Sun className="size-5" aria-hidden /> : <Moon className="size-5" aria-hidden />}
-    </Button>
-  );
 
   return (
     <div className="flex min-h-dvh w-full bg-background">
