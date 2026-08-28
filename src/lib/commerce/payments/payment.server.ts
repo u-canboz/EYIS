@@ -127,7 +127,13 @@ export async function assertAllowedRedirect(
   add(process.env["APP_ORIGIN"]);
   add(process.env["VITE_PUBLIC_APP_ORIGIN"]);
   if (url.hostname === "localhost" || url.hostname === "127.0.0.1") add(url.origin);
-  if (url.hostname.endsWith(".lovable.app")) add(url.origin);
+  // Managed preview/published hosts of the platform are same-origin by definition.
+  if (
+    [".lovable.app", ".lovableproject.com", ".lovable.dev"].some((suffix) =>
+      url.hostname.endsWith(suffix),
+    )
+  )
+    add(url.origin);
 
   if (!allowed.has(url.origin.toLowerCase()))
     throw new Error("Diese Rücksprungadresse ist für den Shop nicht freigegeben.");
