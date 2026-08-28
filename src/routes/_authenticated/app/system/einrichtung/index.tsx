@@ -17,8 +17,14 @@ import {
   KeyRound,
   BookOpen,
   ExternalLink,
+  ServerCog,
 } from "lucide-react";
-import { getInstallationStatus, saveSetupStep, setStorefrontOriginFn } from "@/lib/commerce/system/installation.functions";
+import {
+  adoptInstallationFn,
+  getInstallationStatus,
+  saveSetupStep,
+  setStorefrontOriginFn,
+} from "@/lib/commerce/system/installation.functions";
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -26,6 +32,13 @@ import { EyisLogo } from "@/components/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+type StoreRuntimeConfigView = {
+  deploymentMode: "dedicated" | "shared";
+  apiBaseUrl: string;
+  publishableKey: string | null;
+  setupRequired: boolean;
+};
 
 export const Route = createFileRoute("/_authenticated/app/system/einrichtung/")({
   head: () => ({
