@@ -143,6 +143,51 @@ function SetupWizardPage() {
         title="Einrichtung"
         description="Geführte Einrichtung dieser Instanz. Jeder Schritt kann in beliebiger Reihenfolge abgeschlossen werden."
       />
+
+      <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <ServerCog className="h-4 w-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-sm font-semibold">Dedicated-Installation</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {runtime?.deploymentMode === "dedicated"
+                ? runtime.publishableKey
+                  ? "Diese Instanz betreibt ihren eigenen Shop. Die Storefront bezieht Key und API automatisch über dieselbe Domain — keine manuelle Konfiguration."
+                  : "Dedicated-Modus aktiv. Organisation und Hauptshop sind noch nicht als Installation registriert."
+                : "Diese Instanz läuft im Shared-Modus. Für den Dedicated-Betrieb muss COMMERCE_DEPLOYMENT_MODE=dedicated gesetzt sein."}
+            </p>
+            {runtime?.publishableKey && (
+              <dl className="mt-3 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
+                <div>
+                  <dt className="inline font-medium text-foreground">Store API: </dt>
+                  <dd className="inline tabular-nums">{runtime.apiBaseUrl}</dd>
+                </div>
+                <div>
+                  <dt className="inline font-medium text-foreground">Publishable Key: </dt>
+                  <dd className="inline break-all tabular-nums">{runtime.publishableKey}</dd>
+                </div>
+              </dl>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 pl-12">
+          {runtime?.deploymentMode === "dedicated" && !runtime.publishableKey && (
+            <Button size="sm" disabled={saving === "adopt" || !activeOrg} onClick={adopt}>
+              Installation übernehmen
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" asChild>
+            <Link to="/store">
+              Storefront öffnen
+              <ExternalLink className="ml-1 h-3 w-3" />
+            </Link>
+          </Button>
+        </div>
+        {adoptError && <p className="pl-12 text-sm text-destructive">{adoptError}</p>}
+      </section>
+
       <div className="flex flex-col gap-3">
         {STEPS.map((step, index) => {
           const Icon = step.icon;
