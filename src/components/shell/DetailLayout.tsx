@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { ChevronRight, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -80,5 +82,42 @@ export function ScrollTabs({ children, className }: { children: ReactNode; class
     <div className={cn("scroll-x -mx-1 px-1 pb-1", className)}>
       <div className="flex min-w-max items-center gap-1">{children}</div>
     </div>
+  );
+}
+
+/**
+ * Contextual jump-off links for a detail record ("was kann ich von hier aus tun").
+ * Purely navigational — no data logic.
+ */
+export function RelatedLinks({
+  title = "Weiter im Prozess",
+  items,
+}: {
+  title?: string;
+  items: { to: string; params?: Record<string, string>; label: string; hint?: string; icon: LucideIcon }[];
+}) {
+  return (
+    <Panel title={title} bodyClassName="p-2">
+      <ul className="min-w-0">
+        {items.map((item) => (
+          <li key={item.label} className="min-w-0">
+            <Link
+              to={item.to}
+              {...(item.params ? { params: item.params } : {})}
+              className="grid min-h-11 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-muted"
+            >
+              <item.icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium">{item.label}</span>
+                {item.hint ? (
+                  <span className="block truncate text-xs text-muted-foreground">{item.hint}</span>
+                ) : null}
+              </span>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   );
 }
