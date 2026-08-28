@@ -74,6 +74,7 @@ import { Route as AuthenticatedAppSystemJobsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppSystemReleaseReadinessRouteImport } from './routes/_authenticated/app/system/release-readiness'
 import { Route as AuthenticatedAppSystemStatusRouteImport } from './routes/_authenticated/app/system/status'
 import { Route as AuthenticatedAppSystemStorefrontTestRouteImport } from './routes/_authenticated/app/system/storefront-test'
+import { Route as AuthenticatedAppSystemUpdatesRouteImport } from './routes/_authenticated/app/system/updates'
 import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_authenticated/app/versand/index'
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
 import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './routes/_authenticated/app/versand/dienstleister'
@@ -466,6 +467,12 @@ const AuthenticatedAppSystemStorefrontTestRoute =
     path: '/app/system/storefront-test',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppSystemUpdatesRoute =
+  AuthenticatedAppSystemUpdatesRouteImport.update({
+    id: '/app/system/updates',
+    path: '/app/system/updates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppVersandIndexRoute =
   AuthenticatedAppVersandIndexRouteImport.update({
     id: '/app/versand/',
@@ -646,6 +653,7 @@ export interface FileRoutesByFullPath {
   '/app/system/release-readiness': typeof AuthenticatedAppSystemReleaseReadinessRoute
   '/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
+  '/app/system/updates': typeof AuthenticatedAppSystemUpdatesRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
@@ -733,6 +741,7 @@ export interface FileRoutesByTo {
   '/app/system/release-readiness': typeof AuthenticatedAppSystemReleaseReadinessRoute
   '/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
+  '/app/system/updates': typeof AuthenticatedAppSystemUpdatesRoute
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
@@ -823,6 +832,7 @@ export interface FileRoutesById {
   '/_authenticated/app/system/release-readiness': typeof AuthenticatedAppSystemReleaseReadinessRoute
   '/_authenticated/app/system/status': typeof AuthenticatedAppSystemStatusRoute
   '/_authenticated/app/system/storefront-test': typeof AuthenticatedAppSystemStorefrontTestRoute
+  '/_authenticated/app/system/updates': typeof AuthenticatedAppSystemUpdatesRoute
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
@@ -913,6 +923,7 @@ export interface FileRouteTypes {
     | '/app/system/release-readiness'
     | '/app/system/status'
     | '/app/system/storefront-test'
+    | '/app/system/updates'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
@@ -1000,6 +1011,7 @@ export interface FileRouteTypes {
     | '/app/system/release-readiness'
     | '/app/system/status'
     | '/app/system/storefront-test'
+    | '/app/system/updates'
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
@@ -1089,6 +1101,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/system/release-readiness'
     | '/_authenticated/app/system/status'
     | '/_authenticated/app/system/storefront-test'
+    | '/_authenticated/app/system/updates'
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
     | '/_authenticated/app/versand/versandarten'
@@ -1605,6 +1618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSystemStorefrontTestRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/system/updates': {
+      id: '/_authenticated/app/system/updates'
+      path: '/app/system/updates'
+      fullPath: '/app/system/updates'
+      preLoaderRoute: typeof AuthenticatedAppSystemUpdatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/versand/': {
       id: '/_authenticated/app/versand/'
       path: '/app/versand'
@@ -1802,6 +1822,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppSystemReleaseReadinessRoute: typeof AuthenticatedAppSystemReleaseReadinessRoute
   AuthenticatedAppSystemStatusRoute: typeof AuthenticatedAppSystemStatusRoute
   AuthenticatedAppSystemStorefrontTestRoute: typeof AuthenticatedAppSystemStorefrontTestRoute
+  AuthenticatedAppSystemUpdatesRoute: typeof AuthenticatedAppSystemUpdatesRoute
   AuthenticatedAppVersandFulfillmentIdRoute: typeof AuthenticatedAppVersandFulfillmentIdRoute
   AuthenticatedAppVersandDienstleisterRoute: typeof AuthenticatedAppVersandDienstleisterRoute
   AuthenticatedAppVersandVersandartenRoute: typeof AuthenticatedAppVersandVersandartenRoute
@@ -1882,6 +1903,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppSystemStatusRoute: AuthenticatedAppSystemStatusRoute,
   AuthenticatedAppSystemStorefrontTestRoute:
     AuthenticatedAppSystemStorefrontTestRoute,
+  AuthenticatedAppSystemUpdatesRoute: AuthenticatedAppSystemUpdatesRoute,
   AuthenticatedAppVersandFulfillmentIdRoute:
     AuthenticatedAppVersandFulfillmentIdRoute,
   AuthenticatedAppVersandDienstleisterRoute:
