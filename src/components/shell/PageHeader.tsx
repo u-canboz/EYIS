@@ -16,19 +16,21 @@ type Props = {
  */
 export function PageHeader({ title, description, eyebrow, actions, className }: Props) {
   return (
-    <header className={cn("mb-6 flex flex-col gap-3", className)}>
+    <header className={cn("mb-6 flex flex-col gap-3 border-b border-border pb-5", className)}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           {eyebrow ? (
-            <div className="mb-1 flex min-w-0 flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2 text-xs tracking-wide text-muted-foreground">
               {eyebrow}
             </div>
           ) : null}
-          <h1 className="truncate font-display text-xl font-semibold tracking-tight sm:text-2xl">
+          <h1 className="truncate font-display text-xl leading-tight font-semibold tracking-tight sm:text-[1.6rem]">
             {title}
           </h1>
           {description ? (
-            <p className="mt-1 text-sm text-pretty text-muted-foreground">{description}</p>
+            <p className="mt-1.5 max-w-prose text-sm text-pretty text-muted-foreground">
+              {description}
+            </p>
           ) : null}
         </div>
         {actions ? (
@@ -38,6 +40,7 @@ export function PageHeader({ title, description, eyebrow, actions, className }: 
     </header>
   );
 }
+
 
 /**
  * Sticky action bar for mobile primary actions. Respects the safe area and the
