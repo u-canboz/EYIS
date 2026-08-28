@@ -29,10 +29,10 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/app/system/einrichtung/")({
   head: () => ({
     meta: [
-      { title: "Einrichtung – Commerce OS" },
-      { name: "description", content: "Setup-Wizard: Organisation, Storefront, Payments, E-Mail und API für die eigene Commerce-OS-Instanz einrichten." },
-      { property: "og:title", content: "Einrichtung – Commerce OS" },
-      { property: "og:description", content: "Geführte Einrichtung einer Dedicated-Commerce-OS-Instanz." },
+      { title: "Einrichtung – EYIS" },
+      { name: "description", content: "Setup-Wizard: Organisation, Storefront, Payments, E-Mail und API für die eigene EYIS-Instanz einrichten." },
+      { property: "og:title", content: "Einrichtung – EYIS" },
+      { property: "og:description", content: "Geführte Einrichtung einer Dedicated-EYIS-Instanz." },
     ],
   }),
   component: SetupWizardPage,

@@ -53,12 +53,12 @@ import {
 export const Route = createFileRoute("/_authenticated/app/produkte/$productId")({
   head: () => ({
     meta: [
-      { title: "Produkt bearbeiten – Commerce OS" },
+      { title: "Produkt bearbeiten – EYIS" },
       {
         name: "description",
         content: "Details, Varianten, Medien, Organisation und SEO eines Produkts bearbeiten.",
       },
-      { property: "og:title", content: "Produkt bearbeiten – Commerce OS" },
+      { property: "og:title", content: "Produkt bearbeiten – EYIS" },
       { property: "og:description", content: "Produktdetails, Varianten und Medien pflegen." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

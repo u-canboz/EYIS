@@ -22,13 +22,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/entwickler/protokoll")({
   head: () => ({
     meta: [
-      { title: "Store-API-Protokoll – Commerce OS" },
+      { title: "Store-API-Protokoll – EYIS" },
       {
         name: "description",
         content:
           "Anfragen der öffentlichen Store API nachvollziehen: Route, Status, Dauer und Fehlercode – ohne personenbezogene Daten.",
       },
-      { property: "og:title", content: "Store-API-Protokoll – Commerce OS" },
+      { property: "og:title", content: "Store-API-Protokoll – EYIS" },
       {
         property: "og:description",
         content: "Privacy-sicheres Protokoll aller Storefront-Anfragen mit Request-ID-Korrelation.",

@@ -10,13 +10,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/system/errors")({
   head: () => ({
     meta: [
-      { title: "Systemfehler – Commerce OS" },
+      { title: "Systemfehler – EYIS" },
       {
         name: "description",
         content:
           "Zusammengeführter Fehler-Feed aus Jobs, Kommunikation, Zahlungen, Store API und Outbox.",
       },
-      { property: "og:title", content: "Systemfehler – Commerce OS" },
+      { property: "og:title", content: "Systemfehler – EYIS" },
       { property: "og:description", content: "Fehler aller Subsysteme an einem Ort." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -29,13 +29,13 @@ import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/compone
 export const Route = createFileRoute("/_authenticated/app/preise/")({
   head: () => ({
     meta: [
-      { title: "Preise – Commerce OS" },
+      { title: "Preise – EYIS" },
       {
         name: "description",
         content:
           "Alle Preiszeilen deines Shops im Überblick: Normalpreise, Aktionen, Staffeln und Kundengruppen.",
       },
-      { property: "og:title", content: "Preise – Commerce OS" },
+      { property: "og:title", content: "Preise – EYIS" },
       { property: "og:description", content: "Preisregeln zentral pflegen und in Serie ändern." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

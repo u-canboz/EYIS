@@ -23,12 +23,12 @@ import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/retouren/")({
   head: () => ({
     meta: [
-      { title: "Retouren – Commerce OS" },
+      { title: "Retouren – EYIS" },
       {
         name: "description",
         content: "RMA-Workspace: Retouren genehmigen, Wareneingang buchen, prüfen und erstatten.",
       },
-      { property: "og:title", content: "Retouren – Commerce OS" },
+      { property: "og:title", content: "Retouren – EYIS" },
       { property: "og:description", content: "Retourenprozess von Antrag bis Erstattung steuern." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

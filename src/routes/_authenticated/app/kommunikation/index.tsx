@@ -17,13 +17,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/kommunikation/")({
   head: () => ({
     meta: [
-      { title: "Kommunikation – Commerce OS" },
+      { title: "Kommunikation – EYIS" },
       {
         name: "description",
         content:
           "Communication Studio: transaktionale E-Mails, Vorlagen, Branding, Regeln und Versandprotokoll an einem Ort.",
       },
-      { property: "og:title", content: "Kommunikation – Commerce OS" },
+      { property: "og:title", content: "Kommunikation – EYIS" },
       {
         property: "og:description",
         content: "Transaktionale Kundenkommunikation zentral steuern und nachvollziehen.",

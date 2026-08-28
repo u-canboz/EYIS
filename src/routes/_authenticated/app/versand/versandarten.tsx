@@ -31,13 +31,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/versand/versandarten")({
   head: () => ({
     meta: [
-      { title: "Versandarten – Commerce OS" },
+      { title: "Versandarten – EYIS" },
       {
         name: "description",
         content:
           "Versandarten je Shop pflegen: Festpreis oder gratis, Länder, Mindestbestellwert und Gratis-ab-Grenze.",
       },
-      { property: "og:title", content: "Versandarten – Commerce OS" },
+      { property: "og:title", content: "Versandarten – EYIS" },
       { property: "og:description", content: "Versandoptionen für den Checkout verwalten." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

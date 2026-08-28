@@ -31,12 +31,12 @@ import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/compone
 export const Route = createFileRoute("/_authenticated/app/kunden/")({
   head: () => ({
     meta: [
-      { title: "Kunden – Commerce OS" },
+      { title: "Kunden – EYIS" },
       {
         name: "description",
         content: "Kundenkonten, Adressen, Bestellhistorie und Kundengruppen verwalten.",
       },
-      { property: "og:title", content: "Kunden – Commerce OS" },
+      { property: "og:title", content: "Kunden – EYIS" },
       {
         property: "og:description",
         content: "Zentrale Kundenverwaltung mit Historie, Gruppen und Sperren.",

@@ -1,4 +1,4 @@
-# Backup Policy — Commerce OS V1
+# Backup Policy — EYIS V1
 
 Stand: 2026-08-26 (Gate A6). Gilt ab V1-Freeze.
 

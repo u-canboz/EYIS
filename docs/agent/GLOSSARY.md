@@ -1,6 +1,6 @@
 # Glossar
 
-| Begriff | Bedeutung im Commerce OS |
+| Begriff | Bedeutung im EYIS |
 | --- | --- |
 | **Organisation** | Mandantenwurzel. Ein Kunde/Händler. Trägt `organization_id` auf allen Fachdaten. |
 | **Shop** | Verkaufskanal einer Organisation. Trägt `shop_id`. Währung, Steuern, Versand und Keys hängen am Shop. |

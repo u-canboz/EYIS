@@ -32,7 +32,7 @@ if (!res.ok || body["ok"] !== true) {
   process.exit(1);
 }
 
-console.log("Commerce OS — System Bootstrap abgeschlossen");
+console.log("EYIS — System Bootstrap abgeschlossen");
 console.log("=".repeat(56));
 for (const step of (body["steps"] as string[]) ?? []) console.log(`  ✓ ${step}`);
 console.log("=".repeat(56));

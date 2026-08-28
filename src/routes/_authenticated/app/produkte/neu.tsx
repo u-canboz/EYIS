@@ -23,13 +23,13 @@ import { Panel } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/produkte/neu")({
   head: () => ({
     meta: [
-      { title: "Neues Produkt anlegen – Commerce OS" },
+      { title: "Neues Produkt anlegen – EYIS" },
       {
         name: "description",
         content:
           "Assistent für neue Produkte: Vorlage wählen, Details ausfüllen, Varianten erzeugen.",
       },
-      { property: "og:title", content: "Neues Produkt anlegen – Commerce OS" },
+      { property: "og:title", content: "Neues Produkt anlegen – EYIS" },
       {
         property: "og:description",
         content: "Produktassistent mit Blueprints und Variantenmatrix.",

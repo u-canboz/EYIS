@@ -30,12 +30,12 @@ import { Panel } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/retouren/einstellungen")({
   head: () => ({
     meta: [
-      { title: "Retouren-Einstellungen – Commerce OS" },
+      { title: "Retouren-Einstellungen – EYIS" },
       {
         name: "description",
         content: "Rückgabefrist, Genehmigungsstrategie, Rücksendekosten und Einlagerung festlegen.",
       },
-      { property: "og:title", content: "Retouren-Einstellungen – Commerce OS" },
+      { property: "og:title", content: "Retouren-Einstellungen – EYIS" },
       { property: "og:description", content: "Retourenregeln pro Shop konfigurieren." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

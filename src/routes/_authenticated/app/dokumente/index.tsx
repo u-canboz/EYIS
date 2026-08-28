@@ -37,13 +37,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/dokumente/")({
   head: () => ({
     meta: [
-      { title: "Dokumente – Commerce OS" },
+      { title: "Dokumente – EYIS" },
       {
         name: "description",
         content:
           "Rechnungen, Gutschriften und Lieferscheine: Nummernkreise, Ausstellung, PDF-Download und revisionssichere Historie.",
       },
-      { property: "og:title", content: "Dokumente – Commerce OS" },
+      { property: "og:title", content: "Dokumente – EYIS" },
       {
         property: "og:description",
         content: "Rechnungs- und Dokumentenverwaltung für deinen Shop.",

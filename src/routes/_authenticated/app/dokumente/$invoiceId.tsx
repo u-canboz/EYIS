@@ -31,12 +31,12 @@ import { ErrorState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/dokumente/$invoiceId")({
   head: () => ({
     meta: [
-      { title: "Rechnung – Commerce OS" },
+      { title: "Rechnung – EYIS" },
       {
         name: "description",
         content: "Positionen, Steuerausweis, Gutschriften und PDF-Versionen einer Rechnung.",
       },
-      { property: "og:title", content: "Rechnung – Commerce OS" },
+      { property: "og:title", content: "Rechnung – EYIS" },
       { property: "og:description", content: "Details und Historie einer Rechnung." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

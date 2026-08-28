@@ -1,4 +1,4 @@
-# Incident Response — Commerce OS
+# Incident Response — EYIS
 
 Gilt für Staging und Production. Grundregeln:
 

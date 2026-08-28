@@ -12,15 +12,15 @@ Datenbank, ein Backend oder eine Installation angelegt wird.
 
 ```text
 Was soll entstehen?
-├─ Ein weiterer Kunde/Mandant im bestehenden Commerce OS?      → A
+├─ Ein weiterer Kunde/Mandant im bestehenden EYIS?      → A
 ├─ Ein eigenes Frontend/Shop-Design für einen bestehenden Shop? → B
-└─ Eine komplett eigene, isolierte Commerce-OS-Installation
+└─ Eine komplett eigene, isolierte EYIS-Installation
    (ausdrücklich gewünscht, eigene Datenbank, eigene Secrets)?  → C
 ```
 
 ---
 
-## A — Neuer Kunde im bestehenden Commerce OS
+## A — Neuer Kunde im bestehenden EYIS
 
 **Ergebnis:** neue Organisation + neuer Shop in der laufenden Installation.
 
@@ -49,7 +49,7 @@ Was soll entstehen?
 
 ## C — Dedicated Deployment (eigenständige Installation)
 
-**Ergebnis:** eine zweite, vollständig getrennte Commerce-OS-Instanz.
+**Ergebnis:** eine zweite, vollständig getrennte EYIS-Instanz.
 
 - **Neue Datenbank?** Ja — eigene Datenbank, eigene Auth, eigener Storage, eigene Secrets, eigener
   Cron.
@@ -78,7 +78,7 @@ Was soll entstehen?
 
 ## Standardablauf für einen normalen Neukunden (A + B)
 
-1. Im Commerce OS neue Organisation anlegen.
+1. Im EYIS neue Organisation anlegen.
 2. Shop konfigurieren (Währung, Steuersätze, Versandarten, Zahlungsart, Dokumenten-Nummernkreise).
 3. Publishable Key erzeugen, Origin-Restriction auf die künftige Storefront-Domain setzen.
 4. Neues Lovable-/React-Projekt starten.
@@ -89,5 +89,5 @@ Was soll entstehen?
 9. E2E-Test: Katalog → Warenkorb → Checkout → Zahlung (Mock) → Bestellbestätigung.
 10. Go-live: Origin-Restriction auf die Live-Domain, Live-Key erzeugen, Monitoring beobachten.
 
-Das Commerce OS bleibt dabei die zentrale Engine. Eine neue Datenbank entsteht ausschließlich in
+Das EYIS bleibt dabei die zentrale Engine. Eine neue Datenbank entsteht ausschließlich in
 Betriebsart C.

@@ -1,4 +1,4 @@
-# Commerce OS
+# EYIS
 
 Mandantenfähige Commerce-Engine: Backoffice für Händler, vollständige Bestell-, Zahlungs-, Steuer-,
 Lager-, Dokumenten- und Retourenlogik sowie eine öffentliche **Store API v1**, über die beliebig
@@ -14,7 +14,7 @@ Ein Repository, eine Datenbank, viele Organisationen und Shops. Die Trennung lä
 
 | | Fall | Eigene Datenbank? |
 | --- | --- | --- |
-| **A** | Neuer Kunde im bestehenden Commerce OS (Organisation + Shop) | nein |
+| **A** | Neuer Kunde im bestehenden EYIS (Organisation + Shop) | nein |
 | **B** | Neue React-/Lovable-Storefront (API-URL + Publishable Key) | nein |
 | **C** | Dedicated Deployment (vollständig isolierte Installation) | ja |
 

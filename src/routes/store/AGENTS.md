@@ -4,7 +4,7 @@ Gilt für `src/routes/store/**`. Ergänzt die Root-[AGENTS.md](../../../AGENTS.m
 
 ## Zweck
 
-Beispiel-Storefront, die zeigt, wie ein Kundenprojekt das Commerce OS anbindet. Sie ist zugleich der
+Beispiel-Storefront, die zeigt, wie ein Kundenprojekt das EYIS anbindet. Sie ist zugleich der
 lebende Nachweis, dass die Store API v1 und das SDK für eine vollständige Storefront ausreichen.
 
 ## Harte Grenzen (per ESLint und Test erzwungen)

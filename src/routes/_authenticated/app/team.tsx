@@ -32,12 +32,12 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/team")({
   head: () => ({
     meta: [
-      { title: "Team & Einladungen – Commerce OS" },
+      { title: "Team & Einladungen – EYIS" },
       {
         name: "description",
         content: "Mitglieder verwalten, Rollen vergeben und Einladungen per Token versenden.",
       },
-      { property: "og:title", content: "Team & Einladungen – Commerce OS" },
+      { property: "og:title", content: "Team & Einladungen – EYIS" },
       {
         property: "og:description",
         content: "Mitglieder verwalten, Rollen vergeben und Einladungen per Token versenden.",

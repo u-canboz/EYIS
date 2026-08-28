@@ -19,13 +19,13 @@ import {
 export const Route = createFileRoute("/_authenticated/app/lager/bewegungen")({
   head: () => ({
     meta: [
-      { title: "Bestandsbewegungen – Commerce OS" },
+      { title: "Bestandsbewegungen – EYIS" },
       {
         name: "description",
         content:
           "Unveränderbares Journal aller Bestandsbewegungen mit Grund, Referenz und Benutzer.",
       },
-      { property: "og:title", content: "Bestandsbewegungen – Commerce OS" },
+      { property: "og:title", content: "Bestandsbewegungen – EYIS" },
       { property: "og:description", content: "Jede Bestandsänderung bleibt nachvollziehbar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

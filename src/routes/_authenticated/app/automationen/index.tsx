@@ -26,13 +26,13 @@ import { EmptyState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/automationen/")({
   head: () => ({
     meta: [
-      { title: "Automationen – Commerce OS" },
+      { title: "Automationen – EYIS" },
       {
         name: "description",
         content:
           "Automation Engine: wiederkehrende Abläufe als Regeln abbilden, Aufgaben verteilen und jeden Lauf nachvollziehen.",
       },
-      { property: "og:title", content: "Automationen – Commerce OS" },
+      { property: "og:title", content: "Automationen – EYIS" },
       {
         property: "og:description",
         content: "Regeln, Aufgaben und Hintergrundläufe für den Shop-Betrieb an einem Ort.",

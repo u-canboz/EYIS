@@ -26,13 +26,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/kommunikation/regeln")({
   head: () => ({
     meta: [
-      { title: "Regeln & Anbieter – Commerce OS" },
+      { title: "Regeln & Anbieter – EYIS" },
       {
         name: "description",
         content:
           "Festlegen, welches Ereignis welche E-Mail auslöst, Absenderadressen pflegen und Sperrliste verwalten.",
       },
-      { property: "og:title", content: "Regeln & Anbieter – Commerce OS" },
+      { property: "og:title", content: "Regeln & Anbieter – EYIS" },
       { property: "og:description", content: "Auslöser, Absender und Zustellung konfigurieren." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -32,12 +32,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 export const Route = createFileRoute("/_authenticated/app/kunden/$customerId")({
   head: () => ({
     meta: [
-      { title: "Kundendetails – Commerce OS" },
+      { title: "Kundendetails – EYIS" },
       {
         name: "description",
         content: "Kundenprofil mit Adressen, Bestellungen, Retouren und Notizen.",
       },
-      { property: "og:title", content: "Kundendetails – Commerce OS" },
+      { property: "og:title", content: "Kundendetails – EYIS" },
       { property: "og:description", content: "Alles zu einem Kunden auf einen Blick." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

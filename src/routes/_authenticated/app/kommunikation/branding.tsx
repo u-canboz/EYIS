@@ -22,12 +22,12 @@ import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/kommunikation/branding")({
   head: () => ({
     meta: [
-      { title: "E-Mail-Branding – Commerce OS" },
+      { title: "E-Mail-Branding – EYIS" },
       {
         name: "description",
         content: "Logo, Farben, Schrift und Footer für alle transaktionalen E-Mails dieses Shops.",
       },
-      { property: "og:title", content: "E-Mail-Branding – Commerce OS" },
+      { property: "og:title", content: "E-Mail-Branding – EYIS" },
       { property: "og:description", content: "Einheitliches Erscheinungsbild für alle E-Mails." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

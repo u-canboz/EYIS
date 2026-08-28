@@ -11,15 +11,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Anmelden – Commerce OS" },
+      { title: "Anmelden – EYIS" },
       {
         name: "description",
-        content: "Melde dich bei Commerce OS an oder registriere deine Organisation.",
+        content: "Melde dich bei EYIS an oder registriere deine Organisation.",
       },
-      { property: "og:title", content: "Anmelden – Commerce OS" },
+      { property: "og:title", content: "Anmelden – EYIS" },
       {
         property: "og:description",
-        content: "Melde dich bei Commerce OS an oder registriere deine Organisation.",
+        content: "Melde dich bei EYIS an oder registriere deine Organisation.",
       },
     ],
   }),
@@ -98,7 +98,7 @@ function AuthPage() {
     <main className="grid min-h-screen lg:grid-cols-2">
       <section className="hidden flex-col justify-between bg-sidebar p-12 text-sidebar-foreground lg:flex">
         <Link to="/" className="font-display text-lg font-semibold">
-          Commerce OS
+          EYIS
         </Link>
         <div className="max-w-md">
           <h1 className="font-display text-4xl leading-tight">

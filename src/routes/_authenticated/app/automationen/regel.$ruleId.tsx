@@ -47,13 +47,13 @@ import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/automationen/regel/$ruleId")({
   head: () => ({
     meta: [
-      { title: "Automation bearbeiten – Commerce OS" },
+      { title: "Automation bearbeiten – EYIS" },
       {
         name: "description",
         content:
           "Auslöser, Bedingungen und Aktionen einer Automation festlegen, im Testlauf prüfen und veröffentlichen.",
       },
-      { property: "og:title", content: "Automation bearbeiten – Commerce OS" },
+      { property: "og:title", content: "Automation bearbeiten – EYIS" },
       {
         property: "og:description",
         content: "Regeln definieren, testen und kontrolliert aktivieren.",

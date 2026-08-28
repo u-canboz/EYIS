@@ -1,10 +1,10 @@
-# START HERE — Commerce OS in 10 Minuten
+# START HERE — EYIS in 10 Minuten
 
 Für einen Agenten ohne Vorwissen und ohne Chatverlauf.
 
 ## 1. Was ist das?
 
-Commerce OS ist eine **mandantenfähige Commerce-Engine**: Backoffice für Händler, vollständige
+EYIS ist eine **mandantenfähige Commerce-Engine**: Backoffice für Händler, vollständige
 Bestell-, Zahlungs-, Steuer-, Lager-, Dokumenten- und Retourenlogik sowie eine öffentliche
 **Store API v1**, über die beliebig viele externe Storefronts angebunden werden.
 

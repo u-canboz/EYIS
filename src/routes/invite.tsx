@@ -12,15 +12,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/invite")({
   head: () => ({
     meta: [
-      { title: "Einladung annehmen – Commerce OS" },
+      { title: "Einladung annehmen – EYIS" },
       {
         name: "description",
-        content: "Nimm deine Einladung in eine Commerce-OS-Organisation an.",
+        content: "Nimm deine Einladung in eine EYIS-Organisation an.",
       },
-      { property: "og:title", content: "Einladung annehmen – Commerce OS" },
+      { property: "og:title", content: "Einladung annehmen – EYIS" },
       {
         property: "og:description",
-        content: "Nimm deine Einladung in eine Commerce-OS-Organisation an.",
+        content: "Nimm deine Einladung in eine EYIS-Organisation an.",
       },
     ],
   }),

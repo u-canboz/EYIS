@@ -16,9 +16,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/_authenticated/app/setup/")({
   head: () => ({
     meta: [
-      { title: "Installation übernehmen – Commerce OS" },
-      { name: "description", content: "First Owner Claim: diese Commerce-OS-Instanz mit dem einmaligen Installations-Claim übernehmen." },
-      { property: "og:title", content: "Installation übernehmen – Commerce OS" },
+      { title: "Installation übernehmen – EYIS" },
+      { name: "description", content: "First Owner Claim: diese EYIS-Instanz mit dem einmaligen Installations-Claim übernehmen." },
+      { property: "og:title", content: "Installation übernehmen – EYIS" },
       { property: "og:description", content: "Sicherer First-Owner-Claim für eine Dedicated-Instanz." },
     ],
   }),
@@ -83,7 +83,7 @@ function OwnerClaimPage() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Installation übernehmen</h1>
           <p className="text-sm text-muted-foreground">
-            Diese Commerce-OS-Instanz hat noch keinen Owner. Der erste Zugriff ist nur mit dem
+            Diese EYIS-Instanz hat noch keinen Owner. Der erste Zugriff ist nur mit dem
             einmaligen Installations-Claim aus dem Bootstrap möglich.
           </p>
         </div>

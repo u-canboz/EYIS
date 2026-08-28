@@ -18,13 +18,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/kommunikation/verlauf/")({
   head: () => ({
     meta: [
-      { title: "Versandprotokoll – Commerce OS" },
+      { title: "Versandprotokoll – EYIS" },
       {
         name: "description",
         content:
           "Alle erzeugten E-Mails mit Empfänger, Status, Zustellinformationen und unveränderbarem Snapshot.",
       },
-      { property: "og:title", content: "Versandprotokoll – Commerce OS" },
+      { property: "og:title", content: "Versandprotokoll – EYIS" },
       { property: "og:description", content: "Nachvollziehen, was wann an wen gesendet wurde." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

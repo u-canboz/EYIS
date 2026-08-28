@@ -40,12 +40,12 @@ import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/kommunikation/vorlagen/$templateId")({
   head: () => ({
     meta: [
-      { title: "Vorlage bearbeiten – Commerce OS" },
+      { title: "Vorlage bearbeiten – EYIS" },
       {
         name: "description",
         content: "E-Mail-Vorlage bearbeiten, Vorschau prüfen, Testmail senden und veröffentlichen.",
       },
-      { property: "og:title", content: "Vorlage bearbeiten – Commerce OS" },
+      { property: "og:title", content: "Vorlage bearbeiten – EYIS" },
       { property: "og:description", content: "Blockbasierter Editor für transaktionale E-Mails." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

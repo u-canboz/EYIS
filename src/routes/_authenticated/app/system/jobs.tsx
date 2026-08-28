@@ -11,13 +11,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/system/jobs")({
   head: () => ({
     meta: [
-      { title: "Jobs & Queues – Commerce OS" },
+      { title: "Jobs & Queues – EYIS" },
       {
         name: "description",
         content:
           "Live-Übersicht über Automation-Jobs, Outbox-Events und die Kommunikations-Queue.",
       },
-      { property: "og:title", content: "Jobs & Queues – Commerce OS" },
+      { property: "og:title", content: "Jobs & Queues – EYIS" },
       { property: "og:description", content: "Job-Queues und Hintergrundverarbeitung überwachen." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -40,13 +40,13 @@ import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/marketing/promotions")({
   head: () => ({
     meta: [
-      { title: "Promotions & Gutscheine – Commerce OS" },
+      { title: "Promotions & Gutscheine – EYIS" },
       {
         name: "description",
         content:
           "Rabatte, Gutscheincodes und Aktionen mit Bedingungen, Laufzeit und Priorität verwalten.",
       },
-      { property: "og:title", content: "Promotions & Gutscheine – Commerce OS" },
+      { property: "og:title", content: "Promotions & Gutscheine – EYIS" },
       { property: "og:description", content: "Aktionen zentral steuern und kombinierbar halten." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

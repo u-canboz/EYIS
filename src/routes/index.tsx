@@ -24,13 +24,13 @@ import { SITE } from "@/lib/site-meta";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Commerce OS – Betriebssystem für Multi-Shop-Handel" },
+      { title: "EYIS – Betriebssystem für Multi-Shop-Handel" },
       {
         name: "description",
         content:
-          "Commerce OS ist die mandantenfähige Commerce-Engine mit Store API v1, SDK und Backoffice. Whitepaper, Architektur und Agenten-Setup in einer Seite.",
+          "EYIS ist die mandantenfähige Commerce-Engine mit Store API v1, SDK und Backoffice. Whitepaper, Architektur und Agenten-Setup in einer Seite.",
       },
-      { property: "og:title", content: "Commerce OS – Betriebssystem für Multi-Shop-Handel" },
+      { property: "og:title", content: "EYIS – Betriebssystem für Multi-Shop-Handel" },
       {
         property: "og:description",
         content:

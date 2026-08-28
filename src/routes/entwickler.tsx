@@ -6,17 +6,17 @@ import { SITE } from "@/lib/site-meta";
 export const Route = createFileRoute("/entwickler")({
   head: () => ({
     meta: [
-      { title: "Entwickler & Agenten-Setup – Commerce OS" },
+      { title: "Entwickler & Agenten-Setup – EYIS" },
       {
         name: "description",
         content:
-          "Installation, Agenten-Regeln, Store API v1 und SDK-Beispiele für Commerce OS: klonen, bun run dev, verify und erste Storefront in Minuten.",
+          "Installation, Agenten-Regeln, Store API v1 und SDK-Beispiele für EYIS: klonen, bun run dev, verify und erste Storefront in Minuten.",
       },
-      { property: "og:title", content: "Entwickler & Agenten-Setup – Commerce OS" },
+      { property: "og:title", content: "Entwickler & Agenten-Setup – EYIS" },
       {
         property: "og:description",
         content:
-          "Installation, Agenten-Regeln, Store API v1 und SDK-Beispiele für Commerce OS.",
+          "Installation, Agenten-Regeln, Store API v1 und SDK-Beispiele für EYIS.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -132,7 +132,7 @@ function DeveloperPage() {
           Von null auf erste Bestellung.
         </h1>
         <p className="mt-5 max-w-2xl text-base text-pretty text-muted-foreground">
-          Commerce OS ist so gebaut, dass Menschen und KI-Agenten dieselben Regeln lesen. Diese
+          EYIS ist so gebaut, dass Menschen und KI-Agenten dieselben Regeln lesen. Diese
           Seite fasst Installation, Agenten-Setup, API und SDK zusammen.
         </p>
 

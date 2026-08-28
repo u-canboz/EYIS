@@ -28,12 +28,12 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/shops")({
   head: () => ({
     meta: [
-      { title: "Shops & Domains – Commerce OS" },
+      { title: "Shops & Domains – EYIS" },
       {
         name: "description",
         content: "Shops der Organisation konfigurieren: Name, Währung, Sprache und Domains.",
       },
-      { property: "og:title", content: "Shops & Domains – Commerce OS" },
+      { property: "og:title", content: "Shops & Domains – EYIS" },
       {
         property: "og:description",
         content: "Shops der Organisation konfigurieren: Name, Währung, Sprache und Domains.",

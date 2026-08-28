@@ -1,4 +1,4 @@
-# Commerce OS — V1 Scope (eingefroren)
+# EYIS — V1 Scope (eingefroren)
 
 Stand: 2026-08-25 · Version `1.0.0-rc.1` · Feature Freeze aktiv
 

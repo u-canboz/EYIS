@@ -1,4 +1,4 @@
-# Disaster Recovery Runbook — Commerce OS V1
+# Disaster Recovery Runbook — EYIS V1
 
 Stand: 2026-08-26 (Gate A6). Voraussetzung: BACKUP_POLICY.md ist gelesen.
 

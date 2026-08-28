@@ -1,4 +1,4 @@
-/** Server-only helpers for the Commerce OS foundation. */
+/** Server-only helpers for the EYIS foundation. */
 
 export type AuditInput = {
   organizationId: string | null;

@@ -1,6 +1,6 @@
 # Dedicated Installation — Betreiber-Runbook
 
-Commerce OS kann neben dem zentralen SaaS-Betrieb als **Dedicated Instance** in einem eigenen
+EYIS kann neben dem zentralen SaaS-Betrieb als **Dedicated Instance** in einem eigenen
 Lovable-Projekt laufen. „Installieren" heißt: das neue Projekt bekommt eigene Cloud (Postgres,
 Auth, Storage, RLS), eigene Admin-Oberfläche, eigene API und die komplette Commerce Engine.
 
@@ -8,7 +8,7 @@ Auth, Storage, RLS), eigene Admin-Oberfläche, eigene API und die komplette Comm
 
 | Phase | Wer | Was |
 | --- | --- | --- |
-| 1. Provisioning | Plattform/Operator | Neues Lovable-Projekt aus dem Commerce-OS-Template, eigene Cloud-Instanz, Secrets setzen |
+| 1. Provisioning | Plattform/Operator | Neues Lovable-Projekt aus dem EYIS-Template, eigene Cloud-Instanz, Secrets setzen |
 | 2. Migration | Plattform | Alle Migrationen unter `supabase/migrations/` anwenden (nativer Prozess) |
 | 3. Bootstrap | Operator | `bun run commerce:bootstrap` — registriert die Instanz, gibt einmalig den Claim-Token aus |
 | 4. Owner-Claim | Erster Owner | `/app/setup`: Claim-Code einfügen → Organisation + Shop atomar anlegen |
@@ -67,7 +67,7 @@ bun run commerce:doctor
 ```
 
 Read-only. Prüft u. a. Environment, Deployment Mode, zentrale Abhängigkeiten (eigene
-Infrastruktur und konfigurierte Provider sind erlaubt; zentrale Commerce-OS-Hosts nicht),
+Infrastruktur und konfigurierte Provider sind erlaubt; zentrale EYIS-Hosts nicht),
 Datenbank, Storage, RLS-Sperren und Claim-/Setup-Status. Exit-Code 1 bei FAIL.
 
 ## Storefront-URL

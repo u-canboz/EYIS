@@ -11,13 +11,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/system/status")({
   head: () => ({
     meta: [
-      { title: "Systemstatus – Commerce OS" },
+      { title: "Systemstatus – EYIS" },
       {
         name: "description",
         content:
           "Betriebsstatus: Datenbank-Latenz, Mengengerüst, Provider-Modi und Cron-Endpunkte.",
       },
-      { property: "og:title", content: "Systemstatus – Commerce OS" },
+      { property: "og:title", content: "Systemstatus – EYIS" },
       { property: "og:description", content: "Betriebsstatus der Commerce-Plattform." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

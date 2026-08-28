@@ -22,13 +22,13 @@ import { EmptyState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/automationen/webhooks")({
   head: () => ({
     meta: [
-      { title: "Webhook-Ziele – Commerce OS" },
+      { title: "Webhook-Ziele – EYIS" },
       {
         name: "description",
         content:
           "Eigene HTTPS-Adressen hinterlegen, an die Automationen signierte Ereignisdaten senden dürfen.",
       },
-      { property: "og:title", content: "Webhook-Ziele – Commerce OS" },
+      { property: "og:title", content: "Webhook-Ziele – EYIS" },
       {
         property: "og:description",
         content: "Sichere Übergabe von Ereignisdaten an eigene Systeme.",

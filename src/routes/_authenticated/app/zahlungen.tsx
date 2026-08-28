@@ -28,13 +28,13 @@ import { EmptyState, ListSkeleton, PermissionState } from "@/components/data/Sta
 export const Route = createFileRoute("/_authenticated/app/zahlungen")({
   head: () => ({
     meta: [
-      { title: "Zahlungsanbieter – Commerce OS" },
+      { title: "Zahlungsanbieter – EYIS" },
       {
         name: "description",
         content:
           "Zahlungsanbieter je Shop aktivieren, Test- und Live-Umgebung trennen und Prioritäten für den Checkout festlegen.",
       },
-      { property: "og:title", content: "Zahlungsanbieter – Commerce OS" },
+      { property: "og:title", content: "Zahlungsanbieter – EYIS" },
       { property: "og:description", content: "Stripe und Test-Anbieter je Shop konfigurieren." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -1,7 +1,7 @@
 /* Demo- und QA-Datensystem: geteilte Konstanten und Typen (client-sicher). */
 
 export const SEED_VERSION = "1.0.0";
-export const DEMO_ORG_NAME = "Commerce OS Demo";
+export const DEMO_ORG_NAME = "EYIS Demo";
 export const DEMO_ORG_SLUG_PREFIX = "commerce-os-demo";
 export const DEMO_SHOP_NAME = "Demo Shop";
 export const DEMO_SHOP_SLUG = "demo-shop";

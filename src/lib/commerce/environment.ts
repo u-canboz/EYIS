@@ -124,7 +124,7 @@ export function resolveDeploymentMode(
 
 /**
  * Dedicated-Isolation: schlägt fehl, wenn die Instanz auf einen zentralen
- * Commerce-OS-Host konfiguriert ist. Erlaubt ist ausschließlich die eigene
+ * EYIS-Host konfiguriert ist. Erlaubt ist ausschließlich die eigene
  * Infrastruktur plus explizit konfigurierte Provider.
  */
 export function findCentralDependencies(
