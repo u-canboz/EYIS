@@ -62,12 +62,20 @@ Provisioning → Migrationen → SYSTEM BOOTSTRAP (CLI)
 Dünnes CLI über eine Server-Route, keine Datenbanklogik im Skript. Erzeugt **keine** Organisation,
 keinen Shop und keinen Owner.
 
+**Bootstrap Security (verbindlich).** Der Bootstrap ist ausschließlich über ein serverseitiges,
+einmaliges Credential `COMMERCE_BOOTSTRAP_SECRET` erreichbar (timing-sicherer Vergleich). Kein
+anonymer und kein normal authentifizierter HTTP-Aufruf darf ihn starten. Nach erfolgreicher
+Initialisierung ist der Endpunkt dauerhaft gesperrt; jeder weitere Versuch antwortet mit
+`403 INSTALLATION_ALREADY_INITIALIZED`. Das Secret erscheint nie im Client, in Git, im Audit, in
+der Outbox oder in Logs und wird nach der Installation entfernt bzw. rotiert (Runbook-Schritt).
+
 Vorbedingungen (harte Abbruchmatrix):
 
 | Zustand | Ergebnis |
 | --- | --- |
-| Schema vorhanden, Commerce OS nicht initialisiert | Installation möglich |
-| Commerce OS bereits initialisiert | STOP — keine zweite Installation |
+| Schema vorhanden, Commerce OS nicht initialisiert, gültiges Bootstrap-Credential | Installation möglich |
+| Fehlendes oder falsches Bootstrap-Credential | 403, kein Hinweis auf den Installationszustand |
+| Commerce OS bereits initialisiert | 403 `INSTALLATION_ALREADY_INITIALIZED` |
 | Migrationen fehlen | STOP — fehlende Migrationen werden aufgelistet |
 | `APP_ENV` unbekannt oder ungültig | STOP |
 | Modus `dedicated`, aber Verbindung/Konfiguration zu einem Shared-Commerce-Host erkannt | STOP |
@@ -75,33 +83,51 @@ Vorbedingungen (harte Abbruchmatrix):
 Ablauf, strikt idempotent:
 
 ```text
-1  Umgebung auflösen und Deployment Mode prüfen
-2  Zentral-Abhängigkeiten prüfen (siehe Abbruchmatrix)
-3  Datenbankverbindung + Schemaversion prüfen
-4  Migrationsstand gegen Manifest prüfen
-5  Installation registrieren (Singleton-Zeile)
-6  System Seed: Rollen, Permissions, System-Blueprints, Referenzdaten
-7  Storage-Buckets prüfen
-8  Cron/Jobs prüfen
-9  Health-Lauf, Ergebnis in commerce_installation schreiben
+1  Bootstrap-Credential prüfen
+2  Umgebung auflösen und Deployment Mode prüfen
+3  Zentral-Abhängigkeiten prüfen (siehe Abbruchmatrix)
+4  Datenbankverbindung + Schemaversion prüfen
+5  Migrationsstand gegen Manifest prüfen
+6  Installation registrieren (Singleton-Zeile)
+7  System Seed: Rollen, Permissions, System-Blueprints, Referenzdaten
+8  Storage-Buckets prüfen
+9  Cron/Jobs prüfen
+10 Health-Lauf, Ergebnis in commerce_installation schreiben
+11 Einmaligen Installation-Claim-Token erzeugen, nur den Hash speichern,
+   den Klartext genau einmal in der CLI-Ausgabe zeigen
 ```
 
-Zweiter Lauf meldet „Installation bereits vorhanden“ und ändert nichts.
+Zweiter Lauf ändert nichts und meldet den gesperrten Zustand.
 
-### 3b. First Owner Claim — beim ersten Login auf `/app`
+### 3b. First Owner Claim — nur mit gültigem Claim
 
-Läuft serverseitig, **atomar und genau einmal** (Transaktion plus Bedingung auf
-`owner_claimed_at IS NULL`; zwei parallele Erstregistrierungen ergeben genau eine Organisation und
-genau einen Owner, der zweite Aufruf erhält einen klaren Konfliktfehler):
+Der erste beliebige registrierte Benutzer darf eine Instanz **niemals** automatisch übernehmen.
 
 ```text
-1  Organization anlegen
-2  Main Shop anlegen
-3  Membership des registrierten Auth-Users = owner
-4  Default-, Tax-, Invoice-, Return-, Shipping-Settings
-5  Integration Center initialisieren (alle Provider: not_connected)
-6  Publishable Key als disabled/setup_required anlegen
-7  owner_claimed_at setzen, Setup-Wizard starten
+Bootstrap erzeugt Claim-Token (nur Hash in der DB, kurze Gültigkeit)
+→ Owner öffnet /app/setup?claim=...
+→ registriert sich bzw. meldet sich an
+→ Claim serverseitig geprüft (Hash, Ablauf, unbenutzt)
+→ Organization + Main Shop + Owner-Membership
+→ Token irreversibel invalidiert
+```
+
+Alternativ darf eine vorab konfigurierte Owner-E-Mail als zusätzlicher Claim-Faktor dienen; ohne
+gültigen Claim entsteht kein Owner.
+
+Der Claim läuft serverseitig, **atomar und genau einmal** (Transaktion plus Bedingung auf
+`owner_claimed_at IS NULL` und unbenutztem Token). Zwei parallele Claims ergeben exakt einen
+Gewinner; der zweite erhält einen klaren Konfliktfehler und verändert nichts.
+
+```text
+1  Claim prüfen und sperren
+2  Organization anlegen
+3  Main Shop anlegen
+4  Membership des authentifizierten Auth-Users = owner
+5  Default-, Tax-, Invoice-, Return-, Shipping-Settings
+6  Integration Center initialisieren (alle Provider: not_connected)
+7  Publishable Key als disabled/setup_required anlegen
+8  Token vernichten, owner_claimed_at setzen, Setup-Wizard starten
 ```
 
 Es wird **kein** künstlicher Owner in der Datenbank erzeugt — der Owner ist immer ein echter
@@ -216,6 +242,9 @@ Es wird nichts aus dem Datenmodell entfernt.
   Publishable Key → Demo-Seed (nur Dev) → Referenz-Storefront → Cart → Checkout → Testzahlung →
   Order → Rechnung → Admin → vollständiger Cleanup
 - `qa:dedicated-doctor` — Doctor gegen Dev, Prüfung aller Statuszeilen
+- `qa:dedicated-security` — Negativtests: ungültiger Claim, abgelaufener Claim, Replay eines
+  bereits verwendeten Claims, zwei parallele Owner-Claims (genau ein Gewinner), Bootstrap-Replay
+  nach Installation, anonymer Bootstrap-Zugriff, Bootstrap mit falschem Credential
 - Isolationstest: keine Anfrage an eine zentrale Commerce-Instanz (nur Provider-Hosts erlaubt)
 - Bericht `qa/PHASE21-DEDICATED-REPORT.md` + `qa/results-phase21-dedicated.json`,
   Status ausschließlich PASS, FAIL, OFFEN, BLOCKED
