@@ -153,7 +153,7 @@ export async function runBootstrap(): Promise<BootstrapResult> {
   if (existing) {
     throw new InstallationError(
       "INSTALLATION_ALREADY_INITIALIZED",
-      "Commerce OS ist auf dieser Instanz bereits initialisiert.",
+      "EYIS ist auf dieser Instanz bereits initialisiert.",
     );
   }
 
@@ -464,7 +464,7 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     rows.push({ check: "Deployment Mode", status: "FAIL", detail: e instanceof Error ? e.message : "invalid" });
   }
 
-  // Zentrale Abhängigkeiten — nur fremde Commerce-OS-Hosts sind verboten; die eigene
+  // Zentrale Abhängigkeiten — nur fremde EYIS-Hosts sind verboten; die eigene
   // Infrastruktur und konfigurierte Provider sind ausdrücklich erlaubt.
   const central = findCentralDependencies();
   rows.push({

@@ -32,13 +32,13 @@ import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/compone
 export const Route = createFileRoute("/_authenticated/app/bestellungen/")({
   head: () => ({
     meta: [
-      { title: "Bestellungen – Commerce OS" },
+      { title: "Bestellungen – EYIS" },
       {
         name: "description",
         content:
           "Alle Bestellungen mit Zahlungsstatus, Erstattungen und unveränderbaren Snapshots aus Checkout und Zahlung.",
       },
-      { property: "og:title", content: "Bestellungen – Commerce OS" },
+      { property: "og:title", content: "Bestellungen – EYIS" },
       { property: "og:description", content: "Bestell- und Zahlungsübersicht des Shops." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

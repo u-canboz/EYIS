@@ -15,13 +15,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/kommunikation/vorlagen/")({
   head: () => ({
     meta: [
-      { title: "E-Mail-Vorlagen – Commerce OS" },
+      { title: "E-Mail-Vorlagen – EYIS" },
       {
         name: "description",
         content:
           "Alle transaktionalen E-Mail-Vorlagen für Bestellungen, Zahlungen, Versand, Dokumente und Retouren.",
       },
-      { property: "og:title", content: "E-Mail-Vorlagen – Commerce OS" },
+      { property: "og:title", content: "E-Mail-Vorlagen – EYIS" },
       { property: "og:description", content: "Vorlagen anpassen, veröffentlichen und testen." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

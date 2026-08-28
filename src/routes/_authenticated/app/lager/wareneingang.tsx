@@ -21,13 +21,13 @@ import {
 export const Route = createFileRoute("/_authenticated/app/lager/wareneingang")({
   head: () => ({
     meta: [
-      { title: "Wareneingang buchen – Commerce OS" },
+      { title: "Wareneingang buchen – EYIS" },
       {
         name: "description",
         content:
           "Gelieferte Ware pro Lagerort und Variante erfassen und nachvollziehbar einbuchen.",
       },
-      { property: "og:title", content: "Wareneingang buchen – Commerce OS" },
+      { property: "og:title", content: "Wareneingang buchen – EYIS" },
       {
         property: "og:description",
         content: "Zugänge erfassen und im Bewegungsjournal dokumentieren.",

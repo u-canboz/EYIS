@@ -27,12 +27,12 @@ import { ActionMenu } from "@/components/data/ActionMenu";
 export const Route = createFileRoute("/_authenticated/app/produkte/")({
   head: () => ({
     meta: [
-      { title: "Produkte – Commerce OS Backoffice" },
+      { title: "Produkte – EYIS Backoffice" },
       {
         name: "description",
         content: "Alle Produkte deines Shops filtern, bearbeiten, duplizieren und archivieren.",
       },
-      { property: "og:title", content: "Produkte – Commerce OS Backoffice" },
+      { property: "og:title", content: "Produkte – EYIS Backoffice" },
       {
         property: "og:description",
         content: "Katalogverwaltung mit Blueprints, Varianten und Medien.",

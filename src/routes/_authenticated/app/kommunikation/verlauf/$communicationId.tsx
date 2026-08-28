@@ -19,12 +19,12 @@ import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/kommunikation/verlauf/$communicationId")({
   head: () => ({
     meta: [
-      { title: "Nachricht – Commerce OS" },
+      { title: "Nachricht – EYIS" },
       {
         name: "description",
         content: "Snapshot, Zustellstatus, Sendeversuche und Anbieterereignisse einer Nachricht.",
       },
-      { property: "og:title", content: "Nachricht – Commerce OS" },
+      { property: "og:title", content: "Nachricht – EYIS" },
       { property: "og:description", content: "Vollständige Nachvollziehbarkeit je Nachricht." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

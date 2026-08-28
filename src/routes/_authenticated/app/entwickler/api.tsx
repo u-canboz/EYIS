@@ -15,13 +15,13 @@ import { Panel } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/entwickler/api")({
   head: () => ({
     meta: [
-      { title: "Store-API-Referenz – Commerce OS" },
+      { title: "Store-API-Referenz – EYIS" },
       {
         name: "description",
         content:
           "Alle Endpunkte der öffentlichen Store API v1 mit Auth-Stufe, Ein- und Ausgabe, Fehlercodes und SDK-Beispiel.",
       },
-      { property: "og:title", content: "Store-API-Referenz – Commerce OS" },
+      { property: "og:title", content: "Store-API-Referenz – EYIS" },
       {
         property: "og:description",
         content: "Endpunkte, Header, Fehlermodell und Rate-Limits der öffentlichen Store API.",

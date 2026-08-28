@@ -29,13 +29,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({
     meta: [
-      { title: "Betriebsübersicht – Commerce OS" },
+      { title: "Betriebsübersicht – EYIS" },
       {
         name: "description",
         content:
           "Operative Startseite: Umsatz, offene Bestellungen, Zahlungen, Bestände und Aktivitäten auf einen Blick.",
       },
-      { property: "og:title", content: "Betriebsübersicht – Commerce OS" },
+      { property: "og:title", content: "Betriebsübersicht – EYIS" },
       {
         property: "og:description",
         content: "Umsatz, offene Bestellungen, Zahlungen und Bestände in einer Ansicht.",

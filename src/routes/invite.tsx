@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getInvitation, acceptInvitation } from "@/lib/commerce/team.functions";
 import { roleLabel } from "@/lib/commerce/roles";
+import { EyisLogo } from "@/components/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,15 +13,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/invite")({
   head: () => ({
     meta: [
-      { title: "Einladung annehmen – Commerce OS" },
+      { title: "Einladung annehmen – EYIS" },
       {
         name: "description",
-        content: "Nimm deine Einladung in eine Commerce-OS-Organisation an.",
+        content: "Nimm deine Einladung in eine EYIS-Organisation an.",
       },
-      { property: "og:title", content: "Einladung annehmen – Commerce OS" },
+      { property: "og:title", content: "Einladung annehmen – EYIS" },
       {
         property: "og:description",
-        content: "Nimm deine Einladung in eine Commerce-OS-Organisation an.",
+        content: "Nimm deine Einladung in eine EYIS-Organisation an.",
       },
     ],
   }),
@@ -78,7 +79,8 @@ function InvitePage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface px-6">
       <Card className="w-full max-w-md">
-        <CardHeader>
+        <CardHeader className="items-start gap-3">
+          <EyisLogo variant="wordmark" width={96} />
           <CardTitle>Einladung</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -1,4 +1,4 @@
-# Migration Runbook — Commerce OS V1
+# Migration Runbook — EYIS V1
 
 Stand: 2026-08-26 (Gate A7). Quelle der Wahrheit: `supabase/migrations/` (42 Dateien).
 

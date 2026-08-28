@@ -27,13 +27,13 @@ import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/preise/testen")({
   head: () => ({
     meta: [
-      { title: "Preis testen – Commerce OS" },
+      { title: "Preis testen – EYIS" },
       {
         name: "description",
         content:
           "Simuliere den finalen Preis für Produkt, Menge, Kundengruppe und Gutscheincode – mit vollständiger Erklärung.",
       },
-      { property: "og:title", content: "Preis testen – Commerce OS" },
+      { property: "og:title", content: "Preis testen – EYIS" },
       {
         property: "og:description",
         content: "Nachvollziehbare Preisberechnung mit allen angewendeten Regeln.",

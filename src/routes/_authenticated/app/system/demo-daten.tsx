@@ -37,13 +37,13 @@ import { EmptyState, PermissionState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/system/demo-daten")({
   head: () => ({
     meta: [
-      { title: "Demo & QA Daten – Commerce OS" },
+      { title: "Demo & QA Daten – EYIS" },
       {
         name: "description",
         content:
           "Dauerhafte Demo-Organisation seeden und zurücksetzen sowie zerstörbare QA-Fixtures für 22 Testszenarien erzeugen.",
       },
-      { property: "og:title", content: "Demo & QA Daten – Commerce OS" },
+      { property: "og:title", content: "Demo & QA Daten – EYIS" },
       { property: "og:description", content: "Demo- und QA-Datensystem verwalten." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -161,7 +161,7 @@ function DemoDaten() {
         title="Demo-Organisation"
         description={
           <>
-            Dauerhafte Welt „Commerce OS Demo" mit Katalog, Medien, Kunden, Promotions und 40
+            Dauerhafte Welt „EYIS Demo" mit Katalog, Medien, Kunden, Promotions und 40
             Bestellungen in realistischen Zuständen.
           </>
         }

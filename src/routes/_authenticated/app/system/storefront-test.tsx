@@ -44,13 +44,13 @@ import { Panel } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/system/storefront-test")({
   head: () => ({
     meta: [
-      { title: "Test-Storefront – Commerce OS" },
+      { title: "Test-Storefront – EYIS" },
       {
         name: "description",
         content:
           "Interne Test-Storefront: Warenkorb anlegen, Positionen ändern, Aktionscodes prüfen und den Checkout bis zur validierten Sitzung durchspielen.",
       },
-      { property: "og:title", content: "Test-Storefront – Commerce OS" },
+      { property: "og:title", content: "Test-Storefront – EYIS" },
       { property: "og:description", content: "Cart- und Checkout-Engine end-to-end testen." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

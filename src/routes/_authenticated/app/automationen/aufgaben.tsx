@@ -35,13 +35,13 @@ import { EmptyState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/automationen/aufgaben")({
   head: () => ({
     meta: [
-      { title: "Aufgaben – Commerce OS" },
+      { title: "Aufgaben – EYIS" },
       {
         name: "description",
         content:
           "Operative Inbox: Aufgaben aus Automationen und manuelle To-dos für das Team an einer Stelle abarbeiten.",
       },
-      { property: "og:title", content: "Aufgaben – Commerce OS" },
+      { property: "og:title", content: "Aufgaben – EYIS" },
       {
         property: "og:description",
         content: "Alles, was menschliche Entscheidung braucht, in einer Liste.",

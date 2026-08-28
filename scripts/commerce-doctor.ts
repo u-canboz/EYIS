@@ -28,7 +28,7 @@ if (!res.ok || !body.checks) {
   process.exit(1);
 }
 
-console.log("Commerce OS — Doctor");
+console.log("EYIS — Doctor");
 console.log("=".repeat(72));
 let failed = 0;
 for (const c of body.checks) {

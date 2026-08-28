@@ -112,8 +112,8 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
   };
 
   pdf.setTitle(safe(`${doc.title} ${doc.number}`));
-  pdf.setProducer("Commerce OS");
-  pdf.setCreator(`Commerce OS ${DOCUMENT_RENDERER_VERSION}`);
+  pdf.setProducer("EYIS");
+  pdf.setCreator(`EYIS ${DOCUMENT_RENDERER_VERSION}`);
 
   let page = newPage(ctx);
   const width = A4[0];

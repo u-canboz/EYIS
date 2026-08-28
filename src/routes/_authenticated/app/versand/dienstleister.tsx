@@ -34,13 +34,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/versand/dienstleister")({
   head: () => ({
     meta: [
-      { title: "Versanddienstleister – Commerce OS" },
+      { title: "Versanddienstleister – EYIS" },
       {
         name: "description",
         content:
           "Carrier aktivieren, Testmodus steuern und Verpackungs-Presets für die Kommissionierung pflegen.",
       },
-      { property: "og:title", content: "Versanddienstleister – Commerce OS" },
+      { property: "og:title", content: "Versanddienstleister – EYIS" },
       {
         property: "og:description",
         content: "DHL, DPD, GLS, UPS, Sendcloud und Test-Carrier konfigurieren.",

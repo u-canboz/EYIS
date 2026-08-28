@@ -16,12 +16,12 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/medien")({
   head: () => ({
     meta: [
-      { title: "Medienbibliothek – Commerce OS" },
+      { title: "Medienbibliothek – EYIS" },
       {
         name: "description",
         content: "Bilder und Dateien für den Katalog hochladen, benennen und verwalten.",
       },
-      { property: "og:title", content: "Medienbibliothek – Commerce OS" },
+      { property: "og:title", content: "Medienbibliothek – EYIS" },
       { property: "og:description", content: "Zentrale Medienverwaltung für alle Produkte." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -20,13 +20,13 @@ import { PermissionState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/system/health")({
   head: () => ({
     meta: [
-      { title: "System Health – Commerce OS" },
+      { title: "System Health – EYIS" },
       {
         name: "description",
         content:
           "Read-only Integritätsprüfung über Payments, Orders, Inventory, Tax, Dokumente, Shipping, Returns und Communications.",
       },
-      { property: "og:title", content: "System Health – Commerce OS" },
+      { property: "og:title", content: "System Health – EYIS" },
       { property: "og:description", content: "Commerce-Datenintegrität prüfen." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

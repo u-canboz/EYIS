@@ -7,7 +7,7 @@ Zum Kopieren. Platzhalter in `<spitzen Klammern>` ersetzen.
 ## 1. Neue Storefront bauen (Betriebsart B)
 
 ```text
-Du baust eine eigenständige Storefront für einen bestehenden Commerce-OS-Shop.
+Du baust eine eigenständige Storefront für einen bestehenden EYIS-Shop.
 
 Zugangsdaten:
 - API-Basis-URL: <https://host/api/public/store/v1>
@@ -19,7 +19,7 @@ Verbindliche Regeln:
 2. Die einzige erlaubte Schnittstelle ist das Store SDK. Kein direkter fetch gegen die API,
    kein @supabase/supabase-js, kein Import aus src/lib/commerce.
 3. Das SDK ist noch kein npm-Paket. Übernimm den Ordner src/lib/store-sdk/ aus dem
-   Commerce-OS-Repository im angegebenen Commit und halte Quelle, Commit und sdk_version fest.
+   EYIS-Repository im angegebenen Commit und halte Quelle, Commit und sdk_version fest.
    Führe niemals "npm install @commerce-os/sdk" aus — das Paket existiert nicht.
 4. Rechne keine Preise, Steuern, Rabatte oder Bestände. Zeige ausschließlich Serverwerte an;
    Beträge sind Minor Units mit Währungscode.
@@ -42,7 +42,7 @@ docs/agent/store-api-v1.json.
 ## 2. Neuen Kunden anlegen (Betriebsart A)
 
 ```text
-Lege im bestehenden Commerce OS einen neuen Mandanten an.
+Lege im bestehenden EYIS einen neuen Mandanten an.
 
 Kundendaten: <Firma>, <Rechnungsanschrift>, <USt-ID>, Währung <EUR>,
 Steuermodus <brutto|netto>, Versandländer <DE, AT, CH>.
@@ -62,7 +62,7 @@ Referenz: docs/agent/CUSTOMER_ONBOARDING.md
 
 ---
 
-## 3. Feature im Commerce OS ändern
+## 3. Feature im EYIS ändern
 
 ```text
 Aufgabe: <Beschreibung>

@@ -26,13 +26,13 @@ import {
 export const Route = createFileRoute("/_authenticated/app/lager/reservierungen")({
   head: () => ({
     meta: [
-      { title: "Reservierungen – Commerce OS" },
+      { title: "Reservierungen – EYIS" },
       {
         name: "description",
         content:
           "Aktive Bestandsreservierungen einsehen, freigeben, verbuchen oder abgelaufene bereinigen.",
       },
-      { property: "og:title", content: "Reservierungen – Commerce OS" },
+      { property: "og:title", content: "Reservierungen – EYIS" },
       {
         property: "og:description",
         content: "Reservierter Bestand bleibt jederzeit nachvollziehbar.",

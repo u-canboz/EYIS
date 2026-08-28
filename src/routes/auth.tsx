@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { EyisLogo } from "@/components/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,15 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Anmelden – Commerce OS" },
+      { title: "Anmelden – EYIS" },
       {
         name: "description",
-        content: "Melde dich bei Commerce OS an oder registriere deine Organisation.",
+        content: "Melde dich bei EYIS an oder registriere deine Organisation.",
       },
-      { property: "og:title", content: "Anmelden – Commerce OS" },
+      { property: "og:title", content: "Anmelden – EYIS" },
       {
         property: "og:description",
-        content: "Melde dich bei Commerce OS an oder registriere deine Organisation.",
+        content: "Melde dich bei EYIS an oder registriere deine Organisation.",
       },
     ],
   }),
@@ -97,8 +98,8 @@ function AuthPage() {
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
       <section className="hidden flex-col justify-between bg-sidebar p-12 text-sidebar-foreground lg:flex">
-        <Link to="/" className="font-display text-lg font-semibold">
-          Commerce OS
+        <Link to="/" aria-label="EYIS Startseite">
+          <EyisLogo variant="wordmark" width={110} />
         </Link>
         <div className="max-w-md">
           <h1 className="font-display text-4xl leading-tight">
@@ -114,6 +115,9 @@ function AuthPage() {
 
       <section className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
+          <div className="mb-8 flex justify-center lg:hidden">
+            <EyisLogo variant="full" width={240} className="max-w-[70vw]" />
+          </div>
           <Tabs defaultValue="signin">
             <TabsList className="w-full">
               <TabsTrigger value="signin" className="flex-1">

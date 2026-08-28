@@ -50,12 +50,12 @@ import { ErrorState, EmptyState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/retouren/$returnId")({
   head: () => ({
     meta: [
-      { title: "Retoure bearbeiten – Commerce OS" },
+      { title: "Retoure bearbeiten – EYIS" },
       {
         name: "description",
         content: "Retoure prüfen, Wareneingang buchen, einlagern und Erstattung auslösen.",
       },
-      { property: "og:title", content: "Retoure bearbeiten – Commerce OS" },
+      { property: "og:title", content: "Retoure bearbeiten – EYIS" },
       { property: "og:description", content: "Der komplette RMA-Prozess in einer Ansicht." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -30,13 +30,13 @@ import {
 export const Route = createFileRoute("/_authenticated/app/lager/transfers")({
   head: () => ({
     meta: [
-      { title: "Umlagerungen – Commerce OS" },
+      { title: "Umlagerungen – EYIS" },
       {
         name: "description",
         content:
           "Bestände zwischen Lagerorten verschieben – mit Zwischenstatus unterwegs und sauberem Journal.",
       },
-      { property: "og:title", content: "Umlagerungen – Commerce OS" },
+      { property: "og:title", content: "Umlagerungen – EYIS" },
       {
         property: "og:description",
         content: "Transfers zwischen Lagerorten transaktionssicher steuern.",

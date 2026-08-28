@@ -20,13 +20,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/entwickler/")({
   head: () => ({
     meta: [
-      { title: "Entwickler – Storefront-Keys – Commerce OS" },
+      { title: "Entwickler – Storefront-Keys – EYIS" },
       {
         name: "description",
         content:
           "Publishable Keys für externe Storefronts verwalten, Origins freigeben und Keys widerrufen.",
       },
-      { property: "og:title", content: "Entwickler – Storefront-Keys – Commerce OS" },
+      { property: "og:title", content: "Entwickler – Storefront-Keys – EYIS" },
       {
         property: "og:description",
         content: "Publishable Keys, erlaubte Origins und Widerruf für die öffentliche Store API.",

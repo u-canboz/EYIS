@@ -1,4 +1,4 @@
-# Rollback Plan — Commerce OS V1
+# Rollback Plan — EYIS V1
 
 Stand: 2026-08-26 (Gate A7). Gilt für fehlerhafte Migrationen und fehlerhafte Releases.
 

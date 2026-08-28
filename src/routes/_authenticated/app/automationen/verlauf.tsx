@@ -38,13 +38,13 @@ export const Route = createFileRoute("/_authenticated/app/automationen/verlauf")
   }),
   head: () => ({
     meta: [
-      { title: "Automations-Verlauf – Commerce OS" },
+      { title: "Automations-Verlauf – EYIS" },
       {
         name: "description",
         content:
           "Jeder Automationslauf mit Auslöser, Bedingungen, Aktionen, Fehlern und Wiederholung — vollständig nachvollziehbar.",
       },
-      { property: "og:title", content: "Automations-Verlauf – Commerce OS" },
+      { property: "og:title", content: "Automations-Verlauf – EYIS" },
       {
         property: "og:description",
         content: "Läufe prüfen, Fehler verstehen und gezielt wiederholen.",

@@ -60,12 +60,12 @@ import {
 export const Route = createFileRoute("/_authenticated/app/einstellungen/integrationen")({
   head: () => ({
     meta: [
-      { title: "Integrationen – Commerce OS" },
+      { title: "Integrationen – EYIS" },
       {
         name: "description",
         content: "Payment-, E-Mail- und Versand-Anbieter zentral verbinden, prüfen und trennen.",
       },
-      { property: "og:title", content: "Integrationen – Commerce OS" },
+      { property: "og:title", content: "Integrationen – EYIS" },
       { property: "og:description", content: "Zentrale Bedienebene für externe Anbieter." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

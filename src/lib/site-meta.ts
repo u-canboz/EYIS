@@ -1,7 +1,7 @@
 /** Zentrale, rein präsentationsbezogene Metadaten der öffentlichen Seiten. */
 export const SITE = {
-  name: "Commerce OS",
-  repoUrl: "https://github.com/commerce-os/commerce-os",
+  name: "EYIS",
+  repoUrl: "https://github.com/u-canboz/EYIS",
   docsPath: "/entwickler",
   apiVersion: "v1",
   release: "Release Candidate 1",

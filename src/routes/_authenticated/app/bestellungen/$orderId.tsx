@@ -51,13 +51,13 @@ import { EmptyState, ErrorState } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/bestellungen/$orderId")({
   head: () => ({
     meta: [
-      { title: "Bestelldetails – Commerce OS" },
+      { title: "Bestelldetails – EYIS" },
       {
         name: "description",
         content:
           "Positionen, Adressen, Zahlungsbuchungen, Erstattungen und Verlauf einer Bestellung.",
       },
-      { property: "og:title", content: "Bestelldetails – Commerce OS" },
+      { property: "og:title", content: "Bestelldetails – EYIS" },
       { property: "og:description", content: "Vollständige Historie einer Bestellung." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

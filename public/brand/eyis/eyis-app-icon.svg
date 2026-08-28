@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="eyis-app-icon" data-name="EYIS App Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 401.61 401.61" width="512" height="512" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: #ed4800;
+      }
+    </style>
+  </defs>
+  <g id="Ebene_1" data-name="Ebene 1">
+    <g>
+      <rect class="cls-1" width="401.61" height="401.61" rx="67.37" ry="67.37"/>
+      <path class="cls-2" d="M200.81,215.57l92.71-51.4v-17.14l-92.71-51.3-92.74,51.35v106.51l92.72,52.37,132.73-74.73v-107.08L200.87,47.6,68.09,124.15l.03,153.23,132.69,76.63,125.45-72.45-13.68-24.29-111.77,63.26-103.71-59.89v-119.74s103.76-59.83,103.76-59.83l103.67,59.81v73.39l-103.71,58.39-63.76-36.01v-56.43l63.75,35.34ZM200.81,128.87l48.33,26.75-48.33,26.81-48.33-26.8,48.33-26.76Z"/>
+    </g>
+  </g>
+</svg>

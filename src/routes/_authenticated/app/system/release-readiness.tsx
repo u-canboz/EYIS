@@ -15,13 +15,13 @@ import {
 export const Route = createFileRoute("/_authenticated/app/system/release-readiness")({
   head: () => ({
     meta: [
-      { title: "Release Readiness – Commerce OS" },
+      { title: "Release Readiness – EYIS" },
       {
         name: "description",
         content:
           "Nachweisbasierte Freigabematrix für den Go-live: Build, Sicherheit, Provider, Staging, Recht und Betrieb.",
       },
-      { property: "og:title", content: "Release Readiness – Commerce OS" },
+      { property: "og:title", content: "Release Readiness – EYIS" },
       {
         property: "og:description",
         content: "Freigabestatus je Bereich mit Nachweis, Datum und Verantwortlichkeit.",

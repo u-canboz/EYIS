@@ -269,7 +269,7 @@ async function stepFoundation(ctx: SeedCtx): Promise<string> {
     {
       organization_id: orgId,
       shop_id: shopId,
-      company_name: "Commerce OS Demo GmbH",
+      company_name: "EYIS Demo GmbH",
       legal_form: "GmbH",
       address_line1: "Demostraße 1",
       postal_code: "10115",

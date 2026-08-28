@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-28T13:23:20.799Z",
-  "source_commit": "3008837ca991ef6ee4fbcd81e195ae13c9b0e9ee",
+  "generated_at": "2026-08-28T16:37:43.866Z",
+  "source_commit": "06239155ad1a0f791402a3ebcc1c532d154a7543",
   "latest_migration": "20260828131048_11f3caa1-a233-4ef9-a524-94fffedb1e4c.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
   "name": "commerce-os",
-  "product": "Commerce OS",
+  "product": "EYIS",
   "description": "Mandantenfähige Commerce-Engine (Backoffice, Store API v1, Store SDK, Referenz-Storefront).",
   "version": "1.0.0-rc1",
   "status": "V1 frozen — production hardening",
@@ -28,7 +28,7 @@
   "operating_modes": [
     {
       "id": "A",
-      "name": "Neuer Kunde im bestehenden Commerce OS",
+      "name": "Neuer Kunde im bestehenden EYIS",
       "needs_new_database": false,
       "summary": "Neue Organisation + Shop in der bestehenden Installation. Kein neues Backend."
     },

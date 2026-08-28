@@ -43,13 +43,13 @@ import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/lager/")({
   head: () => ({
     meta: [
-      { title: "Lagerbestand – Commerce OS" },
+      { title: "Lagerbestand – EYIS" },
       {
         name: "description",
         content:
           "Physischer Bestand, Reservierungen, verfügbare Mengen und Warnungen für jede Variante deines Shops.",
       },
-      { property: "og:title", content: "Lagerbestand – Commerce OS" },
+      { property: "og:title", content: "Lagerbestand – EYIS" },
       { property: "og:description", content: "Bestände je Variante und Lagerort im Überblick." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -203,12 +203,12 @@ function InventoryPage() {
   const consequence = (() => {
     if (!Number.isInteger(parsedQuantity)) return null;
     if (mode === "receive")
-      return `Commerce OS bucht: +${parsedQuantity} (physischer Bestand ${currentOnHand} → ${currentOnHand + parsedQuantity})`;
+      return `EYIS bucht: +${parsedQuantity} (physischer Bestand ${currentOnHand} → ${currentOnHand + parsedQuantity})`;
     if (mode === "adjust") {
       const delta = parsedQuantity - currentOnHand;
-      return `Commerce OS bucht: ${delta >= 0 ? "+" : ""}${delta} (physischer Bestand ${currentOnHand} → ${parsedQuantity})`;
+      return `EYIS bucht: ${delta >= 0 ? "+" : ""}${delta} (physischer Bestand ${currentOnHand} → ${parsedQuantity})`;
     }
-    return `Commerce OS bucht ${parsedQuantity} Stück als beschädigt. Verfügbarkeit sinkt entsprechend.`;
+    return `EYIS bucht ${parsedQuantity} Stück als beschädigt. Verfügbarkeit sinkt entsprechend.`;
   })();
 
   return (

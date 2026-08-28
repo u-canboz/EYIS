@@ -32,13 +32,13 @@ import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/warenkoerbe")({
   head: () => ({
     meta: [
-      { title: "Warenkörbe & Checkouts – Commerce OS" },
+      { title: "Warenkörbe & Checkouts – EYIS" },
       {
         name: "description",
         content:
           "Aktive, abgebrochene und abgelaufene Warenkörbe, ihre unveränderbaren Preis-Snapshots und laufende Checkout-Sitzungen.",
       },
-      { property: "og:title", content: "Warenkörbe & Checkouts – Commerce OS" },
+      { property: "og:title", content: "Warenkörbe & Checkouts – EYIS" },
       { property: "og:description", content: "Warenkorb- und Checkout-Zustände im Überblick." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

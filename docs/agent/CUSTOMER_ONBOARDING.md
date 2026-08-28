@@ -1,6 +1,6 @@
 # Kunden-Onboarding (Betriebsart A)
 
-Ziel: ein weiterer Mandant im bestehenden Commerce OS.
+Ziel: ein weiterer Mandant im bestehenden EYIS.
 **Keine neue Datenbank, kein neues Backend, keine Migration.** Es entstehen ausschließlich
 Datensätze.
 

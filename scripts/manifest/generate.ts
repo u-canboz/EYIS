@@ -206,7 +206,7 @@ function buildOpenApi(store: ReturnType<typeof buildStoreApi>) {
   return {
     openapi: "3.1.0",
     info: {
-      title: "Commerce OS — Public Store API",
+      title: "EYIS — Public Store API",
       version: "1.0.0",
       description:
         "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts " +
@@ -250,7 +250,7 @@ function buildRootManifest(
   return {
     ...provenance(),
     name: "commerce-os",
-    product: "Commerce OS",
+    product: "EYIS",
     description:
       "Mandantenfähige Commerce-Engine (Backoffice, Store API v1, Store SDK, Referenz-Storefront).",
     version: "1.0.0-rc1",
@@ -271,7 +271,7 @@ function buildRootManifest(
     operating_modes: [
       {
         id: "A",
-        name: "Neuer Kunde im bestehenden Commerce OS",
+        name: "Neuer Kunde im bestehenden EYIS",
         needs_new_database: false,
         summary: "Neue Organisation + Shop in der bestehenden Installation. Kein neues Backend.",
       },

@@ -37,13 +37,13 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/versand/")({
   head: () => ({
     meta: [
-      { title: "Versand & Fulfillment – Commerce OS" },
+      { title: "Versand & Fulfillment – EYIS" },
       {
         name: "description",
         content:
           "Offene Bestellungen kommissionieren, verpacken, Labels erzeugen und Sendungen verfolgen.",
       },
-      { property: "og:title", content: "Versand & Fulfillment – Commerce OS" },
+      { property: "og:title", content: "Versand & Fulfillment – EYIS" },
       {
         property: "og:description",
         content: "Der operative Arbeitsplatz für Kommissionierung und Versand.",

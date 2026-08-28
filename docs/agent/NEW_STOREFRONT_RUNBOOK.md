@@ -34,7 +34,7 @@ npm-Paket**.
 3. Herkunft im Storefront-Projekt festhalten: Quelle, Commit, `sdk_version`, Datum — sonst ist
    später nicht nachvollziehbar, welcher Stand eingebunden wurde.
 4. Den kopierten SDK-Code im Storefront-Projekt nicht forken oder umschreiben. Fehlt etwas, wird es
-   im Commerce OS ergänzt und erneut übernommen.
+   im EYIS ergänzt und erneut übernommen.
 
 **Später (geplant):** versioniertes npm-/GitHub-Package mit Semver.
 

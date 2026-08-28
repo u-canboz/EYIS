@@ -4,7 +4,7 @@ Datum: 2026-08-25 · Status: Release Candidate, **nicht go-live-freigegeben**
 
 ## Inhalt
 
-Commerce OS V1 mit den Phasen 0 bis 12: Mandanten und Rollen, Katalog und Blueprints, Pricing und Promotions, Bestand, Cart und Checkout, Payments und Orders, Steuer-Engine DE/EU, Versand und Fulfillment, Rechnungen und Dokumente, Kundenportal und Retouren, Communication Studio, Automation Engine, öffentliche Store API und Storefront SDK. Vollständige Auflistung: `docs/production/V1_SCOPE.md`.
+EYIS V1 mit den Phasen 0 bis 12: Mandanten und Rollen, Katalog und Blueprints, Pricing und Promotions, Bestand, Cart und Checkout, Payments und Orders, Steuer-Engine DE/EU, Versand und Fulfillment, Rechnungen und Dokumente, Kundenportal und Retouren, Communication Studio, Automation Engine, öffentliche Store API und Storefront SDK. Vollständige Auflistung: `docs/production/V1_SCOPE.md`.
 
 ## Bau- und Teststand (gemessen am 2026-08-25)
 

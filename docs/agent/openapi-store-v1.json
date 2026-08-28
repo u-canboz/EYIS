@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Commerce OS — Public Store API",
+    "title": "EYIS — Public Store API",
     "version": "1.0.0",
     "description": "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts durch scripts/manifest/generate.ts. Provenienz: docs/agent/store-api-v1.json."
   },

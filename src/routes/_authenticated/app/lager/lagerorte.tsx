@@ -22,13 +22,13 @@ import {
 export const Route = createFileRoute("/_authenticated/app/lager/lagerorte")({
   head: () => ({
     meta: [
-      { title: "Lagerorte – Commerce OS" },
+      { title: "Lagerorte – EYIS" },
       {
         name: "description",
         content:
           "Lager, Filialen und Fulfillment-Center mit Priorität für die spätere Bestandszuteilung.",
       },
-      { property: "og:title", content: "Lagerorte – Commerce OS" },
+      { property: "og:title", content: "Lagerorte – EYIS" },
       { property: "og:description", content: "Multi-Location von Anfang an." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

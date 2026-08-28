@@ -22,6 +22,7 @@ import { getInstallationStatus, saveSetupStep, setStorefrontOriginFn } from "@/l
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 import { PageHeader } from "@/components/shell/PageHeader";
+import { EyisLogo } from "@/components/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -29,10 +30,10 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/app/system/einrichtung/")({
   head: () => ({
     meta: [
-      { title: "Einrichtung – Commerce OS" },
-      { name: "description", content: "Setup-Wizard: Organisation, Storefront, Payments, E-Mail und API für die eigene Commerce-OS-Instanz einrichten." },
-      { property: "og:title", content: "Einrichtung – Commerce OS" },
-      { property: "og:description", content: "Geführte Einrichtung einer Dedicated-Commerce-OS-Instanz." },
+      { title: "Einrichtung – EYIS" },
+      { name: "description", content: "Setup-Wizard: Organisation, Storefront, Payments, E-Mail und API für die eigene EYIS-Instanz einrichten." },
+      { property: "og:title", content: "Einrichtung – EYIS" },
+      { property: "og:description", content: "Geführte Einrichtung einer Dedicated-EYIS-Instanz." },
     ],
   }),
   component: SetupWizardPage,
@@ -137,6 +138,7 @@ function SetupWizardPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <EyisLogo variant="full" width={220} className="max-w-[70vw]" />
       <PageHeader
         title="Einrichtung"
         description="Geführte Einrichtung dieser Instanz. Jeder Schritt kann in beliebiger Reihenfolge abgeschlossen werden."

@@ -12,12 +12,12 @@ import { EmptyState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/audit")({
   head: () => ({
     meta: [
-      { title: "Audit-Log – Commerce OS" },
+      { title: "Audit-Log – EYIS" },
       {
         name: "description",
         content: "Revisionssicheres, unveränderliches Protokoll aller Änderungen der Organisation.",
       },
-      { property: "og:title", content: "Audit-Log – Commerce OS" },
+      { property: "og:title", content: "Audit-Log – EYIS" },
       {
         property: "og:description",
         content: "Revisionssicheres, unveränderliches Protokoll aller Änderungen der Organisation.",

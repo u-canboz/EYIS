@@ -156,7 +156,7 @@ export async function sendWebhook(input: {
 
   const headers: Record<string, string> = {
     "content-type": "application/json",
-    "user-agent": "CommerceOS-Automation/1",
+    "user-agent": "EYIS-Automation/1",
     "x-commerce-event": input.payload.event,
     "x-commerce-delivery": input.payload.id,
   };

@@ -49,13 +49,13 @@ import { TableScroll } from "@/components/data/TableScroll";
 export const Route = createFileRoute("/_authenticated/app/versand/$fulfillmentId")({
   head: () => ({
     meta: [
-      { title: "Kommissionierung & Versand – Commerce OS" },
+      { title: "Kommissionierung & Versand – EYIS" },
       {
         name: "description",
         content:
           "Pickliste abarbeiten, Pakete packen, Versandlabel erzeugen und Sendungsstatus verfolgen.",
       },
-      { property: "og:title", content: "Kommissionierung & Versand – Commerce OS" },
+      { property: "og:title", content: "Kommissionierung & Versand – EYIS" },
       { property: "og:description", content: "Ein Vorgang von der Pickliste bis zur Zustellung." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

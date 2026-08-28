@@ -1,4 +1,4 @@
-# AGENTS.md — Commerce OS
+# AGENTS.md — EYIS
 
 Verbindliche Regeln für jeden KI-Agenten und jeden Menschen, der an diesem Repository arbeitet.
 Diese Datei gilt für das gesamte Repository. Bereichsspezifische Zusatzregeln stehen in

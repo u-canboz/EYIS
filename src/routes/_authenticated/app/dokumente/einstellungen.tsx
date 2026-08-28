@@ -39,13 +39,13 @@ import { ScrollTabs } from "@/components/shell/DetailLayout";
 export const Route = createFileRoute("/_authenticated/app/dokumente/einstellungen")({
   head: () => ({
     meta: [
-      { title: "Dokumenteinstellungen – Commerce OS" },
+      { title: "Dokumenteinstellungen – EYIS" },
       {
         name: "description",
         content:
           "Unternehmensdaten, Bankverbindung, Zahlungsziel, Nummernkreise und Layout für Rechnungen und Lieferscheine.",
       },
-      { property: "og:title", content: "Dokumenteinstellungen – Commerce OS" },
+      { property: "og:title", content: "Dokumenteinstellungen – EYIS" },
       {
         property: "og:description",
         content: "Rechnungsdaten, Nummernkreise und Dokumentlayout einrichten.",

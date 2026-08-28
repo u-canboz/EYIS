@@ -35,13 +35,13 @@ import { EmptyState, ListSkeleton, PermissionState } from "@/components/data/Sta
 export const Route = createFileRoute("/_authenticated/app/steuern")({
   head: () => ({
     meta: [
-      { title: "Steuern – Commerce OS" },
+      { title: "Steuern – EYIS" },
       {
         name: "description",
         content:
           "Umsatzsteuer für Deutschland und die EU: Brutto- oder Nettoshop, Steuerklassen, Steuersätze, OSS, Reverse Charge und Steuerrechner.",
       },
-      { property: "og:title", content: "Steuern – Commerce OS" },
+      { property: "og:title", content: "Steuern – EYIS" },
       {
         property: "og:description",
         content: "Steuerklassen, Steuersätze und Steuerlogik je Shop verwalten.",

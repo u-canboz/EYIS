@@ -4,7 +4,7 @@ Gilt für `src/lib/store-sdk/**`. Ergänzt die Root-[AGENTS.md](../../../AGENTS.
 
 ## Zweck
 
-Der einzige unterstützte Weg, wie eine Storefront mit dem Commerce OS spricht. Framework-neutraler
+Der einzige unterstützte Weg, wie eine Storefront mit dem EYIS spricht. Framework-neutraler
 Core plus React-Layer. Der Code wird von externen Projekten übernommen und muss daher völlig
 eigenständig sein.
 

@@ -31,12 +31,12 @@ import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 export const Route = createFileRoute("/_authenticated/app/kategorien")({
   head: () => ({
     meta: [
-      { title: "Kategorien & Kollektionen – Commerce OS" },
+      { title: "Kategorien & Kollektionen – EYIS" },
       {
         name: "description",
         content: "Kategoriebaum und Kollektionen deines Shops strukturieren und pflegen.",
       },
-      { property: "og:title", content: "Kategorien & Kollektionen – Commerce OS" },
+      { property: "og:title", content: "Kategorien & Kollektionen – EYIS" },
       { property: "og:description", content: "Struktur für deinen Produktkatalog." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
