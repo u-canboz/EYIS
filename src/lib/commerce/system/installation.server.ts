@@ -411,6 +411,77 @@ const SETUP_STEPS = [
 
 export type SetupStep = (typeof SETUP_STEPS)[number];
 
+/**
+ * Adoption (Phase 23): eine Instanz, die bereits Organisation und Shop
+ * besitzt, wird als Dedicated-Installation registriert. Kein Claim-Token, weil
+ * kein Bootstrap stattgefunden hat — statt dessen entscheidet die
+ * Owner-Berechtigung des aufrufenden Nutzers in genau dieser Organisation.
+ * Idempotent: mehrfacher Aufruf erzeugt weder zweite Installation noch
+ * zweiten Storefront-Key.
+ */
+export async function adoptInstallation(userId: string, organizationId: string) {
+  const environment = resolveEnvironment(process.env as Record<string, string | undefined>);
+  if (environment === "unknown") {
+    throw new InstallationError("ENVIRONMENT_UNKNOWN", "APP_ENV fehlt oder ist unbekannt.");
+  }
+  const mode = resolveDeploymentMode();
+  if (mode !== "dedicated") {
+    throw new InstallationError(
+      "INSTALLATION_NOT_DEDICATED",
+      "COMMERCE_DEPLOYMENT_MODE ist nicht 'dedicated' — Übernahme abgebrochen.",
+    );
+  }
+
+  const admin = await getAdmin();
+  const { data: shopRow } = await admin
+    .from("shops")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  const shopId = (shopRow as { id: string } | null)?.id;
+  if (!shopId) {
+    throw new InstallationError(
+      "SHOP_MISSING",
+      "Diese Organisation hat noch keinen Shop. Zuerst einen Shop anlegen.",
+    );
+  }
+
+  const existing = await getInstallation();
+  if (!existing) {
+    const installationId = `inst_${generateToken().slice(0, 24)}`;
+    const { error } = await admin.from("commerce_installation").insert({
+      installation_id: installationId,
+      mode,
+      core_version: CORE_VERSION,
+      api_version: "v1",
+      schema_version: environment,
+      owner_claimed_at: new Date().toISOString(),
+      owner_user_id: userId,
+      organization_id: organizationId,
+      shop_id: shopId,
+      health_status: { adopted: true, environment },
+    } as never);
+    if (error) throw new InstallationError("ADOPTION_FAILED", error.message);
+  } else {
+    await admin
+      .from("commerce_installation")
+      .update({
+        mode,
+        owner_claimed_at: existing.owner_claimed_at ?? new Date().toISOString(),
+        owner_user_id: existing.owner_user_id ?? userId,
+        organization_id: organizationId,
+        shop_id: shopId,
+      } as never)
+      .eq("singleton", true);
+  }
+
+  const { ensureStorefrontKey } = await import("./runtime-config.server");
+  const publishableKey = await ensureStorefrontKey(organizationId, shopId);
+  return { ok: true as const, organizationId, shopId, publishableKey };
+}
+
 export async function saveSetupProgress(step: string, done: boolean) {
   if (!SETUP_STEPS.includes(step as SetupStep)) {
     throw new InstallationError("SETUP_STEP_UNKNOWN", `Unbekannter Setup-Schritt "${step}".`);
