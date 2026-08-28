@@ -33,23 +33,36 @@ Es wird **keine** Installer-UI gebaut, die Provisionierung nur vortäuscht.
 
 ## 2. Installationszustand
 
-Eine neue Tabelle `commerce_installation` (eine Zeile pro Instanz) mit `installation_id`, `mode`,
-`core_version`, `schema_version`, `api_version`, `sdk_version`, `installed_at`,
-`last_migrated_at`, `setup_completed_at`, `health_status`.
+Eine neue Tabelle `commerce_installation` mit `installation_id`, `mode`, `core_version`,
+`schema_version`, `api_version`, `sdk_version`, `installed_at`, `last_migrated_at`,
+`owner_claimed_at`, `setup_completed_at`, `health_status`.
+
+**Singleton-Invariante.** Datenbankseitig erzwungen (Unique-Index auf einer konstanten
+Singleton-Spalte), sodass je Instanz genau eine Installationszeile existieren kann.
 
 **Server-only.** RLS aktiv ohne Lesepolicy für normale Mitglieder; Grants nur an `service_role`.
 Das Backoffice liest den Installationsstatus ausschließlich über eine geprüfte Server-Funktion,
 die vorher die Rolle des Aufrufers verifiziert.
 
 Begründung: Bestehende Settings-Tabellen sind shop-gebunden; ein Installationszustand ist
-instanzweit und wird von Bootstrap, Doctor und Update-Pfad gebraucht.
+instanzweit und wird von Bootstrap, Owner-Claim, Doctor und Update-Pfad gebraucht.
 
-## 3. Bootstrap
+## 3. Zweistufige Installation: System Bootstrap → First Owner Claim
 
-`bun run commerce:bootstrap` — dünnes CLI über eine bestehende Server-Route/Server-Funktion,
-keine eigene Datenbanklogik im Skript.
+Der CLI-Lauf hat keine Browser-Session. Deshalb strikt getrennt.
 
-### Vorbedingungen (harte Abbruchmatrix)
+```text
+Provisioning → Migrationen → SYSTEM BOOTSTRAP (CLI)
+→ erster Browser-Aufruf /app → Owner registriert sich
+→ FIRST OWNER CLAIM (serverseitig, atomar) → Setup Wizard
+```
+
+### 3a. System Bootstrap — `bun run commerce:bootstrap`
+
+Dünnes CLI über eine Server-Route, keine Datenbanklogik im Skript. Erzeugt **keine** Organisation,
+keinen Shop und keinen Owner.
+
+Vorbedingungen (harte Abbruchmatrix):
 
 | Zustand | Ergebnis |
 | --- | --- |
@@ -58,34 +71,48 @@ keine eigene Datenbanklogik im Skript.
 | Migrationen fehlen | STOP — fehlende Migrationen werden aufgelistet |
 | `APP_ENV` unbekannt oder ungültig | STOP |
 | Modus `dedicated`, aber Verbindung/Konfiguration zu einem Shared-Commerce-Host erkannt | STOP |
-| Kein authentifizierter Benutzer für die Owner-Verknüpfung | STOP |
 
-### Ablauf, strikt idempotent
+Ablauf, strikt idempotent:
 
 ```text
 1  Umgebung auflösen und Deployment Mode prüfen
 2  Zentral-Abhängigkeiten prüfen (siehe Abbruchmatrix)
 3  Datenbankverbindung + Schemaversion prüfen
 4  Migrationsstand gegen Manifest prüfen
-5  Storage-Buckets prüfen
-6  System Seed (Rollen, Permissions, Blueprints, Referenzdaten)
-7  Organization + Main Shop
-8  Owner-Verknüpfung: den echten, authentifizierten ersten Auth-User als Owner eintragen
-9  Default-, Tax-, Invoice-, Return-, Shipping-Settings
-10 Integration Center initialisieren (alle Provider: not_connected)
-11 Publishable Key als disabled/setup_required anlegen
-12 Cron/Jobs prüfen
-13 Health-Lauf, Ergebnis in commerce_installation schreiben
+5  Installation registrieren (Singleton-Zeile)
+6  System Seed: Rollen, Permissions, System-Blueprints, Referenzdaten
+7  Storage-Buckets prüfen
+8  Cron/Jobs prüfen
+9  Health-Lauf, Ergebnis in commerce_installation schreiben
 ```
 
-Es wird **kein** künstlicher Owner in der Datenbank erzeugt. Existiert noch kein echter Auth-User,
-bricht Bootstrap mit einer klaren Anweisung ab (erst registrieren, dann Bootstrap).
+Zweiter Lauf meldet „Installation bereits vorhanden“ und ändert nichts.
+
+### 3b. First Owner Claim — beim ersten Login auf `/app`
+
+Läuft serverseitig, **atomar und genau einmal** (Transaktion plus Bedingung auf
+`owner_claimed_at IS NULL`; zwei parallele Erstregistrierungen ergeben genau eine Organisation und
+genau einen Owner, der zweite Aufruf erhält einen klaren Konfliktfehler):
+
+```text
+1  Organization anlegen
+2  Main Shop anlegen
+3  Membership des registrierten Auth-Users = owner
+4  Default-, Tax-, Invoice-, Return-, Shipping-Settings
+5  Integration Center initialisieren (alle Provider: not_connected)
+6  Publishable Key als disabled/setup_required anlegen
+7  owner_claimed_at setzen, Setup-Wizard starten
+```
+
+Es wird **kein** künstlicher Owner in der Datenbank erzeugt — der Owner ist immer ein echter
+Auth-User. Solange `owner_claimed_at` leer ist, zeigt `/app` ausschließlich den Claim-/Setup-Prozess
+und keine Backoffice-Module.
 
 Der Publishable Key wird nie aktiv mit leerer Origin-Allowlist ausgeliefert. Er wird erst
 aktiviert, wenn im Setup-Wizard eine Storefront-Origin hinterlegt ist.
 
-Zweiter Lauf meldet „Installation bereits vorhanden“ und ändert nichts.
-Production-Guard bleibt aktiv: kein Demo-Seed, keine QA-Fixtures, keine Test-Provider als Live.
+Production-Guard bleibt in beiden Stufen aktiv: kein Demo-Seed, keine QA-Fixtures, keine
+Test-Provider als Live.
 
 ## 4. System Seed vs. Demo Seed
 
