@@ -79,20 +79,14 @@ function Wordmark({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
     <Link
       to="/app"
       onClick={onNavigate}
-      className="flex min-w-0 items-center gap-2.5 rounded-md focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
+      className="flex min-w-0 items-center gap-3 rounded-md focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
     >
-      <span
-        aria-hidden
-        className="grid size-8 shrink-0 place-items-center rounded-md bg-primary font-display text-sm font-bold text-primary-foreground"
-      >
-        C
-      </span>
-      <span className="min-w-0 truncate font-display text-sm font-semibold tracking-tight">
-        Commerce&nbsp;OS
-      </span>
+      <EyisLogo variant="mark" width={30} decorative />
+      <EyisLogo variant="wordmark" width={96} />
     </Link>
   );
 }
+
 
 function SidebarBody(
   props: Props & { onNavigate?: (() => void) | undefined; onSearch?: (() => void) | undefined },
