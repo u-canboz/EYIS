@@ -250,7 +250,6 @@ export function AppShell(props: Props) {
           >
             <Search className="size-5" aria-hidden />
           </button>
-          {themeButton}
         </header>
 
         {/* Desktop / tablet topbar */}
@@ -274,7 +273,6 @@ export function AppShell(props: Props) {
               <span>Suchen</span>
               <kbd className="rounded border border-border px-1.5 py-0.5 text-[10px]">⌘K</kbd>
             </button>
-            {themeButton}
           </div>
         </header>
 
