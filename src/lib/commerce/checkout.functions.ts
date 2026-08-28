@@ -14,6 +14,13 @@ export const startCheckoutFn = createServerFn({ method: "POST" })
     const cartApi = await import("./cart.server");
     const checkout = await import("./checkout.server");
     const cart = await cartApi.loadCartAuthorized(data.cartId, data.token);
+    await checkout.expireDueSessions(cart.organization_id);
+    // Idempotent: a cart already locked in checkout returns its running session.
+    const existing = await checkout.findActiveSessionForCart(cart);
+    if (existing) {
+      const freshCart = await cartApi.loadCartAuthorized(data.cartId, data.token);
+      return (await checkout.buildCheckoutView(existing, freshCart)) as CheckoutView;
+    }
     cartApi.assertMutable(cart);
     const started = await checkout.startCheckout(cart, data.email ?? null);
     const session = await checkout.loadSession(started.checkout_session_id);
