@@ -112,6 +112,32 @@ function SetupWizardPage() {
 
   const [origin, setOrigin] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
+  const [adoptError, setAdoptError] = useState<string | null>(null);
+  const adoptFn = useServerFn(adoptInstallationFn);
+
+  const { data: runtime, refetch: refetchRuntime } = useQuery({
+    queryKey: ["store-runtime-config"],
+    queryFn: async () => {
+      const res = await fetch("/api/public/store/v1/runtime-config");
+      const body = (await res.json()) as { data: StoreRuntimeConfigView };
+      return body.data;
+    },
+  });
+
+  async function adopt() {
+    if (!activeOrg) return;
+    setSaving("adopt");
+    setAdoptError(null);
+    try {
+      await adoptFn({ data: { organizationId: activeOrg.id } });
+      await refetchRuntime();
+      router.invalidate();
+    } catch (err) {
+      setAdoptError(err instanceof Error ? err.message : "Übernahme fehlgeschlagen.");
+    } finally {
+      setSaving(null);
+    }
+  }
 
   async function toggle(step: string, done: boolean) {
     if (!activeOrg) return;
