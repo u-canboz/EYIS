@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -35,8 +34,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
-import { TableScroll } from "@/components/data/TableScroll";
+import { TabsBar } from "@/components/data/TabsBar";
+import { SectionPanel } from "@/components/data/SectionPanel";
+import { RecordList, RecordRow } from "@/components/data/RecordRow";
+import { ActionMenu } from "@/components/data/ActionMenu";
 import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/lager/")({
@@ -211,27 +212,26 @@ function InventoryPage() {
   })();
 
   return (
-    <div className="min-w-0 space-y-5">
+    <div className="min-w-0">
       <PageHeader
         title="Lagerbestand"
         description="Physischer Bestand abzüglich beschädigter Ware und Reservierungen ergibt die verfügbare Menge."
       />
 
-      <div className="scroll-x -mx-4 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
-        {[
-          { to: "/app/lager/wareneingang", label: "Wareneingang" },
-          { to: "/app/lager/transfers", label: "Umlagerungen" },
-          { to: "/app/lager/reservierungen", label: "Reservierungen" },
-          { to: "/app/lager/bewegungen", label: "Bewegungen" },
-          { to: "/app/lager/lagerorte", label: "Lagerorte" },
-        ].map((entry) => (
-          <Button key={entry.to} asChild variant="outline" size="sm" className="h-11 shrink-0 lg:h-10">
-            <Link to={entry.to}>{entry.label}</Link>
-          </Button>
-        ))}
-      </div>
+      <TabsBar
+        ariaLabel="Bestand filtern"
+        value={status}
+        onChange={setStatus}
+        items={[
+          { value: "all", label: "Alle" },
+          { value: "low", label: "Niedrig" },
+          { value: "out", label: "Ausverkauft" },
+          { value: "backorder", label: "Nachbestellbar" },
+          { value: "untracked", label: "Ohne Tracking" },
+        ]}
+      />
 
-      <div className="grid min-w-0 gap-3 md:grid-cols-3">
+      <div className="mt-3 grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
         <Input
           className="h-11"
           placeholder="Produkt, Variante, SKU oder Barcode"
@@ -252,227 +252,119 @@ function InventoryPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger aria-label="Status" className="h-11">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Status</SelectItem>
-            <SelectItem value="low">Niedriger Bestand</SelectItem>
-            <SelectItem value="out">Ausverkauft</SelectItem>
-            <SelectItem value="backorder">Nachbestellbar</SelectItem>
-            <SelectItem value="untracked">Tracking deaktiviert</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
+      <nav aria-label="Lagerbereiche" className="scroll-x -mx-4 mt-3 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
+        {[
+          { to: "/app/lager/wareneingang", label: "Wareneingang" },
+          { to: "/app/lager/transfers", label: "Umlagerungen" },
+          { to: "/app/lager/reservierungen", label: "Reservierungen" },
+          { to: "/app/lager/bewegungen", label: "Bewegungen" },
+          { to: "/app/lager/lagerorte", label: "Lagerorte" },
+        ].map((entry) => (
+          <Link
+            key={entry.to}
+            to={entry.to}
+            className="inline-flex min-h-9 shrink-0 items-center rounded-full border border-border bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {entry.label}
+          </Link>
+        ))}
+      </nav>
 
-      {inventoryQuery.isLoading ? (
-        <ListSkeleton />
-      ) : inventoryQuery.error ? (
-        <ErrorState description={(inventoryQuery.error as Error).message} />
-      ) : rows.length === 0 ? (
-        <EmptyState
-          title="Noch keine Bestandsdaten"
-          description="Öffne ein Produkt und aktiviere dort den Tab „Bestand“, oder buche direkt einen Wareneingang."
-        />
-      ) : (
-        <>
-          <RecordCardList>
-            {rows.map((row) => (
-              <RecordCard
-                key={row.inventory_item_id}
-                title={row.product_name}
-                subtitle={`${row.variant_title}${row.sku ? ` · ${row.sku}` : ""}`}
-                trailing={row.track_inventory ? String(row.available) : "∞"}
-                badges={
-                  <Badge
-                    variant={
-                      row.status === "out_of_stock"
-                        ? "destructive"
-                        : row.status === "low_stock"
-                          ? "secondary"
-                          : "outline"
-                    }
-                  >
-                    {STOCK_STATUS_LABEL[row.status]}
-                  </Badge>
-                }
-                fields={[
-                  { label: "Physisch", value: row.track_inventory ? row.totals.on_hand : "—" },
-                  { label: "Reserviert", value: row.track_inventory ? row.totals.reserved : "—" },
-                  { label: "Beschädigt", value: row.track_inventory ? row.totals.damaged : "—" },
-                  { label: "Erwartet", value: row.track_inventory ? row.totals.incoming : "—" },
-                ]}
-                actions={
-                  <>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="min-h-11"
-                      disabled={!canReceive || !row.track_inventory}
-                      onClick={() => openDialog(row, "receive")}
-                    >
-                      Eingang
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="min-h-11"
-                      disabled={!canAdjust || !row.track_inventory}
-                      onClick={() => openDialog(row, "adjust")}
-                    >
-                      Korrektur
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="min-h-11"
-                      disabled={!canAdjust || !row.track_inventory}
-                      onClick={() => openDialog(row, "damage")}
-                    >
-                      Schaden
-                    </Button>
-                    <Link
-                      to="/app/produkte/$productId"
-                      params={{ productId: row.product_id }}
-                      className="self-center text-sm underline underline-offset-4"
-                    >
-                      Produkt
-                    </Link>
-                  </>
-                }
-              />
-            ))}
-          </RecordCardList>
-
-          <TableScroll desktopOnly>
-            <table className="w-full min-w-[64rem] text-sm">
-              <thead className="bg-muted/50 text-left">
-                <tr>
-                  <th className="p-3 font-medium">Produkt / Variante</th>
-                  <th className="p-3 font-medium">SKU</th>
-                  <th className="p-3 text-right font-medium">Physisch</th>
-                  <th className="p-3 text-right font-medium">Beschädigt</th>
-                  <th className="p-3 text-right font-medium">Reserviert</th>
-                  <th className="p-3 text-right font-medium">Verfügbar</th>
-                  <th className="p-3 text-right font-medium">Erwartet</th>
-                  <th className="p-3 font-medium">Status</th>
-                  <th className="p-3 font-medium">Tracking</th>
-                  <th className="p-3 font-medium">Backorder</th>
-                  <th className="p-3 text-right font-medium">Aktionen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.inventory_item_id} className="border-t align-middle">
-                    <td className="max-w-[20rem] p-3">
-                      <Link
-                        to="/app/produkte/$productId"
-                        params={{ productId: row.product_id }}
-                        className="font-medium hover:underline"
-                      >
-                        {row.product_name}
-                      </Link>
-                      <div className="text-muted-foreground text-xs">{row.variant_title}</div>
-                      {row.locations.length > 0 && (
-                        <div className="text-muted-foreground mt-1 text-xs">
-                          {row.locations
-                            .map((l) => `${l.location_name}: ${l.available} verfügbar`)
-                            .join(" · ")}
-                        </div>
-                      )}
-                    </td>
-                    <td className="text-muted-foreground p-3 break-words">{row.sku ?? "—"}</td>
-                    <td className="p-3 text-right tabular-nums">
-                      {row.track_inventory ? row.totals.on_hand : "—"}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
-                      {row.track_inventory ? row.totals.damaged : "—"}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
-                      {row.track_inventory ? row.totals.reserved : "—"}
-                    </td>
-                    <td className="p-3 text-right font-medium tabular-nums">
-                      {row.track_inventory ? row.available : "∞"}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
-                      {row.track_inventory ? row.totals.incoming : "—"}
-                    </td>
-                    <td className="p-3">
+      <div className="mt-4">
+        {inventoryQuery.isLoading ? (
+          <ListSkeleton />
+        ) : inventoryQuery.error ? (
+          <ErrorState description={(inventoryQuery.error as Error).message} />
+        ) : rows.length === 0 ? (
+          <EmptyState
+            title="Noch keine Bestandsdaten"
+            description="Öffne ein Produkt und aktiviere dort den Tab „Bestand“, oder buche direkt einen Wareneingang."
+          />
+        ) : (
+          <SectionPanel flush>
+            <RecordList>
+              {rows.map((row) => (
+                <RecordRow
+                  key={row.inventory_item_id}
+                  to="/app/produkte/$productId"
+                  params={{ productId: row.product_id }}
+                  title={row.product_name}
+                  subtitle={`${row.variant_title}${row.sku ? ` · ${row.sku}` : ""}`}
+                  badges={
+                    row.status === "in_stock" ? null : (
                       <Badge
-                        variant={
-                          row.status === "out_of_stock"
-                            ? "destructive"
-                            : row.status === "low_stock"
-                              ? "secondary"
-                              : "outline"
-                        }
+                        variant={row.status === "out_of_stock" ? "destructive" : "secondary"}
                       >
                         {STOCK_STATUS_LABEL[row.status]}
                       </Badge>
-                    </td>
-                    <td className="p-3">
-                      <Switch
-                        aria-label={`Bestandsführung für ${row.sku ?? row.inventory_item_id}`}
-                        checked={row.track_inventory}
-                        disabled={!canSettings || settingsMutation.isPending}
-                        onCheckedChange={(checked) =>
-                          settingsMutation.mutate({
-                            inventoryItemId: row.inventory_item_id,
-                            trackInventory: checked,
-                          })
-                        }
-                      />
-                    </td>
-                    <td className="p-3">
-                      <Switch
-                        aria-label={`Nachbestellung erlauben für ${row.sku ?? row.inventory_item_id}`}
-                        checked={row.allow_backorder}
-                        disabled={!canSettings || settingsMutation.isPending}
-                        onCheckedChange={(checked) =>
-                          settingsMutation.mutate({
-                            inventoryItemId: row.inventory_item_id,
-                            allowBackorder: checked,
-                          })
-                        }
-                      />
-                    </td>
-                    <td className="p-3 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={!canReceive || !row.track_inventory}
-                          onClick={() => openDialog(row, "receive")}
-                        >
-                          Eingang
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={!canAdjust || !row.track_inventory}
-                          onClick={() => openDialog(row, "adjust")}
-                        >
-                          Korrektur
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={!canAdjust || !row.track_inventory}
-                          onClick={() => openDialog(row, "damage")}
-                        >
-                          Schaden
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </TableScroll>
-        </>
-      )}
+                    )
+                  }
+                  trailing={row.track_inventory ? String(row.available) : "∞"}
+                  trailingHint="verfügbar"
+                  meta={
+                    row.track_inventory
+                      ? [
+                          { label: "Physisch", value: row.totals.on_hand },
+                          { label: "Reserviert", value: row.totals.reserved },
+                          { label: "Beschädigt", value: row.totals.damaged },
+                          { label: "Erwartet", value: row.totals.incoming },
+                        ]
+                      : undefined
+                  }
+                  actions={
+                    <ActionMenu
+                      label={`Buchungen für ${row.product_name}`}
+                      items={[
+                        {
+                          label: "Wareneingang buchen",
+                          onSelect: () => openDialog(row, "receive"),
+                          disabled: !canReceive || !row.track_inventory,
+                        },
+                        {
+                          label: "Bestand korrigieren",
+                          onSelect: () => openDialog(row, "adjust"),
+                          disabled: !canAdjust || !row.track_inventory,
+                        },
+                        {
+                          label: "Schaden buchen",
+                          onSelect: () => openDialog(row, "damage"),
+                          disabled: !canAdjust || !row.track_inventory,
+                          destructive: true,
+                        },
+                        {
+                          label: row.track_inventory
+                            ? "Bestandsführung deaktivieren"
+                            : "Bestandsführung aktivieren",
+                          onSelect: () =>
+                            settingsMutation.mutate({
+                              inventoryItemId: row.inventory_item_id,
+                              trackInventory: !row.track_inventory,
+                            }),
+                          disabled: !canSettings || settingsMutation.isPending,
+                          separatorBefore: true,
+                        },
+                        {
+                          label: row.allow_backorder
+                            ? "Nachbestellung sperren"
+                            : "Nachbestellung erlauben",
+                          onSelect: () =>
+                            settingsMutation.mutate({
+                              inventoryItemId: row.inventory_item_id,
+                              allowBackorder: !row.allow_backorder,
+                            }),
+                          disabled: !canSettings || settingsMutation.isPending,
+                        },
+                      ]}
+                    />
+                  }
+                />
+              ))}
+            </RecordList>
+          </SectionPanel>
+        )}
+      </div>
 
 
       <Dialog open={mode !== null} onOpenChange={(open) => (open ? null : closeDialog())}>

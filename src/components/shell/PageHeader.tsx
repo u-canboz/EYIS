@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
+import { navTrail } from "./nav-registry";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -13,10 +15,22 @@ type Props = {
 /**
  * Standard page header. Uses a two-column grid on narrow viewports so a long
  * title truncates instead of pushing actions out of the viewport.
+ *
+ * When the mobile topbar already shows the same label, the visible heading is
+ * suppressed on small screens (the h1 stays in the accessibility tree) so a
+ * page never opens with the same words twice.
  */
 export function PageHeader({ title, description, eyebrow, actions, className }: Props) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const duplicate = navTrail(pathname).item === title && !eyebrow;
+
   return (
-    <header className={cn("mb-6 flex flex-col gap-3 border-b border-border pb-5", className)}>
+    <header
+      className={cn(
+        "mb-4 flex flex-col gap-2.5 sm:mb-5 sm:border-b sm:border-border sm:pb-4",
+        className,
+      )}
+    >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           {eyebrow ? (
@@ -24,11 +38,16 @@ export function PageHeader({ title, description, eyebrow, actions, className }: 
               {eyebrow}
             </div>
           ) : null}
-          <h1 className="truncate font-display text-xl leading-tight font-semibold tracking-tight sm:text-[1.6rem]">
+          <h1
+            className={cn(
+              "truncate font-display text-xl leading-tight font-semibold tracking-tight sm:text-[1.6rem]",
+              duplicate && "sr-only sm:not-sr-only",
+            )}
+          >
             {title}
           </h1>
           {description ? (
-            <p className="mt-1.5 max-w-prose text-sm text-pretty text-muted-foreground">
+            <p className="mt-1.5 hidden max-w-prose text-sm text-pretty text-muted-foreground sm:block">
               {description}
             </p>
           ) : null}

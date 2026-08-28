@@ -17,19 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
 import { FilterBar } from "@/components/data/FilterBar";
-import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
-import { TableScroll } from "@/components/data/TableScroll";
+import { SectionPanel } from "@/components/data/SectionPanel";
+import { RecordList, RecordRow, RecordThumb } from "@/components/data/RecordRow";
+import { ActionMenu } from "@/components/data/ActionMenu";
 
 export const Route = createFileRoute("/_authenticated/app/produkte/")({
   head: () => ({
@@ -238,138 +231,54 @@ function ProductsPage() {
           }
         />
       ) : (
-        <>
-          <RecordCardList>
+        <SectionPanel flush>
+          <RecordList>
             {items.map((item) => (
-              <RecordCard
+              <RecordRow
                 key={item.id}
-                title={
-                  <Link
-                    to="/app/produkte/$productId"
-                    params={{ productId: item.id }}
-                    className="hover:underline"
-                  >
-                    {item.name}
-                  </Link>
-                }
-                subtitle={`/${item.handle}`}
+                to="/app/produkte/$productId"
+                params={{ productId: item.id }}
+                leading={<RecordThumb src={item.cover_url} alt={item.name} />}
+                title={item.name}
+                subtitle={`/${item.handle} · ${item.variant_count} ${
+                  item.variant_count === 1 ? "Variante" : "Varianten"
+                }${item.categories.length ? ` · ${item.categories.join(", ")}` : ""}`}
                 badges={
-                  <>
-                    <Badge variant={item.status === "active" ? "default" : "secondary"}>
-                      {STATUS_LABEL[item.status]}
-                    </Badge>
-                    <Badge variant="outline">{item.variant_count} Varianten</Badge>
-                  </>
+                  item.status === "active" ? null : (
+                    <Badge variant="secondary">{STATUS_LABEL[item.status]}</Badge>
+                  )
                 }
-                fields={[
-                  { label: "Kategorien", value: item.categories.join(", ") || "–" },
-                ]}
                 actions={
-                  <>
-                    {canCreate && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="min-h-11"
-                        disabled={duplicateMutation.isPending}
-                        onClick={() => duplicateMutation.mutate(item.id)}
-                      >
-                        Duplizieren
-                      </Button>
-                    )}
-                    {can("products.archive") && item.status !== "archived" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="min-h-11"
-                        disabled={archiveMutation.isPending}
-                        onClick={() => archiveMutation.mutate(item.id)}
-                      >
-                        Archivieren
-                      </Button>
-                    )}
-                  </>
+                  <ActionMenu
+                    label={`Aktionen für ${item.name}`}
+                    items={[
+                      ...(canCreate
+                        ? [
+                            {
+                              label: "Duplizieren",
+                              onSelect: () => duplicateMutation.mutate(item.id),
+                              disabled: duplicateMutation.isPending,
+                            },
+                          ]
+                        : []),
+                      ...(can("products.archive") && item.status !== "archived"
+                        ? [
+                            {
+                              label: "Archivieren",
+                              onSelect: () => archiveMutation.mutate(item.id),
+                              disabled: archiveMutation.isPending,
+                              destructive: true,
+                              separatorBefore: true,
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
                 }
               />
             ))}
-          </RecordCardList>
-
-          <TableScroll desktopOnly>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-14"></TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Varianten</TableHead>
-                  <TableHead>Kategorien</TableHead>
-                  <TableHead className="text-right">Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      {item.cover_url ? (
-                        <img
-                          src={item.cover_url}
-                          alt={item.name}
-                          className="h-10 w-10 rounded object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded bg-muted" />
-                      )}
-                    </TableCell>
-                    <TableCell className="max-w-[20rem]">
-                      <Link
-                        to="/app/produkte/$productId"
-                        params={{ productId: item.id }}
-                        className="font-medium hover:underline"
-                      >
-                        {item.name}
-                      </Link>
-                      <p className="truncate text-xs text-muted-foreground">/{item.handle}</p>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={item.status === "active" ? "default" : "secondary"}>
-                        {STATUS_LABEL[item.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="tabular-nums">{item.variant_count}</TableCell>
-                    <TableCell className="max-w-[16rem] truncate text-sm text-muted-foreground">
-                      {item.categories.join(", ") || "–"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        {canCreate && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={duplicateMutation.isPending}
-                            onClick={() => duplicateMutation.mutate(item.id)}
-                          >
-                            Duplizieren
-                          </Button>
-                        )}
-                        {can("products.archive") && item.status !== "archived" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={archiveMutation.isPending}
-                            onClick={() => archiveMutation.mutate(item.id)}
-                          >
-                            Archivieren
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableScroll>
-        </>
+          </RecordList>
+        </SectionPanel>
       )}
 
 
