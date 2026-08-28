@@ -9,7 +9,11 @@ import {
   pollUpdateRunFn,
   startUpdateFn,
 } from "@/lib/commerce/updates/updates.functions";
-import { UPDATE_STEP_LABELS, type UpdateStep } from "@/lib/commerce/updates/types";
+import {
+  UPDATE_STEP_LABELS,
+  type CapabilityProof,
+  type UpdateStep,
+} from "@/lib/commerce/updates/types";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,7 +53,7 @@ function CapabilityRow({
   proof,
 }: {
   label: string;
-  proof: { status: keyof typeof CAP_VARIANT; provider: string; detail: string; remediation?: string };
+  proof: CapabilityProof;
 }) {
   return (
     <div className="border-b py-3 last:border-0">
