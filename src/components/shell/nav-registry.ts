@@ -38,6 +38,7 @@ import {
   SlidersHorizontal,
   Palette,
   History,
+  RefreshCw,
   Settings,
   type LucideIcon,
 } from "lucide-react";
