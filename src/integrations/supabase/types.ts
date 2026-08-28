@@ -1452,6 +1452,8 @@ export type Database = {
       commerce_installation: {
         Row: {
           api_version: string
+          auto_update_policy: string
+          available_release: Json | null
           claim_token_expires_at: string | null
           claim_token_hash: string | null
           claim_token_used_at: string | null
@@ -1461,7 +1463,11 @@ export type Database = {
           id: string
           installation_id: string
           installed_at: string
+          installed_release_id: string | null
           last_migrated_at: string | null
+          last_successful_update_at: string | null
+          last_update_check_at: string | null
+          maintenance_state: string
           mode: string
           owner_claimed_at: string | null
           schema_version: string | null
@@ -1470,10 +1476,15 @@ export type Database = {
           setup_progress: Json
           singleton: boolean
           storefront_origin: string | null
+          system_seed_version: number
+          update_channel: string
+          update_config: Json
           updated_at: string
         }
         Insert: {
           api_version?: string
+          auto_update_policy?: string
+          available_release?: Json | null
           claim_token_expires_at?: string | null
           claim_token_hash?: string | null
           claim_token_used_at?: string | null
@@ -1483,7 +1494,11 @@ export type Database = {
           id?: string
           installation_id: string
           installed_at?: string
+          installed_release_id?: string | null
           last_migrated_at?: string | null
+          last_successful_update_at?: string | null
+          last_update_check_at?: string | null
+          maintenance_state?: string
           mode?: string
           owner_claimed_at?: string | null
           schema_version?: string | null
@@ -1492,10 +1507,15 @@ export type Database = {
           setup_progress?: Json
           singleton?: boolean
           storefront_origin?: string | null
+          system_seed_version?: number
+          update_channel?: string
+          update_config?: Json
           updated_at?: string
         }
         Update: {
           api_version?: string
+          auto_update_policy?: string
+          available_release?: Json | null
           claim_token_expires_at?: string | null
           claim_token_hash?: string | null
           claim_token_used_at?: string | null
@@ -1505,7 +1525,11 @@ export type Database = {
           id?: string
           installation_id?: string
           installed_at?: string
+          installed_release_id?: string | null
           last_migrated_at?: string | null
+          last_successful_update_at?: string | null
+          last_update_check_at?: string | null
+          maintenance_state?: string
           mode?: string
           owner_claimed_at?: string | null
           schema_version?: string | null
@@ -1514,6 +1538,9 @@ export type Database = {
           setup_progress?: Json
           singleton?: boolean
           storefront_origin?: string | null
+          system_seed_version?: number
+          update_channel?: string
+          update_config?: Json
           updated_at?: string
         }
         Relationships: []
@@ -8199,6 +8226,137 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      update_run_steps: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_code: string | null
+          id: string
+          output_summary: string | null
+          position: number
+          started_at: string | null
+          status: string
+          step: string
+          update_run_id: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          output_summary?: string | null
+          position: number
+          started_at?: string | null
+          status?: string
+          step: string
+          update_run_id: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          output_summary?: string | null
+          position?: number
+          started_at?: string | null
+          status?: string
+          step?: string
+          update_run_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "update_run_steps_update_run_id_fkey"
+            columns: ["update_run_id"]
+            isOneToOne: false
+            referencedRelation: "update_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      update_runs: {
+        Row: {
+          backup_reference: string | null
+          channel: string
+          completed_at: string | null
+          created_at: string
+          current_step: string | null
+          deployment_provider: string | null
+          deployment_reference: string | null
+          error_code: string | null
+          from_version: string
+          id: string
+          initiated_by: string | null
+          initiated_by_email: string | null
+          installation_id: string
+          metadata: Json
+          migration_from: string | null
+          migration_provider: string | null
+          migration_to: string | null
+          release_id: string
+          rollback_status: string
+          safe_error_message: string | null
+          started_at: string
+          status: string
+          to_version: string
+          updated_at: string
+        }
+        Insert: {
+          backup_reference?: string | null
+          channel?: string
+          completed_at?: string | null
+          created_at?: string
+          current_step?: string | null
+          deployment_provider?: string | null
+          deployment_reference?: string | null
+          error_code?: string | null
+          from_version: string
+          id?: string
+          initiated_by?: string | null
+          initiated_by_email?: string | null
+          installation_id: string
+          metadata?: Json
+          migration_from?: string | null
+          migration_provider?: string | null
+          migration_to?: string | null
+          release_id: string
+          rollback_status?: string
+          safe_error_message?: string | null
+          started_at?: string
+          status?: string
+          to_version: string
+          updated_at?: string
+        }
+        Update: {
+          backup_reference?: string | null
+          channel?: string
+          completed_at?: string | null
+          created_at?: string
+          current_step?: string | null
+          deployment_provider?: string | null
+          deployment_reference?: string | null
+          error_code?: string | null
+          from_version?: string
+          id?: string
+          initiated_by?: string | null
+          initiated_by_email?: string | null
+          installation_id?: string
+          metadata?: Json
+          migration_from?: string | null
+          migration_provider?: string | null
+          migration_to?: string | null
+          release_id?: string
+          rollback_status?: string
+          safe_error_message?: string | null
+          started_at?: string
+          status?: string
+          to_version?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       variant_option_values: {
         Row: {
