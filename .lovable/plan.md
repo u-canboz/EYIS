@@ -148,8 +148,34 @@ Aktualisiert: `AGENTS.md` (Betriebsart C konkretisiert), `docs/agent/OPERATING_M
 `START_HERE.md`, `ARCHITECTURE_MAP.md`, `MODULE_REGISTRY.md`, `qa/PHASE17-AGENT-READINESS.md`
 (die acht geforderten Fragen müssen aus dem Repository beantwortbar sein).
 
-Empfohlener Weg wird klar benannt: **Template zuerst**, Nachrüstung in ein bestehendes Projekt als
-zweiter, dokumentierter Weg.
+Empfohlener Weg (Weg A, Standard für Neukunden):
+
+```text
+Commerce OS Dedicated Template
+        ↓
+neues Kundenprojekt
+        ↓
+eigene Lovable Cloud (DB, Auth, Storage)
+        ↓
+Migrationen → Bootstrap
+        ↓
+Website/Design darauf aufbauen
+```
+
+Weg B nur für bereits bestehende Websites:
+
+```text
+Bestehende Lovable Website + Commerce OS Repository
+        ↓
+Agent analysiert Konflikte
+        ↓
+Dedicated Core installieren
+        ↓
+bestehendes Design bleibt erhalten
+```
+
+Ausdrücklich nicht empfohlen: fertige Website bauen und danach den kompletten Commerce-Core
+hineinkopieren.
 
 ## 9. Dedicated-UX
 
