@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { EyisLogo } from "@/components/brand/EyisLogo";
 import { AppNav } from "./AppNav";
 import { DemoBanner } from "./DemoBanner";
 import { CommandPalette, useCommandPalette } from "./CommandPalette";
@@ -173,6 +174,9 @@ export function AppShell(props: Props) {
 
       {/* Tablet: icon rail, never a squeezed sidebar */}
       <aside className="sticky top-0 hidden h-dvh w-16 shrink-0 flex-col items-center gap-1 border-r border-sidebar-border bg-sidebar py-3 text-sidebar-foreground md:flex xl:hidden">
+        <Link to="/app" className="pb-1" aria-label="EYIS Startseite">
+          <EyisLogo variant="mark" width={30} decorative />
+        </Link>
         <div className="pb-2">{navSheet}</div>
         <TooltipProvider delayDuration={200}>
           <nav aria-label="Bereiche" className="flex flex-col items-center gap-1 overflow-y-auto">
@@ -234,7 +238,7 @@ export function AppShell(props: Props) {
             to="/app"
             className="flex min-h-11 min-w-0 items-center rounded-md font-display text-sm font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
-            <span className="min-w-0 truncate">{trail.item ?? "Commerce OS"}</span>
+            <span className="min-w-0 truncate">{trail.item ?? "EYIS"}</span>
           </Link>
           <button
             type="button"
@@ -249,7 +253,7 @@ export function AppShell(props: Props) {
         {/* Desktop / tablet topbar */}
         <header className="sticky top-0 z-30 hidden min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur md:grid xl:px-8">
           <div className="flex min-w-0 items-center gap-1.5 text-sm">
-            <span className="truncate text-muted-foreground">{trail.group ?? "Commerce OS"}</span>
+            <span className="truncate text-muted-foreground">{trail.group ?? "EYIS"}</span>
             {trail.item ? (
               <>
                 <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/60" aria-hidden />
