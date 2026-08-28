@@ -22,6 +22,10 @@ Die Shell existiert bereits mit Sidebar (xl), Icon-Rail (md), Sheet-Drawer, Bott
 10. **Nur echte Demo-Daten** — lange Namen, Varianten, reale Statuskombinationen und große Beträge sind schon während des Designs sichtbar.
 11. **Jede Seite wird sichtbar kompakter** als bisher: mehr relevante Information pro Bildschirm, ohne eng oder unruhig zu wirken.
 12. **Bei Unsicherheit entscheiden die Referenzbilder** in `references/` über Proportion, Dichte und Hierarchie. Keine Mockup-Texte oder -Zahlen übernehmen.
+13. **RecordRow ist Standard, nicht Dogma.** Wo eine zweizeilige native Liste besser funktioniert, wird keine unnötige Card drumherum gebaut.
+14. **Mobil Divider statt einzelner weißer Rahmenkarten** — dadurch wirkt es wesentlich mehr wie eine echte App.
+15. **Produkteditor und Bestelldetail: Sections dürfen visuell zusammenhängen.** Nicht jedes Formularfeld oder jede Gruppe erneut in eine eigene Box sperren.
+
 
 
 ## 1. Design-Tokens (`src/styles.css`)
@@ -49,7 +53,7 @@ App-Hintergrund warmweiß `#F8F7F5`, Surface `#FFFFFF`, Elevated `#FCFBFA`, Text
 
 ## 4. Kernseiten (in dieser Reihenfolge)
 
-1. **Dashboard** — Begrüßung + Shop-Zeile statt Hero, 6 kompakte KPI-Kacheln (Umsatz, Bestellungen, Zahlungen, Retouren, niedriger Bestand, offene Aufgaben) mit Trend, eine gemeinsame Bestellstatus-Section, 2–4 kritische Bestände mit Direktaktion, kompakte Aktivitätenliste. Jede Kachel führt in die gefilterte Arbeitsansicht.
+1. **Dashboard** — asymmetrische Informationshierarchie statt Kacheloptik. **Dashboard-Komposition (verbindlich):** Keine sechs visuell gleichgewichteten KPI-Karten. Das Dashboard wird als operatives Cockpit aufgebaut: oben „Umsatz heute/Zeitraum" groß mit Trend/Sparkline, daneben bzw. darunter Bestellungen und Zahlungen; danach eine kompakte „Operative Aufmerksamkeit"-Liste (offene Bestellungen, Retouren, niedrige Bestände, Versandprobleme); danach Bestellstatus als kompakte Visualisierung; danach kritische Bestände; danach letzte Bestellungen/Aktivitäten. Eine oder zwei zentrale Geschäftskennzahlen erhalten klare visuelle Priorität, operative Probleme werden in einer Attention-Liste gebündelt, unterschiedliche Informationsarten sehen unterschiedlich aus — nicht alles als Card. Jedes Element führt in die gefilterte Arbeitsansicht.
 2. **Bestellungen** — Inbox-Optik: Tabs mit Zählern, kompakte Records (Nummer + Kunde, Zeit + Artikelzahl, Betrag rechts, max. 2 Chips), Desktop als dichte Tabelle.
 3. **Produkte** — Zeilen mit 52–64 px Bild, Name (max. 2 Zeilen), SKU, Status, Variantenzahl, Preis/Bestand rechts, Aktionen im Overflow.
 4. **Lager** — Tabs Übersicht/Wareneingang/Reservierungen/Bewegungen, kleine Kennzahlen, Record mit „verfügbar" prominent und 2×2-Meta.
