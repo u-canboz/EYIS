@@ -11,12 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EyisLogo } from "@/components/brand/EyisLogo";
 import { AppNav } from "./AppNav";
 import { DemoBanner } from "./DemoBanner";
@@ -38,7 +33,6 @@ type Props = {
   onSignOut: () => void;
   children: ReactNode;
 };
-
 
 function OrgPicker({
   organizations,
@@ -82,12 +76,10 @@ function Wordmark({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
       onClick={onNavigate}
       className="flex min-w-0 items-center gap-3 rounded-md focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
     >
-      <EyisLogo variant="mark" width={30} decorative />
-      <EyisLogo variant="wordmark" width={96} />
+      <EyisLogo variant="full" width={128} />
     </Link>
   );
 }
-
 
 function SidebarBody(
   props: Props & { onNavigate?: (() => void) | undefined; onSearch?: (() => void) | undefined },
@@ -161,7 +153,6 @@ export function AppShell(props: Props) {
       </SheetContent>
     </Sheet>
   );
-
 
   return (
     <div className="flex min-h-dvh w-full bg-background">

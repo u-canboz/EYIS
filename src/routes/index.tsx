@@ -90,7 +90,10 @@ const PRINCIPLES: Array<[string, string]> = [
     "Serverseitige Wahrheit",
     "Preise, Steuern, Bestände und Summen berechnet ausschließlich der Server.",
   ],
-  ["Unveränderliche Spuren", "Belege, Steuersnapshots und Zahlungsereignisse werden nie überschrieben."],
+  [
+    "Unveränderliche Spuren",
+    "Belege, Steuersnapshots und Zahlungsereignisse werden nie überschrieben.",
+  ],
   ["API-first", "Jede Storefront spricht über die stabile Store API v1 und das TypeScript-SDK."],
 ];
 
@@ -166,8 +169,7 @@ function Landing() {
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 sm:px-6">
           <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="EYIS Startseite">
-            <EyisLogo variant="mark" width={28} decorative />
-            <EyisLogo variant="wordmark" width={92} />
+            <EyisLogo variant="full" width={120} />
           </Link>
           <span className="flex shrink-0 items-center gap-2">
             <Link
@@ -242,7 +244,11 @@ function Landing() {
               </dl>
             </div>
             <div className="min-w-0">
-              <CodeBlock label="storefront.ts · Store SDK" language="typescript" code={SDK_SNIPPET} />
+              <CodeBlock
+                label="storefront.ts · Store SDK"
+                language="typescript"
+                code={SDK_SNIPPET}
+              />
             </div>
           </div>
         </section>
@@ -423,8 +429,10 @@ function Landing() {
       <footer className="border-t border-border">
         <div className="mx-auto grid max-w-6xl gap-4 px-5 py-8 text-xs text-muted-foreground sm:grid-cols-[minmax(0,1fr)_auto] sm:px-6">
           <span className="flex min-w-0 flex-col gap-2">
-            <EyisLogo variant="wordmark-claim" width={200} />
-            <span className="min-w-0">{SITE.name} · {SITE.release}</span>
+            <EyisLogo variant="full" width={160} />
+            <span className="min-w-0">
+              {SITE.name} · {SITE.release}
+            </span>
           </span>
           <span className="flex flex-wrap gap-4">
             <Link to="/entwickler" className="hover:text-foreground">

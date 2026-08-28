@@ -92,6 +92,17 @@ function StoreLayout() {
             <p className="text-xs text-muted-foreground">
               Referenz-Storefront · Preise inkl. gesetzlicher Umsatzsteuer, zzgl. Versand.
             </p>
+            <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+              Powered by
+              <img
+                src="/brand/eyis/eyis-full-logo.svg"
+                alt=""
+                aria-hidden
+                width={90}
+                className="block h-auto w-[90px]"
+                draggable={false}
+              />
+            </p>
           </StoreContainer>
         </footer>
       </div>
