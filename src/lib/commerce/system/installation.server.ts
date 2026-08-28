@@ -290,6 +290,12 @@ export async function claimOwner(input: ClaimInput) {
   // 5  Default-Settings (produktionstauglich, ohne Demo-Daten)
   await createOwnerDefaults(orgId, shopId);
 
+  // 6  Dedicated: Installation mit Tenant verknüpfen und den Publishable Key
+  //    der Storefront automatisch erzeugen (idempotent, kein zweiter Key).
+  const { linkInstallationTenant, ensureStorefrontKey } = await import("./runtime-config.server");
+  await linkInstallationTenant(orgId, shopId);
+  await ensureStorefrontKey(orgId, shopId);
+
   const { writeAudit } = await import("../core.server");
   await writeAudit({
     organizationId: orgId,
