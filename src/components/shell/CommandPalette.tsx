@@ -24,9 +24,9 @@ export function CommandPalette({
   const navigate = useNavigate();
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange} title="Sprungsuche"
-      description="Modul suchen und direkt öffnen">
+    <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Modul, Seite oder Aktion suchen …" />
+
       <CommandList>
         <CommandEmpty>Nichts gefunden.</CommandEmpty>
         {NAV_GROUPS.map((group) => (
