@@ -1469,13 +1469,17 @@ export type Database = {
           last_update_check_at: string | null
           maintenance_state: string
           mode: string
+          organization_id: string | null
           owner_claimed_at: string | null
           schema_version: string | null
           sdk_version: string | null
           setup_completed_at: string | null
           setup_progress: Json
+          shop_id: string | null
           singleton: boolean
+          storefront_key_id: string | null
           storefront_origin: string | null
+          storefront_publishable_key: string | null
           system_seed_version: number
           update_channel: string
           update_config: Json
@@ -1500,13 +1504,17 @@ export type Database = {
           last_update_check_at?: string | null
           maintenance_state?: string
           mode?: string
+          organization_id?: string | null
           owner_claimed_at?: string | null
           schema_version?: string | null
           sdk_version?: string | null
           setup_completed_at?: string | null
           setup_progress?: Json
+          shop_id?: string | null
           singleton?: boolean
+          storefront_key_id?: string | null
           storefront_origin?: string | null
+          storefront_publishable_key?: string | null
           system_seed_version?: number
           update_channel?: string
           update_config?: Json
@@ -1531,13 +1539,17 @@ export type Database = {
           last_update_check_at?: string | null
           maintenance_state?: string
           mode?: string
+          organization_id?: string | null
           owner_claimed_at?: string | null
           schema_version?: string | null
           sdk_version?: string | null
           setup_completed_at?: string | null
           setup_progress?: Json
+          shop_id?: string | null
           singleton?: boolean
+          storefront_key_id?: string | null
           storefront_origin?: string | null
+          storefront_publishable_key?: string | null
           system_seed_version?: number
           update_channel?: string
           update_config?: Json
