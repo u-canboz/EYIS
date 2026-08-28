@@ -12,6 +12,8 @@ import {
 } from "@/lib/commerce/payments/payment-types";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/data/StatusBadge";
+import { orderTone, paymentTone, fulfillmentTone } from "@/components/data/status-tones";
 import {
   Select,
   SelectContent,
@@ -152,13 +154,13 @@ function OrdersPage() {
                   trailing={formatMoney(o.totalMinor, o.currencyCode)}
                   badges={
                     <>
-                      <Badge variant="secondary">{ORDER_STATUS_LABELS[o.orderStatus]}</Badge>
-                      <Badge variant={o.paymentStatus === "paid" ? "default" : "outline"}>
+                      <StatusBadge tone={orderTone(o.orderStatus)}>{ORDER_STATUS_LABELS[o.orderStatus]}</StatusBadge>
+                      <StatusBadge tone={paymentTone(o.paymentStatus)}>
                         {PAYMENT_STATUS_LABELS[o.paymentStatus]}
-                      </Badge>
-                      <Badge variant="outline">
+                      </StatusBadge>
+                      <StatusBadge tone={fulfillmentTone(o.fulfillmentStatus)}>
                         {FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}
-                      </Badge>
+                      </StatusBadge>
                       {o.environment === "test" ? <Badge variant="outline">Test</Badge> : null}
                     </>
                   }
@@ -213,12 +215,12 @@ function OrdersPage() {
                     </td>
                     <td className="max-w-[16rem] truncate p-3">{o.email ?? "—"}</td>
                     <td className="p-3">
-                      <Badge variant="secondary">{ORDER_STATUS_LABELS[o.orderStatus]}</Badge>
+                      <StatusBadge tone={orderTone(o.orderStatus)}>{ORDER_STATUS_LABELS[o.orderStatus]}</StatusBadge>
                     </td>
                     <td className="p-3">
-                      <Badge variant={o.paymentStatus === "paid" ? "default" : "outline"}>
+                      <StatusBadge tone={paymentTone(o.paymentStatus)}>
                         {PAYMENT_STATUS_LABELS[o.paymentStatus]}
-                      </Badge>
+                      </StatusBadge>
                     </td>
                     <td className="p-3">{FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}</td>
                     <td className="p-3 text-right tabular-nums">

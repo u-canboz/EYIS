@@ -40,6 +40,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/data/StatusBadge";
+import { orderTone, paymentTone, fulfillmentTone } from "@/components/data/status-tones";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -186,11 +188,11 @@ function OrderDetailPage() {
       />
 
       <div className="flex min-w-0 flex-wrap gap-2">
-        <Badge variant="secondary">{ORDER_STATUS_LABELS[o.orderStatus]}</Badge>
-        <Badge variant={o.paymentStatus === "paid" ? "default" : "outline"}>
+        <StatusBadge tone={orderTone(o.orderStatus)}>{ORDER_STATUS_LABELS[o.orderStatus]}</StatusBadge>
+        <StatusBadge tone={paymentTone(o.paymentStatus)}>
           {PAYMENT_STATUS_LABELS[o.paymentStatus]}
-        </Badge>
-        <Badge variant="outline">{FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}</Badge>
+        </StatusBadge>
+        <StatusBadge tone={fulfillmentTone(o.fulfillmentStatus)}>{FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}</StatusBadge>
         {o.environment === "test" && <Badge variant="outline">Test</Badge>}
       </div>
 
