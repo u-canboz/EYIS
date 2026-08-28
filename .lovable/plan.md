@@ -25,6 +25,11 @@ Die Shell existiert bereits mit Sidebar (xl), Icon-Rail (md), Sheet-Drawer, Bott
 13. **RecordRow ist Standard, nicht Dogma.** Wo eine zweizeilige native Liste besser funktioniert, wird keine unnötige Card drumherum gebaut.
 14. **Mobil Divider statt einzelner weißer Rahmenkarten** — dadurch wirkt es wesentlich mehr wie eine echte App.
 15. **Produkteditor und Bestelldetail: Sections dürfen visuell zusammenhängen.** Nicht jedes Formularfeld oder jede Gruppe erneut in eine eigene Box sperren.
+16. **Keine doppelten Überschriften auf Mobil.** Zeigt die Topbar bereits „Produkte", folgt darunter keine große H1 „Produkte".
+17. **Mobile Listen bevorzugen Divider statt Karten.** Bestellungen, Produkte, Kunden und Lager wirken wie native iOS-/Shopify-Listen, nicht wie einzelne Boxen mit Schatten.
+18. **Primäraktionen nur einmal.** Kein „Neues Produkt" gleichzeitig oben, als Floating Button und unten.
+19. **Dashboard maximal eine große Visualisierung** (z. B. Umsatztrend). Keine fünf Diagramme; der Rest bleibt scanbar und operativ.
+20. **Bestehende Layouts werden nicht konserviert.** Widerspricht eine vorhandene Präsentationsstruktur dem Zielbild, wird sie konsequent ersetzt — Logik und Datenflüsse bleiben unverändert.
 
 
 
