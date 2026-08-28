@@ -8,6 +8,22 @@ Strikte Grenze wie im Pack gefordert: **nur Präsentationsschicht**. Keine Ände
 
 Die Shell existiert bereits mit Sidebar (xl), Icon-Rail (md), Sheet-Drawer, Bottom-Tabs (4 + Menü) und Command Palette. Die Farbwelt ist Light-Mode „Graphit & Kupfer", Dark Mode wurde entfernt. Das Redesign verschiebt vor allem **Dichte, Komposition und mobile Eigenständigkeit**, nicht die Grundarchitektur der Shell.
 
+## 0. Verbindliche Designregeln (Vorrang vor allen bisherigen UI-Mustern)
+
+1. **390 px ist die primäre Designreferenz.** Desktop wird daraus intelligent erweitert, nie umgekehrt.
+2. **Dashboard mit klarer Gewichtung**, keine Card-Wüste: zuerst die wichtigsten Geschäftskennzahlen, dann operative Probleme, dann Status, Bestand und Aktivitäten. Keine sechs gleichwertigen Boxen.
+3. **Bestellungen, Produkte, Kunden und Lager fühlen sich wie native App-Listen an** — kompakt, scanbar, schnell antippbar, keine großen Web-Card-Blöcke.
+4. **Borders und Schatten extrem sparsam.** Struktur über Typografie, Abstände, leichte Flächenunterschiede und Divider. Nicht jedes Element in einen eigenen Kasten.
+5. **Orange ist Funktionsakzent**, keine Dekoration: aktive Navigation, Hauptaktionen, wichtige Highlights, ausgewählte Zustände.
+6. **Bottom Navigation als permanenter nativer Bestandteil**: kompakt, stabile Höhe, Safe-Area-sicher, keine übergroßen aktiven Flächen.
+7. **Mobile-Menü als OS-Menü**, kein Sidebar-Dump: Shop-Kontext, Suche, klare Gruppen, nur relevante Gruppen geöffnet, schneller Rückweg.
+8. **Produkteditor und Bestelldetail sind Arbeitsoberflächen**, keine Formular-Card-Sammlungen. Informationen verdichten, Sekundäres progressiv offenlegen.
+9. **Konsequente Wiederverwendung** von `RecordRow`, `MetricTile`, `SectionPanel`, `TabsBar`, `FilterBar`, `ActionMenu` und den gemeinsamen Sheet-Patterns. Keine Sonderdesigns pro Seite.
+10. **Nur echte Demo-Daten** — lange Namen, Varianten, reale Statuskombinationen und große Beträge sind schon während des Designs sichtbar.
+11. **Jede Seite wird sichtbar kompakter** als bisher: mehr relevante Information pro Bildschirm, ohne eng oder unruhig zu wirken.
+12. **Bei Unsicherheit entscheiden die Referenzbilder** in `references/` über Proportion, Dichte und Hierarchie. Keine Mockup-Texte oder -Zahlen übernehmen.
+
+
 ## 1. Design-Tokens (`src/styles.css`)
 
 Werte auf die Pack-Palette abstimmen, Token-Namen bleiben stabil:
