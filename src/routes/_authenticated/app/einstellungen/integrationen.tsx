@@ -101,9 +101,9 @@ function ReadinessCard({ area }: { area: ReadinessArea }) {
       <Icon
         className={`mt-0.5 size-5 shrink-0 ${
           area.liveReady
-            ? "text-emerald-600 dark:text-emerald-400"
+            ? "text-emerald-600"
             : area.ready
-              ? "text-amber-600 dark:text-amber-400"
+              ? "text-amber-600"
               : "text-muted-foreground"
         }`}
         aria-hidden
