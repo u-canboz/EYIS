@@ -65,9 +65,16 @@
   --color-surface-foreground: var(--surface-foreground);
   --color-signal: var(--signal);
   --color-signal-foreground: var(--signal-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --shadow-elevated: var(--elevation-2);
   --shadow-raised: var(--elevation-1);
 }
+
 
 
 :root {
