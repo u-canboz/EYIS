@@ -19,9 +19,9 @@ export type CapabilityProof = {
   /** Kurze, sichere Begründung — niemals Secrets. */
   detail: string;
   /** Was der Betreiber tun muss, damit der Adapter SUPPORTED wird. */
-  remediation?: string;
+  remediation?: string | undefined;
   /** Belege, die zur Laufzeit wirklich geprüft wurden. */
-  evidence?: string[];
+  evidence?: string[] | undefined;
 };
 
 export const UPDATE_STEPS = [
@@ -105,13 +105,13 @@ export type ReleaseManifest = {
   migrations: string[];
   /** Erforderliche Seed-Version nach dem Update. */
   seedVersion: number;
-  requiresManualStep?: boolean;
-  securityRelease?: boolean;
-  notes?: string;
+  requiresManualStep?: boolean | undefined;
+  securityRelease?: boolean | undefined;
+  notes?: string | undefined;
   artifact: {
     url: string;
     sha256: string;
-    bytes?: number;
+    bytes?: number | undefined;
   };
 };
 

@@ -191,13 +191,9 @@ function UpdateCenterPage() {
       <Panel title={data.available ? `EYIS ${data.available.version} verfügbar` : "Keine neue Version"}>
         {data.available ? (
           <div className="space-y-3">
-            <DataRow label="Release">{data.available.releaseId}</DataRow>
-            <DataRow label="Veröffentlicht">
-              {new Date(data.available.publishedAt).toLocaleString("de-DE")}
-            </DataRow>
-            <DataRow label="Schemaänderungen">
-              {schemaChanging ? `${data.available.migrations.length} Migration(en)` : "keine"}
-            </DataRow>
+            <DataRow label="Release" value={<>{data.available.releaseId}</>} />
+            <DataRow label="Veröffentlicht" value={<>{new Date(data.available.publishedAt).toLocaleString("de-DE")}</>} />
+            <DataRow label="Schemaänderungen" value={<>{schemaChanging ? `${data.available.migrations.length} Migration(en)` : "keine"}</>} />
             {data.available.notes && (
               <p className="text-sm text-muted-foreground">{data.available.notes}</p>
             )}
@@ -289,8 +285,8 @@ function UpdateCenterPage() {
       </Panel>
 
       <Panel title="Ownership-Grenze">
-        <DataRow label="EYIS ersetzt">{data.ownership.eyis.join(", ")}</DataRow>
-        <DataRow label="Nie überschrieben">{data.ownership.customer.join(", ")}</DataRow>
+        <DataRow label="EYIS ersetzt" value={<>{data.ownership.eyis.join(", ")}</>} />
+        <DataRow label="Nie überschrieben" value={<>{data.ownership.customer.join(", ")}</>} />
       </Panel>
     </div>
   );
