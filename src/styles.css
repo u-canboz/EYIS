@@ -84,12 +84,13 @@
   --elevation-1: 0 1px 2px oklch(0.2 0.005 60 / 5%);
   --elevation-2: 0 12px 32px -18px oklch(0.2 0.005 60 / 30%);
 
-  /* Graphit & Kupfer — neutrale Flächen, ein warmer Signalakzent. */
-  --background: oklch(0.985 0.002 70);
+  /* Helle Arbeitsfläche (Shopify-Prinzip): ruhiger grauer Hintergrund, weiße Panels. */
+  --background: oklch(0.962 0.002 70);
   --foreground: oklch(0.22 0.005 60);
 
-  --surface: oklch(0.963 0.003 70);
+  --surface: oklch(0.985 0.002 70);
   --surface-foreground: oklch(0.22 0.005 60);
+
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.22 0.005 60);
   --popover: oklch(1 0 0);
