@@ -328,15 +328,16 @@ function Overview() {
 }
 
 function AttentionTile({ label, count, hint, to, icon: Icon, tone }: Attention) {
+  const alert = count > 0;
   return (
     <Link
       to={to}
       className={cn(
-        "group grid min-w-0 grid-rows-[auto_auto_auto] gap-1 rounded-xl border bg-card p-3 shadow-raised transition-colors hover:border-primary/60",
-        tone === "critical" && count > 0
+        "group grid min-w-0 grid-rows-[auto_auto_auto] gap-1 rounded-xl border bg-card p-3.5 transition-colors hover:border-primary/50 hover:bg-muted/40",
+        alert && tone === "critical"
           ? "border-destructive/40"
-          : tone === "warn" && count > 0
-            ? "border-signal/40"
+          : alert && tone === "warn"
+            ? "border-warning/45"
             : "border-border",
       )}
     >
@@ -344,17 +345,24 @@ function AttentionTile({ label, count, hint, to, icon: Icon, tone }: Attention) 
         <Icon
           className={cn(
             "size-4 shrink-0",
-            count === 0
+            !alert
               ? "text-muted-foreground"
               : tone === "critical"
                 ? "text-destructive"
-                : "text-signal",
+                : "text-warning",
           )}
           aria-hidden
         />
         <span className="min-w-0 truncate text-xs font-medium text-muted-foreground">{label}</span>
       </span>
-      <span className="font-display text-2xl font-semibold tabular-nums">{count}</span>
+      <span
+        className={cn(
+          "font-display text-2xl leading-none font-semibold tabular-nums",
+          !alert && "text-muted-foreground",
+        )}
+      >
+        {count}
+      </span>
       <span className="min-w-0 truncate text-xs text-muted-foreground">{hint}</span>
     </Link>
   );
@@ -363,11 +371,12 @@ function AttentionTile({ label, count, hint, to, icon: Icon, tone }: Attention) 
 function StatusDot({ status }: { status: string }): ReactNode {
   const tone =
     status === "paid"
-      ? "bg-primary"
+      ? "bg-success"
       : status === "failed"
         ? "bg-destructive"
         : status === "refunded"
           ? "bg-muted-foreground"
-          : "bg-signal";
+          : "bg-warning";
   return <span className={cn("size-2 shrink-0 rounded-full", tone)} aria-label={status} />;
 }
+
