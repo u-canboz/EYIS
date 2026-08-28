@@ -3,7 +3,15 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  CreditCard,
+  FileText,
+  RotateCcw,
+  Settings2,
+  Truck,
+  Users,
+} from "lucide-react";
 import {
   getOrderFn,
   setOrderNoteFn,
@@ -35,7 +43,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
+import { DetailLayout, Panel, DataRow, RelatedLinks } from "@/components/shell/DetailLayout";
 import { EmptyState, ErrorState } from "@/components/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/bestellungen/$orderId")({
