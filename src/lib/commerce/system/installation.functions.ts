@@ -88,3 +88,18 @@ export const setStorefrontOriginFn = createServerFn({ method: "POST" })
     await setStorefrontOrigin(data.origin);
     return { ok: true as const };
   });
+
+/**
+ * Dedicated-Adoption: bestehende Organisation + Hauptshop als Installation
+ * registrieren und den Storefront-Key automatisch erzeugen. Nur Owner der
+ * angegebenen Organisation.
+ */
+export const adoptInstallationFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ organizationId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    const { adoptInstallation } = await import("./installation.server");
+    return adoptInstallation(context.userId, data.organizationId);
+  });
