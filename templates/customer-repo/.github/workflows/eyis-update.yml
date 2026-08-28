@@ -1,0 +1,143 @@
+# EYIS Update Workflow — gehört in das Kunden-Repository der Dedicated-Installation.
+#
+# Wichtig: repository_dispatch startet einen Workflow nur, wenn diese Datei auf
+# dem DEFAULT-BRANCH dieses Repositories liegt. Das zentrale Repository
+# u-canboz/EYIS liefert ausschliesslich signierte Releases.
+#
+# Alle Actions sind auf vollständige Commit-SHAs gepinnt (GitHub-Empfehlung).
+# Die SHAs unten sind Platzhalter aus dem jeweils aktuellen Release-Tag und
+# müssen beim Einrichten einmalig auf die tatsächlichen SHAs gesetzt werden.
+
+name: EYIS Update
+
+on:
+  repository_dispatch:
+    types: [eyis-update]
+
+concurrency:
+  group: eyis-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  code:
+    name: code
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.manifest.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Release-Artefakt laden und Prüfsumme verifizieren
+        id: manifest
+        env:
+          ARTIFACT_URL: ${{ github.event.client_payload.artifact_url }}
+          ARTIFACT_SHA: ${{ github.event.client_payload.artifact_sha256 }}
+          VERSION: ${{ github.event.client_payload.version }}
+        run: |
+          set -euo pipefail
+          curl -fsSL "$ARTIFACT_URL" -o eyis-release.tar.gz
+          echo "$ARTIFACT_SHA  eyis-release.tar.gz" | sha256sum -c -
+          mkdir -p /tmp/eyis && tar -xzf eyis-release.tar.gz -C /tmp/eyis
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Signatur des Manifests prüfen (Ed25519)
+        env:
+          PUBLIC_KEY: ${{ secrets.EYIS_RELEASE_PUBLIC_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$PUBLIC_KEY"
+          python3 - <<'PY'
+          import base64, os, sys
+          from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+          key = Ed25519PublicKey.from_public_bytes(base64.b64decode(os.environ["PUBLIC_KEY"]))
+          manifest = open("/tmp/eyis/eyis-release.json","rb").read()
+          sig = base64.b64decode(open("/tmp/eyis/eyis-release.json.sig").read().strip())
+          key.verify(sig, manifest)
+          print("signature ok")
+          PY
+
+      - name: Nur EYIS-owned Dateien ersetzen
+        run: |
+          set -euo pipefail
+          # Kunden-Pfade werden niemals überschrieben (siehe src/lib/commerce/updates/ownership.ts)
+          rsync -a --delete \
+            --include='src/lib/commerce/***' \
+            --include='src/lib/store-sdk/***' \
+            --include='src/routes/api/public/store/***' \
+            --include='src/routes/api/public/jobs/***' \
+            --include='src/components/shell/***' \
+            --include='supabase/migrations/***' \
+            --include='docs/agent/***' \
+            --include='commerce-os.manifest.json' \
+            --include='package.json' \
+            --exclude='src/routes/store/***' \
+            --exclude='src/theme/***' \
+            --exclude='src/content/***' \
+            --exclude='public/brand/***' \
+            --exclude='src/custom/***' \
+            --exclude='*' \
+            /tmp/eyis/app/ ./
+
+      - name: Abhängigkeiten und Tests
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
+      - run: bun install --frozen-lockfile
+      - run: bun run verify
+
+      - name: Commit auf den Default-Branch
+        run: |
+          set -euo pipefail
+          git config user.name "eyis-update[bot]"
+          git config user.email "updates@eyis.de"
+          git add -A
+          git commit -m "EYIS ${{ steps.manifest.outputs.version }} (run ${{ github.event.client_payload.correlation_id }})" || exit 0
+          git push
+
+  database:
+    name: database
+    needs: code
+    if: ${{ github.event.client_payload.apply_migrations }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: supabase/setup-cli@e2fd76246ef86e8ea4c2a1ee9d92d9d0e1a1e6f4 # v1.4.0
+        with:
+          version: latest
+      - name: Migrationen anwenden
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL"
+          supabase db push --db-url "$SUPABASE_DB_URL"
+
+  deploy:
+    name: deploy
+    needs: [code]
+    runs-on: ubuntu-latest
+    steps:
+      # Git-basiertes Hosting (Vercel/Netlify/Cloudflare Pages) deployed den Push
+      # aus dem Job "code" automatisch. Dieser Job weist nach, dass der neue
+      # Stand wirklich live ist — ohne diesen Nachweis gilt das Update als offen.
+      - name: Auf neue Version warten
+        env:
+          HEALTH_URL: ${{ secrets.EYIS_DEPLOY_HEALTH_URL }}
+          EXPECTED: ${{ needs.code.outputs.version }}
+        run: |
+          set -euo pipefail
+          test -n "$HEALTH_URL"
+          for i in $(seq 1 60); do
+            actual=$(curl -fsSL "$HEALTH_URL" | tr -d '\n' || true)
+            case "$actual" in
+              *"$EXPECTED"*) echo "deployment live: $EXPECTED"; exit 0 ;;
+            esac
+            sleep 10
+          done
+          echo "Deployment hat die erwartete Version $EXPECTED nicht gemeldet." >&2
+          exit 1

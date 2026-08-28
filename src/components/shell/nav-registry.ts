@@ -38,6 +38,7 @@ import {
   SlidersHorizontal,
   Palette,
   History,
+  RefreshCw,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -201,6 +202,12 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/app/team", label: "Team", icon: UserCog, keywords: "rollen mitglieder" },
       { to: "/app/audit", label: "Audit-Log", icon: ScrollText },
       { to: "/app/system/release-readiness", label: "Release Readiness", icon: ClipboardCheck },
+      {
+        to: "/app/system/updates",
+        label: "Update Center",
+        icon: RefreshCw,
+        keywords: "updates version release aktualisieren",
+      },
     ],
   },
 ];
