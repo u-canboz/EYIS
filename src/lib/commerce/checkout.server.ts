@@ -265,7 +265,8 @@ export async function buildCheckoutView(session: SessionRow, cart: CartRow): Pro
   });
 
   const issues: string[] = [];
-  if (!OPEN_STATES.includes(session.status)) issues.push(`Sitzung ist ${session.status}.`);
+  if (!(OPEN_STATES as readonly string[]).includes(session.status))
+    issues.push(`Sitzung ist ${session.status}.`);
   if (Date.parse(session.expires_at) <= Date.now())
     issues.push("Die Checkout-Sitzung ist abgelaufen.");
   if (!cartView.items.length) issues.push("Der Warenkorb ist leer.");
