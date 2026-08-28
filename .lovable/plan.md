@@ -180,8 +180,18 @@ Central Commerce Auth dependency:     NONE
 Central Commerce Storage dependency:  NONE
 ```
 
-Erlaubte ausgehende Ziele sind ausschließlich echte Provider (Stripe, PayPal, Mollie, Resend,
-SMTP, Carrier) sowie explizit konfigurierte Integrationen. Jeder andere Fremdhost ist ein FAIL.
+„NONE" bedeutet präzise: **keine Abhängigkeit von einer anderen zentralen Commerce-OS-Instanz**
+(Shared-Commerce-Host). Als erlaubt zählen ausdrücklich:
+
+- die **eigene Dedicated-Infrastruktur** dieser Installation (eigene Lovable-Cloud-/Postgres-
+  Instanz, eigene Auth, eigener Storage — konfiguriert über die eigenen Environment-Variablen)
+- **explizit konfigurierte externe Provider** (Stripe, PayPal, Mollie, Resend, SMTP, Carrier)
+  sowie sonstige bewusst eingerichtete Integrationen
+
+Verboten und damit FAIL ist ausschließlich jeder Zugriff auf fremde Commerce-OS-Hosts
+(API, Datenbank, Auth oder Storage einer anderen Instanz). Der Doctor prüft die aufgelösten
+Verbindungsziele gegen eine interne Blockliste zentraler Commerce-Hosts, nicht gegen die eigene
+Instanz oder legitime Provider-Endpunkte.
 
 Dieselben Prüfungen speisen die bestehende Seite `/app/system/release-readiness`, ergänzt um den
 Block „Installation“.
