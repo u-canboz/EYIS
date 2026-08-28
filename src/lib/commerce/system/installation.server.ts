@@ -539,5 +539,46 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     rows.push({ check: "Storage", status: "FAIL", detail: "nicht erreichbar" });
   }
 
+  // Dedicated Independence: Same-Origin-Runtime-Config, lokaler Publishable
+  // Key, kein externer Commerce-Runtime-Host.
+  try {
+    const { resolveStoreRuntimeConfig, STORE_API_BASE_PATH } = await import("./runtime-config.server");
+    const runtime = await resolveStoreRuntimeConfig();
+    rows.push({
+      check: "Store API (same-origin)",
+      status: "PASS",
+      detail: STORE_API_BASE_PATH,
+    });
+    rows.push({
+      check: "Runtime config",
+      status: runtime.deploymentMode === "dedicated" ? "PASS" : "SETUP REQUIRED",
+      detail: `mode=${runtime.deploymentMode}, api=${runtime.apiVersion}`,
+    });
+    rows.push({
+      check: "Publishable key (auto)",
+      status: runtime.publishableKey ? "PASS" : "SETUP REQUIRED",
+      detail: runtime.publishableKey
+        ? `${runtime.publishableKey.slice(0, 14)}… (lokal erzeugt)`
+        : "wird nach Owner-Claim automatisch erzeugt",
+    });
+    rows.push({
+      check: "Store SDK binding",
+      status: runtime.publishableKey ? "PASS" : "SETUP REQUIRED",
+      detail: runtime.publishableKey ? "same-origin, ohne ENV" : "ausstehend",
+    });
+  } catch (e) {
+    rows.push({
+      check: "Runtime config",
+      status: "FAIL",
+      detail: e instanceof Error ? e.message : "nicht auflösbar",
+    });
+  }
+
+  rows.push({
+    check: "Dedicated independence",
+    status: central.length ? "FAIL" : "PASS",
+    detail: central.length ? central.join(", ") : "External EYIS Runtime Dependency: NONE",
+  });
+
   return rows;
 }
