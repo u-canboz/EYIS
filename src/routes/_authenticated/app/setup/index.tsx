@@ -9,6 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { KeyRound, Building2, Store, ShieldCheck } from "lucide-react";
 import { claimInstallationOwner } from "@/lib/commerce/system/installation.functions";
+import { EyisLogo } from "@/components/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,6 +77,7 @@ function OwnerClaimPage() {
 
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6 py-10">
+      <EyisLogo variant="full" width={240} className="max-w-[70vw]" />
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <ShieldCheck className="h-5 w-5" />

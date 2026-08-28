@@ -22,6 +22,7 @@ import { getInstallationStatus, saveSetupStep, setStorefrontOriginFn } from "@/l
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 import { PageHeader } from "@/components/shell/PageHeader";
+import { EyisLogo } from "@/components/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -137,6 +138,7 @@ function SetupWizardPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <EyisLogo variant="full" width={220} className="max-w-[70vw]" />
       <PageHeader
         title="Einrichtung"
         description="Geführte Einrichtung dieser Instanz. Jeder Schritt kann in beliebiger Reihenfolge abgeschlossen werden."
