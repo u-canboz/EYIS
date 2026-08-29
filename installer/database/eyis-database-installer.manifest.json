@@ -1,0 +1,519 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-08-29",
+  "schema_version": "20260828213156",
+  "migration_head": "054",
+  "migration_versions": [
+    "20260825074450",
+    "20260825074512",
+    "20260825080717",
+    "20260825080734",
+    "20260825080758",
+    "20260825102705",
+    "20260825104705",
+    "20260825104935",
+    "20260825120552",
+    "20260825120653",
+    "20260825120720",
+    "20260825125500",
+    "20260825125535",
+    "20260825143734",
+    "20260825153537",
+    "20260825153618",
+    "20260825153648",
+    "20260825155019",
+    "20260825162256",
+    "20260825162519",
+    "20260825162621",
+    "20260825163626",
+    "20260825163933",
+    "20260825174112",
+    "20260825174145",
+    "20260825182325",
+    "20260825182452",
+    "20260825201721",
+    "20260825210152",
+    "20260825210220",
+    "20260825221017",
+    "20260825231800",
+    "20260825232248",
+    "20260825233026",
+    "20260825235636",
+    "20260826000125",
+    "20260826000328",
+    "20260826080659",
+    "20260826081124",
+    "20260826081318",
+    "20260826081454",
+    "20260826081544",
+    "20260826103237",
+    "20260826120837",
+    "20260826121430",
+    "20260827125825",
+    "20260827134814",
+    "20260827143331",
+    "20260827143416",
+    "20260827143513",
+    "20260827211754",
+    "20260828131048",
+    "20260828180020",
+    "20260828213156"
+  ],
+  "schema_fingerprint": "8867849192ba1ac3596f79db45ff9b3d5faac825c84503e8f1450c5c1055f657",
+  "payload_budget": {
+    "target_unit_bytes": 18432,
+    "hard_statement_bytes": 49152,
+    "largest_unit_bytes": 29816,
+    "largest_atomic_statement_bytes": 29681,
+    "largest_atomic_statement_object": "function health_run_checks(_org_id uuid)"
+  },
+  "fresh_install": {
+    "units": [
+      {
+        "id": "installer-journal",
+        "file": "baseline/000_installer_journal.sql",
+        "position": 0,
+        "title": "Installations-Journal",
+        "bytes": 2137,
+        "checksum": "da338eed167e30ff3d7a1b86f48d9b5893e9b6caf0b5c96471b3b899cc6c158e",
+        "statements": 4,
+        "required": true
+      },
+      {
+        "id": "foundation-extensions-a",
+        "file": "baseline/001_foundation_extensions_a.sql",
+        "position": 1,
+        "title": "Extensions und Enums",
+        "bytes": 9126,
+        "checksum": "ab34983f664e477dca26389139e6311a5a4ff08b3d5b872f4acbbb375123ef5a",
+        "statements": 77,
+        "required": true
+      },
+      {
+        "id": "identity-tables-a",
+        "file": "baseline/002_identity_tables_a.sql",
+        "position": 2,
+        "title": "Tabellen: identity",
+        "bytes": 2541,
+        "checksum": "e90245804a23a9c34c6dc4b77502302705fa29f1f902ac6581c923f255e785be",
+        "statements": 6,
+        "required": true
+      },
+      {
+        "id": "catalog-tables-a",
+        "file": "baseline/003_catalog_tables_a.sql",
+        "position": 3,
+        "title": "Tabellen: catalog",
+        "bytes": 6352,
+        "checksum": "915df3d61fa225314e2164e5c2560e83dc68313eafa35edcbdc5c52471a544cf",
+        "statements": 12,
+        "required": true
+      },
+      {
+        "id": "pricing-tables-a",
+        "file": "baseline/004_pricing_tables_a.sql",
+        "position": 4,
+        "title": "Tabellen: pricing",
+        "bytes": 3865,
+        "checksum": "97cc724b30bf4e89ca85ab90c1e6cdbb1ed683cc3da06eba6813cb7ee27b63f7",
+        "statements": 3,
+        "required": true
+      },
+      {
+        "id": "inventory-tables-a",
+        "file": "baseline/005_inventory_tables_a.sql",
+        "position": 5,
+        "title": "Tabellen: inventory",
+        "bytes": 5494,
+        "checksum": "42d13d95227df01e40c3231022baed93ae2dfcc7021ecec3e4a99e71afbb0b10",
+        "statements": 8,
+        "required": true
+      },
+      {
+        "id": "cart-checkout-tables-a",
+        "file": "baseline/006_cart_checkout_tables_a.sql",
+        "position": 6,
+        "title": "Tabellen: cart-checkout",
+        "bytes": 7067,
+        "checksum": "c7cd9eac89892d324d0764114361f9ca6fec245d2ba572117b9a2c342dbd0709",
+        "statements": 9,
+        "required": true
+      },
+      {
+        "id": "payments-orders-tables-a",
+        "file": "baseline/007_payments_orders_tables_a.sql",
+        "position": 7,
+        "title": "Tabellen: payments-orders",
+        "bytes": 9529,
+        "checksum": "303ad2a4603424492188f8579c26f8b362427b923b72d2d0b5a9db57fef0c9e0",
+        "statements": 11,
+        "required": true
+      },
+      {
+        "id": "tax-shipping-tables-a",
+        "file": "baseline/008_tax_shipping_tables_a.sql",
+        "position": 8,
+        "title": "Tabellen: tax-shipping",
+        "bytes": 12108,
+        "checksum": "1fba7ea87f0cc89f146e2a83078870fee9f32ed77490757654203edf7f0256f2",
+        "statements": 15,
+        "required": true
+      },
+      {
+        "id": "customers-returns-tables-a",
+        "file": "baseline/009_customers_returns_tables_a.sql",
+        "position": 9,
+        "title": "Tabellen: customers-returns",
+        "bytes": 8711,
+        "checksum": "e077cc4e5aedc91b0d4fc98a38dc48354461b5b5b695eb20d10c6b8d93b4e498",
+        "statements": 12,
+        "required": true
+      },
+      {
+        "id": "documents-tables-a",
+        "file": "baseline/010_documents_tables_a.sql",
+        "position": 10,
+        "title": "Tabellen: documents",
+        "bytes": 9378,
+        "checksum": "48e0837496a783be4db5ad0270341425202d6b3571535ee81e7d7a7732f3af83",
+        "statements": 8,
+        "required": true
+      },
+      {
+        "id": "communications-tables-a",
+        "file": "baseline/011_communications_tables_a.sql",
+        "position": 11,
+        "title": "Tabellen: communications",
+        "bytes": 10749,
+        "checksum": "4c1f2e5fec245318231a94048bccb4d490fee71b87464dfb59edf74005846107",
+        "statements": 12,
+        "required": true
+      },
+      {
+        "id": "automation-tables-a",
+        "file": "baseline/012_automation_tables_a.sql",
+        "position": 12,
+        "title": "Tabellen: automation",
+        "bytes": 7982,
+        "checksum": "a4e261bae76467908da1c984dce7bc557e8a00c2d67edc8aae6d1c566eeb151d",
+        "statements": 10,
+        "required": true
+      },
+      {
+        "id": "store-api-tables-a",
+        "file": "baseline/013_store_api_tables_a.sql",
+        "position": 13,
+        "title": "Tabellen: store-api",
+        "bytes": 4442,
+        "checksum": "b66c28d0dd9b7bb14360d55089a3af789198b7b941a7f7a3f820a3faab088785",
+        "statements": 9,
+        "required": true
+      },
+      {
+        "id": "system-updates-tables-a",
+        "file": "baseline/014_system_updates_tables_a.sql",
+        "position": 14,
+        "title": "Tabellen: system-updates",
+        "bytes": 7621,
+        "checksum": "a3c3e4df4ca1937bb438ace8be0bb2e085b75d17728ba107a874bbcb9f0272c1",
+        "statements": 7,
+        "required": true
+      },
+      {
+        "id": "relations-foreign-keys-a",
+        "file": "baseline/015_relations_foreign_keys_a.sql",
+        "position": 15,
+        "title": "Fremdschlüssel",
+        "bytes": 18553,
+        "checksum": "8b4b7dadb931aec60b770faf965f7203d3150391941ac8927d56becde8d2eb44",
+        "statements": 109,
+        "required": true
+      },
+      {
+        "id": "relations-foreign-keys-b",
+        "file": "baseline/016_relations_foreign_keys_b.sql",
+        "position": 16,
+        "title": "Fremdschlüssel",
+        "bytes": 18411,
+        "checksum": "9bbf95c7d29e22d4f156d9fdba2a9158d26ea7445612cdaa0c31530b5c3d7c07",
+        "statements": 112,
+        "required": true
+      },
+      {
+        "id": "relations-foreign-keys-c",
+        "file": "baseline/017_relations_foreign_keys_c.sql",
+        "position": 17,
+        "title": "Fremdschlüssel",
+        "bytes": 15492,
+        "checksum": "8e9791ef0b3fc59e2b46997a0c62a86d4ce91c75aa36a3c2683b3f61df09cec0",
+        "statements": 97,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-a",
+        "file": "baseline/018_foundation_functions_a.sql",
+        "position": 18,
+        "title": "Funktionen: foundation",
+        "bytes": 18008,
+        "checksum": "1d538fa3dd693e137abfc680638cc6135c9cbca4b37724edd580df3301a0d528",
+        "statements": 15,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-b",
+        "file": "baseline/019_foundation_functions_b.sql",
+        "position": 19,
+        "title": "Funktionen: foundation",
+        "bytes": 9600,
+        "checksum": "251f2b5ea752fe27a84f834b05631020aad6c2fd7de5d74cd76debc294ee12d7",
+        "statements": 7,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-c",
+        "file": "baseline/020_foundation_functions_c.sql",
+        "position": 20,
+        "title": "Funktionen: foundation",
+        "bytes": 29816,
+        "checksum": "ef4ad0d886062d2eb3cc3a26132cf2447d9702cfd34a6fd3be156c04856ca512",
+        "statements": 1,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-d",
+        "file": "baseline/021_foundation_functions_d.sql",
+        "position": 21,
+        "title": "Funktionen: foundation",
+        "bytes": 18073,
+        "checksum": "dec5afe43489bd3f7543b00be63f24f8807541b7fa1890a14ec3135fc7f849c1",
+        "statements": 15,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-e",
+        "file": "baseline/022_foundation_functions_e.sql",
+        "position": 22,
+        "title": "Funktionen: foundation",
+        "bytes": 17319,
+        "checksum": "b7f02dc0d477b6cdd65da5f2484290114c2f0f28cfa14d8799b8063b9e178477",
+        "statements": 10,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-f",
+        "file": "baseline/023_foundation_functions_f.sql",
+        "position": 23,
+        "title": "Funktionen: foundation",
+        "bytes": 15592,
+        "checksum": "2817ff772f7b9f7b88a858a12e72ab80b5703e521cc655d0aabd3789311af439",
+        "statements": 11,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-g",
+        "file": "baseline/024_foundation_functions_g.sql",
+        "position": 24,
+        "title": "Funktionen: foundation",
+        "bytes": 17809,
+        "checksum": "ebd7e7e2b0fecc46b65227fb1e6dd9dcc10b5c5e03423905862d4ce36c1cf8ba",
+        "statements": 11,
+        "required": true
+      },
+      {
+        "id": "foundation-functions-h",
+        "file": "baseline/025_foundation_functions_h.sql",
+        "position": 25,
+        "title": "Funktionen: foundation",
+        "bytes": 4813,
+        "checksum": "11b56398163ccf956b5baea124a5ef9a27810fdb5a017e5e3391303ae6b78eed",
+        "statements": 2,
+        "required": true
+      },
+      {
+        "id": "identity-functions-a",
+        "file": "baseline/026_identity_functions_a.sql",
+        "position": 26,
+        "title": "Funktionen: identity",
+        "bytes": 496,
+        "checksum": "0fab992d2bfa386583514818f2b4125de81747d084758d16544edcda09f35ed1",
+        "statements": 1,
+        "required": true
+      },
+      {
+        "id": "pricing-functions-a",
+        "file": "baseline/027_pricing_functions_a.sql",
+        "position": 27,
+        "title": "Funktionen: pricing",
+        "bytes": 1707,
+        "checksum": "09e95d31684a2bdd0766222cd7a3896e53cafc2d1aae58b2568e8e8d5fabea07",
+        "statements": 1,
+        "required": true
+      },
+      {
+        "id": "inventory-functions-a",
+        "file": "baseline/028_inventory_functions_a.sql",
+        "position": 28,
+        "title": "Funktionen: inventory",
+        "bytes": 518,
+        "checksum": "ea09da28c7bd2c06b23abee4c8709f38a2f3096865851f064631ba636d039bd3",
+        "statements": 1,
+        "required": true
+      },
+      {
+        "id": "cart-checkout-functions-a",
+        "file": "baseline/029_cart_checkout_functions_a.sql",
+        "position": 29,
+        "title": "Funktionen: cart-checkout",
+        "bytes": 7776,
+        "checksum": "47653649235ce1bb056d441e44f4edd509cb98a341ebccb70140c2e5e5639a9a",
+        "statements": 5,
+        "required": true
+      },
+      {
+        "id": "payments-orders-functions-a",
+        "file": "baseline/030_payments_orders_functions_a.sql",
+        "position": 30,
+        "title": "Funktionen: payments-orders",
+        "bytes": 11657,
+        "checksum": "251ec80444a3d3af9368362c1bfa39c4a2917c87354afa8d3b2cd448eb0e6d37",
+        "statements": 4,
+        "required": true
+      },
+      {
+        "id": "tax-shipping-functions-a",
+        "file": "baseline/031_tax_shipping_functions_a.sql",
+        "position": 31,
+        "title": "Funktionen: tax-shipping",
+        "bytes": 2094,
+        "checksum": "4c3b6d51a56141fc37a018d06794648bae0e777e48d4d2721c2f361990f721cd",
+        "statements": 3,
+        "required": true
+      },
+      {
+        "id": "documents-functions-a",
+        "file": "baseline/032_documents_functions_a.sql",
+        "position": 32,
+        "title": "Funktionen: documents",
+        "bytes": 18323,
+        "checksum": "24ca73752f1317a1573dda498bd78e2f2f46638d95f2e269cda9aa71450f508b",
+        "statements": 7,
+        "required": true
+      },
+      {
+        "id": "documents-functions-b",
+        "file": "baseline/033_documents_functions_b.sql",
+        "position": 33,
+        "title": "Funktionen: documents",
+        "bytes": 1933,
+        "checksum": "0187dc40db57f5e31d3517c58b0043c4de10c322914f73d98f65227929f54d2c",
+        "statements": 2,
+        "required": true
+      },
+      {
+        "id": "communications-functions-a",
+        "file": "baseline/034_communications_functions_a.sql",
+        "position": 34,
+        "title": "Funktionen: communications",
+        "bytes": 2358,
+        "checksum": "9f7c6b365bce6155ec32878f1d39f72ba02431eb526adff24a245830a3caf1e6",
+        "statements": 3,
+        "required": true
+      },
+      {
+        "id": "automation-functions-a",
+        "file": "baseline/035_automation_functions_a.sql",
+        "position": 35,
+        "title": "Funktionen: automation",
+        "bytes": 4184,
+        "checksum": "0ba0f5cae91d913d056d20e20f3187d279c9adbd89e64f5eb84ff809872ac2ed",
+        "statements": 4,
+        "required": true
+      },
+      {
+        "id": "store-api-functions-a",
+        "file": "baseline/036_store_api_functions_a.sql",
+        "position": 36,
+        "title": "Funktionen: store-api",
+        "bytes": 2047,
+        "checksum": "2c4ccba9c4c7484bb47444fb8793eb38ea9ca01e902151a15fae20ad8c3f38dd",
+        "statements": 3,
+        "required": true
+      },
+      {
+        "id": "relations-triggers-a",
+        "file": "baseline/037_relations_triggers_a.sql",
+        "position": 37,
+        "title": "Trigger",
+        "bytes": 13330,
+        "checksum": "312cc915bdd1c561afde603501fed1c24c6ec4b1ae7aa6cc55ec0fbfc208a716",
+        "statements": 101,
+        "required": true
+      },
+      {
+        "id": "relations-indexes-a",
+        "file": "baseline/038_relations_indexes_a.sql",
+        "position": 38,
+        "title": "Indexe",
+        "bytes": 18543,
+        "checksum": "77250e5331f3177e5b37a240dfd99bb4457cf655ea18949e4067ae94cc781e2f",
+        "statements": 168,
+        "required": true
+      },
+      {
+        "id": "security-rls-a",
+        "file": "baseline/039_security_rls_a.sql",
+        "position": 39,
+        "title": "Row Level Security",
+        "bytes": 18388,
+        "checksum": "f36193651d58a429c0f311b2dde4edebea0922836c23256ff74bbdea6cbb55ef",
+        "statements": 165,
+        "required": true
+      },
+      {
+        "id": "security-rls-b",
+        "file": "baseline/040_security_rls_b.sql",
+        "position": 40,
+        "title": "Row Level Security",
+        "bytes": 18486,
+        "checksum": "2446529218309e516122ce455cb380424edb5b11b81b5755764de28fadc504a1",
+        "statements": 70,
+        "required": true
+      },
+      {
+        "id": "security-rls-c",
+        "file": "baseline/041_security_rls_c.sql",
+        "position": 41,
+        "title": "Row Level Security",
+        "bytes": 18511,
+        "checksum": "72474cc1cab6ce6ab245156c688831a01d7a2dab663a55e6160da4e12df24444",
+        "statements": 72,
+        "required": true
+      },
+      {
+        "id": "security-rls-d",
+        "file": "baseline/042_security_rls_d.sql",
+        "position": 42,
+        "title": "Row Level Security",
+        "bytes": 3075,
+        "checksum": "b6fba0d917bd9aba6bdafff171fd3b708f4e41ff2d9803b3d244d42fdd649a68",
+        "statements": 11,
+        "required": true
+      }
+    ]
+  },
+  "system_seeds": [
+    {
+      "id": "system-seeds",
+      "file": "seeds/001_system_seeds.sql",
+      "version": "1.0.0",
+      "checksum": "b8dc3ada7d2f74c6caf68d98780afcf12c7fcd50d6bc037eecb1b509ad18bb9f",
+      "idempotent": true
+    }
+  ],
+  "verification": {
+    "fingerprint": "verification/fingerprint.json",
+    "expected_objects": "verification/expected-objects.json",
+    "ownership": "verification/ownership.json"
+  },
+  "resources": "../resources/eyis-resources.manifest.json"
+}
