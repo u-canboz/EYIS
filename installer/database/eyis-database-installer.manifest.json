@@ -517,6 +517,12 @@
       "idempotent": true
     }
   ],
+  "migration_history_reconciliation": {
+    "file": "reconcile/001_migration_history.sql",
+    "checksum": "4ae412a2fceb4bf0a562e4288095b31330866229abcbfb2c430195db6c20f366",
+    "registers_versions": 54,
+    "required_before": "supabase db push"
+  },
   "verification": {
     "fingerprint": "verification/fingerprint.json",
     "expected_objects": "verification/expected-objects.json",
