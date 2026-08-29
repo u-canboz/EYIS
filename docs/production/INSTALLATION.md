@@ -9,7 +9,7 @@ Auth, Storage, RLS), eigene Admin-Oberfläche, eigene API und die komplette Comm
 | Phase | Wer | Was |
 | --- | --- | --- |
 | 1. Provisioning | Plattform/Operator | Neues Lovable-Projekt aus dem EYIS-Template, eigene Cloud-Instanz, Secrets setzen |
-| 2. Migration | Plattform | Alle Migrationen unter `supabase/migrations/` anwenden (nativer Prozess) |
+| 2. Datenbank | Agent/Operator | **EYIS Database Install Pack** aus `installer/database/` anwenden (Units → Seeds → Reconciliation → Verify). Die historische Migrationskette wird nicht nachgespielt. Siehe [DATABASE_INSTALL_PACK.md](DATABASE_INSTALL_PACK.md) |
 | 3. Bootstrap | Operator | `bun run commerce:bootstrap` — registriert die Instanz, gibt einmalig den Claim-Token aus |
 | 4. Owner-Claim | Erster Owner | `/app/setup`: Claim-Code einfügen → Organisation + Shop atomar anlegen |
 | 5. Setup | Owner | `/app/system/einrichtung`: Domain, Payments, E-Mail, API-Keys |
