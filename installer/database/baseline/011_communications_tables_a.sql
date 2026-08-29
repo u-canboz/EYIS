@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Tabellen: communications (communications-tables-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TABLE public."communication_attempts" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL,
   "communication_id" uuid NOT NULL,

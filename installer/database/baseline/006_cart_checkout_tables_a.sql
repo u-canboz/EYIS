@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Tabellen: cart-checkout (cart-checkout-tables-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TABLE public."cart_item_price_snapshots" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL,
   "organization_id" uuid NOT NULL,

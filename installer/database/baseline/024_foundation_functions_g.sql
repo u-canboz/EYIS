@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: foundation (foundation-functions-g)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.ret_request(_org uuid, _shop uuid, _order uuid, _customer uuid, _actor uuid, _items jsonb, _reason return_reason_code, _note text, _idem text)
  RETURNS jsonb
  LANGUAGE plpgsql

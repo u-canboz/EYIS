@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Trigger (relations-triggers-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TRIGGER audit_log_no_delete BEFORE DELETE ON public.audit_log FOR EACH ROW EXECUTE FUNCTION audit_log_immutable();
 
 CREATE TRIGGER audit_log_no_update BEFORE UPDATE ON public.audit_log FOR EACH ROW EXECUTE FUNCTION audit_log_immutable();

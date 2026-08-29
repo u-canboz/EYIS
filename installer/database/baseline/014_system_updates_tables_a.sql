@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Tabellen: system-updates (system-updates-tables-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TABLE public."commerce_installation" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL,
   "singleton" boolean DEFAULT true NOT NULL,

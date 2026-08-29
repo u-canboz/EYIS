@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Tabellen: pricing (pricing-tables-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TABLE public."price_sets" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL,
   "organization_id" uuid NOT NULL,

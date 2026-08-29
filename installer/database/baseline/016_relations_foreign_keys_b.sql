@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Fremdschlüssel (relations-foreign-keys-b)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 ALTER TABLE public."delivery_notes" ADD CONSTRAINT "delivery_notes_organization_id_fkey" FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE public."delivery_notes" ADD CONSTRAINT "delivery_notes_shop_id_fkey" FOREIGN KEY (shop_id) REFERENCES shops(id) ON DELETE CASCADE;

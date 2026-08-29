@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Row Level Security (security-rls-b)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE POLICY "credit_notes_write" ON public."credit_notes"
   AS PERMISSIVE
   FOR ALL

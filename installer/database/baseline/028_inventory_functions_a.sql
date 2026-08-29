@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: inventory (inventory-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.inventory_movements_immutable()
  RETURNS trigger
  LANGUAGE plpgsql

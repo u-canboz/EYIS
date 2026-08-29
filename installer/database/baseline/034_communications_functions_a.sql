@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: communications (communications-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.communication_provider_event_guard()
  RETURNS trigger
  LANGUAGE plpgsql

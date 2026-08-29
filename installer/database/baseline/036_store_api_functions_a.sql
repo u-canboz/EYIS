@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: store-api (store-api-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.shop_in_org(_shop_id uuid, _org_id uuid)
  RETURNS boolean
  LANGUAGE sql

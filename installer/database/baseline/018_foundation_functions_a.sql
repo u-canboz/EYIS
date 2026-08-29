@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: foundation (foundation-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.bulk_update_prices(_org_id uuid, _price_ids uuid[], _mode text, _amount_minor bigint, _percent_bp integer)
  RETURNS TABLE(id uuid, old_amount bigint, new_amount bigint)
  LANGUAGE plpgsql

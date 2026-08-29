@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: payments-orders (payments-orders-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.order_cancel(_org uuid, _order uuid, _actor uuid, _reason text, _idem text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql

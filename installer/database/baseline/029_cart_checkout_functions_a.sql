@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: cart-checkout (cart-checkout-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.cart_cancel_checkout(_org uuid, _session uuid, _actor uuid, _status checkout_session_status DEFAULT 'cancelled'::checkout_session_status, _idem text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql

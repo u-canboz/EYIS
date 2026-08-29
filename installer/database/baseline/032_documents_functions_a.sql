@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: documents (documents-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.credit_note_create(_org uuid, _invoice uuid, _actor uuid, _amount_minor bigint, _reason text DEFAULT NULL::text, _refund uuid DEFAULT NULL::uuid, _idem text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql

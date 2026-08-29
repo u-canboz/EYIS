@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: pricing (pricing-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.prices_validate()
  RETURNS trigger
  LANGUAGE plpgsql

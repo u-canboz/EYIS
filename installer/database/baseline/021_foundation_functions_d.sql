@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: foundation (foundation-functions-d)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.inv_adjust_stock(_org uuid, _shop uuid, _actor uuid, _item uuid, _loc uuid, _counted integer, _reason text, _note text DEFAULT NULL::text, _idem text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql

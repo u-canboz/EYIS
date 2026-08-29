@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Row Level Security (security-rls-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 ALTER TABLE public."audit_log" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE public."automation_action_executions" ENABLE ROW LEVEL SECURITY;

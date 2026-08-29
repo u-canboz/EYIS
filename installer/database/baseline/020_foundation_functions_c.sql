@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: foundation (foundation-functions-c)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.health_run_checks(_org_id uuid)
  RETURNS jsonb
  LANGUAGE plpgsql

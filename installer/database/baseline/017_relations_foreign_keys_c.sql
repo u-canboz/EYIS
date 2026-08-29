@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Fremdschlüssel (relations-foreign-keys-c)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 ALTER TABLE public."product_media" ADD CONSTRAINT "product_media_media_asset_id_fkey" FOREIGN KEY (media_asset_id) REFERENCES media_assets(id) ON DELETE CASCADE;
 
 ALTER TABLE public."product_media" ADD CONSTRAINT "product_media_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE;

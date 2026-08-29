@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: foundation (foundation-functions-e)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.inv_reserve_stock(_org uuid, _shop uuid, _actor uuid, _item uuid, _loc uuid, _qty integer, _reference_type text DEFAULT NULL::text, _reference_id text DEFAULT NULL::text, _expires_at timestamp with time zone DEFAULT NULL::timestamp with time zone, _idem text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql

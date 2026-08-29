@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: documents (documents-functions-b)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.invoice_items_guard()
  RETURNS trigger
  LANGUAGE plpgsql

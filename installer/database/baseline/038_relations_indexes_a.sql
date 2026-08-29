@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Indexe (relations-indexes-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE INDEX audit_log_org_created_idx ON public.audit_log USING btree (organization_id, created_at DESC);
 
 CREATE UNIQUE INDEX automation_executions_event_uniq ON public.automation_executions USING btree (rule_id, source_event_id) WHERE ((source_event_id IS NOT NULL) AND (retry_of_execution_id IS NULL));

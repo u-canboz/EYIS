@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Tabellen: store-api (store-api-tables-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TABLE public."oauth_states" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL,
   "state_hash" text NOT NULL,

@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Row Level Security (security-rls-d)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE POLICY "tax_classes_write" ON public."tax_classes"
   AS PERMISSIVE
   FOR ALL

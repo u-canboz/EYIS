@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Tabellen: automation (automation-tables-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TABLE public."automation_action_executions" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL,
   "execution_id" uuid NOT NULL,

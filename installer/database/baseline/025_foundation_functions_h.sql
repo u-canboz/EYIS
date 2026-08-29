@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: foundation (foundation-functions-h)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.track_record_event(_org uuid, _shipment uuid, _provider text, _provider_event_id text, _code text, _normalized tracking_status, _description text, _location text, _occurred_at timestamp with time zone, _raw jsonb DEFAULT '{}'::jsonb)
  RETURNS jsonb
  LANGUAGE plpgsql

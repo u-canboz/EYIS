@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Row Level Security (security-rls-c)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE POLICY "payment_attempts_read" ON public."payment_attempts"
   AS PERMISSIVE
   FOR SELECT

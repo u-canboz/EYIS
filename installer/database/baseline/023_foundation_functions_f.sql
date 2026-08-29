@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: foundation (foundation-functions-f)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.refund_settle(_org uuid, _refund uuid, _status refund_status, _provider text DEFAULT NULL::text, _provider_refund_id text DEFAULT NULL::text, _error text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql

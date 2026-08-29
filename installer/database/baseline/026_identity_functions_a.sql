@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: identity (identity-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.audit_log_immutable()
  RETURNS trigger
  LANGUAGE plpgsql

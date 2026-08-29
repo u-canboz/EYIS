@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Tabellen: documents (documents-tables-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE TABLE public."credit_note_items" (
   "id" uuid DEFAULT gen_random_uuid() NOT NULL,
   "organization_id" uuid NOT NULL,

@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: automation (automation-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.automation_check_limits(_rule_id uuid, _entity_key text DEFAULT NULL::text)
  RETURNS text
  LANGUAGE plpgsql

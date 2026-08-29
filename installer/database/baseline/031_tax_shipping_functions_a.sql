@@ -1,6 +1,8 @@
 -- EYIS Database Install Pack — Funktionen: tax-shipping (tax-shipping-functions-a)
 -- Automatisch erzeugt. Nicht von Hand bearbeiten.
 
+SET check_function_bodies = off;
+
 CREATE OR REPLACE FUNCTION public.fulfillment_items_guard()
  RETURNS trigger
  LANGUAGE plpgsql
