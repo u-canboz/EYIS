@@ -63,7 +63,7 @@ export function startCluster() {
   execFileSync("mkdir", ["-p", socket]);
   execFileSync("chown", ["-R", `${UNPRIVILEGED_UID}:${UNPRIVILEGED_UID}`, dir]);
   asUser("initdb", ["-D", data, "-U", "postgres", "-A", "trust", "--no-sync"]);
-  asUser("pg_ctl", ["-D", data, "-o", `-k ${socket} -c listen_addresses=`, "-w", "start"]);
+  asUser("pg_ctl", ["-D", data, "-o", `-k ${socket} -p 5432 -c listen_addresses=`, "-w", "start"]);
   const env: NodeJS.ProcessEnv = {
     PGHOST: socket,
     PGUSER: "postgres",
