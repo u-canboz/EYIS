@@ -86,6 +86,60 @@ Neue Harnesses: `qa:database-installer` (leere DB → Pack → Seeds → Bootstr
 
 Bericht: `qa/EYIS-DATABASE-INSTALLER-REPORT.md` mit Migrationszahl, historischer SQL-Größe, Baseline-Version, Unit-Anzahl, größter Unit, Migration Head, Fingerprint und der Statusmatrix (PASS/FAIL/OFFEN/BLOCKED).
 
+## Kritische Ergänzungen (verbindlich, vor allem anderen)
+
+### A. Migration History Reconciliation — nur EINE Migration Authority
+
+Bestätigt: `templates/customer-repo/.github/workflows/eyis-update.yml` führt `supabase db push --db-url ...` aus, und `src/lib/commerce/updates/providers.server.ts` wertet genau diesen Schritt als Migrationsnachweis. Eine Baseline-Installation, bei der 001–054 nie einzeln liefen, kann die Supabase-Migrationshistorie leer lassen — das erste Update würde die Altmigrationen erneut anbieten.
+
+Deshalb wird dieser Punkt als **erster Arbeitsschritt** geklärt, vor dem Generator:
+
+1. Baseline vollständig installieren.
+2. Schema-Fingerprint PASS — ohne PASS keine Reconciliation.
+3. Das Baseline-Manifest führt **alle historischen Migration-Versions**, die strukturell in der Baseline enthalten sind.
+4. Diese Versions werden ausschließlich über den offiziell unterstützten Supabase-Reconciliation-Weg (`supabase migration repair --status applied`) als Ausgangszustand registriert. Kein manuelles INSERT in interne Supabase-Tabellen, kein "als angewendet markieren" ohne identischen Fingerprint.
+5. Test: `supabase db push` darf 001–054 nicht erneut anbieten.
+6. Test: eine Testmigration 055 muss als einzige ausstehende Migration erkannt werden.
+
+Wenn dieser Weg mit der eingesetzten Infrastruktur nicht zuverlässig funktioniert, wird Phase 22 geändert: Dedicated-Updates verwenden dann nicht mehr `supabase db push` als Autorität, sondern signierte EYIS-Delta-Migration-Packs gegen den eigenen `migration_head`. Beide Wege parallel sind ausgeschlossen — es gibt genau eine Migration Authority, und die Entscheidung wird im Report dokumentiert.
+
+### B. Baseline Provenance / Drift Gate
+
+Die Live-DB wird nur dann zur Baseline-Quelle, wenn vorher nachgewiesen ist:
+
+```text
+Migration Registry Head  =  erwarteter EYIS Schema Head  =  Live Schema
+```
+
+Vor der Generierung prüft der Generator: Migration Head, bekannte Drift, unerwartete Tabellen/Funktionen/Policies, filtert extension-owned Objekte und Development-/Test-only-Objekte aus. Bei ungeklärtem Drift: **BASELINE GENERATION FAIL** mit Auflistung der abweichenden Objekte. Drift wird nie in eine Baseline eingebacken.
+
+### C. Atomic SQL Units
+
+18 KB ist ein **Ziel**, keine Schnittkante. Getrennt wird ausschließlich an vollständigen Statement-Grenzen; niemals innerhalb von `CREATE FUNCTION`, `DO`-Blöcken, `CREATE POLICY`, `CREATE TRIGGER`, `CREATE TYPE`, `ALTER TABLE` oder anderem atomarem DDL (Dollar-Quoting-bewusster Splitter). Der Generator berechnet `largest_atomic_statement_bytes`; überschreitet ein unteilbares Statement das nachgewiesene Tool-Limit, bricht er mit **FAIL** ab und nennt das betroffene Objekt. Kein still zerschnittenes SQL. Report führt: größte Unit, größtes atomares Statement, Payload-Limit.
+
+### D. Historical EYIS Ownership Inventory
+
+Die Registry aus dem finalen Schema kennt Objekte nicht, die eine frühere Migration anlegte und eine spätere entfernte (z. B. Tabellen aus Migration 004, gedroppt in 037) — genau der Fall im aktuellen „7 von 54"-Testprojekt. Zusätzlich zur aktuellen Registry wird deshalb ein Legacy-Inventory aus der historischen Migrationskette erzeugt (alle jemals von EYIS angelegten Tabellen, Typen, Funktionen, Trigger, Policies).
+
+```text
+Recovery Ownership = current EYIS ownership + historical EYIS ownership
+```
+
+Customer-owned Objekte werden auch dann niemals entfernt.
+
+### E. Dedicated Resource Manifest (nicht-Schema-Ressourcen)
+
+Das Database Install Pack deckt ausschließlich Schema und System Seeds ab. Alles andere kommt in `installer/resources/eyis-resources.manifest.json`: benötigte Storage Buckets samt Security-Erwartungen, Cron-/Job-Definitionen, Runtime-Configuration-Requirements, sonstige projektlokale Ressourcen. Keine Secrets darin. Nach `Database PASS` läuft ein eigener Resource-Provisioning- und Verification-Schritt (Buckets über die Storage-Tools, nicht über SQL).
+
+### Gesamtablauf nach den Ergänzungen
+
+```text
+Unit 000 Journal → Baseline Units 1..N → Schema Verification
+→ Migration History Reconcile → System Seeds → Resource Setup
+→ Bootstrap → Owner Claim → Organization/Shop → Publishable Key
+→ runtime-config → Store SDK → PASS
+```
+
 ## Ausdrücklich nicht Teil dieser Arbeit
 
 - Historische Migrationen werden nicht gelöscht, nicht verändert, nicht zusammengefasst.
