@@ -280,9 +280,7 @@ export function generate() {
       largest_atomic_statement_object: largestStatement.object,
     },
     fresh_install: { units: manifestUnits },
-    system_seeds: [
-      { id: "system-seeds", file: seedFile, version: "1.0.0", checksum: sha256(seedSql), idempotent: true },
-    ],
+    system_seeds: seeds,
     verification: {
       fingerprint: "verification/fingerprint.json",
       expected_objects: "verification/expected-objects.json",
