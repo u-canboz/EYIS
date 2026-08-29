@@ -29,6 +29,12 @@ export type Manifest = {
   };
   fresh_install: { units: ManifestUnit[] };
   system_seeds: { id: string; file: string; version: string; checksum: string; idempotent: boolean }[];
+  migration_history_reconciliation: {
+    file: string;
+    checksum: string;
+    registers_versions: number;
+    required_before: string;
+  };
   verification: Record<string, string>;
 };
 

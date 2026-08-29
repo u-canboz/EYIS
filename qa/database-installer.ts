@@ -149,6 +149,17 @@ export function runFreshInstallScenario() {
     );
     check(checks, "Seeds idempotent", permissionRows === seedRows && permissionRows > 0, `${permissionRows} Rechte-Zeilen nach zwei Läufen`);
 
+    psqlFile(join(process.cwd(), "installer", "database", manifest.migration_history_reconciliation.file), cluster.env);
+    const registered = Number(
+      psql("select count(*) from supabase_migrations.schema_migrations", cluster.env).trim(),
+    );
+    check(
+      checks,
+      "Migration history reconciled",
+      registered === manifest.migration_history_reconciliation.registers_versions,
+      `${registered} Versionen als applied registriert`,
+    );
+
     markInstalled(manifest, cluster.env);
     const after = detectState(manifest, cluster.env);
     check(checks, "Installed state", after.state === "INSTALLED", `state=${after.state}`);
