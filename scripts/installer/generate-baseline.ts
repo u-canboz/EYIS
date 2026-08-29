@@ -247,6 +247,31 @@ export function generate() {
     };
   });
 
+  // Reconciliation: alle im Baseline enthaltenen Strukturversionen werden als
+  // "applied" registriert, damit `supabase db push` sie nicht erneut anwendet.
+  mkdirSync(join(OUT_DIR, "reconcile"), { recursive: true });
+  const reconcileSql = `-- EYIS Database Install Pack — Migration History Reconciliation.
+-- Registriert die im Baseline enthaltenen Strukturversionen als bereits angewendet.
+-- Ohne diesen Schritt würde ein späteres \`supabase db push\` die komplette
+-- historische Kette erneut ausführen und die Installation zerstören.
+
+CREATE SCHEMA IF NOT EXISTS supabase_migrations;
+
+CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations (
+  version text PRIMARY KEY,
+  statements text[],
+  name text
+);
+
+INSERT INTO supabase_migrations.schema_migrations (version, name)
+SELECT v.version, 'eyis_baseline_${BASELINE_VERSION}'
+FROM (VALUES
+${versions.map((v) => `  ('${v}')`).join(",\n")}
+) AS v(version)
+ON CONFLICT (version) DO NOTHING;
+`;
+  writeFileSync(join(OUT_DIR, "reconcile", "001_migration_history.sql"), reconcileSql);
+
   const allStatements = sections.flatMap((s) => s.statements);
   const largestStatement = allStatements.reduce(
     (max, s) => {
