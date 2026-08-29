@@ -45,13 +45,25 @@ create or replace function auth.jwt() returns jsonb language sql stable as $$ se
 create extension if not exists pg_net with schema public;
 `;
 
+const UNPRIVILEGED_UID = 1000;
+
+function asUser(command: string, args: string[]) {
+  return execFileSync(
+    "setpriv",
+    ["--reuid", String(UNPRIVILEGED_UID), "--regid", String(UNPRIVILEGED_UID), "--clear-groups", command, ...args],
+    { stdio: "ignore" },
+  );
+}
+
 export function startCluster() {
   const dir = mkdtempSync(join(tmpdir(), "eyis-freshdb-"));
   const data = join(dir, "data");
   const socket = join(dir, "sock");
-  execFileSync("initdb", ["-D", data, "-U", "postgres", "-A", "trust", "--no-sync"], { stdio: "ignore" });
+  // Postgres verweigert den Start als root — der Testcluster läuft unprivilegiert.
   execFileSync("mkdir", ["-p", socket]);
-  execFileSync("pg_ctl", ["-D", data, "-o", `-k ${socket} -c listen_addresses=`, "-w", "start"], { stdio: "ignore" });
+  execFileSync("chown", ["-R", `${UNPRIVILEGED_UID}:${UNPRIVILEGED_UID}`, dir]);
+  asUser("initdb", ["-D", data, "-U", "postgres", "-A", "trust", "--no-sync"]);
+  asUser("pg_ctl", ["-D", data, "-o", `-k ${socket} -c listen_addresses=`, "-w", "start"]);
   const env: NodeJS.ProcessEnv = {
     PGHOST: socket,
     PGUSER: "postgres",
@@ -67,7 +79,7 @@ export function startCluster() {
     env,
     stop: () => {
       try {
-        execFileSync("pg_ctl", ["-D", data, "-m", "immediate", "-w", "stop"], { stdio: "ignore" });
+        asUser("pg_ctl", ["-D", data, "-m", "immediate", "-w", "stop"]);
       } catch {
         /* Cluster bereits beendet */
       }
