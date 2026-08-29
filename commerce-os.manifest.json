@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-28T21:39:26.685Z",
-  "source_commit": "a5976fc4c8bcb58233c37cd372974638a5f01d63",
+  "generated_at": "2026-08-29T22:42:34.217Z",
+  "source_commit": "46a4f812b00381cc685ff105d384cb3fb8f347da",
   "latest_migration": "20260828213156_2f8211d8-7184-4737-a30b-9e37d2d18b66.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
@@ -98,7 +98,13 @@
     "commerce:doctor": "bun run scripts/commerce-doctor.ts",
     "qa:dedicated-bootstrap": "bun run qa/phase21-bootstrap.ts",
     "qa:dedicated-doctor": "bun run qa/phase21-doctor.ts",
-    "qa:dedicated-security": "bun run qa/phase21-security.ts"
+    "qa:dedicated-security": "bun run qa/phase21-security.ts",
+    "eyis:database:baseline": "bun run scripts/installer/generate-baseline.ts",
+    "eyis:database:verify": "bun run scripts/eyis-install.ts verify",
+    "eyis:install:status": "bun run scripts/eyis-install.ts status",
+    "eyis:install:next": "bun run scripts/eyis-install.ts next",
+    "eyis:install:inspect": "bun run scripts/eyis-install.ts inspect",
+    "qa:database-installer": "bun run qa/database-installer.ts"
   },
   "blocked_integrations": [
     "stripe-live",
