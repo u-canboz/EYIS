@@ -503,10 +503,17 @@
   },
   "system_seeds": [
     {
-      "id": "system-seeds",
-      "file": "seeds/001_system_seeds.sql",
+      "id": "001_role_permissions",
+      "file": "seeds/001_role_permissions.sql",
       "version": "1.0.0",
-      "checksum": "b8dc3ada7d2f74c6caf68d98780afcf12c7fcd50d6bc037eecb1b509ad18bb9f",
+      "checksum": "2e1117972e40994fab35c78dcea5179e07e48a19f600aab2c5a31a6aab76c93d",
+      "idempotent": true
+    },
+    {
+      "id": "002_installation",
+      "file": "seeds/002_installation.sql",
+      "version": "1.0.0",
+      "checksum": "045f57e8638a1ba2b4395dee22a514feec832e31ad04541133a86988e7507e33",
       "idempotent": true
     }
   ],

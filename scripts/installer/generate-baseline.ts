@@ -33,6 +33,7 @@ import {
   type Statement,
 } from "./emit";
 import { introspect } from "./introspect";
+import { buildSeeds } from "./seeds";
 import { historicalOwnership, migrationHead, migrationVersions, tablesFromMigrations } from "./migration-history";
 
 export const TARGET_UNIT_BYTES = 18 * 1024;
