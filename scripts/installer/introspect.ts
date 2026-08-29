@@ -51,10 +51,13 @@ export type Schema = {
 
 const PROTECTED_EXTENSION_SCHEMAS = new Set(["pg_catalog", "vault", "information_schema"]);
 
+let CONNECTION: NodeJS.ProcessEnv = {};
+
 function q<T>(sql: string): T {
   const out = execFileSync("psql", ["-At", "-c", `select coalesce(json_agg(t), '[]'::json) from (${sql}) t`], {
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
+    env: { ...process.env, ...CONNECTION },
   });
   return JSON.parse(out) as T;
 }
@@ -66,7 +69,8 @@ const EXTENSION_OWNED_FILTER = `
     where d.objid = %OID% and d.deptype = 'e'
   )`;
 
-export function introspect(): Schema {
+export function introspect(connection: NodeJS.ProcessEnv = {}): Schema {
+  CONNECTION = connection;
   const extensions = q<{ name: string; schema: string }[]>(`
     select e.extname as name, n.nspname as schema
     from pg_extension e join pg_namespace n on n.oid = e.extnamespace
