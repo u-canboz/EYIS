@@ -96,8 +96,16 @@ export function detectState(manifest: Manifest, env: NodeJS.ProcessEnv = {}) {
   );
 
   if (!hasJournal) {
+    // Ohne Journal: entweder leer, oder eine ältere, über die Migrationskette
+    // aufgebaute Installation. Letztere wird an der Objektzahl erkannt und gilt
+    // als vollständig, sobald `eyis:database:verify` PASS meldet.
+    const legacyComplete = eyisObjects >= manifest.fresh_install.units.length;
     return {
-      state: (eyisObjects > 0 ? "PARTIAL_INSTALL" : "NOT_INSTALLED") as InstallState,
+      state: (eyisObjects === 0
+        ? "NOT_INSTALLED"
+        : legacyComplete
+          ? "INSTALLED"
+          : "PARTIAL_INSTALL") as InstallState,
       completed: [] as string[],
       failed: [] as string[],
       tables: eyisObjects,
