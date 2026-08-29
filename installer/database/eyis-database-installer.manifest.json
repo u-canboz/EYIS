@@ -513,7 +513,7 @@
       "id": "002_installation",
       "file": "seeds/002_installation.sql",
       "version": "1.0.0",
-      "checksum": "7fc7383be0866cb7682337750c41d3c559b4b021aeeb0379ee908aedcc3e6285",
+      "checksum": "6b9a8a6db1a194bed2f4197b9979090fdc9836f9eddcd968649dcb932c510a3d",
       "idempotent": true
     }
   ],
