@@ -309,6 +309,12 @@ ON CONFLICT (version) DO NOTHING;
     },
     fresh_install: { units: manifestUnits },
     system_seeds: seeds,
+    migration_history_reconciliation: {
+      file: "reconcile/001_migration_history.sql",
+      checksum: sha256(reconcileSql),
+      registers_versions: versions.length,
+      required_before: "supabase db push",
+    },
     verification: {
       fingerprint: "verification/fingerprint.json",
       expected_objects: "verification/expected-objects.json",
