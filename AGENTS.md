@@ -85,7 +85,14 @@ Diese Punkte sind nicht verhandelbar und dürfen von keinem Agenten selbstständ
    Verhalten kommt additiv oder als `v2`.
 9. **Keine neuen Supabase Edge Functions.** App-Logik: `createServerFn`. HTTP-Endpunkte:
    TanStack-Server-Routen unter `src/routes/api/`.
-10. **Öffentliche Job-Endpunkte** unter `src/routes/api/public/jobs/` authentifizieren immer über
+10. **Frische Datenbanken kommen aus dem Install Pack.** Eine Dedicated-Erstinstallation baut die
+    Datenbank aus `installer/database/` auf, nicht durch Nachspielen der historischen
+    Migrationskette. Units in Manifest-Reihenfolge, Journal pflegen, danach
+    `reconcile/001_migration_history.sql` vor dem ersten `supabase db push`.
+    Details: [docs/production/DATABASE_INSTALL_PACK.md](docs/production/DATABASE_INSTALL_PACK.md).
+11. **Der Baseline wird nie über eine bestehende Installation gelegt.** Bei `PARTIAL_INSTALL` erst
+    `bun run eyis:install:inspect`; niemals Kundendaten oder kundeneigene Tabellen löschen.
+12. **Öffentliche Job-Endpunkte** unter `src/routes/api/public/jobs/` authentifizieren immer über
     `authenticateCronRequest` (`src/integrations/supabase/cron-auth.ts`).
 
 ---

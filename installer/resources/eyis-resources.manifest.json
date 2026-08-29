@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "description": "Nicht-Schema-Ressourcen einer EYIS Dedicated Installation. Wird nach 'Database PASS' geprüft und bereitgestellt. Enthält niemals Secrets.",
+  "storage_buckets": [
+    {
+      "id": "documents",
+      "public": false,
+      "purpose": "Rechnungen, Gutschriften, Lieferscheine",
+      "security": "Zugriff ausschließlich über signierte URLs; Policies auf storage.objects mandantengebunden"
+    },
+    {
+      "id": "media",
+      "public": true,
+      "purpose": "Produkt- und Shopmedien",
+      "security": "Öffentlich lesbar, Schreibzugriff nur für Organisationsmitglieder"
+    },
+    {
+      "id": "returns",
+      "public": false,
+      "purpose": "Retouren-Fotos der Kundinnen und Kunden",
+      "security": "Nur Organisation und berechtigte Kundensitzung"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "expiration",
+      "endpoint": "/api/public/jobs/expiration",
+      "schedule": "*/10 * * * *",
+      "auth": "authenticateCronRequest"
+    },
+    {
+      "id": "communications",
+      "endpoint": "/api/public/jobs/communications",
+      "schedule": "*/5 * * * *",
+      "auth": "authenticateCronRequest"
+    },
+    {
+      "id": "automation",
+      "endpoint": "/api/public/jobs/automation",
+      "schedule": "*/5 * * * *",
+      "auth": "authenticateCronRequest"
+    }
+  ],
+  "runtime_configuration": [
+    {
+      "key": "COMMERCE_DEPLOYMENT_MODE",
+      "required": true,
+      "expected": "dedicated",
+      "secret": false
+    },
+    {
+      "key": "APP_ENV",
+      "required": true,
+      "expected": "development | staging | production",
+      "secret": false
+    },
+    {
+      "key": "PROVIDER_CREDENTIALS_KEY",
+      "required": true,
+      "expected": "Projektlokales Secret. Wird beim Setup erzeugt, niemals aus dem Repository übernommen.",
+      "secret": true,
+      "value_in_manifest": false
+    },
+    {
+      "key": "CRON_SECRET",
+      "required": true,
+      "expected": "Projektlokales Secret für die Job-Endpunkte.",
+      "secret": true,
+      "value_in_manifest": false
+    }
+  ],
+  "verification": [
+    "Alle Buckets existieren mit der erwarteten Sichtbarkeit",
+    "Job-Endpunkte antworten mit 401 ohne gültiges Cron-Secret",
+    "Runtime-Konfiguration vollständig, Secrets projektlokal gesetzt",
+    "/api/public/store/v1/runtime-config liefert Shop-Handle und Publishable Key"
+  ]
+}
