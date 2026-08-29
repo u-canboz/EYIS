@@ -10,9 +10,9 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 import { computeFingerprint } from "../scripts/installer/fingerprint";
 import { introspect } from "../scripts/installer/introspect";
@@ -42,20 +42,50 @@ create table auth.users (id uuid primary key default gen_random_uuid(), email te
 create or replace function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 create or replace function auth.role() returns text language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), 'anon') $$;
 create or replace function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb) $$;
-create extension if not exists pg_net with schema public;
+
 `;
 
 const UNPRIVILEGED_UID = 1000;
+const PG_ROOT = "/tmp/eyis-pgroot";
+
+/**
+ * Der Testcluster braucht eine schreibbare Postgres-Installation, weil die
+ * Plattform-Extension pg_net lokal nicht existiert. Sie wird ausschließlich für
+ * den Test als Stub bereitgestellt — der Install Pack bleibt unverändert.
+ */
+function preparePostgresRoot() {
+  if (existsSync(join(PG_ROOT, "bin", "postgres"))) return;
+  const prefix = dirname(dirname(realpathSync(execFileSync("which", ["postgres"], { encoding: "utf8" }).trim())));
+  execFileSync("cp", ["-rL", prefix, PG_ROOT]);
+  execFileSync("chmod", ["-R", "u+w", PG_ROOT]);
+  const extDir = join(PG_ROOT, "share", "postgresql", "extension");
+  writeFileSync(
+    join(extDir, "pg_net.control"),
+    "comment = 'test stub for pg_net'\ndefault_version = '0.14.0'\nrelocatable = false\nschema = 'net'\n",
+  );
+  writeFileSync(
+    join(extDir, "pg_net--0.14.0.sql"),
+    `create schema if not exists net;
+create table net._stub_requests (id bigserial primary key, url text, created_at timestamptz default now());
+create function net.http_post(url text, body jsonb default '{}'::jsonb, params jsonb default '{}'::jsonb, headers jsonb default '{}'::jsonb, timeout_milliseconds integer default 5000)
+returns bigint language sql as $$ insert into net._stub_requests (url) values (url) returning id $$;
+create function net.http_get(url text, params jsonb default '{}'::jsonb, headers jsonb default '{}'::jsonb, timeout_milliseconds integer default 5000)
+returns bigint language sql as $$ insert into net._stub_requests (url) values (url) returning id $$;
+`,
+  );
+  execFileSync("chown", ["-R", `${UNPRIVILEGED_UID}:${UNPRIVILEGED_UID}`, PG_ROOT]);
+}
 
 function asUser(command: string, args: string[]) {
   return execFileSync(
     "setpriv",
-    ["--reuid", String(UNPRIVILEGED_UID), "--regid", String(UNPRIVILEGED_UID), "--clear-groups", command, ...args],
+    ["--reuid", String(UNPRIVILEGED_UID), "--regid", String(UNPRIVILEGED_UID), "--clear-groups", join(PG_ROOT, "bin", command), ...args],
     { stdio: "ignore" },
   );
 }
 
 export function startCluster() {
+  preparePostgresRoot();
   const dir = mkdtempSync(join(tmpdir(), "eyis-freshdb-"));
   const data = join(dir, "data");
   const socket = join(dir, "sock");
