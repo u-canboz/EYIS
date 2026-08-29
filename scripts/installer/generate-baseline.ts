@@ -142,7 +142,9 @@ function packUnits(sections: Section[]) {
         id,
         title: section.title,
         statements: current,
-        sql: `-- EYIS Database Install Pack — ${section.title} (${id})\n-- Automatisch erzeugt. Nicht von Hand bearbeiten.\n\n${current
+        // check_function_bodies bleibt aus: Funktionen referenzieren einander
+        // wechselseitig, eine topologische Reihenfolge existiert nicht.
+        sql: `-- EYIS Database Install Pack — ${section.title} (${id})\n-- Automatisch erzeugt. Nicht von Hand bearbeiten.\n\nSET check_function_bodies = off;\n\n${current
           .map((s) => s.sql)
           .join("\n\n")}\n`,
       });
