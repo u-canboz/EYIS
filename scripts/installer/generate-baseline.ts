@@ -232,8 +232,17 @@ export function generate() {
     });
   });
 
-  const seedFile = "seeds/001_system_seeds.sql";
-  const seedSql = readFileSync(join(OUT_DIR, seedFile), "utf8");
+  mkdirSync(join(OUT_DIR, "seeds"), { recursive: true });
+  const seeds = buildSeeds().map((seed) => {
+    writeFileSync(join(OUT_DIR, seed.file), seed.sql);
+    return {
+      id: seed.file.replace(/^seeds\/|\.sql$/g, ""),
+      file: seed.file,
+      version: seed.version,
+      checksum: sha256(seed.sql),
+      idempotent: true,
+    };
+  });
 
   const allStatements = sections.flatMap((s) => s.statements);
   const largestStatement = allStatements.reduce(
