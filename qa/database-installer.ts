@@ -61,7 +61,7 @@ function preparePostgresRoot() {
   const extDir = join(PG_ROOT, "share", "postgresql", "extension");
   writeFileSync(
     join(extDir, "pg_net.control"),
-    "comment = 'test stub for pg_net'\ndefault_version = '0.14.0'\nrelocatable = false\nschema = 'net'\n",
+    "comment = 'test stub for pg_net'\ndefault_version = '0.14.0'\nrelocatable = false\n",
   );
   writeFileSync(
     join(extDir, "pg_net--0.14.0.sql"),
