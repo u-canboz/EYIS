@@ -36,7 +36,13 @@
     "commerce:doctor": "bun run scripts/commerce-doctor.ts",
     "qa:dedicated-bootstrap": "bun run qa/phase21-bootstrap.ts",
     "qa:dedicated-doctor": "bun run qa/phase21-doctor.ts",
-    "qa:dedicated-security": "bun run qa/phase21-security.ts"
+    "qa:dedicated-security": "bun run qa/phase21-security.ts",
+    "eyis:database:baseline": "bun run scripts/installer/generate-baseline.ts",
+    "eyis:database:verify": "bun run scripts/eyis-install.ts verify",
+    "eyis:install:status": "bun run scripts/eyis-install.ts status",
+    "eyis:install:next": "bun run scripts/eyis-install.ts next",
+    "eyis:install:inspect": "bun run scripts/eyis-install.ts inspect",
+    "qa:database-installer": "bun run qa/database-installer.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
