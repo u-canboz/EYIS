@@ -8,7 +8,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AuthPanel } from "@/components/eyis/AuthPanel";
+import { AuthPanel } from "@/eyis/auth/AuthPanel";
 import { EYIS_AUTH_PATH } from "@/lib/eyis/route-boundary";
 
 export const Route = createFileRoute("/app/login")({

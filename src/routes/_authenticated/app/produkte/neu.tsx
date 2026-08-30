@@ -8,7 +8,7 @@ import { createProduct } from "@/lib/commerce/products.functions";
 import { saveOptions, generateVariants } from "@/lib/commerce/variants.functions";
 import { listTaxonomy } from "@/lib/commerce/taxonomy.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
-import { BlueprintForm } from "@/components/commerce/BlueprintForm";
+import { BlueprintForm } from "@/eyis/commerce/BlueprintForm";
 import { BLUEPRINT_GROUPS } from "@/lib/commerce/blueprint-types";
 import type { Blueprint, BlueprintData } from "@/lib/commerce/blueprint-types";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
+import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/produkte/neu")({
   head: () => ({

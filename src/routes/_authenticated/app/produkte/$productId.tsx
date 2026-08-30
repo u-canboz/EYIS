@@ -20,7 +20,7 @@ import {
   reorderProductMedia,
 } from "@/lib/commerce/media.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
-import { BlueprintForm } from "@/components/commerce/BlueprintForm";
+import { BlueprintForm } from "@/eyis/commerce/BlueprintForm";
 import type { BlueprintData } from "@/lib/commerce/blueprint-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,11 +29,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
-import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
+import { ScrollTabs } from "@/eyis/shell/DetailLayout";
 import { ArrowLeft } from "lucide-react";
-import { PricingTab } from "@/components/commerce/PricingTab";
-import { InventoryTab } from "@/components/commerce/InventoryTab";
+import { PricingTab } from "@/eyis/commerce/PricingTab";
+import { InventoryTab } from "@/eyis/commerce/InventoryTab";
 import {
   Select,
   SelectContent,

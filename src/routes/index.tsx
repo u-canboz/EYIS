@@ -16,7 +16,7 @@ import {
   Truck,
   Workflow,
 } from "lucide-react";
-import { EyisLogo } from "@/components/brand/EyisLogo";
+import { EyisLogo } from "@/eyis/brand/EyisLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { CodeBlock } from "@/components/site/CodeBlock";

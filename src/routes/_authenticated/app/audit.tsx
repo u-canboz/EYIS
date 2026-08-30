@@ -5,9 +5,9 @@ import { listAuditLog } from "@/lib/commerce/workspace.functions";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 import { ACTION_LABELS } from "@/lib/commerce/roles";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { EmptyState, ListSkeleton } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/audit")({
   head: () => ({

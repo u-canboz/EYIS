@@ -28,9 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
-import { EmptyState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel } from "@/eyis/shell/DetailLayout";
+import { EmptyState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/automationen/aufgaben")({
   head: () => ({

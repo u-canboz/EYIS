@@ -13,8 +13,8 @@ import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel, DataRow } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/verlauf/$communicationId")({
   head: () => ({

@@ -19,12 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { FilterBar } from "@/components/data/FilterBar";
-import { RecordCard, RecordCardList } from "@/components/data/RecordCard";
-import { TableScroll } from "@/components/data/TableScroll";
-import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { FilterBar } from "@/eyis/data/FilterBar";
+import { RecordCard, RecordCardList } from "@/eyis/data/RecordCard";
+import { TableScroll } from "@/eyis/data/TableScroll";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/preise/")({
   head: () => ({

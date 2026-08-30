@@ -10,19 +10,19 @@ import { automationInboxFn } from "@/lib/commerce/automation/automation.function
 import { listCommunicationsFn } from "@/lib/commerce/communications/communication.functions";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 import { formatMoney } from "@/lib/commerce/money";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { SectionPanel, SectionLink } from "@/components/data/SectionPanel";
-import { RecordList, RecordRow } from "@/components/data/RecordRow";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { SectionPanel, SectionLink } from "@/eyis/data/SectionPanel";
+import { RecordList, RecordRow } from "@/eyis/data/RecordRow";
 import {
   AttentionList,
   DistributionBar,
   LeadMetric,
   SubMetric,
-} from "@/components/data/Metrics";
-import { StatusBadge } from "@/components/data/StatusBadge";
-import { paymentTone } from "@/components/data/status-tones";
+} from "@/eyis/data/Metrics";
+import { StatusBadge } from "@/eyis/data/StatusBadge";
+import { paymentTone } from "@/eyis/data/status-tones";
 import { PAYMENT_STATUS_LABELS } from "@/lib/commerce/payments/payment-types";
-import { EmptyState, ListSkeleton } from "@/components/data/States";
+import { EmptyState, ListSkeleton } from "@/eyis/data/States";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 

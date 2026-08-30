@@ -7,8 +7,8 @@ import {
   getPortalEligibilityFn,
   getPortalOrderFn,
 } from "@/lib/commerce/portal/portal.functions";
-import { PortalOrderView } from "@/components/portal/PortalOrderView";
-import { PortalCard, PortalPage } from "@/components/portal/PortalChrome";
+import { PortalOrderView } from "@/eyis/portal/PortalOrderView";
+import { PortalCard, PortalPage } from "@/eyis/portal/PortalChrome";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/portal/bestellungen/$orderId")({

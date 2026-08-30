@@ -9,8 +9,8 @@ import {
   STORE_RATE_LIMITS,
 } from "@/lib/commerce/store/api-catalog";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/entwickler/api")({
   head: () => ({

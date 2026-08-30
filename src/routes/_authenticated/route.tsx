@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { roleLabel } from "@/lib/commerce/roles";
-import { AppShell } from "@/components/shell/AppShell";
+import { AppShell } from "@/eyis/shell/AppShell";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
 import { EYIS_ADMIN_SCOPE_CLASS, EYIS_AUTH_PATH } from "@/lib/eyis/route-boundary";
 

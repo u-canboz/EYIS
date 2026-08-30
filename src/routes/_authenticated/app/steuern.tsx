@@ -27,10 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel, ScrollTabs } from "@/components/shell/DetailLayout";
-import { TableScroll } from "@/components/data/TableScroll";
-import { EmptyState, ListSkeleton, PermissionState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel, ScrollTabs } from "@/eyis/shell/DetailLayout";
+import { TableScroll } from "@/eyis/data/TableScroll";
+import { EmptyState, ListSkeleton, PermissionState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/steuern")({
   head: () => ({

@@ -10,9 +10,9 @@ import { STATUS_LABELS } from "@/lib/commerce/communications/communication.types
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { EmptyState, ListSkeleton } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/")({
   head: () => ({

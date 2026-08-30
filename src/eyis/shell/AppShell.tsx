@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { EyisLogo } from "@/components/brand/EyisLogo";
+import { EyisLogo } from "@/eyis/brand/EyisLogo";
 import { AppNav } from "./AppNav";
 import { DemoBanner } from "./DemoBanner";
 import { CommandPalette, useCommandPalette } from "./CommandPalette";

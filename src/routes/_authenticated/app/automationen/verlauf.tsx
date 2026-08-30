@@ -25,9 +25,9 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { ScrollTabs } from "@/components/shell/DetailLayout";
-import { EmptyState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { ScrollTabs } from "@/eyis/shell/DetailLayout";
+import { EmptyState } from "@/eyis/data/States";
 
 type Search = { executionId?: string | undefined; status?: string | undefined };
 

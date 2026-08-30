@@ -33,8 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { ScrollTabs } from "@/components/shell/DetailLayout";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { ScrollTabs } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/dokumente/einstellungen")({
   head: () => ({

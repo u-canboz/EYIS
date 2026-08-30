@@ -25,9 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { EmptyState, ListSkeleton } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/team")({
   head: () => ({

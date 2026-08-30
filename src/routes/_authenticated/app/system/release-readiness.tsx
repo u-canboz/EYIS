@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel, DataRow } from "@/components/shell/DetailLayout";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel, DataRow } from "@/eyis/shell/DetailLayout";
 import {
   READINESS,
   READINESS_SUMMARY,

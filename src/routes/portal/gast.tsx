@@ -10,8 +10,8 @@ import {
   getGuestOrderFn,
   requestGuestAccessFn,
 } from "@/lib/commerce/portal/portal.functions";
-import { PortalOrderView } from "@/components/portal/PortalOrderView";
-import { PortalCard, PortalHeading, PortalPage } from "@/components/portal/PortalChrome";
+import { PortalOrderView } from "@/eyis/portal/PortalOrderView";
+import { PortalCard, PortalHeading, PortalPage } from "@/eyis/portal/PortalChrome";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

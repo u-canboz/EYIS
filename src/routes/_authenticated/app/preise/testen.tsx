@@ -21,8 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel, DataRow } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/preise/testen")({
   head: () => ({

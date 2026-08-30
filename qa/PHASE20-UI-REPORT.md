@@ -38,11 +38,11 @@ Store API, RLS, Datenbank oder Sicherheitsgrenzen.
 
 ## Neue Bausteine
 
-- `src/components/data/RecordRow.tsx` — `RecordList`, `RecordRow`, `RecordThumb`
-- `src/components/data/SectionPanel.tsx` — `SectionPanel`, `SectionLink`
-- `src/components/data/TabsBar.tsx` — Segment-Leiste mit Zählern
-- `src/components/data/ActionMenu.tsx` — Overflow-Menü für Sekundäraktionen
-- `src/components/data/Metrics.tsx` — `LeadMetric`, `SubMetric`, `Sparkline`, `AttentionList`, `DistributionBar`
+- `src/eyis/data/RecordRow.tsx` — `RecordList`, `RecordRow`, `RecordThumb`
+- `src/eyis/data/SectionPanel.tsx` — `SectionPanel`, `SectionLink`
+- `src/eyis/data/TabsBar.tsx` — Segment-Leiste mit Zählern
+- `src/eyis/data/ActionMenu.tsx` — Overflow-Menü für Sekundäraktionen
+- `src/eyis/data/Metrics.tsx` — `LeadMetric`, `SubMetric`, `Sparkline`, `AttentionList`, `DistributionBar`
 
 ## Überarbeitete Seiten
 

@@ -27,8 +27,8 @@ import {
 } from "@/lib/commerce/system/installation.functions";
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { EyisLogo } from "@/components/brand/EyisLogo";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { EyisLogo } from "@/eyis/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";

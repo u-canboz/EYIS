@@ -49,6 +49,8 @@
     "eyis:seeds:sql": "bun run scripts/eyis-seeds.ts sql",
     "eyis:resources:verify": "bun run scripts/eyis-resources.ts verify",
     "eyis:resources:provision": "bun run scripts/eyis-resources.ts provision",
+    "eyis:resources:cron": "bun run scripts/eyis-resources.ts cron",
+    "eyis:pack:keygen": "bun run scripts/eyis-pack-signature.ts keygen",
     "eyis:pack:sign": "bun run scripts/eyis-pack-signature.ts sign",
     "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify"
   },

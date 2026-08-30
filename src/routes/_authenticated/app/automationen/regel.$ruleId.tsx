@@ -41,8 +41,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
+import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/automationen/regel/$ruleId")({
   head: () => ({

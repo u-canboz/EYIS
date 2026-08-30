@@ -24,9 +24,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel, DataRow } from "@/components/shell/DetailLayout";
-import { ErrorState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel, DataRow } from "@/eyis/shell/DetailLayout";
+import { ErrorState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/dokumente/$invoiceId")({
   head: () => ({

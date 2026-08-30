@@ -22,11 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { TabsBar } from "@/components/data/TabsBar";
-import { SectionPanel } from "@/components/data/SectionPanel";
-import { RecordList, RecordRow, RecordThumb } from "@/components/data/RecordRow";
-import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { TabsBar } from "@/eyis/data/TabsBar";
+import { SectionPanel } from "@/eyis/data/SectionPanel";
+import { RecordList, RecordRow, RecordThumb } from "@/eyis/data/RecordRow";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/kunden/")({
   head: () => ({

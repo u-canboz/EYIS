@@ -1,57 +1,40 @@
 /**
  * eyis:pack:sign / eyis:pack:verify — Ed25519-Signatur des Install Packs.
  *
- * Signiert wird nicht das gesamte Verzeichnis, sondern ein deterministischer
- * Digest über die Manifeste, alle Installation Units, alle System-Seeds und
- * die Reconciliation. Damit erkennt eine Kundeninstallation jede nachträgliche
- * Veränderung am Pack, bevor sie eine einzige Anweisung ausführt.
+ * Die Digest- und Prüflogik liegt in scripts/installer/signature.ts und wird
+ * vom Installer-Runner als hartes Gate mitbenutzt: ohne bestandene Prüfung
+ * läuft keine SQL-Unit.
  *
  * Der private Schlüssel steht niemals im Repository. Er wird als PKCS#8-PEM in
  * EYIS_PACK_SIGNING_KEY erwartet und nur im Speicher verwendet. Ohne Schlüssel
  * meldet `sign` BLOCKED statt eine Signatur zu erfinden.
  */
 
-import { createHash, createPrivateKey, createPublicKey, sign, verify } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { createPrivateKey, createPublicKey, generateKeyPairSync, sign } from "node:crypto";
+import { writeFileSync } from "node:fs";
 
-import { PACK_DIR, loadManifest } from "./installer/runner";
-import { SEEDS_DIR, loadSeedManifest } from "./installer/system-seeds";
-
-const SIGNATURE_PATH = join(PACK_DIR, "eyis-database-installer.signature.json");
-
-/** Deterministischer Digest über alle signaturrelevanten Pack-Inhalte. */
-export function packDigest(): { digest: string; entries: [string, string][] } {
-  const manifest = loadManifest();
-  const seeds = loadSeedManifest();
-
-  const files: string[] = [
-    "eyis-database-installer.manifest.json",
-    manifest.migration_history_reconciliation.file,
-    ...manifest.fresh_install.units.map((u) => u.file),
-    ...seeds.units.map((u) => `seeds/${u.file}`),
-    "seeds/eyis-system-seeds.manifest.json",
-  ];
-
-  const entries: [string, string][] = files
-    .filter((f) => existsSync(join(PACK_DIR, f)))
-    .sort()
-    .map((f) => [f, createHash("sha256").update(readFileSync(join(PACK_DIR, f))).digest("hex")]);
-
-  const digest = createHash("sha256")
-    .update(JSON.stringify({ entries, seed_fingerprint: seeds.system_seed_fingerprint }))
-    .digest("hex");
-
-  return { digest, entries };
-}
+import { SIGNATURE_PATH, packDigest, verifyPack } from "./installer/signature";
 
 const command = process.argv[2] ?? "verify";
+
+if (command === "keygen") {
+  // Erzeugt ein Schlüsselpaar zur lokalen Ablage AUSSERHALB des Repositories.
+  // Der private Teil wird nur auf stdout ausgegeben und nie geschrieben.
+  const { privateKey, publicKey } = generateKeyPairSync("ed25519");
+  console.log("Öffentlicher Schlüssel (darf ausgeliefert werden):");
+  console.log(publicKey.export({ type: "spki", format: "pem" }).toString());
+  console.log(
+    "Privater Schlüssel: als Secret EYIS_PACK_SIGNING_KEY hinterlegen, niemals ins Repository.",
+  );
+  console.log(privateKey.export({ type: "pkcs8", format: "pem" }).toString());
+  process.exit(0);
+}
 
 if (command === "sign") {
   const pem = process.env["EYIS_PACK_SIGNING_KEY"];
   if (!pem) {
     console.log("Pack-Signatur: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.");
-    console.log("Es wird bewusst keine Signatur erzeugt. Schlüssel bereitstellen und erneut ausführen.");
+    console.log("Es wird bewusst keine Signatur erzeugt. Schlüssel bereitstellen (eyis:pack:keygen) und erneut ausführen.");
     process.exit(3);
   }
   const key = createPrivateKey(pem);
@@ -80,32 +63,17 @@ if (command === "sign") {
 }
 
 if (command === "verify") {
-  const { digest, entries } = packDigest();
-  console.log("EYIS — Pack-Signatur");
+  const result = verifyPack();
+  console.log("EYIS — Pack-Gate");
   console.log("=".repeat(72));
-  console.log(`Signaturrelevante Dateien: ${entries.length}`);
-  console.log(`Digest: ${digest}`);
-  if (!existsSync(SIGNATURE_PATH)) {
-    console.log("Signatur: BLOCKED — keine Signaturdatei vorhanden (Pack unsigniert ausgeliefert).");
-    process.exit(3);
-  }
-  const sig = JSON.parse(readFileSync(SIGNATURE_PATH, "utf8")) as {
-    digest: string;
-    signature: string;
-    public_key: string;
-  };
-  if (sig.digest !== digest) {
-    console.log("Signatur: FAIL — Pack-Inhalt weicht vom signierten Digest ab.");
-    process.exit(1);
-  }
-  const ok = verify(
-    null,
-    Buffer.from(digest, "hex"),
-    createPublicKey(sig.public_key),
-    Buffer.from(sig.signature, "base64"),
-  );
-  console.log(ok ? "Signatur: PASS" : "Signatur: FAIL — ungültige Signatur.");
-  process.exit(ok ? 0 : 1);
+  console.log(`Signaturrelevante Dateien: ${result.files}`);
+  console.log(`Digest:          ${result.digest}`);
+  console.log(`Checksummen:     ${result.checksums}`);
+  console.log(`Kompatibilität:  ${result.compatibility}`);
+  console.log(`Signatur:        ${result.signature}`);
+  if (result.detail) console.log(`Hinweis:         ${result.detail}`);
+  console.log(`Gesamt:          ${result.status}`);
+  process.exit(result.status === "PASS" ? 0 : result.status === "BLOCKED" ? 3 : 1);
 }
 
 console.error(`Unbekannter Befehl: ${command}`);

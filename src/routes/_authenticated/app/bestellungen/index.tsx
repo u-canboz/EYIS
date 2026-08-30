@@ -12,8 +12,8 @@ import {
 } from "@/lib/commerce/payments/payment-types";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/data/StatusBadge";
-import { orderTone, paymentTone, fulfillmentTone } from "@/components/data/status-tones";
+import { StatusBadge } from "@/eyis/data/StatusBadge";
+import { orderTone, paymentTone, fulfillmentTone } from "@/eyis/data/status-tones";
 import {
   Select,
   SelectContent,
@@ -21,12 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { FilterBar } from "@/components/data/FilterBar";
-import { TabsBar } from "@/components/data/TabsBar";
-import { SectionPanel } from "@/components/data/SectionPanel";
-import { RecordList, RecordRow } from "@/components/data/RecordRow";
-import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { FilterBar } from "@/eyis/data/FilterBar";
+import { TabsBar } from "@/eyis/data/TabsBar";
+import { SectionPanel } from "@/eyis/data/SectionPanel";
+import { RecordList, RecordRow } from "@/eyis/data/RecordRow";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/eyis/data/States";
 
 
 export const Route = createFileRoute("/_authenticated/app/bestellungen/")({
