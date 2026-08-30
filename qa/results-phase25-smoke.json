@@ -7,12 +7,12 @@
   {
     "name": "Produkt angelegt (Entwurf)",
     "ok": true,
-    "detail": "5e42b052-3e3c-4cd0-a7fa-317891e43157"
+    "detail": "fa4c0871-7054-4e5e-b5e9-3809888e696c"
   },
   {
     "name": "Variante angelegt",
     "ok": true,
-    "detail": "4bc72f87-9219-4285-892c-32706150142d"
+    "detail": "a6582ee3-7cc1-437d-b9ac-267e28a0daf2"
   },
   {
     "name": "Preis über Price-Set gesetzt",
@@ -31,8 +31,8 @@
   },
   {
     "name": "Store API liefert das Produkt",
-    "ok": false,
-    "detail": "HTTP 401"
+    "ok": true,
+    "detail": "HTTP 200"
   },
   {
     "name": "Store API gibt den Preis serverseitig aus",
@@ -47,7 +47,7 @@
   {
     "name": "SDK liest dasselbe Produkt",
     "ok": true,
-    "detail": "qa-smoke-1788119837607"
+    "detail": "qa-smoke-1788119851962"
   },
   {
     "name": "Warenkorb rechnet serverseitig 2 × Preis",

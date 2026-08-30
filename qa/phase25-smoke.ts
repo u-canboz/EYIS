@@ -111,7 +111,7 @@ async function main() {
   check("Store-API-Schlüssel erzeugt", Boolean(key), "pk_test_…");
   {
     const res = await fetch(`${BASE}/api/public/store/v1/products/${HANDLE}`, {
-      headers: { "x-store-key": key },
+      headers: { "x-commerce-key": key },
     });
     const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     check("Store API liefert das Produkt", res.status === 200, `HTTP ${res.status}`);
