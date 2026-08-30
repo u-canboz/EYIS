@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-30T20:04:52.332Z",
-  "source_commit": "e4d8041cefedc6271fd86813b7f00fddb56afd21",
-  "latest_migration": "20260830131955_b7e05640-c963-4e3a-80f0-bbdb505cfbcd.sql",
+  "generated_at": "2026-08-30T20:10:37.736Z",
+  "source_commit": "352a09d310486b7285ab2e45cea052480f13ce4c",
+  "latest_migration": "20260830200942_22be5c38-c77a-4a65-bded-ffa26e43ce24.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",

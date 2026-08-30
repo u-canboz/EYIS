@@ -878,8 +878,40 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     });
   }
 
+  // Job-Zeitpläne: erst wenn pg_cron die Jobs wirklich führt, laufen Ablauf,
+  // Kommunikation und Automation ohne manuelles Zutun.
+  try {
+    const expected = ["eyis_job_expiration", "eyis_job_communications", "eyis_job_automation"];
+    const { data: jobs, error } = await admin.rpc("eyis_cron_status" as never);
+    if (error) throw new Error(error.message);
+    const found = new Map(
+      ((jobs ?? []) as { jobname: string; schedule: string; active: boolean }[]).map((j) => [
+        j.jobname,
+        j,
+      ]),
+    );
+    const missing = expected.filter((n) => !found.get(n)?.active);
+    rows.push({
+      check: "Job-Zeitpläne (Cron)",
+      status: missing.length === 0 ? "PASS" : found.size === 0 ? "SETUP REQUIRED" : "FAIL",
+      detail:
+        missing.length === 0
+          ? expected.map((n) => `${n}=${found.get(n)?.schedule}`).join(", ")
+          : `nicht registriert: ${missing.join(", ")} — bun run eyis:resources:provision`,
+    });
+  } catch (e) {
+    rows.push({
+      check: "Job-Zeitpläne (Cron)",
+      status: "SETUP REQUIRED",
+      detail: e instanceof Error ? e.message : "nicht prüfbar",
+    });
+  }
 
   // Storage
+
+
+
+
   try {
     const { data: buckets, error: bError } = await admin.storage.listBuckets();
     rows.push({
