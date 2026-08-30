@@ -11,7 +11,9 @@
  */
 
 import { createHash, createPrivateKey, createPublicKey, generateKeyPairSync, sign } from "node:crypto";
-import { writeFileSync } from "node:fs";
+import { chmodSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 
 import { SIGNATURE_PATH, packDigest, trustedKey, verifyPack } from "./installer/signature";
 
