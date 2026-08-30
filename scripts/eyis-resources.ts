@@ -38,6 +38,18 @@ const manifest = JSON.parse(
 const provision = process.argv[2] === "provision";
 const baseUrl = (process.env["COMMERCE_OS_URL"] ?? "http://localhost:8080").replace(/\/$/, "");
 
+/** Fehlertexte niemals roh ausgeben: sie enthalten Verbindungszeichenfolgen. */
+function sanitize(e: unknown): string {
+  const raw = e instanceof Error ? e.message : String(e);
+  const line =
+    raw
+      .split("\n")
+      .map((l) => l.trim())
+      .find((l) => /^(ERROR|FATAL|permission|could not|connection)/i.test(l)) ??
+    "Datenbankzugriff fehlgeschlagen";
+  return line.replace(/postgres(ql)?:\/\/[^\s]+/gi, "[verbindung]").slice(0, 160);
+}
+
 type Row = { check: string; status: "PASS" | "FAIL" | "FIXED" | "BLOCKED"; detail: string };
 const rows: Row[] = [];
 
@@ -162,7 +174,7 @@ if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
         rows.push({
           check: "Cron-Registrierung",
           status: "FAIL",
-          detail: e instanceof Error ? e.message.slice(0, 200) : "psql-Fehler",
+          detail: sanitize(e),
         });
       }
     }
@@ -180,7 +192,7 @@ if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
         rows.push({
           check: `Cron ${job.cron_job_name}`,
           status: "BLOCKED",
-          detail: e instanceof Error ? e.message.split("\n")[0]!.slice(0, 160) : "pg_cron nicht verfügbar",
+          detail: sanitize(e),
         });
       }
     }
