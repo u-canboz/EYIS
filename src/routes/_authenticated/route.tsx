@@ -7,12 +7,13 @@ import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { roleLabel } from "@/lib/commerce/roles";
 import { AppShell } from "@/components/shell/AppShell";
 import { useWorkspaceStore } from "@/lib/commerce/useWorkspaceStore";
+import { EYIS_ADMIN_SCOPE_CLASS, EYIS_AUTH_PATH } from "@/lib/eyis/route-boundary";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    if (error || !data.user) throw redirect({ to: EYIS_AUTH_PATH });
     return { user: data.user };
   },
   component: AuthenticatedLayout,
@@ -25,7 +26,7 @@ function AuthenticatedLayout() {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate({ to: "/auth" });
+      if (!session) navigate({ to: EYIS_AUTH_PATH });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
@@ -59,7 +60,7 @@ function AuthenticatedLayout() {
 
   if (requiresOwnerClaim) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className={`${EYIS_ADMIN_SCOPE_CLASS} min-h-screen bg-background`} data-eyis-runtime="backoffice">
         <main className="container py-10">
           <Outlet />
         </main>
@@ -79,7 +80,7 @@ function AuthenticatedLayout() {
       isDemo={isDemoOrg}
       onSignOut={async () => {
         await supabase.auth.signOut();
-        navigate({ to: "/auth" });
+        navigate({ to: EYIS_AUTH_PATH });
       }}
     >
       <Outlet />
