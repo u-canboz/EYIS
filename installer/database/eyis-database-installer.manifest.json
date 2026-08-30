@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
-  "generated_at": "2026-08-29",
-  "schema_version": "20260828213156",
-  "migration_head": "054",
+  "generated_at": "2026-08-30",
+  "schema_version": "20260830200942",
+  "migration_head": "057",
   "migration_versions": [
     "20260825074450",
     "20260825074512",
@@ -57,7 +57,10 @@
     "20260827211754",
     "20260828131048",
     "20260828180020",
-    "20260828213156"
+    "20260828213156",
+    "20260830131955",
+    "20260830200835",
+    "20260830200942"
   ],
   "schema_fingerprint": "8867849192ba1ac3596f79db45ff9b3d5faac825c84503e8f1450c5c1055f657",
   "payload_budget": {
@@ -498,6 +501,36 @@
         "checksum": "293534e37379d84a531c76098f99e543e2a54c6a054be9c4ff755153851749b8",
         "statements": 11,
         "required": true
+      },
+      {
+        "id": "forward-20260830131955",
+        "file": "baseline/043_forward_20260830131955.sql",
+        "position": 43,
+        "title": "Forward-Port 20260830131955",
+        "bytes": 2411,
+        "checksum": "662280cc5ceeeff65ca98e85522bb9f2af21145ff8461c11c211b62ce032c4ec",
+        "statements": 24,
+        "required": true
+      },
+      {
+        "id": "forward-20260830200835",
+        "file": "baseline/044_forward_20260830200835.sql",
+        "position": 44,
+        "title": "Forward-Port 20260830200835",
+        "bytes": 897,
+        "checksum": "add1623f4c7d48ba1f9929afb1c56ee53276ce267349de0767b04d4d66ae8b47",
+        "statements": 9,
+        "required": true
+      },
+      {
+        "id": "forward-20260830200942",
+        "file": "baseline/045_forward_20260830200942.sql",
+        "position": 45,
+        "title": "Forward-Port 20260830200942",
+        "bytes": 896,
+        "checksum": "b3a967870fab5e40832c0524ca1fd7410c3041a4d39904b92481dbd9ef662769",
+        "statements": 9,
+        "required": true
       }
     ]
   },
@@ -540,8 +573,8 @@
   ],
   "migration_history_reconciliation": {
     "file": "reconcile/001_migration_history.sql",
-    "checksum": "4ae412a2fceb4bf0a562e4288095b31330866229abcbfb2c430195db6c20f366",
-    "registers_versions": 54,
+    "checksum": "8877ad8099f821fb2a6866d549b29b403fe0613bd14f22f6b65e21b7f486fa68",
+    "registers_versions": 57,
     "required_before": "supabase db push"
   },
   "verification": {
@@ -553,5 +586,8 @@
   },
   "resources": "../resources/eyis-resources.manifest.json",
   "system_seed_fingerprint": "3d56b91cabc04cd885b70998c432fe1b1b34642024ca4e5150a869f4dde1a163",
-  "system_seeds_manifest": "seeds/eyis-system-seeds.manifest.json"
+  "system_seeds_manifest": "seeds/eyis-system-seeds.manifest.json",
+  "migration_set_fingerprint": "31db2ec8525bf5d9b8adf0dbf613c194098cac04bbe601ef16f35ed924ef01d9",
+  "schema_fingerprint_state": "REQUIRES_REINTROSPECTION",
+  "schema_fingerprint_migration_head": "20260828213156"
 }
