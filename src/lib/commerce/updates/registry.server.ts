@@ -9,6 +9,7 @@ import { listReleases, downloadAssetText, resolveGithubAuth } from "./github.ser
 import { verifyManifestSignature } from "./signature";
 import { UpdateError, type ReleaseManifest, type UpdateChannel } from "./types";
 import { loadUpdateConfig, type UpdateConfig } from "./providers.server";
+import { resolveInstallCandidate, type ReleaseResolution } from "./versions";
 
 const MANIFEST_ASSET = "eyis-release.json";
 const SIGNATURE_ASSET = "eyis-release.json.sig";
@@ -93,4 +94,22 @@ export async function fetchSignedReleases(
     }
   }
   return { releases, rejected };
+}
+
+/**
+ * Auflösung für eine Installation: holt die signierten Releases und wählt
+ * daraus nach den Regeln aus `versions.ts` aus. Ohne signierten Stable-Release
+ * gibt es kein Ergebnis — kein Fallback auf `main`, kein unsigniertes Pack.
+ */
+export async function resolveInstallRelease(options: {
+  requestedRef?: string | null;
+  environment?: string;
+  config?: UpdateConfig;
+}): Promise<{ resolution: ReleaseResolution; rejected: Array<{ tag: string; reason: string }> }> {
+  const { releases, rejected } = await fetchSignedReleases(options.config ?? loadUpdateConfig());
+  const resolution = resolveInstallCandidate(releases, {
+    requestedRef: options.requestedRef ?? null,
+    environment: options.environment ?? process.env["APP_ENV"] ?? "",
+  });
+  return { resolution, rejected };
 }
