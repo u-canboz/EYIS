@@ -38,6 +38,28 @@ export const INTEGRATION_PATCH_PATHS: string[] = [
   "src/styles.css",
 ];
 
+/**
+ * Plattformgenerierte Dateien. EYIS liefert sie NICHT aus und überschreibt sie
+ * nie — sie entstehen im Kundenprojekt durch Lovable Cloud/Auth bzw. durch die
+ * Typgenerierung der lokalen Datenbank. Der Code-Preflight prüft nur, ob sie
+ * vorhanden sind.
+ */
+export const GENERATED_PATHS: string[] = [
+  "src/integrations/lovable/**",
+  "src/integrations/supabase/types.ts",
+  "src/routeTree.gen.ts",
+];
+
+/**
+ * Optionale Module. Sie gehören zu EYIS, sind aber NICHT Teil der
+ * Basisinstallation und dürfen deshalb weder mitinstalliert noch von der
+ * Basis-Route-Boundary beansprucht werden.
+ */
+export const OPTIONAL_PATHS: string[] = [
+  "src/routes/portal/**",
+  "src/eyis/portal/**",
+  "templates/customer-repo/**",
+];
 
 /**
  * Referenz-Inhalte: bleiben im EYIS-Hauptrepository, werden aber niemals in ein

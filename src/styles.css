@@ -139,6 +139,7 @@
   --sidebar-ring: #ED4800;
 }
 
+/* EYIS:ADMIN_SCOPE:START */
 /*
  * EYIS Admin-Scope — CSS-Isolation für Dedicated-Installationen.
  *
@@ -226,6 +227,7 @@
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
+/* EYIS:ADMIN_SCOPE:END */
 
 @layer base {
   * {
