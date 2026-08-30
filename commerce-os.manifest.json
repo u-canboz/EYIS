@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-29T22:42:34.217Z",
-  "source_commit": "46a4f812b00381cc685ff105d384cb3fb8f347da",
-  "latest_migration": "20260828213156_2f8211d8-7184-4737-a30b-9e37d2d18b66.sql",
+  "generated_at": "2026-08-30T13:27:29.315Z",
+  "source_commit": "b4a3128d1ec59a5c8c7525cc32cc75545706abdf",
+  "latest_migration": "20260830131955_b7e05640-c963-4e3a-80f0-bbdb505cfbcd.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
@@ -47,9 +47,9 @@
   ],
   "counts": {
     "modules": 19,
-    "routes": 89,
+    "routes": 91,
     "store_api_endpoints": 36,
-    "migrations": 54,
+    "migrations": 55,
     "public_tables": 112
   },
   "entry_points": {
