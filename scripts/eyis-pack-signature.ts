@@ -10,12 +10,19 @@
  * meldet `sign` BLOCKED statt eine Signatur zu erfinden.
  */
 
-import { createHash, createPrivateKey, createPublicKey, generateKeyPairSync, sign } from "node:crypto";
-import { chmodSync, writeFileSync } from "node:fs";
+import {
+  createHash,
+  createPrivateKey,
+  createPublicKey,
+  generateKeyPairSync,
+  sign,
+  verify as edVerify,
+} from "node:crypto";
+import { chmodSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 
-import { SIGNATURE_PATH, packDigest, trustedKey, verifyPack } from "./installer/signature";
+import { SIGNATURE_PATH, packDigest, resolveAnchorKey, trustedKey, verifyPack } from "./installer/signature";
 
 const command = process.argv[2] ?? "verify";
 
