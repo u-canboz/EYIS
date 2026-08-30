@@ -63,7 +63,7 @@ der Durchlauf von vorn begonnen.
 
 ## 4. Nach bestandenem Durchlauf
 
-1. Ergebnisse als `qa/PHASE26-BLACKBOX-INSTALL-REPORT.md` festhalten.
+1. Ergebnisse als einem Bericht unter `qa/` (Namensschema `PHASE26-BLACKBOX-INSTALL-REPORT`) festhalten.
 2. Stable Release taggen (`v1.0.0`) — der Workflow signiert das Pack.
 3. Installationsbasis einfrieren. Weitere Änderungen laufen ausschließlich über Versionen und
    das Update Center (`docs/production/UPDATE_CENTER.md`), nicht mehr über Umbauten an der Basis.
