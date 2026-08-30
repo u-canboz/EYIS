@@ -20,6 +20,26 @@ import { join } from "node:path";
 export const REPO_ROOT = process.cwd();
 export const PACK_ROOT = join(REPO_ROOT, "installer", "database");
 export const SIGNATURE_PATH = join(PACK_ROOT, "eyis-database-installer.signature.json");
+export const TRUST_ANCHOR_PATH = join(
+  REPO_ROOT,
+  "installer",
+  "distribution",
+  "eyis-trust-anchor.json",
+);
+
+export type TrustAnchor = {
+  keys: { key_id: string; public_key: string; status?: string }[];
+};
+
+/** Gepinnter öffentlicher Schlüssel zur key_id — nie aus der Signaturdatei. */
+export function trustedKey(keyId: string | undefined): string | null {
+  if (!keyId || !existsSync(TRUST_ANCHOR_PATH)) return null;
+  const anchor = JSON.parse(readFileSync(TRUST_ANCHOR_PATH, "utf8")) as TrustAnchor;
+  const entry = (anchor.keys ?? []).find(
+    (k) => k.key_id === keyId && (k.status ?? "active") === "active",
+  );
+  return entry?.public_key ?? null;
+}
 
 type InstallerManifest = {
   version: string;
