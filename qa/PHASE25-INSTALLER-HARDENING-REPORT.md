@@ -56,8 +56,13 @@ nachweisbar zwischen `/app` und Kundenpfaden wie `/apps`, `/application`, `/appo
 
 Nachweis: 4 Prüfungen in `src/lib/eyis/__tests__/route-boundary.test.ts`, Teil von `bun run verify`.
 
-Der Eingriff in das kundeneigene Root-Layout ist als `integration_patch` beschrieben und additiv:
-Kunden-Chrome wird für EYIS-Pfade übersprungen, nichts wird entfernt oder ersetzt.
+Der Eingriff in das kundeneigene Root-Layout ist als `integration_patch` beschrieben, umgesetzt und
+additiv: `src/routes/__root.tsx` verzweigt über `isEyisInternalRoute(pathname)` und überspringt für
+EYIS-Pfade das Kunden-Chrome. Im Hauptprojekt ist der Kundenzweig leer — er ist genau die Stelle, an
+der ein Kundenprojekt seinen Header und Footer behält. Es wird nichts entfernt oder ersetzt.
+
+Zusätzlich trägt auch der Claim-/Setup-Zustand des Backoffice den Scope `eyis-admin` und den Marker
+`data-eyis-runtime="backoffice"`, nicht nur die reguläre Shell.
 
 ## 4. CSS-Isolation — PASS
 
@@ -68,8 +73,13 @@ erreicht das die Oberfläche nicht mehr — und EYIS-Tokens greifen umgekehrt ni
 
 ## 5. Auth-Namespace — PASS
 
-`EYIS_AUTH_PATH = "/app/login"` liegt vollständig innerhalb der EYIS-Präfixe. Ein kundeneigenes
-`/login` oder `/auth` kollidiert damit nicht. Im Distribution-Manifest als Regel festgehalten.
+`EYIS_AUTH_PATH = "/app/login"` existiert als echte öffentliche Route (`src/routes/app.login.tsx`)
+und liegt vollständig innerhalb der EYIS-Präfixe. Ein kundeneigenes `/login` oder `/auth` kollidiert
+damit nicht. Die Anmeldeoberfläche liegt in `src/components/eyis/AuthPanel.tsx`; `/auth` bleibt als
+bestehender Pfad erhalten und rendert dieselbe Komponente. Alle Weiterleitungen des Backoffice
+(`beforeLoad`, Session-Verlust, Abmelden) zeigen jetzt auf `EYIS_AUTH_PATH` statt auf `/auth`.
+
+Nachweis: `GET /app/login` → 200 gegen den laufenden Dev-Server.
 
 ## 6. Distribution Manifest V3 — PASS
 
