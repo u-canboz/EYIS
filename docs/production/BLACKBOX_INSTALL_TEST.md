@@ -13,7 +13,8 @@ keine echten Zahlungen, keine echten Versandlabels.
 
 | Punkt | Nachweis |
 | --- | --- |
-| Signierter Release vorhanden | `.github/workflows/eyis-release.yml` lief grün, `eyis-database-installer.signature.json` hängt am Release |
+| Signierter Release Candidate `v1.0.0-rc.1` vorhanden | `.github/workflows/eyis-release.yml` lief grün; `eyis-release.json`, `eyis-release.json.sig` und `eyis-database-installer.signature.json` hängen am Pre-Release |
+| Trust Anchor gepinnt | `installer/distribution/eyis-trust-anchor.json` enthält genau einen aktiven Schlüssel (siehe `docs/production/RELEASE_SIGNING.md`) |
 | `EYIS_PACK_SIGNING_KEY` als Repository-Secret hinterlegt | Workflow-Schritt „Signaturschlüssel vorhanden?" ist grün |
 | `bun run verify` grün | letzter Lauf im Release-Workflow |
 
@@ -27,7 +28,7 @@ Ohne gültige Signatur führt `runFreshInstall` keine einzige SQL-Anweisung aus 
 
 ## 2. Installationsauftrag (wörtlich)
 
-> Installiere EYIS Dedicated aus https://github.com/u-canboz/EYIS in dieses Projekt.
+> Installiere EYIS Dedicated aus https://github.com/u-canboz/EYIS, Tag `v1.0.0-rc.1`, in dieses Projekt.
 > Bestehendes Design behalten. Meine Administrator-E-Mail ist `<E-Mail>`.
 > Halte dich an `installer/distribution/eyis-code-distribution.manifest.json`:
 > Nur `install`-Pfade übernehmen, `customer_owned` niemals ersetzen, an
@@ -41,7 +42,7 @@ Jeder Punkt ist PASS, FAIL, OFFEN oder BLOCKED. Kein PASS ohne Nachweis.
 
 | # | Schritt | Erwartung |
 | --- | --- | --- |
-| 1 | Installation Pack | Signaturprüfung PASS, 43 Units + Seeds eingespielt, Journal vollständig |
+| 1 | Installation Pack | Signaturprüfung gegen den Trust Anchor PASS, alle Units des Manifests + Seeds eingespielt, Journal vollständig |
 | 2 | Fingerprints | `schema_fingerprint` **und** `system_seed_fingerprint` PASS |
 | 3 | Kundenoberfläche | Startseite, Header, Footer, Farben, Schriften unverändert |
 | 4 | Registrierung | Konto mit der Administrator-E-Mail anlegen |

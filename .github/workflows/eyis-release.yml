@@ -1,11 +1,16 @@
 name: EYIS Release (signiertes Install Pack)
 
-# Erzeugt einen echten, signierten Release des Install Packs.
+# Erzeugt einen echten, signierten Release des Install Packs und des
+# Code-Artefakts.
 #
 # Der private Ed25519-Schlüssel liegt ausschließlich als Repository-Secret
 # EYIS_PACK_SIGNING_KEY (PKCS#8-PEM). Er wird nie geloggt, nie ausgegeben und
 # nie als Artefakt hochgeladen. Fehlt er, bricht der Lauf ab — es wird bewusst
 # keine Ersatzsignatur erzeugt.
+#
+# Tags mit "-rc." werden als Pre-Release veröffentlicht. Ein Stable-Tag wird
+# nur signiert, wenn sein Artefakt-Digest exakt dem geprüften Release
+# Candidate aus installer/distribution/eyis-release-promotion.json entspricht.
 
 on:
   push:
@@ -14,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release-Tag (z. B. v1.0.0)"
+        description: "Release-Tag (z. B. v1.0.0-rc.1)"
         required: true
 
 permissions:
@@ -23,6 +28,8 @@ permissions:
 jobs:
   sign-and-release:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -38,30 +45,79 @@ jobs:
         run: |
           if [ -z "$EYIS_PACK_SIGNING_KEY" ]; then
             echo "BLOCKED — Repository-Secret EYIS_PACK_SIGNING_KEY fehlt."
-            echo "Schlüssel lokal mit 'bun run eyis:pack:keygen' erzeugen und den privaten Teil als Secret hinterlegen."
+            echo "Schluessel lokal mit 'bun run eyis:pack:keygen -- <pfad>.pem' erzeugen und den privaten Teil als Secret hinterlegen."
             exit 1
           fi
 
-      - name: Verify (docs, typecheck, tests, build)
+      - name: Version bestimmen
+        id: version
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          case "$VERSION" in
+            *-rc.*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *)      echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Verify (docs, sync, routes, distribution, artifact, typecheck, tests, build)
         run: bun run verify
+
+      - name: Datenbank-Pack, Seeds und Ressourcen prüfen
+        run: |
+          set -euo pipefail
+          bun run eyis:seeds:audit
+          bun run eyis:seeds:verify
+          bun run eyis:resources:verify
+
+      - name: Secret-Scan des Artefakts
+        run: |
+          set -euo pipefail
+          if grep -rInE 'sb_secret_|SUPABASE_SERVICE_ROLE_KEY *= *[A-Za-z0-9]|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' \
+              src installer scripts supabase; then
+            echo "FAIL — moeglicher Secret-Fund im Release-Umfang."
+            exit 1
+          fi
+          echo "Secret-Scan: PASS"
+
+      - name: Stable-Promotion prüfen
+        run: bun run eyis:release:promote check "${{ steps.version.outputs.version }}"
+
+      - name: Artefakt bauen
+        env:
+          EYIS_RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: bun run eyis:release:artifact
 
       - name: Pack signieren
         env:
           EYIS_PACK_SIGNING_KEY: ${{ secrets.EYIS_PACK_SIGNING_KEY }}
         run: bun run eyis:pack:sign
 
-      - name: Signatur prüfen
-        run: bun run eyis:pack:verify
+      - name: Artefakt signieren
+        env:
+          EYIS_PACK_SIGNING_KEY: ${{ secrets.EYIS_PACK_SIGNING_KEY }}
+        run: bun run eyis:release:sign installer/artifact/eyis-release.json
+
+      - name: Signaturen gegen Trust Anchor prüfen
+        run: |
+          set -euo pipefail
+          bun run eyis:pack:verify
+          bun run eyis:release:verify installer/artifact/eyis-release.json
 
       - name: Release veröffentlichen
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.tag || github.ref_name }}
-          name: EYIS ${{ inputs.tag || github.ref_name }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: EYIS ${{ env.RELEASE_TAG }}
+          prerelease: ${{ steps.version.outputs.prerelease }}
           generate_release_notes: true
           files: |
+            installer/artifact/eyis-dedicated-${{ steps.version.outputs.version }}.tar.gz
+            installer/artifact/eyis-release.json
+            installer/artifact/eyis-release.json.sig
             installer/database/eyis-database-installer.manifest.json
             installer/database/eyis-database-installer.signature.json
             installer/database/seeds/eyis-system-seeds.manifest.json
             installer/distribution/eyis-code-distribution.manifest.json
+            installer/distribution/eyis-trust-anchor.json
             installer/resources/eyis-resources.manifest.json

@@ -29,19 +29,61 @@ export const TRUST_ANCHOR_PATH = join(
   "eyis-trust-anchor.json",
 );
 
-export type TrustAnchor = {
-  keys: { key_id: string; public_key: string; status?: string }[];
+export type TrustAnchorKey = {
+  key_id: string;
+  public_key: string;
+  algorithm?: string;
+  label?: string;
+  status?: string;
 };
+export type TrustAnchor = { keys: TrustAnchorKey[] };
+
+export type AnchorLookup =
+  | { ok: true; publicKey: string }
+  | { ok: false; status: GateStatus; reason: string };
+
+/**
+ * Auflösung einer key_id gegen die gepinnte Vertrauenswurzel.
+ *
+ * Ein in der Signaturdatei mitgelieferter public_key wird nie betrachtet.
+ * Fehlender Anchor oder leere Schlüsselliste → BLOCKED (Setup fehlt),
+ * unbekannte oder nicht aktive key_id → FAIL (Vertrauensbruch).
+ */
+export function resolveAnchorKey(keyId: string | undefined): AnchorLookup {
+  if (!existsSync(TRUST_ANCHOR_PATH)) {
+    return { ok: false, status: "BLOCKED", reason: "Trust Anchor fehlt." };
+  }
+  const anchor = JSON.parse(readFileSync(TRUST_ANCHOR_PATH, "utf8")) as TrustAnchor;
+  const keys = anchor.keys ?? [];
+  if (keys.length === 0) {
+    return { ok: false, status: "BLOCKED", reason: "Trust Anchor enthält keinen Schlüssel." };
+  }
+  if (!keyId) {
+    return {
+      ok: false,
+      status: "FAIL",
+      reason: "Signaturdatei nennt keine key_id — ein mitgelieferter Schlüssel wird nicht akzeptiert.",
+    };
+  }
+  const entry = keys.find((k) => k.key_id === keyId);
+  if (!entry) {
+    return { ok: false, status: "FAIL", reason: `Signaturschlüssel ${keyId} steht nicht im EYIS Trust Anchor.` };
+  }
+  if ((entry.status ?? "active") !== "active") {
+    return { ok: false, status: "FAIL", reason: `Signaturschlüssel ${keyId} ist ${entry.status}.` };
+  }
+  if ((entry.algorithm ?? "ed25519") !== "ed25519") {
+    return { ok: false, status: "FAIL", reason: `Nicht unterstützter Algorithmus ${entry.algorithm}.` };
+  }
+  return { ok: true, publicKey: entry.public_key };
+}
 
 /** Gepinnter öffentlicher Schlüssel zur key_id — nie aus der Signaturdatei. */
 export function trustedKey(keyId: string | undefined): string | null {
-  if (!keyId || !existsSync(TRUST_ANCHOR_PATH)) return null;
-  const anchor = JSON.parse(readFileSync(TRUST_ANCHOR_PATH, "utf8")) as TrustAnchor;
-  const entry = (anchor.keys ?? []).find(
-    (k) => k.key_id === keyId && (k.status ?? "active") === "active",
-  );
-  return entry?.public_key ?? null;
+  const result = resolveAnchorKey(keyId);
+  return result.ok ? result.publicKey : null;
 }
+
 
 type InstallerManifest = {
   version: string;
@@ -158,26 +200,24 @@ export function verifyPack(): GateResult {
     detail ||= "Keine Signaturdatei vorhanden — Pack unsigniert (EYIS_PACK_SIGNING_KEY fehlt).";
   } else {
     const sig = readJson<{ digest: string; signature: string; key_id?: string }>(SIGNATURE_PATH);
-    const trusted = trustedKey(sig.key_id);
+    const anchor = resolveAnchorKey(sig.key_id);
     if (sig.digest !== digest) {
       signature = "FAIL";
       detail = "Pack-Inhalt weicht vom signierten Digest ab.";
-    } else if (!sig.key_id) {
-      signature = "FAIL";
-      detail = "Signaturdatei nennt keine key_id — ein mitgelieferter Schlüssel wird nicht akzeptiert.";
-    } else if (!trusted) {
-      signature = "FAIL";
-      detail = `Signaturschlüssel ${sig.key_id} steht nicht im EYIS Trust Anchor.`;
+    } else if (!anchor.ok) {
+      signature = anchor.status;
+      detail = anchor.reason;
     } else {
       const ok = edVerify(
         null,
         Buffer.from(digest, "hex"),
-        createPublicKey(trusted),
+        createPublicKey(anchor.publicKey),
         Buffer.from(sig.signature, "base64"),
       );
       signature = ok ? "PASS" : "FAIL";
       if (!ok) detail = "Ungültige Ed25519-Signatur.";
     }
+
   }
 
   const status: GateStatus =
@@ -193,17 +233,25 @@ export function verifyPack(): GateResult {
 /**
  * Hartes Gate vor jeder SQL-Ausführung. Ungültige Signatur oder abweichende
  * Checksummen brechen immer ab. Ein unsigniertes Pack (BLOCKED) darf nur mit
- * ausdrücklichem EYIS_ALLOW_UNSIGNED_PACK=1 laufen — Dev- und QA-Läufe.
+ * ausdrücklichem EYIS_ALLOW_UNSIGNED_PACK=1 laufen — und niemals in Production:
+ * dort wird die Ausnahme ignoriert.
  */
 export function assertPackGate(env: NodeJS.ProcessEnv = process.env): GateResult {
   const result = verifyPack();
   if (result.status === "FAIL") {
     throw new Error(`Install Pack abgelehnt: ${result.detail || "Signatur-/Checksummenprüfung fehlgeschlagen."}`);
   }
-  if (result.status === "BLOCKED" && env["EYIS_ALLOW_UNSIGNED_PACK"] !== "1") {
-    throw new Error(
-      "Install Pack ist nicht signiert. Signatur bereitstellen oder den Lauf ausdrücklich mit EYIS_ALLOW_UNSIGNED_PACK=1 als unsigniert kennzeichnen.",
-    );
+  if (result.status === "BLOCKED") {
+    const isProduction = (env["APP_ENV"] ?? "").toLowerCase() === "production";
+    const allowUnsigned = !isProduction && env["EYIS_ALLOW_UNSIGNED_PACK"] === "1";
+    if (!allowUnsigned) {
+      throw new Error(
+        isProduction
+          ? "Install Pack ist nicht signiert. In Production gibt es keine Ausnahme — signierten Release verwenden."
+          : "Install Pack ist nicht signiert. Signatur bereitstellen oder den Lauf ausdrücklich mit EYIS_ALLOW_UNSIGNED_PACK=1 als unsigniert kennzeichnen.",
+      );
+    }
   }
   return result;
 }
+

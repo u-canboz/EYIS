@@ -94,3 +94,66 @@ export function isAutoUpdateAllowed(
   if (policy === "security_only") return Boolean(release.securityRelease) && type === "patch";
   return type === "patch";
 }
+
+// ---------------------------------------------------------------------------
+// Installations-Auflösung: RC vs. Stable (Phase 27)
+// ---------------------------------------------------------------------------
+
+export type ReleaseResolution =
+  | { status: "PASS"; release: ReleaseManifest; reason: string }
+  | { status: "BLOCKED"; release: null; reason: string };
+
+/** Sieht die Referenz wie ein Release Candidate aus (v1.0.0-rc.1)? */
+export function isReleaseCandidateRef(ref: string): boolean {
+  return /-rc\.\d+$/.test(ref.trim().replace(/^v/, ""));
+}
+
+/**
+ * Bestimmt, welches signierte Release installiert wird.
+ *
+ * - ohne Referenz: neuestes signiertes **Stable**;
+ * - mit RC-Referenz: genau dieser signierte Pre-Release;
+ * - kein Stable vorhanden: BLOCKED — es gibt keinen Rückfall auf einen RC
+ *   oder auf `main`;
+ * - ein RC wird in Production nie automatisch installiert.
+ */
+export function resolveInstallCandidate(
+  releases: ReleaseManifest[],
+  options: { requestedRef?: string | null; environment?: string } = {},
+): ReleaseResolution {
+  const requested = options.requestedRef?.trim();
+  const isProduction = (options.environment ?? "").toLowerCase() === "production";
+
+  if (requested) {
+    const wanted = requested.replace(/^v/, "");
+    const match = releases.find((r) => r.version.replace(/^v/, "") === wanted);
+    if (!match) {
+      return {
+        status: "BLOCKED",
+        release: null,
+        reason: `Kein signiertes Release ${requested} in der Registry.`,
+      };
+    }
+    if (isReleaseCandidateRef(wanted) && isProduction) {
+      return {
+        status: "BLOCKED",
+        release: null,
+        reason: `Release Candidate ${requested} wird in Production nicht installiert.`,
+      };
+    }
+    return { status: "PASS", release: match, reason: `Ausdrücklich angefordert: ${requested}.` };
+  }
+
+  const stable = releases
+    .filter((r) => r.channel === "stable" && !parseVersion(r.version)?.pre)
+    .sort((a, b) => compareVersions(a.version, b.version));
+  const latest = stable[stable.length - 1];
+  if (!latest) {
+    return {
+      status: "BLOCKED",
+      release: null,
+      reason: "Kein signiertes Stable-Release vorhanden — kein Rückfall auf RC oder main.",
+    };
+  }
+  return { status: "PASS", release: latest, reason: `Neuestes Stable: ${latest.version}.` };
+}

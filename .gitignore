@@ -30,3 +30,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Release-Artefakte (werden im Release-Workflow erzeugt)
+installer/artifact/
