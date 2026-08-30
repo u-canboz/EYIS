@@ -7,12 +7,12 @@
   {
     "name": "Produkt angelegt (Entwurf)",
     "ok": true,
-    "detail": "112dc4b7-070a-40a0-b682-de29259e1c61"
+    "detail": "28c29314-f8e9-405b-bac8-b458e8bf4e73"
   },
   {
     "name": "Variante angelegt",
     "ok": true,
-    "detail": "a859b826-cb6c-4a03-a53e-eac212f3df1e"
+    "detail": "b064eab2-9b22-4526-aa8e-e908441b2cc5"
   },
   {
     "name": "Preis über Price-Set gesetzt",
@@ -41,8 +41,8 @@
   },
   {
     "name": "Store API gibt den Preis serverseitig aus",
-    "ok": false,
-    "detail": "2490 in Antwort: false"
+    "ok": true,
+    "detail": "2490 in Antwort: true"
   },
   {
     "name": "Store API enthält keine internen Felder",
@@ -52,7 +52,7 @@
   {
     "name": "SDK liest dasselbe Produkt",
     "ok": true,
-    "detail": "qa-smoke-1788119983608"
+    "detail": "qa-smoke-1788120005756"
   },
   {
     "name": "Warenkorb rechnet serverseitig 2 × Preis",
