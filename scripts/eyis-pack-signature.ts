@@ -18,17 +18,30 @@ import { SIGNATURE_PATH, packDigest, trustedKey, verifyPack } from "./installer/
 const command = process.argv[2] ?? "verify";
 
 if (command === "keygen") {
-  // Erzeugt ein Schlüsselpaar zur lokalen Ablage AUSSERHALB des Repositories.
-  // Der private Teil wird nur auf stdout ausgegeben und nie geschrieben.
+  // Der private Schlüssel wird NIE auf stdout ausgegeben (Logs, CI-Transcripts).
+  // Er landet ausschließlich in einer Datei außerhalb des Repositories, 0600.
+  const target = process.argv[3];
+  if (!target) {
+    console.log("Verwendung: bun run eyis:pack:keygen -- <pfad-ausserhalb-des-repos>.pem");
+    process.exit(2);
+  }
+  const abs = resolve(target);
+  if (abs.startsWith(`${process.cwd()}/`)) {
+    console.log("Abgelehnt: Der private Schlüssel darf nicht innerhalb des Repositories liegen.");
+    process.exit(2);
+  }
   const { privateKey, publicKey } = generateKeyPairSync("ed25519");
-  console.log("Öffentlicher Schlüssel (darf ausgeliefert werden):");
-  console.log(publicKey.export({ type: "spki", format: "pem" }).toString());
-  console.log(
-    "Privater Schlüssel: als Secret EYIS_PACK_SIGNING_KEY hinterlegen, niemals ins Repository.",
-  );
-  console.log(privateKey.export({ type: "pkcs8", format: "pem" }).toString());
+  const pub = publicKey.export({ type: "spki", format: "pem" }).toString();
+  writeFileSync(abs, privateKey.export({ type: "pkcs8", format: "pem" }).toString(), { mode: 0o600 });
+  chmodSync(abs, 0o600);
+  const keyId = createHash("sha256").update(pub).digest("hex").slice(0, 32);
+  console.log(`Privater Schlüssel geschrieben: ${abs} (0600) — Inhalt niemals ausgeben oder committen.`);
+  console.log(`key_id: ${keyId}`);
+  console.log("Öffentlicher Schlüssel (in den Trust Anchor aufnehmen):");
+  console.log(pub);
   process.exit(0);
 }
+
 
 if (command === "sign") {
   const pem = process.env["EYIS_PACK_SIGNING_KEY"];
