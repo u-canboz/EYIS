@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-30T18:27:58.759Z",
-  "source_commit": "0b904c6343e4390a983851405f454e85e8d9ca14",
+  "generated_at": "2026-08-30T20:04:52.356Z",
+  "source_commit": "e4d8041cefedc6271fd86813b7f00fddb56afd21",
   "latest_migration": "20260830131955_b7e05640-c963-4e3a-80f0-bbdb505cfbcd.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
@@ -86,6 +86,9 @@
     "qa:jobs": "bun run qa/phase14-jobs.ts",
     "qa:migrations": "bun run qa/phase14-migrations.ts",
     "qa:demo": "bun run qa/phase15-demo.ts",
+    "qa:smoke": "bun run qa/phase25-smoke.ts",
+    "qa:ui-isolation": "python3 qa/phase25-ui-isolation.py",
+    "qa:product-smoke": "python3 qa/phase25-product-smoke.py",
     "qa:visual": "python3 qa/phase14-visual.py",
     "qa:a11y": "python3 qa/phase14-a11y.py",
     "qa:performance": "bun run qa/phase14-performance.ts",
@@ -111,6 +114,8 @@
     "eyis:seeds:sql": "bun run scripts/eyis-seeds.ts sql",
     "eyis:resources:verify": "bun run scripts/eyis-resources.ts verify",
     "eyis:resources:provision": "bun run scripts/eyis-resources.ts provision",
+    "eyis:resources:cron": "bun run scripts/eyis-resources.ts cron",
+    "eyis:pack:keygen": "bun run scripts/eyis-pack-signature.ts keygen",
     "eyis:pack:sign": "bun run scripts/eyis-pack-signature.ts sign",
     "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify"
   },
