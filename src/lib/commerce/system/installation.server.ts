@@ -140,7 +140,8 @@ export type BootstrapInput = { ownerEmail?: string | null };
  * worden sein (siehe Server-Route). Harte Abbruchmatrix gemäß Plan.
 
  */
-export async function runBootstrap(): Promise<BootstrapResult> {
+export async function runBootstrap(input: BootstrapInput = {}): Promise<BootstrapResult> {
+  const ownerEmail = input.ownerEmail ?? null;
   const steps: string[] = [];
 
   // 2  Umgebung + Deployment Mode (unbekannt = STOP)
