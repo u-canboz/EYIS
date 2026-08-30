@@ -162,10 +162,13 @@ export type RunOptions = { env?: NodeJS.ProcessEnv; stopAfter?: number; onUnit?:
  */
 export function runFreshInstall(manifest: Manifest, options: RunOptions = {}) {
   const env = options.env ?? {};
+  // Harte Sperre: ohne bestandenes Pack-Gate wird keine SQL-Anweisung ausgeführt.
+  assertPackGate({ ...process.env, ...env });
   const before = detectState(manifest, env);
   if (before.state === "INSTALLED") {
     throw new Error("EYIS ist bereits installiert. Der Database Install Pack darf nur für Fresh Installs laufen.");
   }
+
 
   const applied: string[] = [];
   const skipped: string[] = [];
