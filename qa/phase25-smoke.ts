@@ -14,7 +14,7 @@ import { writeFileSync } from "node:fs";
 import * as cartApi from "@/lib/commerce/cart.server";
 import { resolveTemplate, loadBranding } from "@/lib/commerce/communications/communication.server";
 import { renderEmail } from "@/lib/commerce/communications/renderer";
-import { ensurePriceSet } from "@/lib/commerce/pricing.server";
+import { ensurePriceSet, resolveFromDatabase } from "@/lib/commerce/pricing.server";
 import { createKey } from "@/lib/commerce/store/keys.server";
 import { createCommerceClient } from "@/lib/store-sdk";
 import { admin, check, readState, results, summary } from "./lib";
@@ -97,6 +97,21 @@ async function main() {
     type: "base",
   });
   check("Preis über Price-Set gesetzt", !prErr, prErr?.message ?? `${PRICE_MINOR} EUR minor`);
+
+  const resolved = await resolveFromDatabase(admin as never, ORG, {
+    shopId: SHOP,
+    productId,
+    variantId,
+    quantity: 1,
+    currencyCode: undefined,
+    customerGroupId: null,
+    promotionCodes: [],
+  } as never);
+  check(
+    "Preisauflösung ohne Währungsangabe nutzt die Shop-Währung",
+    resolved?.resolvedUnitAmount === PRICE_MINOR,
+    `resolved=${JSON.stringify(resolved?.resolvedUnitAmount)} ${resolved?.currencyCode ?? ""}`,
+  );
 
   /* ---------------- 4. Veröffentlichen ---------------- */
   const { error: pubErr } = await admin

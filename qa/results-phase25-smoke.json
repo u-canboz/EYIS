@@ -7,17 +7,22 @@
   {
     "name": "Produkt angelegt (Entwurf)",
     "ok": true,
-    "detail": "bab6a1bb-b1cd-4f0a-89c5-28e553f10867"
+    "detail": "112dc4b7-070a-40a0-b682-de29259e1c61"
   },
   {
     "name": "Variante angelegt",
     "ok": true,
-    "detail": "8eedc856-3f49-430d-9920-d2c4f1279aea"
+    "detail": "a859b826-cb6c-4a03-a53e-eac212f3df1e"
   },
   {
     "name": "Preis über Price-Set gesetzt",
     "ok": true,
     "detail": "2490 EUR minor"
+  },
+  {
+    "name": "Preisauflösung ohne Währungsangabe nutzt die Shop-Währung",
+    "ok": true,
+    "detail": "resolved=2490 EUR"
   },
   {
     "name": "Produkt veröffentlicht",
@@ -47,7 +52,7 @@
   {
     "name": "SDK liest dasselbe Produkt",
     "ok": true,
-    "detail": "qa-smoke-1788119937813"
+    "detail": "qa-smoke-1788119983608"
   },
   {
     "name": "Warenkorb rechnet serverseitig 2 × Preis",
