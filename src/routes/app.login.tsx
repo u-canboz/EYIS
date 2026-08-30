@@ -33,5 +33,9 @@ export const Route = createFileRoute("/app/login")({
 });
 
 function BackofficeLogin() {
-  return <AuthPanel authPath={EYIS_AUTH_PATH} />;
+  return (
+    <div className="eyis-admin min-h-screen" data-eyis-runtime="backoffice">
+      <AuthPanel authPath={EYIS_AUTH_PATH} />
+    </div>
+  );
 }

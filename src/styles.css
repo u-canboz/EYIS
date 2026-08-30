@@ -208,9 +208,11 @@
   --sidebar-border: oklch(0.905 0.005 80);
   --sidebar-ring: #ED4800;
 
-  /* Der Scope bringt seine eigene Grundlage mit, statt sie von <body> zu erben. */
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  /* Der Scope bringt seine eigene Grundlage mit, statt sie von <body> zu erben.
+     Bewusst die scope-eigenen Tokens statt der Theme-Aliase: ein Kunden-Override
+     auf :root kann die Backoffice-Fläche damit nicht verfärben. */
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans);
   line-height: 1.5;
   text-align: start;
