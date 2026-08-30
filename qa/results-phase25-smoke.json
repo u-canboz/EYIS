@@ -7,12 +7,12 @@
   {
     "name": "Produkt angelegt (Entwurf)",
     "ok": true,
-    "detail": "fa4c0871-7054-4e5e-b5e9-3809888e696c"
+    "detail": "ead0a4cd-ea76-4d3f-83fe-dbd1bed7bff8"
   },
   {
     "name": "Variante angelegt",
     "ok": true,
-    "detail": "a6582ee3-7cc1-437d-b9ac-267e28a0daf2"
+    "detail": "db3b19a7-6a98-4906-b3d4-25185a74dbbb"
   },
   {
     "name": "Preis über Price-Set gesetzt",
@@ -37,7 +37,7 @@
   {
     "name": "Store API gibt den Preis serverseitig aus",
     "ok": false,
-    "detail": "2490 in Antwort: false"
+    "detail": "{\"data\":{\"id\":\"ead0a4cd-ea76-4d3f-83fe-dbd1bed7bff8\",\"handle\":\"qa-smoke-1788119879626\",\"title\":\"QA Smoke 1788119879626\",\"subtitle\":null,\"description\":null,\"vendor\":null,\"productType\":null,\"image\":null,\"images\":[],\"price\":null,\"availability\":\"in_stock\",\"options\":[],\"variants\":[{\"id\":\"db3b19a7-6a98-4906-b3d4-25185a74dbbb\",\"title\":\"Standard\",\"sku\":\"QA-1788119879626\",\"options\":[],\"price\":null,\"availab"
   },
   {
     "name": "Store API enthält keine internen Felder",
@@ -47,7 +47,7 @@
   {
     "name": "SDK liest dasselbe Produkt",
     "ok": true,
-    "detail": "qa-smoke-1788119851962"
+    "detail": "qa-smoke-1788119879626"
   },
   {
     "name": "Warenkorb rechnet serverseitig 2 × Preis",
