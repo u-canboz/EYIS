@@ -1,14 +1,21 @@
 /**
- * First Owner Claim (Phase 21): Der Owner fügt den einmaligen Claim-Code aus
- * dem Bootstrap ein (Formular, niemals URL), registriert sich bzw. ist bereits
- * angemeldet, und übernimmt die Instanz. Der Claim läuft atomar serverseitig.
+ * Zero-Friction Owner Setup (Dedicated V3).
+ *
+ * Der vorbereitete Administrator meldet sich normal an. Sobald seine E-Mail
+ * bestätigt und identisch mit dem hinterlegten Pending Owner ist, übernimmt er
+ * die Installation ohne Claim-Code. Der Claim-Code bleibt ausschließlich als
+ * Recovery-Weg unter /app/setup/recovery erhalten.
  */
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQueryClient } from "@tanstack/react-query";
-import { KeyRound, Building2, Store, ShieldCheck } from "lucide-react";
-import { claimInstallationOwner } from "@/lib/commerce/system/installation.functions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Building2, LifeBuoy, MailCheck, ShieldCheck, Store } from "lucide-react";
+import {
+  autoClaimInstallationOwner,
+  getOwnerSetupState,
+} from "@/lib/commerce/system/installation.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { EyisLogo } from "@/components/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,50 +24,36 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/_authenticated/app/setup/")({
   head: () => ({
     meta: [
-      { title: "Installation übernehmen – EYIS" },
-      { name: "description", content: "First Owner Claim: diese EYIS-Instanz mit dem einmaligen Installations-Claim übernehmen." },
-      { property: "og:title", content: "Installation übernehmen – EYIS" },
-      { property: "og:description", content: "Sicherer First-Owner-Claim für eine Dedicated-Instanz." },
+      { title: "EYIS einrichten – Administrator-Konto" },
+      {
+        name: "description",
+        content:
+          "Erste Einrichtung einer EYIS Dedicated Installation: vorbereitetes Administrator-Konto bestätigen und Organisation anlegen.",
+      },
+      { property: "og:title", content: "EYIS einrichten – Administrator-Konto" },
+      { property: "og:description", content: "Geführte Erstübernahme einer EYIS-Instanz." },
     ],
   }),
-  component: OwnerClaimPage,
+  component: OwnerSetupPage,
 });
 
-function OwnerClaimPage() {
+function OwnerSetupPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const claimFn = useServerFn(claimInstallationOwner);
+  const stateFn = useServerFn(getOwnerSetupState);
+  const claimFn = useServerFn(autoClaimInstallationOwner);
 
-  const [step, setStep] = useState<"code" | "workspace">("code");
-  const [claimCode, setClaimCode] = useState("");
+  const { data: state, isLoading, refetch } = useQuery({
+    queryKey: ["owner-setup-state"],
+    queryFn: () => stateFn(),
+  });
+
   const [orgName, setOrgName] = useState("");
-  const [shopName, setShopName] = useState("");
+  const [shopName, setShopName] = useState("Hauptshop");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function submitCode(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/public/install/claim-session", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ claimCode }),
-      });
-      const body = (await res.json()) as { ok?: boolean; error?: string };
-      if (!res.ok || !body.ok) {
-        setError(body.error ?? "Claim-Code ungültig.");
-        return;
-      }
-      setClaimCode("");
-      setStep("workspace");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function submitClaim(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
@@ -83,46 +76,95 @@ function OwnerClaimPage() {
           <ShieldCheck className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Installation übernehmen</h1>
+          <h1 className="text-xl font-semibold tracking-tight">EYIS einrichten</h1>
           <p className="text-sm text-muted-foreground">
-            Diese EYIS-Instanz hat noch keinen Owner. Der erste Zugriff ist nur mit dem
-            einmaligen Installations-Claim aus dem Bootstrap möglich.
+            Diese Instanz hat noch keinen Owner. Nur das vorbereitete Administrator-Konto kann
+            die Installation übernehmen.
           </p>
         </div>
       </div>
 
-      {step === "code" ? (
-        <form onSubmit={submitCode} className="flex flex-col gap-4 rounded-xl border bg-card p-5">
+      {isLoading && <p className="text-sm text-muted-foreground">Zustand wird geprüft…</p>}
+
+      {state && state.claimState === "CLAIMED" && (
+        <div className="rounded-xl border bg-card p-5 text-sm">
+          Diese Instanz wurde bereits übernommen.{" "}
+          <Link to="/app" className="text-primary underline">
+            Zum Backoffice
+          </Link>
+        </div>
+      )}
+
+      {state && state.claimState === "RECOVERY_REQUIRED" && (
+        <div className="flex flex-col gap-3 rounded-xl border bg-card p-5">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <KeyRound className="h-4 w-4 text-primary" />
-            Schritt 1: Installations-Claim eingeben
+            <LifeBuoy className="h-4 w-4 text-primary" />
+            Kein vorbereiteter Administrator hinterlegt
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="claim-code">Claim-Code</Label>
-            <Input
-              id="claim-code"
-              value={claimCode}
-              onChange={(e) => setClaimCode(e.target.value)}
-              placeholder="cos_claim_…"
-              autoComplete="off"
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              Der Code wurde einmalig bei <code>commerce:bootstrap</code> ausgegeben und ist{" "}
-              72 Stunden gültig.
-            </p>
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={busy || claimCode.trim().length < 10}>
-            Code prüfen
+          <p className="text-sm text-muted-foreground">
+            Für diese Installation wurde beim Bootstrap keine Administrator-E-Mail festgelegt.
+            Die Übernahme läuft deshalb über den einmaligen Recovery-Code.
+          </p>
+          <Button asChild size="sm" variant="outline" className="self-start">
+            <Link to="/app/setup/recovery">Recovery-Übernahme öffnen</Link>
           </Button>
-        </form>
-      ) : (
-        <form onSubmit={submitClaim} className="flex flex-col gap-4 rounded-xl border bg-card p-5">
+        </div>
+      )}
+
+      {state && state.claimState === "AWAITING_OWNER_REGISTRATION" && !state.matchesPendingOwner && (
+        <div className="flex flex-col gap-3 rounded-xl border bg-card p-5">
+          <p className="text-sm">
+            Angemeldet als <strong>{state.email ?? "unbekannt"}</strong>. Dieses Konto ist nicht
+            als Administrator dieser Installation vorbereitet
+            {state.pendingOwnerEmailMasked ? ` (erwartet: ${state.pendingOwnerEmailMasked})` : ""}.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate({ to: "/auth" });
+              }}
+            >
+              Mit anderem Konto anmelden
+            </Button>
+            <Button size="sm" variant="ghost" asChild>
+              <Link to="/app/setup/recovery">Recovery-Übernahme</Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {state &&
+        state.claimState === "AWAITING_OWNER_REGISTRATION" &&
+        state.matchesPendingOwner &&
+        !state.emailVerified && (
+          <div className="flex flex-col gap-3 rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <MailCheck className="h-4 w-4 text-primary" />
+              E-Mail-Adresse noch nicht bestätigt
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Bitte den Bestätigungslink in der E-Mail an {state.email} öffnen. Ohne bestätigten
+              Besitz der Adresse ist die automatische Übernahme aus Sicherheitsgründen gesperrt.
+            </p>
+            <Button size="sm" variant="outline" className="self-start" onClick={() => refetch()}>
+              Erneut prüfen
+            </Button>
+          </div>
+        )}
+
+      {state && state.canAutoClaim && (
+        <form onSubmit={submit} className="flex flex-col gap-4 rounded-xl border bg-card p-5">
           <div className="flex items-center gap-2 text-sm font-medium">
             <Building2 className="h-4 w-4 text-primary" />
-            Schritt 2: Organisation und Shop festlegen
+            Organisation und Hauptshop festlegen
           </div>
+          <p className="text-sm text-muted-foreground">
+            Angemeldet und bestätigt als <strong>{state.email}</strong>. Nach dem Speichern
+            gehört diese Instanz deinem Konto.
+          </p>
           <div className="flex flex-col gap-2">
             <Label htmlFor="org-name">Organisation</Label>
             <Input
@@ -143,7 +185,6 @@ function OwnerClaimPage() {
                 className="pl-9"
                 value={shopName}
                 onChange={(e) => setShopName(e.target.value)}
-                placeholder="Hauptshop"
                 required
                 minLength={2}
               />
@@ -151,11 +192,10 @@ function OwnerClaimPage() {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" disabled={busy}>
-            Instanz als Owner übernehmen
+            Einrichtung abschließen
           </Button>
           <p className="text-xs text-muted-foreground">
-            Die Übernahme ist atomar und nur einmal möglich. Dein Benutzerkonto wird Owner der
-            Organisation.
+            Die Übernahme ist atomar und nur einmal möglich.
           </p>
         </form>
       )}
