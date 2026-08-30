@@ -125,21 +125,28 @@ export function verifyPack(): GateResult {
   const compatibility: GateStatus =
     semver.test(manifest.version) && Boolean(manifest.schema_version) ? "PASS" : "FAIL";
 
-  // Signatur
+  // Signatur — Vertrauenswurzel ist AUSSCHLIESSLICH der gepinnte Trust Anchor.
   let signature: GateStatus;
   if (!existsSync(SIGNATURE_PATH)) {
     signature = "BLOCKED";
     detail ||= "Keine Signaturdatei vorhanden — Pack unsigniert (EYIS_PACK_SIGNING_KEY fehlt).";
   } else {
-    const sig = readJson<{ digest: string; signature: string; public_key: string }>(SIGNATURE_PATH);
+    const sig = readJson<{ digest: string; signature: string; key_id?: string }>(SIGNATURE_PATH);
+    const trusted = trustedKey(sig.key_id);
     if (sig.digest !== digest) {
       signature = "FAIL";
       detail = "Pack-Inhalt weicht vom signierten Digest ab.";
+    } else if (!sig.key_id) {
+      signature = "FAIL";
+      detail = "Signaturdatei nennt keine key_id — ein mitgelieferter Schlüssel wird nicht akzeptiert.";
+    } else if (!trusted) {
+      signature = "FAIL";
+      detail = `Signaturschlüssel ${sig.key_id} steht nicht im EYIS Trust Anchor.`;
     } else {
       const ok = edVerify(
         null,
         Buffer.from(digest, "hex"),
-        createPublicKey(sig.public_key),
+        createPublicKey(trusted),
         Buffer.from(sig.signature, "base64"),
       );
       signature = ok ? "PASS" : "FAIL";
