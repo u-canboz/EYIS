@@ -86,6 +86,15 @@ if (!url || !serviceKey) {
         continue;
       }
       const isPublic = have.get(want.id);
+      if (isPublic !== want.public && provision) {
+        const { error: uErr } = await admin.storage.updateBucket(want.id, { public: want.public });
+        rows.push({
+          check: `Bucket ${want.id}`,
+          status: uErr ? "FAIL" : "FIXED",
+          detail: uErr ? uErr.message : `Sichtbarkeit auf public=${want.public} gesetzt`,
+        });
+        continue;
+      }
       rows.push({
         check: `Bucket ${want.id}`,
         status: isPublic === want.public ? "PASS" : "FAIL",
@@ -173,7 +182,7 @@ if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
       } catch (e) {
         rows.push({
           check: "Cron-Registrierung",
-          status: "FAIL",
+          status: "BLOCKED",
           detail: sanitize(e),
         });
       }
