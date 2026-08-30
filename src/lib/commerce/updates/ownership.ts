@@ -17,6 +17,10 @@ export const EYIS_OWNED_PATHS: string[] = [
   "src/eyis/**",
   "src/routes/_authenticated/app/**",
   "src/routes/app.login.tsx",
+  "src/routes/_authenticated/route.tsx",
+  "src/routes/api/public/install/**",
+  "src/routes/api/public/webhooks/**",
+  "src/integrations/supabase/cron-auth.ts",
   "supabase/migrations/**",
   "installer/database/**",
   "installer/distribution/**",
@@ -47,6 +51,11 @@ export const INTEGRATION_PATCH_PATHS: string[] = [
 export const GENERATED_PATHS: string[] = [
   "src/integrations/lovable/**",
   "src/integrations/supabase/types.ts",
+  "src/integrations/supabase/client.ts",
+  "src/integrations/supabase/client.server.ts",
+  "src/integrations/supabase/auth-middleware.ts",
+  "src/integrations/supabase/auth-attacher.ts",
+  "src/integrations/supabase/previewAuthStorage.ts",
   "src/routeTree.gen.ts",
 ];
 

@@ -88,14 +88,20 @@ export function validateDistribution(
         seen.set(pattern, category);
       }
 
+      // customer_owned beschreibt Pfade des ZIELPROJEKTS. Dass es sie im
+      // EYIS-Repository nicht gibt, ist korrekt und kein Fehler.
       const base = pattern.endsWith("/**") ? pattern.slice(0, -3) : pattern;
-      if (!pattern.startsWith(".env") && !existsSync(join(ROOT, base))) {
+      if (category !== "customer_owned" && !pattern.startsWith(".env") && !existsSync(join(ROOT, base))) {
         missing.push(`${pattern} (${category})`);
       }
 
       const expected = EXPECTED[category];
       const actual = classifyPath(sample(pattern));
-      if (expected && actual !== expected) {
+      // Repo-interne Referenzordner (qa/, docs/) sind für die Ownership-Engine
+      // bewusst unmanaged — sie werden nie ausgeliefert und nie ersetzt.
+      const repoInternalReference =
+        category === "reference_only" && actual === "unmanaged" && !pattern.startsWith("src/") && !pattern.startsWith("public/");
+      if (expected && actual !== expected && !repoInternalReference) {
         ownershipMismatches.push(
           `${pattern}: Manifest "${category}" ⇄ Laufzeit "${actual}"`,
         );
