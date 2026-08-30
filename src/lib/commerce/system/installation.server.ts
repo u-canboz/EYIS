@@ -144,6 +144,18 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
   const ownerEmail = input.ownerEmail ?? null;
   const steps: string[] = [];
 
+  // 1  PREFLIGHT ZUERST: alles, was fehlschlagen kann, wird vor dem ersten
+  //    Schreibzugriff geprüft. Andernfalls bliebe ein halb registrierter
+  //    Singleton zurück, der jeden weiteren Bootstrap mit
+  //    INSTALLATION_ALREADY_INITIALIZED dauerhaft blockiert (Blackbox-Defekt).
+  const preflightOwner = ownerEmail ? normalizeOwnerEmail(ownerEmail) : null;
+  if (preflightOwner && !/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(preflightOwner)) {
+    throw new InstallationError("OWNER_EMAIL_INVALID", "Die Administrator-E-Mail ist ungültig.");
+  }
+  steps.push("preflight_owner_email=ok");
+
+
+
   // 2  Umgebung + Deployment Mode (unbekannt = STOP)
   const environment = resolveEnvironment(process.env as Record<string, string | undefined>);
   if (environment === "unknown") {
