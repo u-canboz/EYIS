@@ -22,6 +22,22 @@ export const EYIS_OWNED_PATHS: string[] = [
   ".github/workflows/eyis-update.yml",
 ];
 
+/**
+ * Referenz-Inhalte: bleiben im EYIS-Hauptrepository, werden aber niemals in ein
+ * Kundenprojekt installiert oder dort ersetzt (Marketing, Landingpage, Demo,
+ * Referenz-Storefront, interne Präsentationsseiten).
+ */
+export const REFERENCE_ONLY_PATHS: string[] = [
+  "src/routes/index.tsx",
+  "src/routes/entwickler.tsx",
+  "src/routes/dokumentation.tsx",
+  "src/routes/dokumentation/**",
+  "src/components/site/**",
+  "public/demo-assets/**",
+  "LOVABLE_STOREFRONT_GUIDE.md",
+  "LOVABLE_STOREFRONT_PROMPT.md",
+];
+
 /** Pfade, die dem Kunden gehören und niemals überschrieben werden. */
 export const CUSTOMER_OWNED_PATHS: string[] = [
   "src/routes/store/**",
@@ -47,16 +63,19 @@ function globToRegExp(glob: string): RegExp {
 
 const OWNED = EYIS_OWNED_PATHS.map(globToRegExp);
 const CUSTOMER = CUSTOMER_OWNED_PATHS.map(globToRegExp);
+const REFERENCE = REFERENCE_ONLY_PATHS.map(globToRegExp);
 
-export type OwnershipDecision = "eyis" | "customer" | "unmanaged";
+export type OwnershipDecision = "eyis" | "customer" | "reference_only" | "unmanaged";
 
 /** Kunden-Pfade gewinnen immer — im Zweifel wird nichts überschrieben. */
 export function classifyPath(path: string): OwnershipDecision {
   const clean = path.replace(/^\.\//, "");
   if (CUSTOMER.some((re) => re.test(clean))) return "customer";
+  if (REFERENCE.some((re) => re.test(clean))) return "reference_only";
   if (OWNED.some((re) => re.test(clean))) return "eyis";
   return "unmanaged";
 }
+
 
 export function isUpdatable(path: string): boolean {
   return classifyPath(path) === "eyis";
