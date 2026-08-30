@@ -905,7 +905,9 @@ export async function runDoctor(): Promise<DoctorRow[]> {
       status: "SETUP REQUIRED",
       detail: e instanceof Error ? e.message : "nicht prüfbar",
     });
-  }
+
+  // Storage
+
 
 
   try {
