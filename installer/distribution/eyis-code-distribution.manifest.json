@@ -1,6 +1,6 @@
 {
   "manifest": "eyis-code-distribution",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen und ausschließlich die unter 'integration_patch' beschriebenen minimalen Eingriffe an kundeneigenen Dateien vornehmen.",
   "categories": {
     "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
@@ -9,7 +9,8 @@
     "generated": "Wird von der Plattform im Kundenprojekt erzeugt (Lovable Cloud/Auth, Typgenerierung). Wird vorausgesetzt, nie kopiert, nie überschrieben.",
     "optional": "Gehört zu EYIS, ist aber nicht Teil der Basisinstallation. Nur auf ausdrückliche Anforderung — beansprucht dann zusätzliche Routen-Präfixe.",
     "integration_patch": "Kundeneigene Datei, an der genau ein klar umrissener, additiver Eingriff nötig ist. Niemals ersetzen, niemals umschreiben.",
-    "shared_convention": "Von Lovable-Projekten geteilte Konvention (shadcn-Primitive). Wird vorausgesetzt, nie überschrieben."
+    "shared_convention": "Von Lovable-Projekten geteilte Konvention (shadcn-Primitive). Wird vorausgesetzt, nie überschrieben.",
+    "customer_routes": "Routen, die im Kundenprojekt bereits existieren und nie beansprucht werden. Die Startseite gehoert immer dem Kunden; src/routes/index.tsx im EYIS-Repo ist ausschliesslich Referenz."
   },
   "install": [
     "src/lib/commerce/**",
@@ -44,7 +45,6 @@
     "docs/**"
   ],
   "customer_owned": [
-    "src/routes/index.tsx",
     "src/routes/__root.tsx",
     "src/styles.css",
     "src/theme/**",
@@ -53,6 +53,9 @@
     "public/brand/**",
     ".env",
     ".env.*"
+  ],
+  "customer_routes": [
+    "/"
   ],
   "generated": [
     "src/routeTree.gen.ts",
