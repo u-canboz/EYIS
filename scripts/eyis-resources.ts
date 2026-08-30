@@ -17,7 +17,17 @@ import { join } from "node:path";
 type ResourceManifest = {
   version: string;
   storage_buckets: { id: string; public: boolean; purpose: string }[];
-  jobs: { id: string; endpoint: string; schedule: string; auth: string }[];
+  jobs: {
+    id: string;
+    endpoint: string;
+    schedule: string;
+    auth: string;
+    cron_job_name: string;
+    secret_header: string;
+    secret_key: string;
+    timeout_seconds: number;
+  }[];
+  cron: { mechanism: string; requires_extensions: string[]; base_url_source: string };
   runtime_configuration: { key: string; required: boolean; secret: boolean }[];
 };
 
@@ -88,6 +98,91 @@ for (const job of manifest.jobs) {
       status: "FAIL",
       detail: e instanceof Error ? e.message : "nicht erreichbar",
     });
+  }
+}
+
+// --- Cron-Zeitpläne --------------------------------------------------------
+/**
+ * Vollständige, idempotente Registrierung der Job-Zeitpläne über pg_cron + pg_net.
+ * Das Secret steht nie im Klartext in der SQL: es wird zur Laufzeit aus
+ * `app.settings.cron_secret` gelesen, das beim Setup gesetzt wird.
+ */
+function cronSql(base: string): string {
+  const lines = manifest.jobs.map(
+    (job) => `select cron.schedule(
+  '${job.cron_job_name}',
+  '${job.schedule}',
+  $job$
+    select net.http_post(
+      url := '${base}${job.endpoint}',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        '${job.secret_header}', current_setting('app.settings.cron_secret', true)
+      ),
+      body := '{}'::jsonb,
+      timeout_milliseconds := ${job.timeout_seconds * 1000}
+    );
+  $job$
+);`,
+  );
+  return [
+    "create extension if not exists pg_cron;",
+    "create extension if not exists pg_net;",
+    ...manifest.jobs.map((j) => `select cron.unschedule('${j.cron_job_name}') where exists (select 1 from cron.job where jobname = '${j.cron_job_name}');`),
+    ...lines,
+  ].join("\n\n");
+}
+
+if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
+  console.log(cronSql(baseUrl));
+  process.exit(0);
+}
+
+{
+  const dbUrl = process.env["SUPABASE_DB_URL"] ?? process.env["DATABASE_URL"];
+  if (!dbUrl) {
+    rows.push({
+      check: "Cron-Zeitpläne",
+      status: "BLOCKED",
+      detail:
+        "Kein Datenbankzugang in dieser Umgebung. SQL ausgeben mit: bun run eyis:resources:cron",
+    });
+  } else {
+    const { execFileSync } = await import("node:child_process");
+    const run = (sql: string) =>
+      execFileSync("psql", [dbUrl, "-tAc", sql], { encoding: "utf8" }).trim();
+    if (provision) {
+      try {
+        execFileSync("psql", [dbUrl, "-v", "ON_ERROR_STOP=1", "-f", "-"], {
+          input: cronSql(baseUrl),
+          encoding: "utf8",
+        });
+      } catch (e) {
+        rows.push({
+          check: "Cron-Registrierung",
+          status: "FAIL",
+          detail: e instanceof Error ? e.message.slice(0, 200) : "psql-Fehler",
+        });
+      }
+    }
+    for (const job of manifest.jobs) {
+      try {
+        const found = run(
+          `select schedule from cron.job where jobname = '${job.cron_job_name}' limit 1`,
+        );
+        rows.push({
+          check: `Cron ${job.cron_job_name}`,
+          status: found === job.schedule ? "PASS" : "FAIL",
+          detail: found ? `registriert: ${found}` : "nicht registriert",
+        });
+      } catch (e) {
+        rows.push({
+          check: `Cron ${job.cron_job_name}`,
+          status: "BLOCKED",
+          detail: e instanceof Error ? e.message.split("\n")[0]!.slice(0, 160) : "pg_cron nicht verfügbar",
+        });
+      }
+    }
   }
 }
 
