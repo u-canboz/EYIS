@@ -233,17 +233,25 @@ export function verifyPack(): GateResult {
 /**
  * Hartes Gate vor jeder SQL-Ausführung. Ungültige Signatur oder abweichende
  * Checksummen brechen immer ab. Ein unsigniertes Pack (BLOCKED) darf nur mit
- * ausdrücklichem EYIS_ALLOW_UNSIGNED_PACK=1 laufen — Dev- und QA-Läufe.
+ * ausdrücklichem EYIS_ALLOW_UNSIGNED_PACK=1 laufen — und niemals in Production:
+ * dort wird die Ausnahme ignoriert.
  */
 export function assertPackGate(env: NodeJS.ProcessEnv = process.env): GateResult {
   const result = verifyPack();
   if (result.status === "FAIL") {
     throw new Error(`Install Pack abgelehnt: ${result.detail || "Signatur-/Checksummenprüfung fehlgeschlagen."}`);
   }
-  if (result.status === "BLOCKED" && env["EYIS_ALLOW_UNSIGNED_PACK"] !== "1") {
-    throw new Error(
-      "Install Pack ist nicht signiert. Signatur bereitstellen oder den Lauf ausdrücklich mit EYIS_ALLOW_UNSIGNED_PACK=1 als unsigniert kennzeichnen.",
-    );
+  if (result.status === "BLOCKED") {
+    const isProduction = (env["APP_ENV"] ?? "").toLowerCase() === "production";
+    const allowUnsigned = !isProduction && env["EYIS_ALLOW_UNSIGNED_PACK"] === "1";
+    if (!allowUnsigned) {
+      throw new Error(
+        isProduction
+          ? "Install Pack ist nicht signiert. In Production gibt es keine Ausnahme — signierten Release verwenden."
+          : "Install Pack ist nicht signiert. Signatur bereitstellen oder den Lauf ausdrücklich mit EYIS_ALLOW_UNSIGNED_PACK=1 als unsigniert kennzeichnen.",
+      );
+    }
   }
   return result;
 }
+
