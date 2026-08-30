@@ -29,19 +29,61 @@ export const TRUST_ANCHOR_PATH = join(
   "eyis-trust-anchor.json",
 );
 
-export type TrustAnchor = {
-  keys: { key_id: string; public_key: string; status?: string }[];
+export type TrustAnchorKey = {
+  key_id: string;
+  public_key: string;
+  algorithm?: string;
+  label?: string;
+  status?: string;
 };
+export type TrustAnchor = { keys: TrustAnchorKey[] };
+
+export type AnchorLookup =
+  | { ok: true; publicKey: string }
+  | { ok: false; status: GateStatus; reason: string };
+
+/**
+ * Auflösung einer key_id gegen die gepinnte Vertrauenswurzel.
+ *
+ * Ein in der Signaturdatei mitgelieferter public_key wird nie betrachtet.
+ * Fehlender Anchor oder leere Schlüsselliste → BLOCKED (Setup fehlt),
+ * unbekannte oder nicht aktive key_id → FAIL (Vertrauensbruch).
+ */
+export function resolveAnchorKey(keyId: string | undefined): AnchorLookup {
+  if (!existsSync(TRUST_ANCHOR_PATH)) {
+    return { ok: false, status: "BLOCKED", reason: "Trust Anchor fehlt." };
+  }
+  const anchor = JSON.parse(readFileSync(TRUST_ANCHOR_PATH, "utf8")) as TrustAnchor;
+  const keys = anchor.keys ?? [];
+  if (keys.length === 0) {
+    return { ok: false, status: "BLOCKED", reason: "Trust Anchor enthält keinen Schlüssel." };
+  }
+  if (!keyId) {
+    return {
+      ok: false,
+      status: "FAIL",
+      reason: "Signaturdatei nennt keine key_id — ein mitgelieferter Schlüssel wird nicht akzeptiert.",
+    };
+  }
+  const entry = keys.find((k) => k.key_id === keyId);
+  if (!entry) {
+    return { ok: false, status: "FAIL", reason: `Signaturschlüssel ${keyId} steht nicht im EYIS Trust Anchor.` };
+  }
+  if ((entry.status ?? "active") !== "active") {
+    return { ok: false, status: "FAIL", reason: `Signaturschlüssel ${keyId} ist ${entry.status}.` };
+  }
+  if ((entry.algorithm ?? "ed25519") !== "ed25519") {
+    return { ok: false, status: "FAIL", reason: `Nicht unterstützter Algorithmus ${entry.algorithm}.` };
+  }
+  return { ok: true, publicKey: entry.public_key };
+}
 
 /** Gepinnter öffentlicher Schlüssel zur key_id — nie aus der Signaturdatei. */
 export function trustedKey(keyId: string | undefined): string | null {
-  if (!keyId || !existsSync(TRUST_ANCHOR_PATH)) return null;
-  const anchor = JSON.parse(readFileSync(TRUST_ANCHOR_PATH, "utf8")) as TrustAnchor;
-  const entry = (anchor.keys ?? []).find(
-    (k) => k.key_id === keyId && (k.status ?? "active") === "active",
-  );
-  return entry?.public_key ?? null;
+  const result = resolveAnchorKey(keyId);
+  return result.ok ? result.publicKey : null;
 }
+
 
 type InstallerManifest = {
   version: string;
