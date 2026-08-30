@@ -17,6 +17,7 @@ import { AppNav } from "./AppNav";
 import { DemoBanner } from "./DemoBanner";
 import { CommandPalette, useCommandPalette } from "./CommandPalette";
 import { BOTTOM_TABS, RAIL_ITEMS, isActive, navTrail } from "./nav-registry";
+import { EYIS_ADMIN_SCOPE_CLASS } from "@/lib/eyis/route-boundary";
 import { cn } from "@/lib/utils";
 
 export type ShellOrg = { id: string; name: string };
@@ -155,7 +156,13 @@ export function AppShell(props: Props) {
   );
 
   return (
-    <div className="flex min-h-dvh w-full bg-background">
+    // `eyis-admin` ist der CSS-Isolationsscope des Backoffice. Er löst alle
+    // Design-Tokens lokal auf, damit eine Dedicated-Installation nicht das
+    // Design-System des Kundenprojekts erbt (siehe src/lib/eyis/route-boundary).
+    <div
+      data-eyis-runtime="backoffice"
+      className={cn(EYIS_ADMIN_SCOPE_CLASS, "flex min-h-dvh w-full bg-background")}
+    >
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
 
       {/* Desktop: full sidebar */}

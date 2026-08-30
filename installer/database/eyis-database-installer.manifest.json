@@ -505,15 +505,36 @@
     {
       "id": "001_role_permissions",
       "file": "seeds/001_role_permissions.sql",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "checksum": "2e1117972e40994fab35c78dcea5179e07e48a19f600aab2c5a31a6aab76c93d",
       "idempotent": true
     },
     {
       "id": "002_installation",
       "file": "seeds/002_installation.sql",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "checksum": "6b9a8a6db1a194bed2f4197b9979090fdc9836f9eddcd968649dcb932c510a3d",
+      "idempotent": true
+    },
+    {
+      "id": "003_product_blueprints",
+      "file": "seeds/003_product_blueprints.sql",
+      "version": "1.1.0",
+      "checksum": "fe6fd482a9cb6935d6cca5feddcabe80bc6e84a4c588ee9eaea23ce87a34aad5",
+      "idempotent": true
+    },
+    {
+      "id": "004_communication_templates",
+      "file": "seeds/004_communication_templates.sql",
+      "version": "1.1.0",
+      "checksum": "844cebc4af66fbe37e8cc18e53f9d5051f2f635a30b1b2b61bdad9da3c851a5b",
+      "idempotent": true
+    },
+    {
+      "id": "005_tax_system",
+      "file": "seeds/005_tax_system.sql",
+      "version": "1.1.0",
+      "checksum": "8bbf547902feb370e5e9da5938a3cf519d644803e244a646c7907c9352cb56a6",
       "idempotent": true
     }
   ],
@@ -526,7 +547,11 @@
   "verification": {
     "fingerprint": "verification/fingerprint.json",
     "expected_objects": "verification/expected-objects.json",
-    "ownership": "verification/ownership.json"
+    "ownership": "verification/ownership.json",
+    "system_seeds": "seeds/eyis-system-seeds.manifest.json",
+    "dml_audit": "seeds/eyis-dml-audit.json"
   },
-  "resources": "../resources/eyis-resources.manifest.json"
+  "resources": "../resources/eyis-resources.manifest.json",
+  "system_seed_fingerprint": "3d56b91cabc04cd885b70998c432fe1b1b34642024ca4e5150a869f4dde1a163",
+  "system_seeds_manifest": "seeds/eyis-system-seeds.manifest.json"
 }

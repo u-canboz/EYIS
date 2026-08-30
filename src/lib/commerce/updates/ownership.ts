@@ -11,16 +11,31 @@
 export const EYIS_OWNED_PATHS: string[] = [
   "src/lib/commerce/**",
   "src/lib/store-sdk/**",
+  "src/lib/eyis/**",
   "src/routes/api/public/store/**",
   "src/routes/api/public/jobs/**",
   "src/components/shell/**",
   "supabase/migrations/**",
+  "installer/database/**",
+  "installer/distribution/**",
+  "installer/resources/**",
   "docs/agent/**",
   "commerce-os.manifest.json",
   "package.json",
   "bun.lockb",
   ".github/workflows/eyis-update.yml",
 ];
+
+/**
+ * Kundeneigene Dateien mit genau einem klar umrissenen, additiven Eingriff.
+ * Ein Update darf sie NICHT ersetzen — es prüft nur, ob der Eingriff noch
+ * vorhanden ist, und meldet ihn andernfalls als offenen Schritt.
+ */
+export const INTEGRATION_PATCH_PATHS: string[] = [
+  "src/routes/__root.tsx",
+  "src/styles.css",
+];
+
 
 /**
  * Referenz-Inhalte: bleiben im EYIS-Hauptrepository, werden aber niemals in ein
@@ -64,18 +79,24 @@ function globToRegExp(glob: string): RegExp {
 const OWNED = EYIS_OWNED_PATHS.map(globToRegExp);
 const CUSTOMER = CUSTOMER_OWNED_PATHS.map(globToRegExp);
 const REFERENCE = REFERENCE_ONLY_PATHS.map(globToRegExp);
+const PATCH = INTEGRATION_PATCH_PATHS.map(globToRegExp);
 
-export type OwnershipDecision = "eyis" | "customer" | "reference_only" | "unmanaged";
+export type OwnershipDecision =
+  | "eyis"
+  | "customer"
+  | "reference_only"
+  | "integration_patch"
+  | "unmanaged";
 
 /** Kunden-Pfade gewinnen immer — im Zweifel wird nichts überschrieben. */
 export function classifyPath(path: string): OwnershipDecision {
   const clean = path.replace(/^\.\//, "");
+  if (PATCH.some((re) => re.test(clean))) return "integration_patch";
   if (CUSTOMER.some((re) => re.test(clean))) return "customer";
   if (REFERENCE.some((re) => re.test(clean))) return "reference_only";
   if (OWNED.some((re) => re.test(clean))) return "eyis";
   return "unmanaged";
 }
-
 
 export function isUpdatable(path: string): boolean {
   return classifyPath(path) === "eyis";
@@ -86,14 +107,16 @@ export function partitionPaths(paths: string[]) {
   const replace: string[] = [];
   const protectedPaths: string[] = [];
   const referenceOnly: string[] = [];
+  const integrationPatch: string[] = [];
   const unmanaged: string[] = [];
   for (const p of paths) {
     const decision = classifyPath(p);
     if (decision === "eyis") replace.push(p);
     else if (decision === "customer") protectedPaths.push(p);
     else if (decision === "reference_only") referenceOnly.push(p);
+    else if (decision === "integration_patch") integrationPatch.push(p);
     else unmanaged.push(p);
   }
-  return { replace, protected: protectedPaths, referenceOnly, unmanaged };
-
+  return { replace, protected: protectedPaths, referenceOnly, integrationPatch, unmanaged };
 }
+

@@ -1,0 +1,181 @@
+{
+  "manifest": "eyis-dml-audit",
+  "generated_at": "2026-08-30",
+  "migrations_scanned": 55,
+  "totals": {
+    "all": 178,
+    "system_seed": 19,
+    "runtime": 158,
+    "backfill": 1
+  },
+  "seed_tables": {
+    "communication_template_versions": 1,
+    "product_blueprints": 1,
+    "role_permissions": 15,
+    "tax_classes": 1,
+    "tax_rates": 1
+  },
+  "uncovered_system_dml": [],
+  "findings": [
+    {
+      "migration": "20260825074450",
+      "line": 88,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825080717",
+      "line": 349,
+      "statement": "INSERT INTO public.role_permissions (role, permission)",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825080717",
+      "line": 380,
+      "statement": "INSERT INTO public.product_blueprints (key, name, description, icon, version, is_system, schema, variant_schema) VALUES",
+      "table": "product_blueprints",
+      "category": "system_seed",
+      "covered_by": "003_product_blueprints"
+    },
+    {
+      "migration": "20260825102705",
+      "line": 224,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825104705",
+      "line": 227,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825120552",
+      "line": 300,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825125500",
+      "line": 565,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825143734",
+      "line": 184,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825143734",
+      "line": 195,
+      "statement": "INSERT INTO public.tax_classes (organization_id, name, code, description, is_system) VALUES",
+      "table": "tax_classes",
+      "category": "system_seed",
+      "covered_by": "005_tax_system"
+    },
+    {
+      "migration": "20260825143734",
+      "line": 205,
+      "statement": "INSERT INTO public.tax_rates (organization_id, tax_class_id, country_code, rate_basis_points, customer_type, source, met",
+      "table": "tax_rates",
+      "category": "system_seed",
+      "covered_by": "005_tax_system"
+    },
+    {
+      "migration": "20260825153537",
+      "line": 775,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825162256",
+      "line": 446,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825174112",
+      "line": 303,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825182325",
+      "line": 391,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825182452",
+      "line": 40,
+      "statement": "INSERT INTO public.communication_template_versions",
+      "table": "communication_template_versions",
+      "category": "system_seed",
+      "covered_by": "004_communication_templates"
+    },
+    {
+      "migration": "20260825201721",
+      "line": 418,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260825210152",
+      "line": 124,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260826081544",
+      "line": 1,
+      "statement": "UPDATE public.orders",
+      "table": "orders",
+      "category": "backfill",
+      "covered_by": null
+    },
+    {
+      "migration": "20260826103237",
+      "line": 36,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    },
+    {
+      "migration": "20260828180020",
+      "line": 115,
+      "statement": "INSERT INTO public.role_permissions (role, permission) VALUES",
+      "table": "role_permissions",
+      "category": "system_seed",
+      "covered_by": "001_role_permissions"
+    }
+  ]
+}

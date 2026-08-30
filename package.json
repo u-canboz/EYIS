@@ -42,7 +42,15 @@
     "eyis:install:status": "bun run scripts/eyis-install.ts status",
     "eyis:install:next": "bun run scripts/eyis-install.ts next",
     "eyis:install:inspect": "bun run scripts/eyis-install.ts inspect",
-    "qa:database-installer": "bun run qa/database-installer.ts"
+    "qa:database-installer": "bun run qa/database-installer.ts",
+    "eyis:seeds:audit": "bun run scripts/installer/dml-audit.ts",
+    "eyis:seeds:generate": "bun run scripts/installer/generate-system-seeds.ts",
+    "eyis:seeds:verify": "bun run scripts/eyis-seeds.ts verify",
+    "eyis:seeds:sql": "bun run scripts/eyis-seeds.ts sql",
+    "eyis:resources:verify": "bun run scripts/eyis-resources.ts verify",
+    "eyis:resources:provision": "bun run scripts/eyis-resources.ts provision",
+    "eyis:pack:sign": "bun run scripts/eyis-pack-signature.ts sign",
+    "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify"
   },
   "overrides": {
     "rolldown": "1.2.1"
