@@ -6,7 +6,7 @@
  * Reihenfolge, ob eine Datei ausgeliefert oder geschützt wird.
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { classifyPath, type OwnershipDecision } from "../../src/lib/commerce/updates/ownership";
@@ -59,7 +59,7 @@ function sample(pattern: string): string {
 
 export function validateDistribution(
   manifest: DistributionManifest = JSON.parse(
-    require("node:fs").readFileSync(DISTRIBUTION_PATH, "utf8"),
+    readFileSync(DISTRIBUTION_PATH, "utf8"),
   ) as DistributionManifest,
 ): DistributionResult {
   const categories: [string, string[]][] = [
