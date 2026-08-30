@@ -5,6 +5,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -12,6 +13,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { isEyisInternalRoute } from "../lib/eyis/route-boundary";
+
 
 function NotFoundComponent() {
   return (
@@ -129,14 +132,32 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Integration Patch (kundeneigene Datei).
+ *
+ * In einer Dedicated-Installation gehört dieses Root-Layout dem Kundenprojekt
+ * und rendert dort typischerweise Header, Footer und Navigation der Storefront
+ * um `<Outlet />`. EYIS ersetzt die Datei niemals; erlaubt ist genau dieser
+ * additive Eingriff: für Pfade der EYIS-Runtime wird das Kunden-Chrome
+ * übersprungen, damit das Backoffice keine fremde Navigation, Typografie oder
+ * Hintergrundfarbe erbt.
+ */
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isEyisRoute = isEyisInternalRoute(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      {isEyisRoute ? (
+        // EYIS-Runtime: bringt ihre eigene Shell und ihren eigenen CSS-Scope mit.
+        <Outlet />
+      ) : (
+        // Kundenoberfläche: hier steht in einem Kundenprojekt dessen Chrome.
+        <Outlet />
+      )}
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
 }
+

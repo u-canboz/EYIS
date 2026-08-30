@@ -9,16 +9,42 @@ Migrationskette auf, sondern aus einem versionierten Installationsartefakt.
 installer/
   database/
     eyis-database-installer.manifest.json   Manifest: Units, Reihenfolge, Checksummen, Fingerprint
+    eyis-database-installer.signature.json  Ed25519-Signatur über Manifeste, Units und Seeds
     baseline/000_installer_journal.sql      Journal und Zustandstabellen (immer zuerst)
     baseline/001..NNN_*.sql                 Installation Units in fester Reihenfolge
+    seeds/eyis-system-seeds.manifest.json   Seed-Units, Checksummen, Pflichtschlüssel, Fingerprint
+    seeds/eyis-dml-audit.json               DML-Audit der gesamten Migrationskette
     seeds/001_role_permissions.sql          Systemseeds (idempotent, keine Kundendaten)
     seeds/002_installation.sql
+    seeds/003_product_blueprints.sql
+    seeds/004_communication_templates.sql
+    seeds/005_tax_system.sql
     reconcile/001_migration_history.sql     Registriert enthaltene Migrationsversionen als applied
     verification/fingerprint.json           Erwarteter Struktur-Fingerprint
     verification/expected-objects.json      Erwartete Objekte (Tabellen, RLS, Policies, Grants …)
     verification/ownership.json             Aktuelle und historische EYIS-Objekt-Ownership
+  distribution/eyis-code-distribution.manifest.json  Verteilungsgrenzen des Anwendungscodes
   resources/eyis-resources.manifest.json    Buckets, Jobs, Runtime-Konfiguration (ohne Secrets)
 ```
+
+## System Seeds sind Teil der Installation, nicht Beiwerk
+
+Eine strukturell vollständige Datenbank ist **nicht** fertig installiert. Ohne Systemdaten fehlen
+Produkt-Blueprints, System-E-Mail-Vorlagen und Steuerklassen — das Backoffice kann dann weder ein
+Produkt anlegen noch eine Bestätigungsmail rendern.
+
+Die Systemdaten stammen wortgleich aus den Migrationen, in denen sie ursprünglich standen, und
+werden lediglich idempotent gekapselt. Erzeugung, Prüfung und Nachweis:
+
+```
+bun run eyis:seeds:audit      # DML-Audit: jede Systemdatenanweisung ist einer Unit zugeordnet
+bun run eyis:seeds:generate   # Seed-Dateien und Seed-Manifest aus der Migrationskette erzeugen
+bun run eyis:seeds:verify     # Manifest-Integrität + (falls erreichbar) Datenbankzustand
+```
+
+Der `system_seed_fingerprint` im Seed-Manifest gehört zusammen mit dem `schema_fingerprint` zum
+Ready-Kriterium: **beide** müssen PASS melden.
+
 
 ## Reihenfolge im Kundenprojekt
 
@@ -27,10 +53,14 @@ installer/
 3. Units strikt in Manifest-Reihenfolge anwenden. Ein Agent holt die jeweils nächste Unit mit
    `bun run eyis:install:next` und wendet sie über das Migration Tool an. Nach jeder Unit wird der
    Journaleintrag geschrieben; danach ist die Installation jederzeit wieder aufnehmbar.
-4. Systemseeds anwenden (idempotent, mehrfach ausführbar).
+4. Systemseeds anwenden (idempotent, mehrfach ausführbar) — `bun run eyis:seeds:sql` liefert das
+   gesamte Seed-SQL, `bun run eyis:seeds:verify` den Nachweis.
 5. `reconcile/001_migration_history.sql` anwenden — **vor** dem ersten `supabase db push`.
 6. `bun run eyis:database:verify` — Strukturvergleich gegen den Fingerprint. Nur `PASS` gilt.
-7. Ressourcen aus `eyis-resources.manifest.json` bereitstellen und prüfen.
+7. `bun run eyis:resources:provision` — Buckets anlegen, Job-Endpunkte und Runtime-Konfiguration
+   prüfen. Cron-Zeitpläne bleiben Sache der Plattform des Kundenprojekts.
+8. `bun run eyis:pack:verify` — Signatur des Packs. Ohne Signaturdatei: BLOCKED, nicht PASS.
+
 
 ## Harte Regeln
 

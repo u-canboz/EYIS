@@ -534,9 +534,53 @@ async function createOwnerDefaults(orgId: string, shopId: string) {
     { onConflict: "shop_id,document_type" } as never,
   );
 
-  // 6  Integration Center: Provider-Zustände werden lazy als not_connected
-  //    aus dem Katalog abgeleitet — kein Seed nötig (siehe integrations/registry).
+  // Lagerort: ohne mindestens einen aktiven Standort schlägt jede Bestands-
+  // buchung und jede Reservierung im Checkout fehl. Idempotent über (shop, code).
+  const { data: locations } = await admin
+    .from("inventory_locations")
+    .select("id")
+    .eq("organization_id", orgId)
+    .eq("shop_id", shopId)
+    .limit(1);
+  if (!locations?.length) {
+    const { error } = await admin.from("inventory_locations").insert({
+      organization_id: orgId,
+      shop_id: shopId,
+      name: "Hauptlager",
+      code: "MAIN",
+      type: "warehouse",
+      status: "active",
+      priority: 10,
+    } as never);
+    if (error) throw new Error(error.message);
+  }
+
+  // Währung und Locale: der Shop wird mit expliziten Werten angelegt, damit
+  // Preisausgabe und Store API nicht auf Spaltendefaults angewiesen sind.
+  const { data: shop } = await admin
+    .from("shops")
+    .select("currency, locale")
+    .eq("id", shopId)
+    .maybeSingle();
+  if (!shop?.currency || !shop.locale) {
+    await admin
+      .from("shops")
+      .update({ currency: shop?.currency ?? "EUR", locale: shop?.locale ?? "de-DE" } as never)
+      .eq("id", shopId);
+  }
+
+  // Kommunikations-Defaults des Shops (Branding, Regeln) aus der bestehenden
+  // Engine — keine zweite Vorlagenquelle.
+  const { error: commError } = await admin.rpc("comm_ensure_shop_defaults" as never, {
+    _org: orgId,
+    _shop: shopId,
+  } as never);
+  if (commError) throw new Error(commError.message);
+
+  // Integration Center: Provider-Zustände werden lazy als not_connected
+  // aus dem Katalog abgeleitet — kein Seed nötig (siehe integrations/registry).
 }
+
 
 // ---------------------------------------------------------------------------
 // Setup-Wizard-Fortschritt
@@ -740,13 +784,26 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     detail: inst?.setup_completed_at ?? "ausstehend",
   });
 
-  // System Seeds
-  const { count: rpCount } = await admin.from("role_permissions").select("role", { count: "exact", head: true });
-  rows.push({
-    check: "System seeds (roles)",
-    status: rpCount ? "PASS" : "FAIL",
-    detail: `role_permissions=${rpCount ?? 0}`,
-  });
+  // System Seeds — strukturelle Vollständigkeit reicht nicht. Ohne Blueprints,
+  // System-Mail-Vorlagen und Steuerklassen ist /app nicht arbeitsfähig.
+  const seedChecks: { check: string; table: string; min: number }[] = [
+    { check: "System seeds (roles)", table: "role_permissions", min: 100 },
+    { check: "System seeds (blueprints)", table: "product_blueprints", min: 9 },
+    { check: "System seeds (mail templates)", table: "communication_templates", min: 23 },
+    { check: "System seeds (tax classes)", table: "tax_classes", min: 7 },
+  ];
+  for (const s of seedChecks) {
+    const { count, error } = await admin
+      .from(s.table as never)
+      .select("*", { count: "exact", head: true });
+    const value = count ?? 0;
+    rows.push({
+      check: s.check,
+      status: error ? "FAIL" : value >= s.min ? "PASS" : "FAIL",
+      detail: error ? error.message : `${s.table}=${value} (mindestens ${s.min})`,
+    });
+  }
+
 
   // Storage
   try {

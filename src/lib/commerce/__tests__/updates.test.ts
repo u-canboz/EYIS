@@ -103,7 +103,21 @@ describe("Ownership-Grenze", () => {
     expect(result.replace).toEqual(["src/lib/commerce/a.ts"]);
     expect(result.referenceOnly).toEqual(["src/routes/index.tsx"]);
   });
+
+  it("behandelt Integrationspunkte als eigene Kategorie und ersetzt sie nie", () => {
+    expect(classifyPath("src/routes/__root.tsx")).toBe("integration_patch");
+    expect(classifyPath("src/styles.css")).toBe("integration_patch");
+    const result = partitionPaths([
+      "src/routes/__root.tsx",
+      "src/styles.css",
+      "src/lib/commerce/a.ts",
+    ]);
+    expect(result.replace).toEqual(["src/lib/commerce/a.ts"]);
+    expect(result.integrationPatch).toEqual(["src/routes/__root.tsx", "src/styles.css"]);
+    expect(result.protected).toEqual([]);
+  });
 });
+
 
 
 describe("Update-Zustandsmaschine", () => {

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-30T13:27:29.315Z",
-  "source_commit": "b4a3128d1ec59a5c8c7525cc32cc75545706abdf",
+  "generated_at": "2026-08-30T18:27:58.759Z",
+  "source_commit": "0b904c6343e4390a983851405f454e85e8d9ca14",
   "latest_migration": "20260830131955_b7e05640-c963-4e3a-80f0-bbdb505cfbcd.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
@@ -47,7 +47,7 @@
   ],
   "counts": {
     "modules": 19,
-    "routes": 91,
+    "routes": 92,
     "store_api_endpoints": 36,
     "migrations": 55,
     "public_tables": 112
@@ -104,7 +104,15 @@
     "eyis:install:status": "bun run scripts/eyis-install.ts status",
     "eyis:install:next": "bun run scripts/eyis-install.ts next",
     "eyis:install:inspect": "bun run scripts/eyis-install.ts inspect",
-    "qa:database-installer": "bun run qa/database-installer.ts"
+    "qa:database-installer": "bun run qa/database-installer.ts",
+    "eyis:seeds:audit": "bun run scripts/installer/dml-audit.ts",
+    "eyis:seeds:generate": "bun run scripts/installer/generate-system-seeds.ts",
+    "eyis:seeds:verify": "bun run scripts/eyis-seeds.ts verify",
+    "eyis:seeds:sql": "bun run scripts/eyis-seeds.ts sql",
+    "eyis:resources:verify": "bun run scripts/eyis-resources.ts verify",
+    "eyis:resources:provision": "bun run scripts/eyis-resources.ts provision",
+    "eyis:pack:sign": "bun run scripts/eyis-pack-signature.ts sign",
+    "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify"
   },
   "blocked_integrations": [
     "stripe-live",

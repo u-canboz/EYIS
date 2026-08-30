@@ -1,17 +1,19 @@
 {
   "manifest": "eyis-code-distribution",
-  "version": "1.0.0",
-  "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen.",
+  "version": "3.0.0",
+  "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen und ausschließlich die unter 'integration_patch' beschriebenen minimalen Eingriffe an kundeneigenen Dateien vornehmen.",
   "categories": {
     "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
     "reference_only": "Bleibt im EYIS-Hauptrepository. Wird niemals in ein Kundenprojekt installiert.",
     "customer_owned": "Gehört dem Kundenprojekt. Wird niemals angelegt, ersetzt oder überschrieben.",
     "generated": "Wird beim Installationslauf erzeugt, nicht kopiert.",
-    "optional": "Nur auf ausdrückliche Anforderung des Kunden."
+    "optional": "Nur auf ausdrückliche Anforderung des Kunden.",
+    "integration_patch": "Kundeneigene Datei, an der genau ein klar umrissener, additiver Eingriff nötig ist. Niemals ersetzen, niemals umschreiben."
   },
   "install": [
     "src/lib/commerce/**",
     "src/lib/store-sdk/**",
+    "src/lib/eyis/**",
     "src/routes/_authenticated/app/**",
     "src/routes/_authenticated/route.tsx",
     "src/routes/api/public/store/**",
@@ -25,6 +27,7 @@
     "src/integrations/supabase/**",
     "supabase/migrations/**",
     "installer/database/**",
+    "installer/distribution/**",
     "installer/resources/**",
     "commerce-os.manifest.json"
   ],
@@ -60,10 +63,29 @@
     "src/routes/portal/**",
     "templates/customer-repo/**"
   ],
+  "integration_patch": [
+    {
+      "path": "src/routes/__root.tsx",
+      "reason": "Das Kunden-Root-Layout rendert Header, Footer und Navigation um <Outlet />. Ohne Grenze erbt das EYIS-Backoffice dieses Chrome.",
+      "change": "additive_guard",
+      "instruction": "isEyisInternalRoute(pathname) aus '@/lib/eyis/route-boundary' importieren und das Kunden-Chrome überspringen, wenn der Pfad zur EYIS-Runtime gehört. Es wird nichts entfernt und nichts umgestaltet.",
+      "snippet": "const pathname = useRouterState({ select: (s) => s.location.pathname });\nif (isEyisInternalRoute(pathname)) return <Outlet />;\nreturn (<CustomerChrome><Outlet /></CustomerChrome>);"
+    },
+    {
+      "path": "src/styles.css",
+      "reason": "Das Backoffice braucht seinen eigenen Token-Scope, damit Kunden-Overrides auf :root es nicht verfärben.",
+      "change": "append_scope_block",
+      "instruction": "Den Block '.eyis-admin { … }' unverändert anfügen. Bestehende :root-Tokens, Fonts und Utilities des Kunden bleiben unangetastet.",
+      "snippet": ".eyis-admin { /* EYIS Design-Tokens, lokal aufgelöst */ }"
+    }
+  ],
   "rules": [
     "Die öffentliche EYIS-Marketing-/Landingpage wird niemals installiert und ersetzt niemals '/' eines Kundenprojekts.",
     "Bestehende Startseite, Header, Footer, Navigation, Branding, CSS, Storefront und Inhalte des Kundenprojekts bleiben unverändert.",
     "Bei Konflikt zwischen 'install' und 'customer_owned' gewinnt immer 'customer_owned'.",
-    "Backoffice liegt unter '/app', Store API unter '/api/public/store/v1'."
+    "'integration_patch' erlaubt ausschließlich den beschriebenen additiven Eingriff. Ein Ersetzen der Datei ist auch dann verboten, wenn der Eingriff fehlschlägt — dann wird gestoppt und berichtet.",
+    "Backoffice liegt unter '/app', Backoffice-Anmeldung unter '/app/login', Store API unter '/api/public/store/v1'.",
+    "Kollisionsschutz: EYIS bringt keine Route ausserhalb der Präfixe in EYIS_INTERNAL_PREFIXES ein.",
+    "Secrets stehen niemals in diesem Manifest und niemals im Repository."
   ]
 }

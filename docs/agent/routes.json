@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-30T13:27:29.253Z",
-  "source_commit": "b4a3128d1ec59a5c8c7525cc32cc75545706abdf",
+  "generated_at": "2026-08-30T18:27:58.705Z",
+  "source_commit": "0b904c6343e4390a983851405f454e85e8d9ca14",
   "latest_migration": "20260830131955_b7e05640-c963-4e3a-80f0-bbdb505cfbcd.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 91,
+  "total": 92,
   "by_kind": {
     "backoffice": 63,
     "public-api": 4,
     "job-endpoint": 3,
     "public-store-api": 2,
     "webhook": 5,
-    "public-page": 4,
+    "public-page": 5,
     "customer-portal": 3,
     "storefront": 7
   },
@@ -788,6 +788,16 @@
         "POST"
       ],
       "auth": "provider signature verification",
+      "ssr": true
+    },
+    {
+      "url": "/app/login",
+      "source": "src/routes/app.login.tsx",
+      "kind": "public-page",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
       "ssr": true
     },
     {

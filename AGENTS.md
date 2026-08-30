@@ -94,6 +94,18 @@ Diese Punkte sind nicht verhandelbar und dürfen von keinem Agenten selbstständ
     `bun run eyis:install:inspect`; niemals Kundendaten oder kundeneigene Tabellen löschen.
 12. **Öffentliche Job-Endpunkte** unter `src/routes/api/public/jobs/` authentifizieren immer über
     `authenticateCronRequest` (`src/integrations/supabase/cron-auth.ts`).
+13. **Struktur allein ist keine Installation.** Eine Installation gilt erst als fertig, wenn
+    `schema_fingerprint` **und** `system_seed_fingerprint` PASS melden. Systemdaten stehen
+    ausschließlich in `installer/database/seeds/` und werden mit `eyis:seeds:generate` aus der
+    Migrationskette erzeugt — nie von Hand geschrieben und nie doppelt gepflegt.
+14. **Das Backoffice erbt niemals Kunden-Chrome.** Die Grenze zwischen Kunden- und EYIS-Oberfläche
+    ist `isEyisInternalRoute` in `src/lib/eyis/route-boundary.ts`. Alle EYIS-Routen liegen unter
+    den dort gelisteten Präfixen; die Backoffice-Anmeldung unter `/app/login`. Das Backoffice
+    rendert innerhalb des CSS-Scopes `.eyis-admin` und löst seine Tokens dort lokal auf.
+15. **Kundeneigene Dateien werden nie ersetzt.** `src/routes/__root.tsx` und `src/styles.css` sind
+    `integration_patch`: erlaubt ist genau der im Distribution-Manifest beschriebene additive
+    Eingriff. Schlägt er fehl, wird gestoppt und berichtet — nicht überschrieben.
+
 
 ---
 

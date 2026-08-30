@@ -1,0 +1,154 @@
+{
+  "manifest": "eyis-system-seeds",
+  "version": "1.1.0",
+  "generated_at": "2026-08-30",
+  "system_seed_fingerprint": "3d56b91cabc04cd885b70998c432fe1b1b34642024ca4e5150a869f4dde1a163",
+  "units": [
+    {
+      "id": "001_role_permissions",
+      "file": "001_role_permissions.sql",
+      "title": "Rollen und Berechtigungen",
+      "tables": [
+        "role_permissions"
+      ],
+      "checksum": "2e1117972e40994fab35c78dcea5179e07e48a19f600aab2c5a31a6aab76c93d",
+      "idempotent": true,
+      "expect": [
+        {
+          "table": "role_permissions",
+          "where": "true",
+          "min": 100
+        }
+      ]
+    },
+    {
+      "id": "002_installation",
+      "file": "002_installation.sql",
+      "title": "Installations-Singleton",
+      "tables": [
+        "commerce_installation"
+      ],
+      "checksum": "6b9a8a6db1a194bed2f4197b9979090fdc9836f9eddcd968649dcb932c510a3d",
+      "idempotent": true,
+      "expect": [
+        {
+          "table": "commerce_installation",
+          "where": "true",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "003_product_blueprints",
+      "file": "003_product_blueprints.sql",
+      "title": "System-Produkt-Blueprints",
+      "tables": [
+        "product_blueprints"
+      ],
+      "checksum": "fe6fd482a9cb6935d6cca5feddcabe80bc6e84a4c588ee9eaea23ce87a34aad5",
+      "idempotent": true,
+      "expect": [
+        {
+          "table": "product_blueprints",
+          "where": "is_system",
+          "min": 9
+        }
+      ],
+      "required_keys": {
+        "table": "product_blueprints",
+        "column": "key",
+        "where": "is_system",
+        "keys": [
+          "standard",
+          "textil",
+          "lebensmittel",
+          "kosmetik",
+          "elektronik",
+          "moebel",
+          "schmuck",
+          "digital",
+          "dienstleistung"
+        ]
+      }
+    },
+    {
+      "id": "004_communication_templates",
+      "file": "004_communication_templates.sql",
+      "title": "System-E-Mail-Vorlagen",
+      "tables": [
+        "communication_templates",
+        "communication_template_versions"
+      ],
+      "checksum": "844cebc4af66fbe37e8cc18e53f9d5051f2f635a30b1b2b61bdad9da3c851a5b",
+      "idempotent": true,
+      "expect": [
+        {
+          "table": "communication_templates",
+          "where": "is_system AND organization_id IS NULL",
+          "min": 23
+        },
+        {
+          "table": "communication_template_versions",
+          "where": "true",
+          "min": 23
+        }
+      ],
+      "required_keys": {
+        "table": "communication_templates",
+        "column": "key",
+        "where": "is_system AND organization_id IS NULL",
+        "keys": [
+          "order.confirmed",
+          "payment.confirmed",
+          "payment.failed",
+          "refund.completed",
+          "shipment.shipped",
+          "shipment.delivered",
+          "invoice.issued",
+          "credit_note.issued",
+          "return.requested",
+          "return.refunded",
+          "customer.welcome",
+          "guest_order_access"
+        ]
+      }
+    },
+    {
+      "id": "005_tax_system",
+      "file": "005_tax_system.sql",
+      "title": "System-Steuerklassen und DE-Preset",
+      "tables": [
+        "tax_classes",
+        "tax_rates"
+      ],
+      "checksum": "8bbf547902feb370e5e9da5938a3cf519d644803e244a646c7907c9352cb56a6",
+      "idempotent": true,
+      "expect": [
+        {
+          "table": "tax_classes",
+          "where": "is_system AND organization_id IS NULL",
+          "min": 7
+        },
+        {
+          "table": "tax_rates",
+          "where": "organization_id IS NULL",
+          "min": 7
+        }
+      ],
+      "required_keys": {
+        "table": "tax_classes",
+        "column": "code",
+        "where": "is_system AND organization_id IS NULL",
+        "keys": [
+          "standard",
+          "reduced",
+          "zero",
+          "digital",
+          "food",
+          "books",
+          "shipping"
+        ]
+      }
+    }
+  ]
+}
