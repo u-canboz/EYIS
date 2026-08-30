@@ -357,6 +357,103 @@ export async function claimOwner(input: ClaimInput) {
   return { organizationId: orgId, shopId };
 }
 
+// ---------------------------------------------------------------------------
+// Auto Claim (vorbereiteter, verifizierter Owner) — Dedicated V3
+// ---------------------------------------------------------------------------
+
+export type AutoClaimInput = {
+  userId: string;
+  /** E-Mail aus den validierten Auth-Claims, niemals aus Client-Eingaben. */
+  email: string | null;
+  /** Verifizierter Besitz der Adresse (Auth-Claims). */
+  emailVerified: boolean;
+  organizationName: string;
+  shopName: string;
+};
+
+/**
+ * Owner-Übernahme ohne Claim-Code. Bedingungen (alle Pflicht):
+ * ungeclaimt, Pending Owner vorhanden, authentifiziert, E-Mail verifiziert,
+ * normalisierte Adresse identisch, Claim atomar noch frei. Kein „first user wins".
+ */
+export async function autoClaimOwner(input: AutoClaimInput) {
+  const row = await getInstallation();
+  if (!row) throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
+  if (row.owner_claimed_at != null) {
+    throw new InstallationError("OWNER_ALREADY_CLAIMED", "Die Instanz hat bereits einen Owner.");
+  }
+  if (!row.pending_owner_email || row.pending_owner_consumed_at != null) {
+    throw new InstallationError(
+      "OWNER_NOT_PREAUTHORIZED",
+      "Für diese Installation ist kein Administrator vorbereitet. Bitte den Recovery-Claim verwenden.",
+    );
+  }
+  if (!input.email) {
+    throw new InstallationError("OWNER_EMAIL_MISSING", "Das Konto hat keine E-Mail-Adresse.");
+  }
+  if (!input.emailVerified) {
+    throw new InstallationError(
+      "OWNER_EMAIL_UNVERIFIED",
+      "Die E-Mail-Adresse ist noch nicht bestätigt. Bitte den Bestätigungslink öffnen und erneut anmelden.",
+    );
+  }
+  if (normalizeOwnerEmail(input.email) !== normalizeOwnerEmail(row.pending_owner_email)) {
+    throw new InstallationError(
+      "OWNER_NOT_PREAUTHORIZED",
+      "Dieses Konto ist nicht als Administrator dieser Installation vorbereitet.",
+    );
+  }
+
+  const admin = await getAdmin();
+  const orgSlug = slugify(input.organizationName);
+  const shopSlug = slugify(input.shopName) || "shop";
+  const { data, error } = await admin.rpc("claim_installation_owner_verified", {
+    _user_id: input.userId,
+    _verified_email: normalizeOwnerEmail(input.email),
+    _org_name: input.organizationName,
+    _org_slug: orgSlug,
+    _shop_name: input.shopName,
+    _shop_slug: shopSlug,
+  } as never);
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("OWNER_ALREADY_CLAIMED")) {
+      throw new InstallationError("OWNER_ALREADY_CLAIMED", "Die Instanz hat bereits einen Owner.");
+    }
+    if (msg.includes("OWNER_NOT_PREAUTHORIZED")) {
+      throw new InstallationError(
+        "OWNER_NOT_PREAUTHORIZED",
+        "Dieses Konto ist nicht als Administrator dieser Installation vorbereitet.",
+      );
+    }
+    if (msg.includes("INSTALLATION_NOT_FOUND")) {
+      throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
+    }
+    throw new Error(msg);
+  }
+  const result = data as { organization_id: string; shop_id: string };
+  const orgId = result.organization_id;
+  const shopId = result.shop_id;
+
+  await createOwnerDefaults(orgId, shopId);
+  const { linkInstallationTenant, ensureStorefrontKey } = await import("./runtime-config.server");
+  await linkInstallationTenant(orgId, shopId);
+  await ensureStorefrontKey(orgId, shopId);
+
+  const { writeAudit } = await import("../core.server");
+  await writeAudit({
+    organizationId: orgId,
+    actorId: input.userId,
+    action: "installation.owner_claimed",
+    entityType: "commerce_installation",
+    metadata: { mode: resolveDeploymentMode(), method: "preauthorized_owner" },
+  });
+
+  return { organizationId: orgId, shopId };
+}
+
+
+
 /** Produktionsfähige Defaults nach dem Owner-Claim. Keine Demo-Inhalte. */
 async function createOwnerDefaults(orgId: string, shopId: string) {
   const admin = await getAdmin();
