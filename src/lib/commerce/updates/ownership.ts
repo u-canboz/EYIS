@@ -104,12 +104,16 @@ const OWNED = EYIS_OWNED_PATHS.map(globToRegExp);
 const CUSTOMER = CUSTOMER_OWNED_PATHS.map(globToRegExp);
 const REFERENCE = REFERENCE_ONLY_PATHS.map(globToRegExp);
 const PATCH = INTEGRATION_PATCH_PATHS.map(globToRegExp);
+const GENERATED = GENERATED_PATHS.map(globToRegExp);
+const OPTIONAL = OPTIONAL_PATHS.map(globToRegExp);
 
 export type OwnershipDecision =
   | "eyis"
   | "customer"
   | "reference_only"
   | "integration_patch"
+  | "generated"
+  | "optional"
   | "unmanaged";
 
 /** Kunden-Pfade gewinnen immer — im Zweifel wird nichts überschrieben. */
@@ -117,6 +121,8 @@ export function classifyPath(path: string): OwnershipDecision {
   const clean = path.replace(/^\.\//, "");
   if (PATCH.some((re) => re.test(clean))) return "integration_patch";
   if (CUSTOMER.some((re) => re.test(clean))) return "customer";
+  if (GENERATED.some((re) => re.test(clean))) return "generated";
+  if (OPTIONAL.some((re) => re.test(clean))) return "optional";
   if (REFERENCE.some((re) => re.test(clean))) return "reference_only";
   if (OWNED.some((re) => re.test(clean))) return "eyis";
   return "unmanaged";
@@ -126,12 +132,19 @@ export function isUpdatable(path: string): boolean {
   return classifyPath(path) === "eyis";
 }
 
-/** Teilt eine Dateiliste in ersetzbare, geschützte und Referenz-Pfade. */
+/** Gehört der Pfad zur Basisinstallation (wird also wirklich ausgeliefert)? */
+export function isBaseInstallPath(path: string): boolean {
+  return classifyPath(path) === "eyis";
+}
+
+/** Teilt eine Dateiliste nach Ownership-Kategorien. */
 export function partitionPaths(paths: string[]) {
   const replace: string[] = [];
   const protectedPaths: string[] = [];
   const referenceOnly: string[] = [];
   const integrationPatch: string[] = [];
+  const generated: string[] = [];
+  const optional: string[] = [];
   const unmanaged: string[] = [];
   for (const p of paths) {
     const decision = classifyPath(p);
@@ -139,8 +152,18 @@ export function partitionPaths(paths: string[]) {
     else if (decision === "customer") protectedPaths.push(p);
     else if (decision === "reference_only") referenceOnly.push(p);
     else if (decision === "integration_patch") integrationPatch.push(p);
+    else if (decision === "generated") generated.push(p);
+    else if (decision === "optional") optional.push(p);
     else unmanaged.push(p);
   }
-  return { replace, protected: protectedPaths, referenceOnly, integrationPatch, unmanaged };
+  return {
+    replace,
+    protected: protectedPaths,
+    referenceOnly,
+    integrationPatch,
+    generated,
+    optional,
+    unmanaged,
+  };
 }
 
