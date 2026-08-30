@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Nicht-Schema-Ressourcen einer EYIS Dedicated Installation. Wird nach 'Database PASS' geprüft und bereitgestellt. Enthält niemals Secrets.",
   "storage_buckets": [
     {
@@ -26,19 +26,43 @@
       "id": "expiration",
       "endpoint": "/api/public/jobs/expiration",
       "schedule": "*/10 * * * *",
-      "auth": "authenticateCronRequest"
+      "auth": "authenticateCronRequest",
+      "cron_job_name": "eyis_job_expiration",
+      "purpose": "Abgelaufene Reservierungen und Warenkörbe freigeben",
+      "timezone": "UTC",
+      "method": "POST",
+      "expected_status_without_secret": 401,
+      "timeout_seconds": 60,
+      "secret_header": "x-cron-secret",
+      "secret_key": "CRON_SECRET"
     },
     {
       "id": "communications",
       "endpoint": "/api/public/jobs/communications",
       "schedule": "*/5 * * * *",
-      "auth": "authenticateCronRequest"
+      "auth": "authenticateCronRequest",
+      "cron_job_name": "eyis_job_communications",
+      "purpose": "Ausstehende Nachrichten der Communication-Engine zustellen",
+      "timezone": "UTC",
+      "method": "POST",
+      "expected_status_without_secret": 401,
+      "timeout_seconds": 60,
+      "secret_header": "x-cron-secret",
+      "secret_key": "CRON_SECRET"
     },
     {
       "id": "automation",
       "endpoint": "/api/public/jobs/automation",
       "schedule": "*/5 * * * *",
-      "auth": "authenticateCronRequest"
+      "auth": "authenticateCronRequest",
+      "cron_job_name": "eyis_job_automation",
+      "purpose": "Fällige Automationsregeln und Aufgaben ausführen",
+      "timezone": "UTC",
+      "method": "POST",
+      "expected_status_without_secret": 401,
+      "timeout_seconds": 60,
+      "secret_header": "x-cron-secret",
+      "secret_key": "CRON_SECRET"
     }
   ],
   "runtime_configuration": [
@@ -73,6 +97,18 @@
     "Alle Buckets existieren mit der erwarteten Sichtbarkeit",
     "Job-Endpunkte antworten mit 401 ohne gültiges Cron-Secret",
     "Runtime-Konfiguration vollständig, Secrets projektlokal gesetzt",
-    "/api/public/store/v1/runtime-config liefert Shop-Handle und Publishable Key"
-  ]
+    "/api/public/store/v1/runtime-config liefert Shop-Handle und Publishable Key",
+    "Alle Cron-Jobs aus dem Manifest sind in cron.job registriert (oder als OFFEN gemeldet, wenn pg_cron in der Umgebung fehlt)"
+  ],
+  "cron": {
+    "mechanism": "pg_cron + pg_net",
+    "requires_extensions": [
+      "pg_cron",
+      "pg_net"
+    ],
+    "base_url_source": "COMMERCE_OS_URL (stabile Projekt-URL des Kundenprojekts)",
+    "secret_source": "CRON_SECRET (projektlokal, nie im Manifest)",
+    "provisioning": "bun run eyis:resources:cron --print gibt die vollständige SQL-Definition aus; eyis:resources:provision prüft Registrierung und Endpunkt-Absicherung.",
+    "note": "Die SQL enthält niemals das Secret im Klartext; es wird aus Vault/Settings gelesen."
+  }
 }
