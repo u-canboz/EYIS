@@ -152,7 +152,9 @@ export function buildArtifact(version: string, opts: { write: boolean } = { writ
     return { path, bytes: data.length, sha256: sha256(data) };
   });
   const tar = buildTar(files);
-  const gz = gzipSync(tar, { level: 9, mtime: 0 });
+  // mtime: 0 hält das Gzip-Ergebnis deterministisch; die Option ist zur Laufzeit
+  // gültig, fehlt aber in den ZlibOptions-Typen.
+  const gz = gzipSync(tar, { level: 9, mtime: 0 } as unknown as { level: number });
 
   const installer = JSON.parse(
     readFileSync(join(ROOT, "installer", "database", "eyis-database-installer.manifest.json"), "utf8"),
