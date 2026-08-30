@@ -62,8 +62,7 @@ async function priceFor(args: {
           : null,
       taxIncluded: args.taxIncluded,
     };
-  } catch (e) {
-    if (process.env["EYIS_DEBUG_PRICING"]) console.error("priceFor", e);
+  } catch {
     return null;
   }
 }

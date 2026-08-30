@@ -119,7 +119,7 @@ async function main() {
     check(
       "Store API gibt den Preis serverseitig aus",
       raw.includes(String(PRICE_MINOR)),
-      raw.slice(0, 400),
+      `${PRICE_MINOR} in Antwort: ${raw.includes(String(PRICE_MINOR))}`,
     );
     check(
       "Store API enthält keine internen Felder",
