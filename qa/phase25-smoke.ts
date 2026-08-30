@@ -69,7 +69,6 @@ async function main() {
     .from("product_variants")
     .insert({
       organization_id: ORG,
-      shop_id: SHOP,
       product_id: productId,
       title: "Standard",
       sku: `QA-${STAMP}`,
