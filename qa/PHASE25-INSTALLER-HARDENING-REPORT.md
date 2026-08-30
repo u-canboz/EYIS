@@ -127,7 +127,7 @@ Dedicated-Independence bleiben unverändert.
 ## 10. Namespace-Härtung — OFFEN
 
 Neuer EYIS-Code liegt unter `src/lib/eyis/**` und ist in `install` sowie `EYIS_OWNED_PATHS`
-registriert. Die Verschiebung des bestehenden Bestands (`src/components/data`, `src/components/shell`)
+registriert. Die Verschiebung des bestehenden Bestands (`src/eyis/data`, `src/eyis/shell`)
 in einen gemeinsamen `src/eyis/**`-Namensraum ist **nicht** durchgeführt: sie berührt mehrere hundert
 Importe in Routen und Komponenten, ohne dass ein Kollisionsfall nachgewiesen wurde. Bis dahin gilt
 die Kollisionsgefahr als bekannt und dokumentiert, nicht als behoben.
