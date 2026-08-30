@@ -126,7 +126,18 @@ function AuthPage() {
           <div className="mb-8 flex justify-center lg:hidden">
             <EyisLogo variant="full" width={240} className="max-w-[70vw]" />
           </div>
-          <Tabs defaultValue="signin">
+          {ownerSetup && (
+            <div className="mb-6 rounded-xl border bg-card p-4">
+              <h2 className="text-sm font-semibold">EYIS einrichten</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Diese Instanz ist noch nicht übernommen. Lege das Administrator-Konto mit genau
+                der beim Setup hinterlegten E-Mail-Adresse an und bestätige die Adresse. Die
+                Übernahme läuft danach automatisch – kein Claim-Code nötig.
+              </p>
+            </div>
+          )}
+          <Tabs defaultValue={ownerSetup ? "signup" : "signin"} key={ownerSetup ? "s" : "i"}>
+
             <TabsList className="w-full">
               <TabsTrigger value="signin" className="flex-1">
                 Anmelden
