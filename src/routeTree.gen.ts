@@ -82,6 +82,7 @@ import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './route
 import { Route as ApiPublicInstallBootstrapRouteImport } from './routes/api/public/install/bootstrap'
 import { Route as ApiPublicInstallClaimSessionRouteImport } from './routes/api/public/install/claim-session'
 import { Route as ApiPublicInstallDoctorRouteImport } from './routes/api/public/install/doctor'
+import { Route as ApiPublicInstallSetupStateRouteImport } from './routes/api/public/install/setup-state'
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicJobsExpirationRouteImport } from './routes/api/public/jobs/expiration'
@@ -515,6 +516,12 @@ const ApiPublicInstallDoctorRoute = ApiPublicInstallDoctorRouteImport.update({
   path: '/api/public/install/doctor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicInstallSetupStateRoute =
+  ApiPublicInstallSetupStateRouteImport.update({
+    id: '/api/public/install/setup-state',
+    path: '/api/public/install/setup-state',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsAutomationRoute = ApiPublicJobsAutomationRouteImport.update({
   id: '/api/public/jobs/automation',
   path: '/api/public/jobs/automation',
@@ -667,6 +674,7 @@ export interface FileRoutesByFullPath {
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
+  '/api/public/install/setup-state': typeof ApiPublicInstallSetupStateRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -756,6 +764,7 @@ export interface FileRoutesByTo {
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
+  '/api/public/install/setup-state': typeof ApiPublicInstallSetupStateRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -848,6 +857,7 @@ export interface FileRoutesById {
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
+  '/api/public/install/setup-state': typeof ApiPublicInstallSetupStateRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -940,6 +950,7 @@ export interface FileRouteTypes {
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
+    | '/api/public/install/setup-state'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -1029,6 +1040,7 @@ export interface FileRouteTypes {
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
+    | '/api/public/install/setup-state'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -1120,6 +1132,7 @@ export interface FileRouteTypes {
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
+    | '/api/public/install/setup-state'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -1163,6 +1176,7 @@ export interface RootRouteChildren {
   ApiPublicInstallBootstrapRoute: typeof ApiPublicInstallBootstrapRoute
   ApiPublicInstallClaimSessionRoute: typeof ApiPublicInstallClaimSessionRoute
   ApiPublicInstallDoctorRoute: typeof ApiPublicInstallDoctorRoute
+  ApiPublicInstallSetupStateRoute: typeof ApiPublicInstallSetupStateRoute
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicJobsExpirationRoute: typeof ApiPublicJobsExpirationRoute
@@ -1688,6 +1702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicInstallDoctorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/install/setup-state': {
+      id: '/api/public/install/setup-state'
+      path: '/api/public/install/setup-state'
+      fullPath: '/api/public/install/setup-state'
+      preLoaderRoute: typeof ApiPublicInstallSetupStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/automation': {
       id: '/api/public/jobs/automation'
       path: '/api/public/jobs/automation'
@@ -1998,6 +2019,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicInstallBootstrapRoute: ApiPublicInstallBootstrapRoute,
   ApiPublicInstallClaimSessionRoute: ApiPublicInstallClaimSessionRoute,
   ApiPublicInstallDoctorRoute: ApiPublicInstallDoctorRoute,
+  ApiPublicInstallSetupStateRoute: ApiPublicInstallSetupStateRoute,
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicJobsExpirationRoute: ApiPublicJobsExpirationRoute,
