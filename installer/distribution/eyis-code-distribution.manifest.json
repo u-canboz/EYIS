@@ -1,0 +1,69 @@
+{
+  "manifest": "eyis-code-distribution",
+  "version": "1.0.0",
+  "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen.",
+  "categories": {
+    "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
+    "reference_only": "Bleibt im EYIS-Hauptrepository. Wird niemals in ein Kundenprojekt installiert.",
+    "customer_owned": "Gehört dem Kundenprojekt. Wird niemals angelegt, ersetzt oder überschrieben.",
+    "generated": "Wird beim Installationslauf erzeugt, nicht kopiert.",
+    "optional": "Nur auf ausdrückliche Anforderung des Kunden."
+  },
+  "install": [
+    "src/lib/commerce/**",
+    "src/lib/store-sdk/**",
+    "src/routes/_authenticated/app/**",
+    "src/routes/_authenticated/route.tsx",
+    "src/routes/api/public/store/**",
+    "src/routes/api/public/jobs/**",
+    "src/routes/api/public/install/**",
+    "src/routes/api/public/webhooks/**",
+    "src/components/shell/**",
+    "src/components/commerce/**",
+    "src/components/data/**",
+    "src/components/portal/**",
+    "src/integrations/supabase/**",
+    "supabase/migrations/**",
+    "installer/database/**",
+    "installer/resources/**",
+    "commerce-os.manifest.json"
+  ],
+  "reference_only": [
+    "src/routes/index.tsx",
+    "src/routes/entwickler.tsx",
+    "src/routes/dokumentation.tsx",
+    "src/routes/dokumentation/**",
+    "src/components/site/**",
+    "src/routes/store/**",
+    "public/demo-assets/**",
+    "LOVABLE_STOREFRONT_GUIDE.md",
+    "LOVABLE_STOREFRONT_PROMPT.md",
+    "qa/**",
+    "docs/**"
+  ],
+  "customer_owned": [
+    "src/routes/index.tsx",
+    "src/routes/__root.tsx",
+    "src/styles.css",
+    "src/theme/**",
+    "src/content/**",
+    "src/custom/**",
+    "public/brand/**",
+    ".env",
+    ".env.*"
+  ],
+  "generated": [
+    "src/routeTree.gen.ts",
+    "src/integrations/supabase/types.ts"
+  ],
+  "optional": [
+    "src/routes/portal/**",
+    "templates/customer-repo/**"
+  ],
+  "rules": [
+    "Die öffentliche EYIS-Marketing-/Landingpage wird niemals installiert und ersetzt niemals '/' eines Kundenprojekts.",
+    "Bestehende Startseite, Header, Footer, Navigation, Branding, CSS, Storefront und Inhalte des Kundenprojekts bleiben unverändert.",
+    "Bei Konflikt zwischen 'install' und 'customer_owned' gewinnt immer 'customer_owned'.",
+    "Backoffice liegt unter '/app', Store API unter '/api/public/store/v1'."
+  ]
+}
