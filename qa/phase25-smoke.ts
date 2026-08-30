@@ -15,7 +15,7 @@ import * as cartApi from "@/lib/commerce/cart.server";
 import { resolveTemplate, loadBranding } from "@/lib/commerce/communications/communication.server";
 import { renderEmail } from "@/lib/commerce/communications/renderer";
 import { ensurePriceSet } from "@/lib/commerce/pricing.server";
-import { createStoreClient } from "@/lib/store-sdk";
+import { createCommerceClient } from "@/lib/store-sdk";
 import { admin, check, readState, results, summary } from "./lib";
 
 const s = readState();
@@ -128,8 +128,11 @@ async function main() {
 
     /* ---------------- 6. SDK ---------------- */
     try {
-      const client = createStoreClient({ baseUrl: `${BASE}/api/public/store/v1`, publishableKey: key });
-      const viaSdk = (await client.getProduct(HANDLE)) as Record<string, unknown>;
+      const client = createCommerceClient({
+        baseUrl: `${BASE}/api/public/store/v1`,
+        publishableKey: key,
+      });
+      const viaSdk = (await client.product(HANDLE)) as Record<string, unknown>;
       check("SDK liest dasselbe Produkt", Boolean(viaSdk), HANDLE);
     } catch (e) {
       check("SDK liest dasselbe Produkt", false, e instanceof Error ? e.message : String(e));
@@ -188,13 +191,33 @@ async function main() {
     const template = await resolveTemplate(ORG, SHOP, "order.confirmed");
     const rendered = renderEmail({
       subject: template!.subject,
-      bodyHtml: template!.body_html,
-      bodyText: template!.body_text,
+      preheader: template!.preheader,
+      blocks: template!.blocks,
       branding,
       context: {
-        shop: { name: "QA Shop", url: BASE, supportEmail: "support@commerce-qa.test" },
-        order: { number: "QA-1001", total: "24,90 €", url: `${BASE}/portal` },
-        customer: { firstName: "Qa", lastName: "Tester", email: "qa-buyer@commerce-qa.test" },
+        shop: {
+          name: "QA Shop",
+          support_email: "support@commerce-qa.test",
+          website_url: BASE,
+        },
+        customer: {
+          first_name: "Qa",
+          last_name: "Tester",
+          full_name: "Qa Tester",
+          email: "qa-buyer@commerce-qa.test",
+        },
+        order: {
+          number: "QA-1001",
+          date: "01.01.2026",
+          subtotal: "24,90 €",
+          discount: "0,00 €",
+          shipping: "0,00 €",
+          tax: "3,98 €",
+          total: "24,90 €",
+          currency: "EUR",
+          items: [],
+          shipping_address: ["Qa Tester", "Teststraße 1", "10115 Berlin"],
+        },
       } as never,
     });
     check("Bestellbestätigung rendert vollständig", rendered.html.length > 200, `${rendered.html.length} Zeichen`);
