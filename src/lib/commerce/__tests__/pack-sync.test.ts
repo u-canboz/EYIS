@@ -39,8 +39,8 @@ describe("Database Pack Sync", () => {
   });
 
   it("verlangt einen migration_set_fingerprint im Manifest", () => {
-    const manifest = { ...readPackManifest(), migration_set_fingerprint: undefined };
-    const result = checkPackSync(readMigrations(), manifest);
+    const { migration_set_fingerprint: _drop, ...manifest } = readPackManifest();
+    const result = checkPackSync(readMigrations(), manifest as never);
     expect(result.status).toBe("FAIL");
   });
 });
