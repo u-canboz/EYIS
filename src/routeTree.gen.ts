@@ -67,6 +67,7 @@ import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
 import { Route as AuthenticatedAppRetourenEinstellungenRouteImport } from './routes/_authenticated/app/retouren/einstellungen'
 import { Route as AuthenticatedAppSetupIndexRouteImport } from './routes/_authenticated/app/setup/index'
+import { Route as AuthenticatedAppSetupRecoveryRouteImport } from './routes/_authenticated/app/setup/recovery'
 import { Route as AuthenticatedAppSystemDemoDatenRouteImport } from './routes/_authenticated/app/system/demo-daten'
 import { Route as AuthenticatedAppSystemErrorsRouteImport } from './routes/_authenticated/app/system/errors'
 import { Route as AuthenticatedAppSystemHealthRouteImport } from './routes/_authenticated/app/system/health'
@@ -427,6 +428,12 @@ const AuthenticatedAppSetupIndexRoute =
     path: '/app/setup/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppSetupRecoveryRoute =
+  AuthenticatedAppSetupRecoveryRouteImport.update({
+    id: '/app/setup/recovery',
+    path: '/app/setup/recovery',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemDemoDatenRoute =
   AuthenticatedAppSystemDemoDatenRouteImport.update({
     id: '/app/system/demo-daten',
@@ -660,6 +667,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/setup/recovery': typeof AuthenticatedAppSetupRecoveryRoute
   '/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
@@ -750,6 +758,7 @@ export interface FileRoutesByTo {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/setup/recovery': typeof AuthenticatedAppSetupRecoveryRoute
   '/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
@@ -843,6 +852,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/_authenticated/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/_authenticated/app/setup/recovery': typeof AuthenticatedAppSetupRecoveryRoute
   '/_authenticated/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/_authenticated/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/_authenticated/app/system/health': typeof AuthenticatedAppSystemHealthRoute
@@ -936,6 +946,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/setup/recovery'
     | '/app/system/demo-daten'
     | '/app/system/errors'
     | '/app/system/health'
@@ -1026,6 +1037,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/setup/recovery'
     | '/app/system/demo-daten'
     | '/app/system/errors'
     | '/app/system/health'
@@ -1118,6 +1130,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/retouren/$returnId'
     | '/_authenticated/app/retouren/einstellungen'
+    | '/_authenticated/app/setup/recovery'
     | '/_authenticated/app/system/demo-daten'
     | '/_authenticated/app/system/errors'
     | '/_authenticated/app/system/health'
@@ -1597,6 +1610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSetupIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/setup/recovery': {
+      id: '/_authenticated/app/setup/recovery'
+      path: '/app/setup/recovery'
+      fullPath: '/app/setup/recovery'
+      preLoaderRoute: typeof AuthenticatedAppSetupRecoveryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/demo-daten': {
       id: '/_authenticated/app/system/demo-daten'
       path: '/app/system/demo-daten'
@@ -1857,6 +1877,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppRetourenReturnIdRoute: typeof AuthenticatedAppRetourenReturnIdRoute
   AuthenticatedAppRetourenEinstellungenRoute: typeof AuthenticatedAppRetourenEinstellungenRoute
+  AuthenticatedAppSetupRecoveryRoute: typeof AuthenticatedAppSetupRecoveryRoute
   AuthenticatedAppSystemDemoDatenRoute: typeof AuthenticatedAppSystemDemoDatenRoute
   AuthenticatedAppSystemErrorsRoute: typeof AuthenticatedAppSystemErrorsRoute
   AuthenticatedAppSystemHealthRoute: typeof AuthenticatedAppSystemHealthRoute
@@ -1936,6 +1957,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRetourenReturnIdRoute: AuthenticatedAppRetourenReturnIdRoute,
   AuthenticatedAppRetourenEinstellungenRoute:
     AuthenticatedAppRetourenEinstellungenRoute,
+  AuthenticatedAppSetupRecoveryRoute: AuthenticatedAppSetupRecoveryRoute,
   AuthenticatedAppSystemDemoDatenRoute: AuthenticatedAppSystemDemoDatenRoute,
   AuthenticatedAppSystemErrorsRoute: AuthenticatedAppSystemErrorsRoute,
   AuthenticatedAppSystemHealthRoute: AuthenticatedAppSystemHealthRoute,

@@ -1,5 +1,5 @@
 /**
- * First Owner Claim (Phase 21): Der Owner fügt den einmaligen Claim-Code aus
+ * Recovery Claim (Dedicated V3, vormals First Owner Claim): Der Owner fügt den einmaligen Claim-Code aus
  * dem Bootstrap ein (Formular, niemals URL), registriert sich bzw. ist bereits
  * angemeldet, und übernimmt die Instanz. Der Claim läuft atomar serverseitig.
  */
@@ -14,10 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute("/_authenticated/app/setup/")({
+export const Route = createFileRoute("/_authenticated/app/setup/recovery")({
   head: () => ({
     meta: [
-      { title: "Installation übernehmen – EYIS" },
+      { title: "Recovery-Übernahme – EYIS" },
       { name: "description", content: "First Owner Claim: diese EYIS-Instanz mit dem einmaligen Installations-Claim übernehmen." },
       { property: "og:title", content: "Installation übernehmen – EYIS" },
       { property: "og:description", content: "Sicherer First-Owner-Claim für eine Dedicated-Instanz." },
