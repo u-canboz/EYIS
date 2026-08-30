@@ -94,7 +94,17 @@ describe("Ownership-Grenze", () => {
     expect(result.protected).toEqual(["src/routes/store/b.tsx"]);
     expect(result.unmanaged).toEqual(["README.md"]);
   });
+
+  it("installiert Referenz-/Marketinginhalte niemals in ein Kundenprojekt", () => {
+    expect(classifyPath("src/routes/index.tsx")).toBe("reference_only");
+    expect(classifyPath("src/components/site/CodeBlock.tsx")).toBe("reference_only");
+    expect(classifyPath("src/routes/entwickler.tsx")).toBe("reference_only");
+    const result = partitionPaths(["src/routes/index.tsx", "src/lib/commerce/a.ts"]);
+    expect(result.replace).toEqual(["src/lib/commerce/a.ts"]);
+    expect(result.referenceOnly).toEqual(["src/routes/index.tsx"]);
+  });
 });
+
 
 describe("Update-Zustandsmaschine", () => {
   it("kennt die sechs sichtbaren Schritte", () => {
