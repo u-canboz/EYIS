@@ -17,9 +17,31 @@ import { createHash, createPublicKey, verify as edVerify } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { baseInstallFiles } from "./route-contract";
+
 export const REPO_ROOT = process.cwd();
 export const PACK_ROOT = join(REPO_ROOT, "installer", "database");
 export const SIGNATURE_PATH = join(PACK_ROOT, "eyis-database-installer.signature.json");
+export const TRUST_ANCHOR_PATH = join(
+  REPO_ROOT,
+  "installer",
+  "distribution",
+  "eyis-trust-anchor.json",
+);
+
+export type TrustAnchor = {
+  keys: { key_id: string; public_key: string; status?: string }[];
+};
+
+/** Gepinnter öffentlicher Schlüssel zur key_id — nie aus der Signaturdatei. */
+export function trustedKey(keyId: string | undefined): string | null {
+  if (!keyId || !existsSync(TRUST_ANCHOR_PATH)) return null;
+  const anchor = JSON.parse(readFileSync(TRUST_ANCHOR_PATH, "utf8")) as TrustAnchor;
+  const entry = (anchor.keys ?? []).find(
+    (k) => k.key_id === keyId && (k.status ?? "active") === "active",
+  );
+  return entry?.public_key ?? null;
+}
 
 type InstallerManifest = {
   version: string;
@@ -33,14 +55,21 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
-/** Alle signaturrelevanten Dateien, repo-relativ. */
+/**
+ * Alle signaturrelevanten Dateien, repo-relativ.
+ *
+ * Phase 26: Es wird NICHT mehr nach `existsSync` gefiltert. Eine im Manifest
+ * genannte, aber fehlende Datei würde sonst still aus dem Digest verschwinden —
+ * ein unvollständiges Pack wäre weiterhin gültig signiert. Fehlt eine Datei,
+ * ist das ein harter Fehler.
+ */
 export function signedFiles(): string[] {
   const manifest = readJson<InstallerManifest>(
     join(PACK_ROOT, "eyis-database-installer.manifest.json"),
   );
   const seeds = readJson<SeedManifest>(join(PACK_ROOT, "seeds", "eyis-system-seeds.manifest.json"));
 
-  return [
+  const required = [
     "installer/database/eyis-database-installer.manifest.json",
     `installer/database/${manifest.migration_history_reconciliation.file}`,
     ...manifest.fresh_install.units.map((u) => `installer/database/${u.file}`),
@@ -48,7 +77,19 @@ export function signedFiles(): string[] {
     ...seeds.units.map((u) => `installer/database/seeds/${u.file}`),
     "installer/resources/eyis-resources.manifest.json",
     "installer/distribution/eyis-code-distribution.manifest.json",
-  ].filter((f) => existsSync(join(REPO_ROOT, f)));
+    "installer/distribution/eyis-trust-anchor.json",
+    // Phase 26: Auch der ausgelieferte Laufzeit-Code gehört zum Release-Artefakt.
+    // Ohne ihn wäre nur das SQL-Pack signiert, während der installierte Code
+    // ungeprüft bliebe.
+    ...baseInstallFiles(),
+  ];
+  const missing = required.filter((f) => !existsSync(join(REPO_ROOT, f)));
+  if (missing.length) {
+    throw new Error(
+      `Signaturrelevante Datei fehlt: ${missing.join(", ")} — Pack ist unvollständig.`,
+    );
+  }
+  return required;
 }
 
 /** Deterministischer Digest über alle signaturrelevanten Pack-Inhalte. */
@@ -110,21 +151,28 @@ export function verifyPack(): GateResult {
   const compatibility: GateStatus =
     semver.test(manifest.version) && Boolean(manifest.schema_version) ? "PASS" : "FAIL";
 
-  // Signatur
+  // Signatur — Vertrauenswurzel ist AUSSCHLIESSLICH der gepinnte Trust Anchor.
   let signature: GateStatus;
   if (!existsSync(SIGNATURE_PATH)) {
     signature = "BLOCKED";
     detail ||= "Keine Signaturdatei vorhanden — Pack unsigniert (EYIS_PACK_SIGNING_KEY fehlt).";
   } else {
-    const sig = readJson<{ digest: string; signature: string; public_key: string }>(SIGNATURE_PATH);
+    const sig = readJson<{ digest: string; signature: string; key_id?: string }>(SIGNATURE_PATH);
+    const trusted = trustedKey(sig.key_id);
     if (sig.digest !== digest) {
       signature = "FAIL";
       detail = "Pack-Inhalt weicht vom signierten Digest ab.";
+    } else if (!sig.key_id) {
+      signature = "FAIL";
+      detail = "Signaturdatei nennt keine key_id — ein mitgelieferter Schlüssel wird nicht akzeptiert.";
+    } else if (!trusted) {
+      signature = "FAIL";
+      detail = `Signaturschlüssel ${sig.key_id} steht nicht im EYIS Trust Anchor.`;
     } else {
       const ok = edVerify(
         null,
         Buffer.from(digest, "hex"),
-        createPublicKey(sig.public_key),
+        createPublicKey(trusted),
         Buffer.from(sig.signature, "base64"),
       );
       signature = ok ? "PASS" : "FAIL";

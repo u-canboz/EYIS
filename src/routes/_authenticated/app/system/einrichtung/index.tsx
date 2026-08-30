@@ -100,7 +100,7 @@ const STEPS: WizardStep[] = [
     title: "Go-live Unterlagen",
     description: "Impressum, Datenschutz und Betreiberangaben der Storefront pflegen.",
     icon: BookOpen,
-    action: { label: "Dokumentation", to: "/dokumentation" },
+    action: { label: "Go-live Checkliste", to: "/app/system/status" },
   },
 ];
 
@@ -218,7 +218,7 @@ function SetupWizardPage() {
             </Button>
           )}
           <Button size="sm" variant="ghost" asChild>
-            <Link to="/store">
+            <Link to="/">
               Storefront öffnen
               <ExternalLink className="ml-1 h-3 w-3" />
             </Link>

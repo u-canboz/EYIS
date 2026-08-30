@@ -124,7 +124,7 @@ function OwnerSetupPage() {
               variant="outline"
               onClick={async () => {
                 await supabase.auth.signOut();
-                navigate({ to: "/auth" });
+                navigate({ to: "/app/login" });
               }}
             >
               Mit anderem Konto anmelden

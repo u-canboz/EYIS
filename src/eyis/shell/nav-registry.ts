@@ -121,7 +121,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/app/kunden", label: "Kunden & Gruppen", icon: Users },
       { to: "/app/retouren", label: "Retouren", icon: RotateCcw, keywords: "returns rma" },
       { to: "/app/retouren/einstellungen", label: "Retouren-Regeln", icon: SlidersHorizontal },
-      { to: "/portal", label: "Kundenportal", icon: Store, keywords: "self service" },
     ],
   },
   {
@@ -190,7 +189,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/app/entwickler/api", label: "API-Referenz", icon: FileText },
       { to: "/app/entwickler/protokoll", label: "Request-Protokoll", icon: History },
       { to: "/app/system/storefront-test", label: "Test-Storefront", icon: Store },
-      { to: "/store", label: "Referenz-Storefront", icon: Store },
     ],
   },
   {
