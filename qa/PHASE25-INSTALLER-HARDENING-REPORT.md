@@ -124,13 +124,13 @@ vom Betreiber bereitgestellt werden; er steht bewusst nicht im Repository. Bis d
 PASS. Die bestehenden Prüfungen zu Umgebung, Zentralabhängigkeiten, RLS, Storage und
 Dedicated-Independence bleiben unverändert.
 
-## 10. Namespace-Härtung — OFFEN
+## 10. Namespace-Härtung — PASS (im Abschlusslauf nachgeholt)
 
-Neuer EYIS-Code liegt unter `src/lib/eyis/**` und ist in `install` sowie `EYIS_OWNED_PATHS`
-registriert. Die Verschiebung des bestehenden Bestands (`src/eyis/data`, `src/eyis/shell`)
-in einen gemeinsamen `src/eyis/**`-Namensraum ist **nicht** durchgeführt: sie berührt mehrere hundert
-Importe in Routen und Komponenten, ohne dass ein Kollisionsfall nachgewiesen wurde. Bis dahin gilt
-die Kollisionsgefahr als bekannt und dokumentiert, nicht als behoben.
+Der gesamte EYIS-Bestand liegt inzwischen unter `src/eyis/**` (`brand`, `commerce`, `data`,
+`portal`, `shell`, `auth`) und `src/lib/eyis/**`; alle Importe, `EYIS_OWNED_PATHS` und das
+Distribution-Manifest wurden mitgezogen. Nachweis und Details:
+[PHASE25-DEDICATED-PRODUCTION-READY-REPORT.md](PHASE25-DEDICATED-PRODUCTION-READY-REPORT.md).
+
 
 ## 11. Smoke Tests nach Fresh Install — OFFEN
 
