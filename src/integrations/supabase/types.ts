@@ -1471,6 +1471,9 @@ export type Database = {
           mode: string
           organization_id: string | null
           owner_claimed_at: string | null
+          pending_owner_consumed_at: string | null
+          pending_owner_email: string | null
+          pending_owner_set_at: string | null
           schema_version: string | null
           sdk_version: string | null
           setup_completed_at: string | null
@@ -1506,6 +1509,9 @@ export type Database = {
           mode?: string
           organization_id?: string | null
           owner_claimed_at?: string | null
+          pending_owner_consumed_at?: string | null
+          pending_owner_email?: string | null
+          pending_owner_set_at?: string | null
           schema_version?: string | null
           sdk_version?: string | null
           setup_completed_at?: string | null
@@ -1541,6 +1547,9 @@ export type Database = {
           mode?: string
           organization_id?: string | null
           owner_claimed_at?: string | null
+          pending_owner_consumed_at?: string | null
+          pending_owner_email?: string | null
+          pending_owner_set_at?: string | null
           schema_version?: string | null
           sdk_version?: string | null
           setup_completed_at?: string | null
@@ -8560,6 +8569,17 @@ export type Database = {
           _shop_name: string
           _shop_slug: string
           _user_id: string
+        }
+        Returns: Json
+      }
+      claim_installation_owner_verified: {
+        Args: {
+          _org_name: string
+          _org_slug: string
+          _shop_name: string
+          _shop_slug: string
+          _user_id: string
+          _verified_email: string
         }
         Returns: Json
       }
