@@ -34,10 +34,7 @@
   "reference_only": [
     "src/routes/index.tsx",
     "src/routes/entwickler.tsx",
-    "src/routes/dokumentation.tsx",
-    "src/routes/dokumentation/**",
     "src/components/site/**",
-    "src/routes/store/**",
     "public/demo-assets/**",
     "LOVABLE_STOREFRONT_GUIDE.md",
     "LOVABLE_STOREFRONT_PROMPT.md",
@@ -45,8 +42,7 @@
     "docs/**"
   ],
   "customer_owned": [
-    "src/routes/__root.tsx",
-    "src/styles.css",
+    "src/routes/store/**",
     "src/theme/**",
     "src/content/**",
     "src/custom/**",
