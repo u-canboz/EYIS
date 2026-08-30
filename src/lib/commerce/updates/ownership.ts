@@ -81,16 +81,19 @@ export function isUpdatable(path: string): boolean {
   return classifyPath(path) === "eyis";
 }
 
-/** Teilt eine Dateiliste in ersetzbare und geschützte Pfade. */
+/** Teilt eine Dateiliste in ersetzbare, geschützte und Referenz-Pfade. */
 export function partitionPaths(paths: string[]) {
   const replace: string[] = [];
   const protectedPaths: string[] = [];
+  const referenceOnly: string[] = [];
   const unmanaged: string[] = [];
   for (const p of paths) {
     const decision = classifyPath(p);
     if (decision === "eyis") replace.push(p);
     else if (decision === "customer") protectedPaths.push(p);
+    else if (decision === "reference_only") referenceOnly.push(p);
     else unmanaged.push(p);
   }
-  return { replace, protected: protectedPaths, unmanaged };
+  return { replace, protected: protectedPaths, referenceOnly, unmanaged };
+
 }
