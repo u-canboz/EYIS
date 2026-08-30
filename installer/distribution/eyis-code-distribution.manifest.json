@@ -1,13 +1,13 @@
 {
   "manifest": "eyis-code-distribution",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen und ausschließlich die unter 'integration_patch' beschriebenen minimalen Eingriffe an kundeneigenen Dateien vornehmen.",
   "categories": {
     "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
     "reference_only": "Bleibt im EYIS-Hauptrepository. Wird niemals in ein Kundenprojekt installiert.",
     "customer_owned": "Gehört dem Kundenprojekt. Wird niemals angelegt, ersetzt oder überschrieben.",
-    "generated": "Wird beim Installationslauf erzeugt, nicht kopiert.",
-    "optional": "Nur auf ausdrückliche Anforderung des Kunden.",
+    "generated": "Wird von der Plattform im Kundenprojekt erzeugt (Lovable Cloud/Auth, Typgenerierung). Wird vorausgesetzt, nie kopiert, nie überschrieben.",
+    "optional": "Gehört zu EYIS, ist aber nicht Teil der Basisinstallation. Nur auf ausdrückliche Anforderung — beansprucht dann zusätzliche Routen-Präfixe.",
     "integration_patch": "Kundeneigene Datei, an der genau ein klar umrissener, additiver Eingriff nötig ist. Niemals ersetzen, niemals umschreiben.",
     "shared_convention": "Von Lovable-Projekten geteilte Konvention (shadcn-Primitive). Wird vorausgesetzt, nie überschrieben."
   },
@@ -23,12 +23,12 @@
     "src/routes/api/public/webhooks/**",
     "src/eyis/**",
     "src/routes/app.login.tsx",
-    "src/integrations/supabase/**",
     "supabase/migrations/**",
     "installer/database/**",
     "installer/distribution/**",
     "installer/resources/**",
-    "commerce-os.manifest.json"
+    "commerce-os.manifest.json",
+    "src/integrations/supabase/cron-auth.ts"
   ],
   "reference_only": [
     "src/routes/index.tsx",
@@ -56,10 +56,17 @@
   ],
   "generated": [
     "src/routeTree.gen.ts",
-    "src/integrations/supabase/types.ts"
+    "src/integrations/supabase/types.ts",
+    "src/integrations/supabase/client.ts",
+    "src/integrations/supabase/client.server.ts",
+    "src/integrations/supabase/auth-middleware.ts",
+    "src/integrations/supabase/auth-attacher.ts",
+    "src/integrations/supabase/previewAuthStorage.ts",
+    "src/integrations/lovable/**"
   ],
   "optional": [
     "src/routes/portal/**",
+    "src/eyis/portal/**",
     "templates/customer-repo/**"
   ],
   "integration_patch": [
@@ -67,15 +74,25 @@
       "path": "src/routes/__root.tsx",
       "reason": "Das Kunden-Root-Layout rendert Header, Footer und Navigation um <Outlet />. Ohne Grenze erbt das EYIS-Backoffice dieses Chrome.",
       "change": "additive_guard",
-      "instruction": "isEyisInternalRoute(pathname) aus '@/lib/eyis/route-boundary' importieren und das Kunden-Chrome überspringen, wenn der Pfad zur EYIS-Runtime gehört. Es wird nichts entfernt und nichts umgestaltet.",
-      "snippet": "const pathname = useRouterState({ select: (s) => s.location.pathname });\nif (isEyisInternalRoute(pathname)) return <Outlet />;\nreturn (<CustomerChrome><Outlet /></CustomerChrome>);"
+      "instruction": "Guard markerbasiert einfügen. Fehlt die Root-Komponente oder schlaegt der Build danach fehl, wird zurückgerollt und gestoppt — die Datei wird nie ersetzt.",
+      "snippet": "const pathname = useRouterState({ select: (s) => s.location.pathname });\nif (isEyisInternalRoute(pathname)) return <Outlet />;\nreturn (<CustomerChrome><Outlet /></CustomerChrome>);",
+      "markers": [
+        "/* EYIS:ROUTE_GUARD:START */",
+        "/* EYIS:ROUTE_GUARD:END */"
+      ],
+      "idempotent": true
     },
     {
       "path": "src/styles.css",
       "reason": "Das Backoffice braucht seinen eigenen Token-Scope, damit Kunden-Overrides auf :root es nicht verfärben.",
       "change": "append_scope_block",
-      "instruction": "Den Block '.eyis-admin { … }' unverändert anfügen. Bestehende :root-Tokens, Fonts und Utilities des Kunden bleiben unangetastet.",
-      "snippet": ".eyis-admin { /* EYIS Design-Tokens, lokal aufgelöst */ }"
+      "instruction": "Den Block markerbasiert einfügen oder zwischen den Markern aktualisieren. Zweimaliges Anwenden erzeugt keinen zweiten Block. Danach wird das CSS auf Klammerbalance geprüft; bei Verstoss wird zurückgerollt.",
+      "snippet": ".eyis-admin { /* EYIS Design-Tokens, lokal aufgelöst */ }",
+      "markers": [
+        "/* EYIS:ADMIN_SCOPE:START */",
+        "/* EYIS:ADMIN_SCOPE:END */"
+      ],
+      "idempotent": true
     }
   ],
   "rules": [
@@ -87,9 +104,22 @@
     "Kollisionsschutz: EYIS bringt keine Route ausserhalb der Präfixe in EYIS_INTERNAL_PREFIXES ein.",
     "Secrets stehen niemals in diesem Manifest und niemals im Repository.",
     "EYIS-Oberflächen liegen ausschließlich unter 'src/eyis/**'. Generische Kundenordner wie 'src/components/data' oder 'src/components/commerce' werden nie belegt.",
-    "'src/components/ui/**' (shadcn-Primitive) wird vorausgesetzt und niemals ersetzt; fehlende Primitive werden gemeldet, nicht überschrieben."
+    "'src/components/ui/**' (shadcn-Primitive) wird vorausgesetzt und niemals ersetzt; fehlende Primitive werden gemeldet, nicht überschrieben.",
+    "Plattformgenerierte Dateien (Kategorie 'generated') werden nie mitgeliefert. '@/integrations/lovable/**' entsteht im Kundenprojekt durch Lovable Cloud und darf weder kopiert noch überschrieben werden.",
+    "Die Basisinstallation beansprucht ausschliesslich die Praefixe aus EYIS_BASE_PREFIXES. '/portal' gehoert zum optionalen Kundenportal und wird ohne dieses Modul nicht beansprucht.",
+    "Kein Code der Basisinstallation verlinkt auf reference_only-, optional- oder kundeneigene Routen. Erzwungen durch 'bun run eyis:routes:verify'.",
+    "Integration Patches sind markerbasiert und idempotent. Ein zweiter Lauf aendert nichts.",
+    "Der Fresh-Install-Pack muss den Migrationsstand vollstaendig abbilden. Erzwungen durch 'bun run eyis:database:sync-check' in 'bun run verify'.",
+    "Vertrauenswurzel der Signatur ist ausschliesslich 'installer/distribution/eyis-trust-anchor.json'. Ein in der Signaturdatei mitgelieferter Schluessel wird nicht akzeptiert.",
+    "Signiert wird das gesamte Release-Artefakt: SQL-Pack, Manifeste und der ausgelieferte Laufzeit-Code."
   ],
   "shared_convention": [
     "src/components/ui/**"
+  ],
+  "exclude_from_install": [
+    "src/eyis/portal/**",
+    "src/routes/portal/**",
+    "src/integrations/supabase/types.ts",
+    "src/integrations/lovable/**"
   ]
 }
