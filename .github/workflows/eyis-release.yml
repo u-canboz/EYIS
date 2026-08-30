@@ -1,0 +1,67 @@
+name: EYIS Release (signiertes Install Pack)
+
+# Erzeugt einen echten, signierten Release des Install Packs.
+#
+# Der private Ed25519-Schlüssel liegt ausschließlich als Repository-Secret
+# EYIS_PACK_SIGNING_KEY (PKCS#8-PEM). Er wird nie geloggt, nie ausgegeben und
+# nie als Artefakt hochgeladen. Fehlt er, bricht der Lauf ab — es wird bewusst
+# keine Ersatzsignatur erzeugt.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release-Tag (z. B. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  sign-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Signaturschlüssel vorhanden?
+        env:
+          EYIS_PACK_SIGNING_KEY: ${{ secrets.EYIS_PACK_SIGNING_KEY }}
+        run: |
+          if [ -z "$EYIS_PACK_SIGNING_KEY" ]; then
+            echo "BLOCKED — Repository-Secret EYIS_PACK_SIGNING_KEY fehlt."
+            echo "Schlüssel lokal mit 'bun run eyis:pack:keygen' erzeugen und den privaten Teil als Secret hinterlegen."
+            exit 1
+          fi
+
+      - name: Verify (docs, typecheck, tests, build)
+        run: bun run verify
+
+      - name: Pack signieren
+        env:
+          EYIS_PACK_SIGNING_KEY: ${{ secrets.EYIS_PACK_SIGNING_KEY }}
+        run: bun run eyis:pack:sign
+
+      - name: Signatur prüfen
+        run: bun run eyis:pack:verify
+
+      - name: Release veröffentlichen
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          name: EYIS ${{ inputs.tag || github.ref_name }}
+          generate_release_notes: true
+          files: |
+            installer/database/eyis-database-installer.manifest.json
+            installer/database/eyis-database-installer.signature.json
+            installer/database/seeds/eyis-system-seeds.manifest.json
+            installer/distribution/eyis-code-distribution.manifest.json
+            installer/resources/eyis-resources.manifest.json
