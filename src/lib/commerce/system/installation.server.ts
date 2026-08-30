@@ -40,10 +40,37 @@ export type InstallationRow = {
   claim_token_hash: string | null;
   claim_token_expires_at: string | null;
   claim_token_used_at: string | null;
+  pending_owner_email: string | null;
+  pending_owner_set_at: string | null;
+  pending_owner_consumed_at: string | null;
 };
 
 const INSTALLATION_COLUMNS =
-  "id, installation_id, mode, core_version, schema_version, api_version, sdk_version, installed_at, last_migrated_at, owner_claimed_at, setup_completed_at, health_status, setup_progress, storefront_origin, claim_token_hash, claim_token_expires_at, claim_token_used_at";
+  "id, installation_id, mode, core_version, schema_version, api_version, sdk_version, installed_at, last_migrated_at, owner_claimed_at, setup_completed_at, health_status, setup_progress, storefront_origin, claim_token_hash, claim_token_expires_at, claim_token_used_at, pending_owner_email, pending_owner_set_at, pending_owner_consumed_at";
+
+/** Server-only Normalisierung der Owner-E-Mail. */
+export function normalizeOwnerEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/** Maskierte Darstellung — nie die vollständige Pending-Owner-Adresse ausliefern. */
+export function maskEmail(email: string | null): string | null {
+  if (!email) return null;
+  const [local = "", domain = ""] = email.split("@");
+  const head = local.slice(0, 2);
+  return `${head}${"•".repeat(Math.max(1, local.length - 2))}@${domain}`;
+}
+
+export type ClaimState = "UNINITIALIZED" | "AWAITING_OWNER_REGISTRATION" | "RECOVERY_REQUIRED" | "CLAIMED";
+
+export function claimState(row: InstallationRow | null): ClaimState {
+  if (!row) return "UNINITIALIZED";
+  if (row.owner_claimed_at != null) return "CLAIMED";
+  if (row.pending_owner_email && row.pending_owner_consumed_at == null) {
+    return "AWAITING_OWNER_REGISTRATION";
+  }
+  return "RECOVERY_REQUIRED";
+}
 
 /** Redaktion für statusnahe Leser: niemals Claim-Felder offenlegen. */
 export function redactInstallation(row: InstallationRow) {
@@ -63,8 +90,11 @@ export function redactInstallation(row: InstallationRow) {
     setupProgress: (row.setup_progress ?? {}) as SetupProgress,
     storefrontOrigin: row.storefront_origin,
     healthStatus: (row.health_status ?? {}) as Record<string, string>,
+    claimState: claimState(row),
+    pendingOwnerEmailMasked: maskEmail(row.pending_owner_email),
   };
 }
+
 
 export async function getInstallation(): Promise<InstallationRow | null> {
   const admin = await getAdmin();
