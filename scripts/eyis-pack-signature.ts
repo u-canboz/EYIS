@@ -41,24 +41,34 @@ if (command === "sign") {
   const { digest, entries } = packDigest();
   const signature = sign(null, Buffer.from(digest, "hex"), key).toString("base64");
   const publicKey = createPublicKey(key).export({ type: "spki", format: "pem" }).toString();
+  // key_id ist der Fingerprint des öffentlichen Schlüssels. Der Schlüssel selbst
+  // wird NICHT mit ausgeliefert — der Verifier nimmt ihn aus dem Trust Anchor.
+  const keyId = createHash("sha256").update(publicKey).digest("hex").slice(0, 32);
+  if (!trustedKey(keyId)) {
+    console.log(`Pack-Signatur: BLOCKED — key_id ${keyId} steht nicht im Trust Anchor.`);
+    console.log("Öffentlichen Schlüssel zuerst in installer/distribution/eyis-trust-anchor.json aufnehmen:");
+    console.log(JSON.stringify({ key_id: keyId, public_key: publicKey, status: "active" }, null, 2));
+    process.exit(3);
+  }
   writeFileSync(
     SIGNATURE_PATH,
     `${JSON.stringify(
       {
         manifest: "eyis-database-installer-signature",
         algorithm: "ed25519",
+        version: "2.0.0",
         signed_at: new Date().toISOString(),
         files: entries.length,
+        key_id: keyId,
         digest,
         signature,
-        public_key: publicKey,
       },
       null,
       2,
     )}\n`,
     "utf8",
   );
-  console.log(`Pack signiert: ${entries.length} Dateien, Digest ${digest.slice(0, 16)}…`);
+  console.log(`Pack signiert: ${entries.length} Dateien, Digest ${digest.slice(0, 16)}…, key_id ${keyId}`);
   process.exit(0);
 }
 
