@@ -1,11 +1,20 @@
 {
   "manifest": "eyis-release-trust-anchor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Gepinnte Vertrauenswurzel für EYIS Release-Signaturen. Der Verifier nimmt den öffentlichen Schlüssel AUSSCHLIESSLICH aus dieser Datei — niemals aus der zu prüfenden Signaturdatei. Eine Signatur, deren key_id hier nicht steht, ist ungültig.",
   "rules": [
     "Die Signaturdatei enthält nur key_id, digest, signature und version.",
     "Ein in der Signaturdatei mitgelieferter public_key wird ignoriert.",
     "Rotation nur über einen neuen Eintrag, dessen Aufnahme mit dem alten Schlüssel signiert wurde (rotation_proof)."
   ],
-  "keys": []
+  "keys": [
+    {
+      "key_id": "e796e7191e5da23eddc85ae9d17d9bc8",
+      "label": "eyis-release-2026-01",
+      "algorithm": "ed25519",
+      "status": "active",
+      "created_at": "2026-08-30",
+      "public_key": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAukVjyE31fWpWrBzKidWFwZ9SfpnZKnUSSxy8Y2CJ5CQ=\n-----END PUBLIC KEY-----\n"
+    }
+  ]
 }
