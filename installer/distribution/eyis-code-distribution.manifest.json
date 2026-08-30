@@ -1,6 +1,6 @@
 {
   "manifest": "eyis-code-distribution",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen und ausschließlich die unter 'integration_patch' beschriebenen minimalen Eingriffe an kundeneigenen Dateien vornehmen.",
   "categories": {
     "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
@@ -8,7 +8,8 @@
     "customer_owned": "Gehört dem Kundenprojekt. Wird niemals angelegt, ersetzt oder überschrieben.",
     "generated": "Wird beim Installationslauf erzeugt, nicht kopiert.",
     "optional": "Nur auf ausdrückliche Anforderung des Kunden.",
-    "integration_patch": "Kundeneigene Datei, an der genau ein klar umrissener, additiver Eingriff nötig ist. Niemals ersetzen, niemals umschreiben."
+    "integration_patch": "Kundeneigene Datei, an der genau ein klar umrissener, additiver Eingriff nötig ist. Niemals ersetzen, niemals umschreiben.",
+    "shared_convention": "Von Lovable-Projekten geteilte Konvention (shadcn-Primitive). Wird vorausgesetzt, nie überschrieben."
   },
   "install": [
     "src/lib/commerce/**",
@@ -20,10 +21,8 @@
     "src/routes/api/public/jobs/**",
     "src/routes/api/public/install/**",
     "src/routes/api/public/webhooks/**",
-    "src/eyis/shell/**",
-    "src/eyis/commerce/**",
-    "src/eyis/data/**",
-    "src/eyis/portal/**",
+    "src/eyis/**",
+    "src/routes/app.login.tsx",
     "src/integrations/supabase/**",
     "supabase/migrations/**",
     "installer/database/**",
@@ -86,6 +85,11 @@
     "'integration_patch' erlaubt ausschließlich den beschriebenen additiven Eingriff. Ein Ersetzen der Datei ist auch dann verboten, wenn der Eingriff fehlschlägt — dann wird gestoppt und berichtet.",
     "Backoffice liegt unter '/app', Backoffice-Anmeldung unter '/app/login', Store API unter '/api/public/store/v1'.",
     "Kollisionsschutz: EYIS bringt keine Route ausserhalb der Präfixe in EYIS_INTERNAL_PREFIXES ein.",
-    "Secrets stehen niemals in diesem Manifest und niemals im Repository."
+    "Secrets stehen niemals in diesem Manifest und niemals im Repository.",
+    "EYIS-Oberflächen liegen ausschließlich unter 'src/eyis/**'. Generische Kundenordner wie 'src/components/data' oder 'src/components/commerce' werden nie belegt.",
+    "'src/components/ui/**' (shadcn-Primitive) wird vorausgesetzt und niemals ersetzt; fehlende Primitive werden gemeldet, nicht überschrieben."
+  ],
+  "shared_convention": [
+    "src/components/ui/**"
   ]
 }
