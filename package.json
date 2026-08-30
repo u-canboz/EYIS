@@ -25,6 +25,8 @@
     "qa:migrations": "bun run qa/phase14-migrations.ts",
     "qa:demo": "bun run qa/phase15-demo.ts",
     "qa:smoke": "bun run qa/phase25-smoke.ts",
+    "qa:ui-isolation": "python3 qa/phase25-ui-isolation.py",
+    "qa:product-smoke": "python3 qa/phase25-product-smoke.py",
     "qa:visual": "python3 qa/phase14-visual.py",
     "qa:a11y": "python3 qa/phase14-a11y.py",
     "qa:performance": "bun run qa/phase14-performance.ts",
