@@ -8635,6 +8635,14 @@ export type Database = {
       }
       doc_seller_snapshot: { Args: { _shop: string }; Returns: Json }
       doc_setup_missing: { Args: { _shop: string }; Returns: string[] }
+      eyis_cron_status: {
+        Args: never
+        Returns: {
+          active: boolean
+          jobname: string
+          schedule: string
+        }[]
+      }
       ful_cancel: {
         Args: {
           _actor: string
