@@ -87,6 +87,53 @@ if (command === "sign") {
   process.exit(0);
 }
 
+if (command === "sign-artifact" || command === "verify-artifact") {
+  // Signiert bzw. prüft das Release-Artefakt-Manifest (eyis-release.json).
+  // Signiert wird der Rohtext des Manifests — es enthält die SHA-256 aller
+  // Dateien und des Tarballs, deckt also das gesamte Artefakt ab.
+  const manifestPath = process.argv[3] ?? "installer/artifact/eyis-release.json";
+  const raw = readFileSync(resolve(manifestPath), "utf8");
+  const sigPath = `${resolve(manifestPath)}.sig`;
+
+  if (command === "sign-artifact") {
+    const pem = process.env["EYIS_PACK_SIGNING_KEY"];
+    if (!pem) {
+      console.log("Artefakt-Signatur: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.");
+      process.exit(3);
+    }
+    const key = createPrivateKey(pem);
+    const publicKey = createPublicKey(key).export({ type: "spki", format: "pem" }).toString();
+    const keyId = createHash("sha256").update(publicKey).digest("hex").slice(0, 32);
+    const anchor = resolveAnchorKey(keyId);
+    if (!anchor.ok) {
+      console.log(`Artefakt-Signatur: ${anchor.status} — ${anchor.reason} (key_id ${keyId})`);
+      process.exit(3);
+    }
+    writeFileSync(sigPath, `${sign(null, Buffer.from(raw, "utf8"), key).toString("base64")}\n`, "utf8");
+    console.log(`Artefakt signiert: key_id ${keyId}, Manifest ${manifestPath}`);
+    process.exit(0);
+  }
+
+  if (!existsSync(sigPath)) {
+    console.log("Artefakt-Signatur: BLOCKED — keine Signaturdatei vorhanden.");
+    process.exit(3);
+  }
+  const manifest = JSON.parse(raw) as { key_id?: string; version?: string };
+  const anchor = resolveAnchorKey(manifest.key_id);
+  if (!anchor.ok) {
+    console.log(`Artefakt-Signatur: ${anchor.status} — ${anchor.reason}`);
+    process.exit(anchor.status === "BLOCKED" ? 3 : 1);
+  }
+  const ok = edVerify(
+    null,
+    Buffer.from(raw, "utf8"),
+    createPublicKey(anchor.publicKey),
+    Buffer.from(readFileSync(sigPath, "utf8").trim(), "base64"),
+  );
+  console.log(`Artefakt ${manifest.version}: Signatur ${ok ? "PASS" : "FAIL"} (key_id ${manifest.key_id})`);
+  process.exit(ok ? 0 : 1);
+}
+
 if (command === "verify") {
   const result = verifyPack();
   console.log("EYIS — Pack-Gate");
@@ -100,6 +147,7 @@ if (command === "verify") {
   console.log(`Gesamt:          ${result.status}`);
   process.exit(result.status === "PASS" ? 0 : result.status === "BLOCKED" ? 3 : 1);
 }
+
 
 console.error(`Unbekannter Befehl: ${command}`);
 process.exit(1);
