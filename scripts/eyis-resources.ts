@@ -139,8 +139,9 @@ if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
 }
 
 {
-  const dbUrl = process.env["SUPABASE_DB_URL"] ?? process.env["DATABASE_URL"];
-  if (!dbUrl) {
+  const dbUrl =
+      process.env["SUPABASE_DB_URL"] ?? process.env["DATABASE_URL"] ?? (process.env["PGHOST"] ? "" : undefined);
+  if (dbUrl === undefined) {
     rows.push({
       check: "Cron-Zeitpläne",
       status: "BLOCKED",
@@ -150,10 +151,10 @@ if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
   } else {
     const { execFileSync } = await import("node:child_process");
     const run = (sql: string) =>
-      execFileSync("psql", [dbUrl, "-tAc", sql], { encoding: "utf8" }).trim();
+      execFileSync("psql", [...(dbUrl ? [dbUrl] : []), "-tAc", sql], { encoding: "utf8" }).trim();
     if (provision) {
       try {
-        execFileSync("psql", [dbUrl, "-v", "ON_ERROR_STOP=1", "-f", "-"], {
+        execFileSync("psql", [...(dbUrl ? [dbUrl] : []), "-v", "ON_ERROR_STOP=1", "-f", "-"], {
           input: cronSql(baseUrl),
           encoding: "utf8",
         });
