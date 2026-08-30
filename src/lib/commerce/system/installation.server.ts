@@ -881,7 +881,7 @@ export async function runDoctor(): Promise<DoctorRow[]> {
   // Job-Zeitpläne: erst wenn pg_cron die Jobs wirklich führt, laufen Ablauf,
   // Kommunikation und Automation ohne manuelles Zutun.
   try {
-    const expected = ["eyis-expiration", "eyis-communications", "eyis-automation"];
+    const expected = ["eyis_job_expiration", "eyis_job_communications", "eyis_job_automation"];
     const { data: jobs, error } = await admin.rpc("eyis_cron_status" as never);
     if (error) throw new Error(error.message);
     const found = new Map(
