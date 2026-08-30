@@ -39,6 +39,7 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [next, setNext] = useState("/app");
+  const [ownerSetup, setOwnerSetup] = useState(false);
 
   useEffect(() => {
     setNext(safeNext(new URLSearchParams(window.location.search).get("next")));
@@ -46,7 +47,14 @@ function AuthPage() {
       if (data.session)
         navigate({ to: safeNext(new URLSearchParams(window.location.search).get("next")) });
     });
+    fetch("/api/public/install/setup-state")
+      .then((r) => r.json())
+      .then((s: { ownerRegistrationRequired?: boolean }) =>
+        setOwnerSetup(s?.ownerRegistrationRequired === true),
+      )
+      .catch(() => setOwnerSetup(false));
   }, [navigate]);
+
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
