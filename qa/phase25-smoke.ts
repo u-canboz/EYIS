@@ -15,6 +15,7 @@ import * as cartApi from "@/lib/commerce/cart.server";
 import { resolveTemplate, loadBranding } from "@/lib/commerce/communications/communication.server";
 import { renderEmail } from "@/lib/commerce/communications/renderer";
 import { ensurePriceSet } from "@/lib/commerce/pricing.server";
+import { createKey } from "@/lib/commerce/store/keys.server";
 import { createCommerceClient } from "@/lib/store-sdk";
 import { admin, check, readState, results, summary } from "./lib";
 
@@ -26,15 +27,16 @@ const STAMP = Date.now();
 const HANDLE = `qa-smoke-${STAMP}`;
 const PRICE_MINOR = 2490;
 
-async function ensureStoreKey(): Promise<string | null> {
-  const { data } = await admin
-    .from("store_api_keys")
-    .select("key_prefix")
-    .eq("shop_id", SHOP)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle();
-  return (data as { key_prefix?: string } | null)?.key_prefix ?? null;
+async function ensureStoreKey(): Promise<{ id: string; key: string }> {
+  const created = await createKey({
+    organizationId: ORG,
+    shopId: SHOP,
+    name: `QA Smoke ${STAMP}`,
+    environment: "test",
+    allowedOrigins: [],
+    actorId: null,
+  });
+  return { id: created.id, key: created.key };
 }
 
 async function main() {
@@ -99,15 +101,15 @@ async function main() {
   /* ---------------- 4. Veröffentlichen ---------------- */
   const { error: pubErr } = await admin
     .from("products")
-    .update({ status: "active", published_at: new Date().toISOString() })
+    .update({ status: "active" })
     .eq("id", productId);
   check("Produkt veröffentlicht", !pubErr, pubErr?.message ?? "status=active");
 
   /* ---------------- 5. Store API ---------------- */
-  const key = await ensureStoreKey();
-  if (!key) {
-    check("Store-API-Schlüssel vorhanden", false, "kein aktiver Schlüssel für den Shop");
-  } else {
+  const storeKey = await ensureStoreKey();
+  const key = storeKey.key;
+  check("Store-API-Schlüssel erzeugt", Boolean(key), "pk_test_…");
+  {
     const res = await fetch(`${BASE}/api/public/store/v1/products/${HANDLE}`, {
       headers: { "x-store-key": key },
     });
@@ -131,7 +133,7 @@ async function main() {
         baseUrl: `${BASE}/api/public/store/v1`,
         publishableKey: key,
       });
-      const viaSdk = (await client.product(HANDLE)) as Record<string, unknown>;
+      const viaSdk = (await client.catalog.product(HANDLE)) as Record<string, unknown>;
       check("SDK liest dasselbe Produkt", Boolean(viaSdk), HANDLE);
     } catch (e) {
       check("SDK liest dasselbe Produkt", false, e instanceof Error ? e.message : String(e));
@@ -241,6 +243,7 @@ async function main() {
   await admin.from("price_sets").delete().eq("id", priceSetId);
   await admin.from("product_variants").delete().eq("id", variantId);
   await admin.from("products").delete().eq("id", productId);
+  await admin.from("store_api_keys").delete().eq("id", storeKey.id);
 
   writeFileSync("qa/results-phase25-smoke.json", `${JSON.stringify(results, null, 2)}\n`);
   summary();

@@ -1,0 +1,92 @@
+[
+  {
+    "name": "System-Blueprint 'standard' vorhanden",
+    "ok": true,
+    "detail": "standard"
+  },
+  {
+    "name": "Produkt angelegt (Entwurf)",
+    "ok": true,
+    "detail": "5e42b052-3e3c-4cd0-a7fa-317891e43157"
+  },
+  {
+    "name": "Variante angelegt",
+    "ok": true,
+    "detail": "4bc72f87-9219-4285-892c-32706150142d"
+  },
+  {
+    "name": "Preis über Price-Set gesetzt",
+    "ok": true,
+    "detail": "2490 EUR minor"
+  },
+  {
+    "name": "Produkt veröffentlicht",
+    "ok": true,
+    "detail": "status=active"
+  },
+  {
+    "name": "Store-API-Schlüssel erzeugt",
+    "ok": true,
+    "detail": "pk_test_…"
+  },
+  {
+    "name": "Store API liefert das Produkt",
+    "ok": false,
+    "detail": "HTTP 401"
+  },
+  {
+    "name": "Store API gibt den Preis serverseitig aus",
+    "ok": false,
+    "detail": "2490 in Antwort: false"
+  },
+  {
+    "name": "Store API enthält keine internen Felder",
+    "ok": true,
+    "detail": "Allowlist eingehalten"
+  },
+  {
+    "name": "SDK liest dasselbe Produkt",
+    "ok": true,
+    "detail": "qa-smoke-1788119837607"
+  },
+  {
+    "name": "Warenkorb rechnet serverseitig 2 × Preis",
+    "ok": true,
+    "detail": "subtotal=4980"
+  },
+  {
+    "name": "Preisänderung wird beim Reprice übernommen",
+    "ok": true,
+    "detail": "subtotal=3980"
+  },
+  {
+    "name": "Vorlage order.confirmed auflösbar",
+    "ok": true,
+    "detail": "gefunden"
+  },
+  {
+    "name": "Vorlage invoice.issued auflösbar",
+    "ok": true,
+    "detail": "gefunden"
+  },
+  {
+    "name": "Vorlage return.refunded auflösbar",
+    "ok": true,
+    "detail": "gefunden"
+  },
+  {
+    "name": "Bestellbestätigung rendert vollständig",
+    "ok": true,
+    "detail": "2352 Zeichen"
+  },
+  {
+    "name": "Rendering lässt keine Platzhalter offen",
+    "ok": true,
+    "detail": "keine offenen {{...}}"
+  },
+  {
+    "name": "Rendering maskiert HTML im Kontext",
+    "ok": true,
+    "detail": "kein <script> im Ergebnis"
+  }
+]
