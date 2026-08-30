@@ -15,6 +15,7 @@
 
 const baseUrl = (process.env["COMMERCE_OS_URL"] ?? "http://localhost:8080").replace(/\/$/, "");
 const secret = process.env["COMMERCE_BOOTSTRAP_SECRET"] ?? "";
+const ownerEmail = (process.env["EYIS_OWNER_EMAIL"] ?? process.argv[2] ?? "").trim();
 
 if (!secret) {
   console.error("ABBRUCH: COMMERCE_BOOTSTRAP_SECRET ist nicht gesetzt.");
@@ -23,7 +24,8 @@ if (!secret) {
 
 const res = await fetch(`${baseUrl}/api/public/install/bootstrap`, {
   method: "POST",
-  headers: { "x-commerce-bootstrap-secret": secret },
+  headers: { "x-commerce-bootstrap-secret": secret, "content-type": "application/json" },
+  body: JSON.stringify(ownerEmail ? { ownerEmail } : {}),
 });
 const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
@@ -39,10 +41,21 @@ console.log("=".repeat(56));
 console.log(`Installation:  ${body["installationId"]}`);
 console.log(`Modus:         ${body["mode"]}`);
 console.log(`Umgebung:      ${body["environment"]}`);
+console.log(`Zustand:       ${body["claimState"]}`);
 console.log("");
-console.log("INSTALLATION CLAIM TOKEN (wird nur einmal angezeigt):");
-console.log("");
-console.log(`  ${body["claimToken"]}`);
-console.log("");
-console.log(`Gültig bis: ${body["claimExpiresAt"]}`);
-console.log("Nächster Schritt: /app/setup öffnen, Code eingeben, Owner registrieren.");
+
+if (body["claimState"] === "AWAITING_OWNER_REGISTRATION") {
+  console.log(`Vorbereiteter Administrator: ${body["pendingOwnerEmailMasked"]}`);
+  console.log("");
+  console.log("Nächster Schritt: /app öffnen, mit genau dieser E-Mail registrieren,");
+  console.log("Bestätigungslink öffnen, anmelden — die Übernahme läuft automatisch.");
+  console.log("Ein Claim-Code wird im Normalfall nicht benötigt (Recovery bleibt intern).");
+} else {
+  console.log("RECOVERY CLAIM TOKEN (wird nur einmal angezeigt):");
+  console.log("");
+  console.log(`  ${body["claimToken"]}`);
+  console.log("");
+  console.log(`Gültig bis: ${body["claimExpiresAt"]}`);
+  console.log("Nächster Schritt: /app/setup/recovery öffnen und den Code eingeben.");
+}
+

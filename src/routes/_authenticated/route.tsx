@@ -45,10 +45,12 @@ function AuthenticatedLayout() {
   // Phase 21: Dedicated-Instanz ohne Owner → ausschließlich der Claim-/Setup-Prozess.
   const requiresOwnerClaim = (data as { requiresOwnerClaim?: boolean } | undefined)?.requiresOwnerClaim === true;
   useEffect(() => {
-    if (requiresOwnerClaim && pathname !== "/app/setup" && pathname !== "/app/setup/") {
+    const onSetupRoute = pathname === "/app/setup" || pathname.startsWith("/app/setup/");
+    if (requiresOwnerClaim && !onSetupRoute) {
       navigate({ to: "/app/setup" });
     }
   }, [requiresOwnerClaim, pathname, navigate]);
+
 
   const activeOrg = data?.organizations.find((o) => o.id === orgId) ?? data?.organizations[0];
   const isDemoOrg =

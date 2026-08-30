@@ -10,8 +10,8 @@ Auth, Storage, RLS), eigene Admin-Oberfläche, eigene API und die komplette Comm
 | --- | --- | --- |
 | 1. Provisioning | Plattform/Operator | Neues Lovable-Projekt aus dem EYIS-Template, eigene Cloud-Instanz, Secrets setzen |
 | 2. Datenbank | Agent/Operator | **EYIS Database Install Pack** aus `installer/database/` anwenden (Units → Seeds → Reconciliation → Verify). Die historische Migrationskette wird nicht nachgespielt. Siehe [DATABASE_INSTALL_PACK.md](DATABASE_INSTALL_PACK.md) |
-| 3. Bootstrap | Operator | `bun run commerce:bootstrap` — registriert die Instanz, gibt einmalig den Claim-Token aus |
-| 4. Owner-Claim | Erster Owner | `/app/setup`: Claim-Code einfügen → Organisation + Shop atomar anlegen |
+| 3. Bootstrap | Operator | `EYIS_OWNER_EMAIL=<admin@kunde.de> bun run commerce:bootstrap` — registriert die Instanz und hinterlegt den vorbereiteten Administrator (Pending Owner) |
+| 4. Owner-Claim | Vorbereiteter Owner | `/app`: mit genau dieser E-Mail registrieren, Adresse bestätigen, anmelden → `/app/setup` legt Organisation + Shop atomar an. Kein Claim-Code im Normalfall |
 | 5. Setup | Owner | `/app/system/einrichtung`: Domain, Payments, E-Mail, API-Keys |
 
 ## Erforderliche Umgebungsvariablen
@@ -30,9 +30,17 @@ COMMERCE_BOOTSTRAP_SECRET=<secret> \
 bun run commerce:bootstrap
 ```
 
+Mit `EYIS_OWNER_EMAIL` (oder als erstem CLI-Argument) wird der zukünftige Administrator
+serverseitig vorgemerkt. Die Installation steht danach auf `AWAITING_OWNER_REGISTRATION`, und
+die CLI zeigt **keinen** Claim-Token an.
+
+Ohne vorbereitete Administrator-E-Mail fällt der Bootstrap auf den **Recovery Claim** zurück:
+Der Token erscheint dann genau einmal in der CLI-Ausgabe, ist 72 Stunden gültig, wird nur
+gehasht gespeichert, ist einmalig verwendbar und steht niemals in einer URL. Eingabe unter
+`/app/setup/recovery`.
+
 Das Secret wird **ausschließlich als HTTP-Header** (`x-commerce-bootstrap-secret`) gesendet —
-niemals in der URL. Der ausgegebene **Claim-Token erscheint genau einmal** in der CLI-Ausgabe
-und ist 72 Stunden gültig. Danach ist der Bootstrap-Endpunkt dauerhaft gesperrt
+niemals in der URL. Danach ist der Bootstrap-Endpunkt dauerhaft gesperrt
 (`403 INSTALLATION_ALREADY_INITIALIZED`).
 
 ## Abbruchmatrix
@@ -89,3 +97,23 @@ Im Dedicated Mode konfiguriert sich die Storefront selbst:
 
 Die öffentliche Basis-URL der Storefront wird im Setup-Wizard oder als
 `storefront_origin` in der Installation gesetzt und für Webhook-URLs und E-Mail-Links verwendet.
+
+## Zero-Friction Owner Setup (V3)
+
+- **Kein „first user wins".** Owner wird ausschließlich, wer authentifiziert ist, dessen
+  E-Mail-Besitz bestätigt wurde und dessen normalisierte Adresse exakt dem Pending Owner
+  entspricht. Der Claim läuft atomar über `public.claim_installation_owner_verified`;
+  parallele Versuche erzeugen genau einen Owner.
+- **Unbestätigte E-Mail = kein Auto-Claim.** Dann bleibt nur der Recovery-Weg.
+- **Der Agent braucht genau eine fachliche Angabe:** die E-Mail-Adresse des ersten
+  Administrators. Keine Store-API-URL, kein Publishable Key, keine Shop-/Organisations-IDs,
+  keine Datenbank-URL.
+
+## Verteilungsgrenzen
+
+`installer/distribution/eyis-code-distribution.manifest.json` ist verbindlich. Ein
+Dedicated-Agent übernimmt ausschließlich Pfade der Kategorie `install`. Die öffentliche
+EYIS-Marketing-/Landingpage, Entwicklerseiten, Demo-Inhalte und die Referenz-Storefront sind
+`reference_only` und werden niemals in ein Kundenprojekt installiert. Bestehende `/`,
+Header, Footer, Navigation, Branding, CSS und Inhalte des Kundenprojekts sind
+`customer_owned` und bleiben unverändert.

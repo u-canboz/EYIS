@@ -67,6 +67,7 @@ import { Route as AuthenticatedAppRetourenIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppRetourenReturnIdRouteImport } from './routes/_authenticated/app/retouren/$returnId'
 import { Route as AuthenticatedAppRetourenEinstellungenRouteImport } from './routes/_authenticated/app/retouren/einstellungen'
 import { Route as AuthenticatedAppSetupIndexRouteImport } from './routes/_authenticated/app/setup/index'
+import { Route as AuthenticatedAppSetupRecoveryRouteImport } from './routes/_authenticated/app/setup/recovery'
 import { Route as AuthenticatedAppSystemDemoDatenRouteImport } from './routes/_authenticated/app/system/demo-daten'
 import { Route as AuthenticatedAppSystemErrorsRouteImport } from './routes/_authenticated/app/system/errors'
 import { Route as AuthenticatedAppSystemHealthRouteImport } from './routes/_authenticated/app/system/health'
@@ -82,6 +83,7 @@ import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './route
 import { Route as ApiPublicInstallBootstrapRouteImport } from './routes/api/public/install/bootstrap'
 import { Route as ApiPublicInstallClaimSessionRouteImport } from './routes/api/public/install/claim-session'
 import { Route as ApiPublicInstallDoctorRouteImport } from './routes/api/public/install/doctor'
+import { Route as ApiPublicInstallSetupStateRouteImport } from './routes/api/public/install/setup-state'
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicJobsExpirationRouteImport } from './routes/api/public/jobs/expiration'
@@ -426,6 +428,12 @@ const AuthenticatedAppSetupIndexRoute =
     path: '/app/setup/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppSetupRecoveryRoute =
+  AuthenticatedAppSetupRecoveryRouteImport.update({
+    id: '/app/setup/recovery',
+    path: '/app/setup/recovery',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppSystemDemoDatenRoute =
   AuthenticatedAppSystemDemoDatenRouteImport.update({
     id: '/app/system/demo-daten',
@@ -515,6 +523,12 @@ const ApiPublicInstallDoctorRoute = ApiPublicInstallDoctorRouteImport.update({
   path: '/api/public/install/doctor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicInstallSetupStateRoute =
+  ApiPublicInstallSetupStateRouteImport.update({
+    id: '/api/public/install/setup-state',
+    path: '/api/public/install/setup-state',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsAutomationRoute = ApiPublicJobsAutomationRouteImport.update({
   id: '/api/public/jobs/automation',
   path: '/api/public/jobs/automation',
@@ -653,6 +667,7 @@ export interface FileRoutesByFullPath {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/setup/recovery': typeof AuthenticatedAppSetupRecoveryRoute
   '/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
@@ -667,6 +682,7 @@ export interface FileRoutesByFullPath {
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
+  '/api/public/install/setup-state': typeof ApiPublicInstallSetupStateRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -742,6 +758,7 @@ export interface FileRoutesByTo {
   '/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/app/setup/recovery': typeof AuthenticatedAppSetupRecoveryRoute
   '/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/app/system/health': typeof AuthenticatedAppSystemHealthRoute
@@ -756,6 +773,7 @@ export interface FileRoutesByTo {
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
+  '/api/public/install/setup-state': typeof ApiPublicInstallSetupStateRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -834,6 +852,7 @@ export interface FileRoutesById {
   '/_authenticated/app/produkte/neu': typeof AuthenticatedAppProdukteNeuRoute
   '/_authenticated/app/retouren/$returnId': typeof AuthenticatedAppRetourenReturnIdRoute
   '/_authenticated/app/retouren/einstellungen': typeof AuthenticatedAppRetourenEinstellungenRoute
+  '/_authenticated/app/setup/recovery': typeof AuthenticatedAppSetupRecoveryRoute
   '/_authenticated/app/system/demo-daten': typeof AuthenticatedAppSystemDemoDatenRoute
   '/_authenticated/app/system/errors': typeof AuthenticatedAppSystemErrorsRoute
   '/_authenticated/app/system/health': typeof AuthenticatedAppSystemHealthRoute
@@ -848,6 +867,7 @@ export interface FileRoutesById {
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
+  '/api/public/install/setup-state': typeof ApiPublicInstallSetupStateRoute
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
@@ -926,6 +946,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/setup/recovery'
     | '/app/system/demo-daten'
     | '/app/system/errors'
     | '/app/system/health'
@@ -940,6 +961,7 @@ export interface FileRouteTypes {
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
+    | '/api/public/install/setup-state'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -1015,6 +1037,7 @@ export interface FileRouteTypes {
     | '/app/produkte/neu'
     | '/app/retouren/$returnId'
     | '/app/retouren/einstellungen'
+    | '/app/setup/recovery'
     | '/app/system/demo-daten'
     | '/app/system/errors'
     | '/app/system/health'
@@ -1029,6 +1052,7 @@ export interface FileRouteTypes {
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
+    | '/api/public/install/setup-state'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -1106,6 +1130,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/produkte/neu'
     | '/_authenticated/app/retouren/$returnId'
     | '/_authenticated/app/retouren/einstellungen'
+    | '/_authenticated/app/setup/recovery'
     | '/_authenticated/app/system/demo-daten'
     | '/_authenticated/app/system/errors'
     | '/_authenticated/app/system/health'
@@ -1120,6 +1145,7 @@ export interface FileRouteTypes {
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
+    | '/api/public/install/setup-state'
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
@@ -1163,6 +1189,7 @@ export interface RootRouteChildren {
   ApiPublicInstallBootstrapRoute: typeof ApiPublicInstallBootstrapRoute
   ApiPublicInstallClaimSessionRoute: typeof ApiPublicInstallClaimSessionRoute
   ApiPublicInstallDoctorRoute: typeof ApiPublicInstallDoctorRoute
+  ApiPublicInstallSetupStateRoute: typeof ApiPublicInstallSetupStateRoute
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicJobsExpirationRoute: typeof ApiPublicJobsExpirationRoute
@@ -1583,6 +1610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSetupIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/setup/recovery': {
+      id: '/_authenticated/app/setup/recovery'
+      path: '/app/setup/recovery'
+      fullPath: '/app/setup/recovery'
+      preLoaderRoute: typeof AuthenticatedAppSetupRecoveryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/system/demo-daten': {
       id: '/_authenticated/app/system/demo-daten'
       path: '/app/system/demo-daten'
@@ -1686,6 +1720,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/install/doctor'
       fullPath: '/api/public/install/doctor'
       preLoaderRoute: typeof ApiPublicInstallDoctorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/install/setup-state': {
+      id: '/api/public/install/setup-state'
+      path: '/api/public/install/setup-state'
+      fullPath: '/api/public/install/setup-state'
+      preLoaderRoute: typeof ApiPublicInstallSetupStateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/jobs/automation': {
@@ -1836,6 +1877,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppProdukteNeuRoute: typeof AuthenticatedAppProdukteNeuRoute
   AuthenticatedAppRetourenReturnIdRoute: typeof AuthenticatedAppRetourenReturnIdRoute
   AuthenticatedAppRetourenEinstellungenRoute: typeof AuthenticatedAppRetourenEinstellungenRoute
+  AuthenticatedAppSetupRecoveryRoute: typeof AuthenticatedAppSetupRecoveryRoute
   AuthenticatedAppSystemDemoDatenRoute: typeof AuthenticatedAppSystemDemoDatenRoute
   AuthenticatedAppSystemErrorsRoute: typeof AuthenticatedAppSystemErrorsRoute
   AuthenticatedAppSystemHealthRoute: typeof AuthenticatedAppSystemHealthRoute
@@ -1915,6 +1957,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRetourenReturnIdRoute: AuthenticatedAppRetourenReturnIdRoute,
   AuthenticatedAppRetourenEinstellungenRoute:
     AuthenticatedAppRetourenEinstellungenRoute,
+  AuthenticatedAppSetupRecoveryRoute: AuthenticatedAppSetupRecoveryRoute,
   AuthenticatedAppSystemDemoDatenRoute: AuthenticatedAppSystemDemoDatenRoute,
   AuthenticatedAppSystemErrorsRoute: AuthenticatedAppSystemErrorsRoute,
   AuthenticatedAppSystemHealthRoute: AuthenticatedAppSystemHealthRoute,
@@ -1998,6 +2041,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicInstallBootstrapRoute: ApiPublicInstallBootstrapRoute,
   ApiPublicInstallClaimSessionRoute: ApiPublicInstallClaimSessionRoute,
   ApiPublicInstallDoctorRoute: ApiPublicInstallDoctorRoute,
+  ApiPublicInstallSetupStateRoute: ApiPublicInstallSetupStateRoute,
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicJobsExpirationRoute: ApiPublicJobsExpirationRoute,

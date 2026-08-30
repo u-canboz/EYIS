@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-08-29T22:42:34.157Z",
-  "source_commit": "46a4f812b00381cc685ff105d384cb3fb8f347da",
-  "latest_migration": "20260828213156_2f8211d8-7184-4737-a30b-9e37d2d18b66.sql",
+  "generated_at": "2026-08-30T13:27:29.253Z",
+  "source_commit": "b4a3128d1ec59a5c8c7525cc32cc75545706abdf",
+  "latest_migration": "20260830131955_b7e05640-c963-4e3a-80f0-bbdb505cfbcd.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 89,
+  "total": 91,
   "by_kind": {
-    "backoffice": 62,
-    "public-api": 3,
+    "backoffice": 63,
+    "public-api": 4,
     "job-endpoint": 3,
     "public-store-api": 2,
     "webhook": 5,
@@ -448,6 +448,16 @@
       "ssr": true
     },
     {
+      "url": "/app/setup/recovery",
+      "source": "src/routes/_authenticated/app/setup/recovery.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
       "url": "/app/shops",
       "source": "src/routes/_authenticated/app/shops.tsx",
       "kind": "backoffice",
@@ -660,6 +670,16 @@
     {
       "url": "/api/public/install/doctor",
       "source": "src/routes/api/public/install/doctor.ts",
+      "kind": "public-api",
+      "methods": [
+        "GET"
+      ],
+      "auth": "server-side check in handler",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/install/setup-state",
+      "source": "src/routes/api/public/install/setup-state.ts",
       "kind": "public-api",
       "methods": [
         "GET"

@@ -40,10 +40,37 @@ export type InstallationRow = {
   claim_token_hash: string | null;
   claim_token_expires_at: string | null;
   claim_token_used_at: string | null;
+  pending_owner_email: string | null;
+  pending_owner_set_at: string | null;
+  pending_owner_consumed_at: string | null;
 };
 
 const INSTALLATION_COLUMNS =
-  "id, installation_id, mode, core_version, schema_version, api_version, sdk_version, installed_at, last_migrated_at, owner_claimed_at, setup_completed_at, health_status, setup_progress, storefront_origin, claim_token_hash, claim_token_expires_at, claim_token_used_at";
+  "id, installation_id, mode, core_version, schema_version, api_version, sdk_version, installed_at, last_migrated_at, owner_claimed_at, setup_completed_at, health_status, setup_progress, storefront_origin, claim_token_hash, claim_token_expires_at, claim_token_used_at, pending_owner_email, pending_owner_set_at, pending_owner_consumed_at";
+
+/** Server-only Normalisierung der Owner-E-Mail. */
+export function normalizeOwnerEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/** Maskierte Darstellung — nie die vollständige Pending-Owner-Adresse ausliefern. */
+export function maskEmail(email: string | null): string | null {
+  if (!email) return null;
+  const [local = "", domain = ""] = email.split("@");
+  const head = local.slice(0, 2);
+  return `${head}${"•".repeat(Math.max(1, local.length - 2))}@${domain}`;
+}
+
+export type ClaimState = "UNINITIALIZED" | "AWAITING_OWNER_REGISTRATION" | "RECOVERY_REQUIRED" | "CLAIMED";
+
+export function claimState(row: InstallationRow | null): ClaimState {
+  if (!row) return "UNINITIALIZED";
+  if (row.owner_claimed_at != null) return "CLAIMED";
+  if (row.pending_owner_email && row.pending_owner_consumed_at == null) {
+    return "AWAITING_OWNER_REGISTRATION";
+  }
+  return "RECOVERY_REQUIRED";
+}
 
 /** Redaktion für statusnahe Leser: niemals Claim-Felder offenlegen. */
 export function redactInstallation(row: InstallationRow) {
@@ -63,8 +90,11 @@ export function redactInstallation(row: InstallationRow) {
     setupProgress: (row.setup_progress ?? {}) as SetupProgress,
     storefrontOrigin: row.storefront_origin,
     healthStatus: (row.health_status ?? {}) as Record<string, string>,
+    claimState: claimState(row),
+    pendingOwnerEmailMasked: maskEmail(row.pending_owner_email),
   };
 }
+
 
 export async function getInstallation(): Promise<InstallationRow | null> {
   const admin = await getAdmin();
@@ -95,16 +125,23 @@ export type BootstrapResult = {
   mode: string;
   environment: string;
   schemaVersion: string;
-  claimToken: string;
+  /** Nur ohne vorbereiteten Owner ausgegeben (Recovery-Fallback). */
+  claimToken: string | null;
   claimExpiresAt: string;
+  claimState: ClaimState;
+  pendingOwnerEmailMasked: string | null;
   steps: string[];
 };
+
+export type BootstrapInput = { ownerEmail?: string | null };
 
 /**
  * Führt den System-Bootstrap aus. Vorher MUSS das Bootstrap-Credential geprüft
  * worden sein (siehe Server-Route). Harte Abbruchmatrix gemäß Plan.
+
  */
-export async function runBootstrap(): Promise<BootstrapResult> {
+export async function runBootstrap(input: BootstrapInput = {}): Promise<BootstrapResult> {
+  const ownerEmail = input.ownerEmail ?? null;
   const steps: string[] = [];
 
   // 2  Umgebung + Deployment Mode (unbekannt = STOP)
@@ -195,20 +232,29 @@ export async function runBootstrap(): Promise<BootstrapResult> {
     steps.push("storage_buckets=unchecked");
   }
 
-  // 11 Claim-Token erzeugen (nur Hash speichern)
+  // 11 Recovery-Claim-Token erzeugen (nur Hash speichern) und optional den
+  //    vorbereiteten Owner hinterlegen. Mit Pending Owner verlässt der Token
+  //    den Server NICHT — er bleibt reiner Operator-/Recovery-Fallback.
   const claimToken = `cos_claim_${generateToken()}`;
   const claimHash = await hashToken(claimToken);
   const claimExpiresAt = new Date(Date.now() + CLAIM_TTL_HOURS * 3600_000).toISOString();
+  const pendingOwner = ownerEmail ? normalizeOwnerEmail(ownerEmail) : null;
+  if (pendingOwner && !/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(pendingOwner)) {
+    throw new InstallationError("OWNER_EMAIL_INVALID", "Die Administrator-E-Mail ist ungültig.");
+  }
   const { error: claimError } = await admin
     .from("commerce_installation")
     .update({
       claim_token_hash: claimHash,
       claim_token_expires_at: claimExpiresAt,
       schema_version: environment,
+      pending_owner_email: pendingOwner,
+      pending_owner_set_at: pendingOwner ? new Date().toISOString() : null,
     } as never)
     .eq("singleton", true);
   if (claimError) throw new Error(claimError.message);
-  steps.push("claim_token_issued");
+  steps.push("recovery_claim_token_issued");
+  if (pendingOwner) steps.push("pending_owner_registered");
 
   return {
     ok: true,
@@ -216,11 +262,14 @@ export async function runBootstrap(): Promise<BootstrapResult> {
     mode,
     environment,
     schemaVersion: environment,
-    claimToken,
+    claimToken: pendingOwner ? null : claimToken,
     claimExpiresAt,
+    claimState: pendingOwner ? "AWAITING_OWNER_REGISTRATION" : "RECOVERY_REQUIRED",
+    pendingOwnerEmailMasked: maskEmail(pendingOwner),
     steps,
   };
 }
+
 
 // ---------------------------------------------------------------------------
 // Claim-Session (Token-Validierung ohne Verbrauch)
@@ -307,6 +356,103 @@ export async function claimOwner(input: ClaimInput) {
 
   return { organizationId: orgId, shopId };
 }
+
+// ---------------------------------------------------------------------------
+// Auto Claim (vorbereiteter, verifizierter Owner) — Dedicated V3
+// ---------------------------------------------------------------------------
+
+export type AutoClaimInput = {
+  userId: string;
+  /** E-Mail aus den validierten Auth-Claims, niemals aus Client-Eingaben. */
+  email: string | null;
+  /** Verifizierter Besitz der Adresse (Auth-Claims). */
+  emailVerified: boolean;
+  organizationName: string;
+  shopName: string;
+};
+
+/**
+ * Owner-Übernahme ohne Claim-Code. Bedingungen (alle Pflicht):
+ * ungeclaimt, Pending Owner vorhanden, authentifiziert, E-Mail verifiziert,
+ * normalisierte Adresse identisch, Claim atomar noch frei. Kein „first user wins".
+ */
+export async function autoClaimOwner(input: AutoClaimInput) {
+  const row = await getInstallation();
+  if (!row) throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
+  if (row.owner_claimed_at != null) {
+    throw new InstallationError("OWNER_ALREADY_CLAIMED", "Die Instanz hat bereits einen Owner.");
+  }
+  if (!row.pending_owner_email || row.pending_owner_consumed_at != null) {
+    throw new InstallationError(
+      "OWNER_NOT_PREAUTHORIZED",
+      "Für diese Installation ist kein Administrator vorbereitet. Bitte den Recovery-Claim verwenden.",
+    );
+  }
+  if (!input.email) {
+    throw new InstallationError("OWNER_EMAIL_MISSING", "Das Konto hat keine E-Mail-Adresse.");
+  }
+  if (!input.emailVerified) {
+    throw new InstallationError(
+      "OWNER_EMAIL_UNVERIFIED",
+      "Die E-Mail-Adresse ist noch nicht bestätigt. Bitte den Bestätigungslink öffnen und erneut anmelden.",
+    );
+  }
+  if (normalizeOwnerEmail(input.email) !== normalizeOwnerEmail(row.pending_owner_email)) {
+    throw new InstallationError(
+      "OWNER_NOT_PREAUTHORIZED",
+      "Dieses Konto ist nicht als Administrator dieser Installation vorbereitet.",
+    );
+  }
+
+  const admin = await getAdmin();
+  const orgSlug = slugify(input.organizationName);
+  const shopSlug = slugify(input.shopName) || "shop";
+  const { data, error } = await admin.rpc("claim_installation_owner_verified", {
+    _user_id: input.userId,
+    _verified_email: normalizeOwnerEmail(input.email),
+    _org_name: input.organizationName,
+    _org_slug: orgSlug,
+    _shop_name: input.shopName,
+    _shop_slug: shopSlug,
+  } as never);
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("OWNER_ALREADY_CLAIMED")) {
+      throw new InstallationError("OWNER_ALREADY_CLAIMED", "Die Instanz hat bereits einen Owner.");
+    }
+    if (msg.includes("OWNER_NOT_PREAUTHORIZED")) {
+      throw new InstallationError(
+        "OWNER_NOT_PREAUTHORIZED",
+        "Dieses Konto ist nicht als Administrator dieser Installation vorbereitet.",
+      );
+    }
+    if (msg.includes("INSTALLATION_NOT_FOUND")) {
+      throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
+    }
+    throw new Error(msg);
+  }
+  const result = data as { organization_id: string; shop_id: string };
+  const orgId = result.organization_id;
+  const shopId = result.shop_id;
+
+  await createOwnerDefaults(orgId, shopId);
+  const { linkInstallationTenant, ensureStorefrontKey } = await import("./runtime-config.server");
+  await linkInstallationTenant(orgId, shopId);
+  await ensureStorefrontKey(orgId, shopId);
+
+  const { writeAudit } = await import("../core.server");
+  await writeAudit({
+    organizationId: orgId,
+    actorId: input.userId,
+    action: "installation.owner_claimed",
+    entityType: "commerce_installation",
+    metadata: { mode: resolveDeploymentMode(), method: "preauthorized_owner" },
+  });
+
+  return { organizationId: orgId, shopId };
+}
+
+
 
 /** Produktionsfähige Defaults nach dem Owner-Claim. Keine Demo-Inhalte. */
 async function createOwnerDefaults(orgId: string, shopId: string) {

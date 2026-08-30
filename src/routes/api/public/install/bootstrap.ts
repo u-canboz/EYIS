@@ -42,12 +42,20 @@ export const Route = createFileRoute("/api/public/install/bootstrap")({
       POST: async ({ request }) => {
         const denied = await checkBootstrapCredential(request);
         if (denied) return denied;
+        let ownerEmail: string | null = null;
         try {
-          const { runBootstrap, InstallationError } = await import(
-            "@/lib/commerce/system/installation.server"
-          );
-          const result = await runBootstrap();
+          const body = (await request.json()) as { ownerEmail?: unknown };
+          if (typeof body?.ownerEmail === "string" && body.ownerEmail.trim()) {
+            ownerEmail = body.ownerEmail.trim();
+          }
+        } catch {
+          ownerEmail = null;
+        }
+        try {
+          const { runBootstrap } = await import("@/lib/commerce/system/installation.server");
+          const result = await runBootstrap({ ownerEmail });
           return Response.json(result);
+
         } catch (error) {
           if (error instanceof (await import("@/lib/commerce/system/installation.server")).InstallationError) {
             const status = error.code === "INSTALLATION_ALREADY_INITIALIZED" ? 403 : 409;

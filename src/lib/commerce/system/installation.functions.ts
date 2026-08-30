@@ -53,6 +53,65 @@ export const claimInstallationOwner = createServerFn({ method: "POST" })
     });
   });
 
+/**
+ * Zustand des Owner-Setups für den angemeldeten Nutzer (Dedicated V3).
+ * Liefert nie die vollständige Pending-Owner-Adresse und nie Claim-Felder.
+ */
+export const getOwnerSetupState = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { getInstallation, claimState, maskEmail, normalizeOwnerEmail } = await import(
+      "./installation.server"
+    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const row = await getInstallation();
+    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(context.userId);
+    const email = userData?.user?.email ?? null;
+    const emailVerified = userData?.user?.email_confirmed_at != null;
+    const state = claimState(row);
+    const matchesPendingOwner =
+      !!row?.pending_owner_email &&
+      !!email &&
+      normalizeOwnerEmail(email) === normalizeOwnerEmail(row.pending_owner_email);
+    return {
+      claimState: state,
+      email,
+      emailVerified,
+      matchesPendingOwner,
+      pendingOwnerEmailMasked: maskEmail(row?.pending_owner_email ?? null),
+      canAutoClaim: state === "AWAITING_OWNER_REGISTRATION" && matchesPendingOwner && emailVerified,
+    };
+  });
+
+/**
+ * Auto-Claim des vorbereiteten Owners. Identität und E-Mail-Bestätigung werden
+ * ausschließlich serverseitig aus der Auth-Datenbank gelesen.
+ */
+export const autoClaimInstallationOwner = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        organizationName: z.string().trim().min(2).max(80),
+        shopName: z.string().trim().min(2).max(80),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { autoClaimOwner } = await import("./installation.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(context.userId);
+    return autoClaimOwner({
+      userId: context.userId,
+      email: userData?.user?.email ?? null,
+      emailVerified: userData?.user?.email_confirmed_at != null,
+      organizationName: data.organizationName,
+      shopName: data.shopName,
+    });
+  });
+
+
+
 export const saveSetupStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
