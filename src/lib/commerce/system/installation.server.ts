@@ -229,9 +229,12 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
     .from("role_permissions")
     .select("role", { count: "exact", head: true });
   if (rpError || !rolePermCount) {
+    // Registrierung zurücknehmen, damit der Bootstrap nach dem Nachziehen der
+    // Seeds wiederholbar bleibt statt dauerhaft gesperrt zu sein.
+    await admin.from("commerce_installation").delete().eq("singleton", true);
     throw new InstallationError(
       "SYSTEM_SEED_INCOMPLETE",
-      "System Seed unvollständig: role_permissions leer oder nicht erreichbar. Migrationen prüfen.",
+      "System Seed unvollständig: role_permissions leer oder nicht erreichbar. Migrationen prüfen. Die Registrierung wurde zurückgenommen — Bootstrap ist wiederholbar.",
     );
   }
   steps.push(`system_seed=ok (role_permissions=${rolePermCount})`);
@@ -250,10 +253,7 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
   const claimToken = `cos_claim_${generateToken()}`;
   const claimHash = await hashToken(claimToken);
   const claimExpiresAt = new Date(Date.now() + CLAIM_TTL_HOURS * 3600_000).toISOString();
-  const pendingOwner = ownerEmail ? normalizeOwnerEmail(ownerEmail) : null;
-  if (pendingOwner && !/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(pendingOwner)) {
-    throw new InstallationError("OWNER_EMAIL_INVALID", "Die Administrator-E-Mail ist ungültig.");
-  }
+  const pendingOwner = preflightOwner;
   const { error: claimError } = await admin
     .from("commerce_installation")
     .update({
@@ -264,7 +264,13 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
       pending_owner_set_at: pendingOwner ? new Date().toISOString() : null,
     } as never)
     .eq("singleton", true);
-  if (claimError) throw new Error(claimError.message);
+  if (claimError) {
+    await admin.from("commerce_installation").delete().eq("singleton", true);
+    throw new InstallationError(
+      "BOOTSTRAP_INCOMPLETE",
+      `Claim-Registrierung fehlgeschlagen (${claimError.message}). Die Registrierung wurde zurückgenommen — Bootstrap ist wiederholbar.`,
+    );
+  }
   steps.push("recovery_claim_token_issued");
   if (pendingOwner) steps.push("pending_owner_registered");
 
