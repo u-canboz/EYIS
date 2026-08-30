@@ -12,6 +12,8 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { assertPackGate } from "./signature";
+
 export type InstallState = "NOT_INSTALLED" | "PARTIAL_INSTALL" | "INSTALLED" | "RECOVERY";
 
 export type Manifest = {
