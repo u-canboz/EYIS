@@ -804,6 +804,80 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     });
   }
 
+  // Fachliche Betriebsbereitschaft: ein veröffentlichtes Produkt muss serverseitig
+  // einen Preis auflösen. Struktur und Seeds allein beweisen das nicht.
+  try {
+    const { data: published } = await admin
+      .from("products")
+      .select("id, organization_id, shop_id")
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+    if (!published) {
+      rows.push({
+        check: "Katalog (Preisauflösung)",
+        status: "SETUP REQUIRED",
+        detail: "noch kein veröffentlichtes Produkt",
+      });
+    } else {
+      const p = published as { id: string; organization_id: string; shop_id: string };
+      // Preise hängen in der Regel an der Variante; ohne Variantenbezug meldet
+      // die Auflösung 0, obwohl der Katalog verkäuflich ist.
+      const { data: firstVariant } = await admin
+        .from("product_variants")
+        .select("id")
+        .eq("product_id", p.id)
+        .order("position", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      const { resolveFromDatabase } = await import("../pricing.server");
+      const resolved = await resolveFromDatabase(admin as never, p.organization_id, {
+        shopId: p.shop_id,
+        productId: p.id,
+        variantId: (firstVariant as { id?: string } | null)?.id ?? null,
+        quantity: 1,
+        currencyCode: undefined,
+        customerGroupId: null,
+        promotionCodes: [],
+      } as never);
+      const amount = Number(resolved?.resolvedUnitAmount ?? 0);
+      rows.push({
+        check: "Katalog (Preisauflösung)",
+        status: amount > 0 ? "PASS" : "FAIL",
+        detail: `resolvedUnitAmount=${amount} ${resolved?.currencyCode ?? ""}`.trim(),
+      });
+    }
+  } catch (e) {
+    rows.push({
+      check: "Katalog (Preisauflösung)",
+      status: "FAIL",
+      detail: e instanceof Error ? e.message : "unbekannter Fehler",
+    });
+  }
+
+  // Kommunikation: die Kernvorlagen müssen auflösbar und renderbar sein.
+  try {
+    const { data: coreTemplates } = await admin
+      .from("communication_templates")
+      .select("key")
+      .in("key", ["order.confirmed", "invoice.issued", "return.refunded"]);
+    const keys = new Set(((coreTemplates ?? []) as { key: string }[]).map((t) => t.key));
+    const missing = ["order.confirmed", "invoice.issued", "return.refunded"].filter(
+      (k) => !keys.has(k),
+    );
+    rows.push({
+      check: "Kommunikation (Kernvorlagen)",
+      status: missing.length ? "FAIL" : "PASS",
+      detail: missing.length ? `fehlt: ${missing.join(", ")}` : "3/3 vorhanden",
+    });
+  } catch (e) {
+    rows.push({
+      check: "Kommunikation (Kernvorlagen)",
+      status: "FAIL",
+      detail: e instanceof Error ? e.message : "unbekannter Fehler",
+    });
+  }
+
 
   // Storage
   try {

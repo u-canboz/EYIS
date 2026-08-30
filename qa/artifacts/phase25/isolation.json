@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Kundenseite ohne .eyis-admin-Scope",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Kundenseite ohne Backoffice-Marker",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "/app/login \u00f6ffentlich erreichbar",
+    "ok": true,
+    "detail": "HTTP 200"
+  },
+  {
+    "name": "Login tr\u00e4gt den EYIS-Scope",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Backoffice rendert im .eyis-admin-Scope",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Backoffice tr\u00e4gt data-eyis-runtime",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Kunden-Override auf :root verf\u00e4rbt das Backoffice nicht",
+    "ok": true,
+    "detail": "oklch(0.972 0.003 85) -> oklch(0.972 0.003 85)"
+  }
+]

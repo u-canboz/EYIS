@@ -232,7 +232,11 @@ export async function resolveFromDatabase(
     if (!group) customerGroupId = null;
   }
 
-  return resolvePricing(snapshot, { ...ctx, customerGroupId });
+  // Ohne ausdrückliche Währung gilt die Shop-Währung. Ohne diesen Fallback
+  // liefert der Katalog keinen Preis, obwohl einer gesetzt ist.
+  const currencyCode = ctx.currencyCode ?? (shop as { currency: string }).currency;
+
+  return resolvePricing(snapshot, { ...ctx, currencyCode, customerGroupId });
 }
 
 /** Ensures a price set exists for a product or variant and returns its id. */
