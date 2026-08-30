@@ -33,14 +33,21 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
-/** Alle signaturrelevanten Dateien, repo-relativ. */
+/**
+ * Alle signaturrelevanten Dateien, repo-relativ.
+ *
+ * Phase 26: Es wird NICHT mehr nach `existsSync` gefiltert. Eine im Manifest
+ * genannte, aber fehlende Datei würde sonst still aus dem Digest verschwinden —
+ * ein unvollständiges Pack wäre weiterhin gültig signiert. Fehlt eine Datei,
+ * ist das ein harter Fehler.
+ */
 export function signedFiles(): string[] {
   const manifest = readJson<InstallerManifest>(
     join(PACK_ROOT, "eyis-database-installer.manifest.json"),
   );
   const seeds = readJson<SeedManifest>(join(PACK_ROOT, "seeds", "eyis-system-seeds.manifest.json"));
 
-  return [
+  const required = [
     "installer/database/eyis-database-installer.manifest.json",
     `installer/database/${manifest.migration_history_reconciliation.file}`,
     ...manifest.fresh_install.units.map((u) => `installer/database/${u.file}`),
@@ -48,7 +55,15 @@ export function signedFiles(): string[] {
     ...seeds.units.map((u) => `installer/database/seeds/${u.file}`),
     "installer/resources/eyis-resources.manifest.json",
     "installer/distribution/eyis-code-distribution.manifest.json",
-  ].filter((f) => existsSync(join(REPO_ROOT, f)));
+    "installer/distribution/eyis-trust-anchor.json",
+  ];
+  const missing = required.filter((f) => !existsSync(join(REPO_ROOT, f)));
+  if (missing.length) {
+    throw new Error(
+      `Signaturrelevante Datei fehlt: ${missing.join(", ")} — Pack ist unvollständig.`,
+    );
+  }
+  return required;
 }
 
 /** Deterministischer Digest über alle signaturrelevanten Pack-Inhalte. */
