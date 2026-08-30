@@ -821,11 +821,20 @@ export async function runDoctor(): Promise<DoctorRow[]> {
       });
     } else {
       const p = published as { id: string; organization_id: string; shop_id: string };
+      // Preise hängen in der Regel an der Variante; ohne Variantenbezug meldet
+      // die Auflösung 0, obwohl der Katalog verkäuflich ist.
+      const { data: firstVariant } = await admin
+        .from("product_variants")
+        .select("id")
+        .eq("product_id", p.id)
+        .order("position", { ascending: true })
+        .limit(1)
+        .maybeSingle();
       const { resolveFromDatabase } = await import("../pricing.server");
       const resolved = await resolveFromDatabase(admin as never, p.organization_id, {
         shopId: p.shop_id,
         productId: p.id,
-        variantId: null,
+        variantId: (firstVariant as { id?: string } | null)?.id ?? null,
         quantity: 1,
         currencyCode: undefined,
         customerGroupId: null,
