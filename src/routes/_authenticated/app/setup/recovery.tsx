@@ -9,7 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { KeyRound, Building2, Store, ShieldCheck } from "lucide-react";
 import { claimInstallationOwner } from "@/lib/commerce/system/installation.functions";
-import { EyisLogo } from "@/components/brand/EyisLogo";
+import { EyisLogo } from "@/eyis/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

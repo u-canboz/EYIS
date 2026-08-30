@@ -27,7 +27,7 @@ import {
   PortalStatus,
   PortalTimeline,
   type PortalTimelineEntry,
-} from "@/components/portal/PortalChrome";
+} from "@/eyis/portal/PortalChrome";
 
 type Props = {
   order: PortalOrderDetail;

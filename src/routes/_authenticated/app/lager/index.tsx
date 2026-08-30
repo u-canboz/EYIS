@@ -33,12 +33,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { TabsBar } from "@/components/data/TabsBar";
-import { SectionPanel } from "@/components/data/SectionPanel";
-import { RecordList, RecordRow } from "@/components/data/RecordRow";
-import { ActionMenu } from "@/components/data/ActionMenu";
-import { EmptyState, ErrorState, ListSkeleton } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { TabsBar } from "@/eyis/data/TabsBar";
+import { SectionPanel } from "@/eyis/data/SectionPanel";
+import { RecordList, RecordRow } from "@/eyis/data/RecordRow";
+import { ActionMenu } from "@/eyis/data/ActionMenu";
+import { EmptyState, ErrorState, ListSkeleton } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/lager/")({
   head: () => ({

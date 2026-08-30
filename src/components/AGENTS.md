@@ -8,12 +8,12 @@ Datenabrufe und Mutationen bleiben exakt wie sie sind — nur Layout, Struktur u
 
 | Import | Zweck |
 | --- | --- |
-| `@/components/shell/PageHeader` → `PageHeader`, `StickyActionBar` | Seitenkopf, mobile Primäraktion |
-| `@/components/shell/DetailLayout` → `DetailLayout`, `Panel`, `DataRow`, `ScrollTabs` | Detailseiten, Panels, Tab-Leisten |
-| `@/components/data/TableScroll` → `TableScroll` | einziger sanktionierter horizontaler Scrollcontainer (`desktopOnly` blendet unter `lg` aus) |
-| `@/components/data/RecordCard` → `RecordCard`, `RecordCardList` | Mobil-/Tabletdarstellung von Listen |
-| `@/components/data/FilterBar` → `FilterBar` | Suche sichtbar, Filter mobil im Sheet, `activeCount`, `onReset` |
-| `@/components/data/States` → `EmptyState`, `ErrorState`, `PermissionState`, `ListSkeleton` | Empty/Loading/Error/Berechtigung |
+| `@/eyis/shell/PageHeader` → `PageHeader`, `StickyActionBar` | Seitenkopf, mobile Primäraktion |
+| `@/eyis/shell/DetailLayout` → `DetailLayout`, `Panel`, `DataRow`, `ScrollTabs` | Detailseiten, Panels, Tab-Leisten |
+| `@/eyis/data/TableScroll` → `TableScroll` | einziger sanktionierter horizontaler Scrollcontainer (`desktopOnly` blendet unter `lg` aus) |
+| `@/eyis/data/RecordCard` → `RecordCard`, `RecordCardList` | Mobil-/Tabletdarstellung von Listen |
+| `@/eyis/data/FilterBar` → `FilterBar` | Suche sichtbar, Filter mobil im Sheet, `activeCount`, `onReset` |
+| `@/eyis/data/States` → `EmptyState`, `ErrorState`, `PermissionState`, `ListSkeleton` | Empty/Loading/Error/Berechtigung |
 
 ## Harte Regeln
 

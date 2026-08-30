@@ -16,8 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
+import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/branding")({
   head: () => ({

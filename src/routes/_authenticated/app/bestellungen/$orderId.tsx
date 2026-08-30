@@ -40,13 +40,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/data/StatusBadge";
-import { orderTone, paymentTone, fulfillmentTone } from "@/components/data/status-tones";
+import { StatusBadge } from "@/eyis/data/StatusBadge";
+import { orderTone, paymentTone, fulfillmentTone } from "@/eyis/data/status-tones";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel, DataRow, RelatedLinks } from "@/components/shell/DetailLayout";
-import { EmptyState, ErrorState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel, DataRow, RelatedLinks } from "@/eyis/shell/DetailLayout";
+import { EmptyState, ErrorState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/bestellungen/$orderId")({
   head: () => ({

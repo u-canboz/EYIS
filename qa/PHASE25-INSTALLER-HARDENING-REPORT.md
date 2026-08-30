@@ -75,7 +75,7 @@ erreicht das die Oberfläche nicht mehr — und EYIS-Tokens greifen umgekehrt ni
 
 `EYIS_AUTH_PATH = "/app/login"` existiert als echte öffentliche Route (`src/routes/app.login.tsx`)
 und liegt vollständig innerhalb der EYIS-Präfixe. Ein kundeneigenes `/login` oder `/auth` kollidiert
-damit nicht. Die Anmeldeoberfläche liegt in `src/components/eyis/AuthPanel.tsx`; `/auth` bleibt als
+damit nicht. Die Anmeldeoberfläche liegt in `src/eyis/auth/AuthPanel.tsx`; `/auth` bleibt als
 bestehender Pfad erhalten und rendert dieselbe Komponente. Alle Weiterleitungen des Backoffice
 (`beforeLoad`, Session-Verlust, Abmelden) zeigen jetzt auf `EYIS_AUTH_PATH` statt auf `/auth`.
 

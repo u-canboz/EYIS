@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getInvitation, acceptInvitation } from "@/lib/commerce/team.functions";
 import { roleLabel } from "@/lib/commerce/roles";
-import { EyisLogo } from "@/components/brand/EyisLogo";
+import { EyisLogo } from "@/eyis/brand/EyisLogo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

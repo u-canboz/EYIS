@@ -15,9 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { DetailLayout, Panel } from "@/components/shell/DetailLayout";
-import { EmptyState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { DetailLayout, Panel } from "@/eyis/shell/DetailLayout";
+import { EmptyState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/automationen/webhooks")({
   head: () => ({

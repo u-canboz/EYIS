@@ -24,8 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader, StickyActionBar } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
+import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/retouren/einstellungen")({
   head: () => ({

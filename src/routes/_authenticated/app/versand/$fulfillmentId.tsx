@@ -42,9 +42,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { TableScroll } from "@/components/data/TableScroll";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { TableScroll } from "@/eyis/data/TableScroll";
 
 export const Route = createFileRoute("/_authenticated/app/versand/$fulfillmentId")({
   head: () => ({

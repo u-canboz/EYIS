@@ -43,9 +43,9 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { ErrorState, EmptyState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { ErrorState, EmptyState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/retouren/$returnId")({
   head: () => ({

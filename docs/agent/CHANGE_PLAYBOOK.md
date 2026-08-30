@@ -59,7 +59,7 @@ Details: [MIGRATION_RULES.md](MIGRATION_RULES.md).
 2. Daten über `*.functions.ts` mit `requireSupabaseAuth` laden, Berechtigung prüfen.
 3. Shell-Bausteine verwenden: `PageHeader`, `FilterBar`, `TableScroll`/`RecordCardList`.
 4. Mobil ab 320 px prüfen, kein horizontaler Überlauf, Touch-Ziele ≥ 44 px.
-5. Navigationseintrag in `src/components/shell/nav-registry.ts` ergänzen.
+5. Navigationseintrag in `src/eyis/shell/nav-registry.ts` ergänzen.
 6. `bun run generate:manifests` (Routen-Manifest) und `bun run verify`.
 
 ## E. Neue Automationsregel / neues Ereignis

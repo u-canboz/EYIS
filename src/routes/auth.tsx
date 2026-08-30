@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { AuthPanel } from "@/components/eyis/AuthPanel";
+import { AuthPanel } from "@/eyis/auth/AuthPanel";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({

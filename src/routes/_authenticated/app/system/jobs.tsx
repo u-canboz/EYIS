@@ -4,9 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { getJobsOverviewFn } from "@/lib/commerce/system/system.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { EmptyState, ListSkeleton } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { EmptyState, ListSkeleton } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/system/jobs")({
   head: () => ({

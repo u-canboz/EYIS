@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Github, Terminal } from "lucide-react";
-import { EyisLogo } from "@/components/brand/EyisLogo";
+import { EyisLogo } from "@/eyis/brand/EyisLogo";
 import { CodeBlock } from "@/components/site/CodeBlock";
 import { SITE } from "@/lib/site-meta";
 

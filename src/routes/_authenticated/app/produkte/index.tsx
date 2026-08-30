@@ -17,12 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/components/data/States";
-import { FilterBar } from "@/components/data/FilterBar";
-import { SectionPanel } from "@/components/data/SectionPanel";
-import { RecordList, RecordRow, RecordThumb } from "@/components/data/RecordRow";
-import { ActionMenu } from "@/components/data/ActionMenu";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/eyis/data/States";
+import { FilterBar } from "@/eyis/data/FilterBar";
+import { SectionPanel } from "@/eyis/data/SectionPanel";
+import { RecordList, RecordRow, RecordThumb } from "@/eyis/data/RecordRow";
+import { ActionMenu } from "@/eyis/data/ActionMenu";
 
 export const Route = createFileRoute("/_authenticated/app/produkte/")({
   head: () => ({

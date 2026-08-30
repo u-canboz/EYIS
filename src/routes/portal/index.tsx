@@ -9,7 +9,7 @@ import { formatMoney } from "@/lib/commerce/money";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PortalCard, PortalHeading, PortalPage } from "@/components/portal/PortalChrome";
+import { PortalCard, PortalHeading, PortalPage } from "@/eyis/portal/PortalChrome";
 
 export const Route = createFileRoute("/portal/")({
   ssr: false,

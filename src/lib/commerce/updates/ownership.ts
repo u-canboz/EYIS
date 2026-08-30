@@ -14,7 +14,7 @@ export const EYIS_OWNED_PATHS: string[] = [
   "src/lib/eyis/**",
   "src/routes/api/public/store/**",
   "src/routes/api/public/jobs/**",
-  "src/components/shell/**",
+  "src/eyis/shell/**",
   "supabase/migrations/**",
   "installer/database/**",
   "installer/distribution/**",

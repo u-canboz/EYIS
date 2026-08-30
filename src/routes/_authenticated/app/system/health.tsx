@@ -13,9 +13,9 @@ import {
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
-import { PermissionState } from "@/components/data/States";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
+import { PermissionState } from "@/eyis/data/States";
 
 export const Route = createFileRoute("/_authenticated/app/system/health")({
   head: () => ({

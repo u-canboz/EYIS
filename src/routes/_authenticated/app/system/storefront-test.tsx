@@ -38,8 +38,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { PageHeader } from "@/components/shell/PageHeader";
-import { Panel } from "@/components/shell/DetailLayout";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { Panel } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/system/storefront-test")({
   head: () => ({
