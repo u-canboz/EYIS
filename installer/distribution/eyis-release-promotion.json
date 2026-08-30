@@ -1,0 +1,8 @@
+{
+  "manifest": "eyis-release-promotion",
+  "candidate": null,
+  "digest": null,
+  "blackbox": "OFFEN",
+  "recorded_at": null,
+  "note": "Ein Stable-Release wird nur signiert, wenn sein Artefakt-Digest exakt dem geprüften Release Candidate entspricht. Kandidat wird mit 'bun run eyis:release:promote record <version>' festgehalten."
+}
