@@ -125,14 +125,20 @@ export type BootstrapResult = {
   mode: string;
   environment: string;
   schemaVersion: string;
-  claimToken: string;
+  /** Nur ohne vorbereiteten Owner ausgegeben (Recovery-Fallback). */
+  claimToken: string | null;
   claimExpiresAt: string;
+  claimState: ClaimState;
+  pendingOwnerEmailMasked: string | null;
   steps: string[];
 };
+
+export type BootstrapInput = { ownerEmail?: string | null };
 
 /**
  * Führt den System-Bootstrap aus. Vorher MUSS das Bootstrap-Credential geprüft
  * worden sein (siehe Server-Route). Harte Abbruchmatrix gemäß Plan.
+
  */
 export async function runBootstrap(): Promise<BootstrapResult> {
   const steps: string[] = [];
