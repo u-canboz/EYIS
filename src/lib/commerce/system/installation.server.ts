@@ -231,20 +231,29 @@ export async function runBootstrap(): Promise<BootstrapResult> {
     steps.push("storage_buckets=unchecked");
   }
 
-  // 11 Claim-Token erzeugen (nur Hash speichern)
+  // 11 Recovery-Claim-Token erzeugen (nur Hash speichern) und optional den
+  //    vorbereiteten Owner hinterlegen. Mit Pending Owner verlässt der Token
+  //    den Server NICHT — er bleibt reiner Operator-/Recovery-Fallback.
   const claimToken = `cos_claim_${generateToken()}`;
   const claimHash = await hashToken(claimToken);
   const claimExpiresAt = new Date(Date.now() + CLAIM_TTL_HOURS * 3600_000).toISOString();
+  const pendingOwner = ownerEmail ? normalizeOwnerEmail(ownerEmail) : null;
+  if (pendingOwner && !/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(pendingOwner)) {
+    throw new InstallationError("OWNER_EMAIL_INVALID", "Die Administrator-E-Mail ist ungültig.");
+  }
   const { error: claimError } = await admin
     .from("commerce_installation")
     .update({
       claim_token_hash: claimHash,
       claim_token_expires_at: claimExpiresAt,
       schema_version: environment,
+      pending_owner_email: pendingOwner,
+      pending_owner_set_at: pendingOwner ? new Date().toISOString() : null,
     } as never)
     .eq("singleton", true);
   if (claimError) throw new Error(claimError.message);
-  steps.push("claim_token_issued");
+  steps.push("recovery_claim_token_issued");
+  if (pendingOwner) steps.push("pending_owner_registered");
 
   return {
     ok: true,
@@ -252,11 +261,14 @@ export async function runBootstrap(): Promise<BootstrapResult> {
     mode,
     environment,
     schemaVersion: environment,
-    claimToken,
+    claimToken: pendingOwner ? null : claimToken,
     claimExpiresAt,
+    claimState: pendingOwner ? "AWAITING_OWNER_REGISTRATION" : "RECOVERY_REQUIRED",
+    pendingOwnerEmailMasked: maskEmail(pendingOwner),
     steps,
   };
 }
+
 
 // ---------------------------------------------------------------------------
 // Claim-Session (Token-Validierung ohne Verbrauch)
