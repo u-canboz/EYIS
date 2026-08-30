@@ -17,6 +17,8 @@ import { createHash, createPublicKey, verify as edVerify } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { baseInstallFiles } from "./route-contract";
+
 export const REPO_ROOT = process.cwd();
 export const PACK_ROOT = join(REPO_ROOT, "installer", "database");
 export const SIGNATURE_PATH = join(PACK_ROOT, "eyis-database-installer.signature.json");
@@ -76,6 +78,10 @@ export function signedFiles(): string[] {
     "installer/resources/eyis-resources.manifest.json",
     "installer/distribution/eyis-code-distribution.manifest.json",
     "installer/distribution/eyis-trust-anchor.json",
+    // Phase 26: Auch der ausgelieferte Laufzeit-Code gehört zum Release-Artefakt.
+    // Ohne ihn wäre nur das SQL-Pack signiert, während der installierte Code
+    // ungeprüft bliebe.
+    ...baseInstallFiles(),
   ];
   const missing = required.filter((f) => !existsSync(join(REPO_ROOT, f)));
   if (missing.length) {
