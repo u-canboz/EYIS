@@ -87,11 +87,22 @@ describe("Blackbox 3 — Befehle ohne kundeneigene package.json", () => {
   });
 
   it("packt Einstiegspunkt, Bootstrap und Doctor ins Release-Artefakt", () => {
+    // BB-RC7-03: Die Liste steht nur noch im Distribution-Manifest
+    // (Kategorie install_tooling) — nicht mehr doppelt im Builder-Code.
+    const dist = JSON.parse(
+      readFileSync("installer/distribution/eyis-code-distribution.manifest.json", "utf8"),
+    ) as { install: string[]; install_tooling: string[] };
+    const shipped = new Set([...dist.install, ...dist.install_tooling]);
+    for (const file of [
+      "installer/eyis.ts",
+      "scripts/commerce-bootstrap.ts",
+      "scripts/commerce-doctor.ts",
+      "scripts/installer/agent-plan.ts",
+    ]) {
+      expect(shipped.has(file)).toBe(true);
+    }
     const artifact = readFileSync("scripts/installer/artifact.ts", "utf8");
-    expect(artifact).toContain("installer/eyis.ts");
-    expect(artifact).toContain("scripts/commerce-bootstrap.ts");
-    expect(artifact).toContain("scripts/commerce-doctor.ts");
-    expect(artifact).toContain("scripts/installer/agent-plan.ts");
+    expect(artifact).toContain("install_tooling");
   });
 });
 
