@@ -100,8 +100,8 @@ record(
   "P4 Agent Plan deterministisch + Resume-sicher",
   JSON.stringify(planA) === JSON.stringify(planB) &&
     /ON CONFLICT/i.test(journal) &&
-    planA.units.length > 0,
-  `${planA.units.length} Units, Journal-Resume über ON CONFLICT, identischer Wiederholungsplan.`,
+    planA.steps.length > 0,
+  `${planA.steps.length} Units, Journal-Resume über ON CONFLICT, identischer Wiederholungsplan.`,
 );
 
 // ---- 5. Kanonischer Cron-Secret-Name
