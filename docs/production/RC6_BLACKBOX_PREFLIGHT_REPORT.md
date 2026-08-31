@@ -20,5 +20,5 @@ Stand: 2026-09-01 · Grundlage: `qa:blackbox-preflight` (5/5 PASS), `qa:install-
 
 ## Artefakte
 
-- `installer/resources/eyis-install-dependencies.json` — Abhängigkeitsplan (8 Pakete über Template-Baseline hinaus, u. a. `pdf-lib`), erzeugt via `bun run installer:dependencies`.
+- `installer/resources/eyis-install-dependencies.json` — Abhängigkeitsplan, erzeugt via `bun run installer:dependencies`. Pre-rc.7-Hotfix: der Generator scannt ausschließlich Runtime-Code (kein Testcode, keine Fixtures, kein `qa/`, `docs/`, `scripts/`), verwirft Aliase/Relativpfade/Builtins, validiert npm-Namen hart und bricht bei unbekannten Paketen mit `UNKNOWN_RUNTIME_DEPENDENCY` ab (kein `0.0.0`-Fallback). Ergebnis: 4 `runtime_dependencies` (`@supabase/supabase-js`, `lucide-react`, `pdf-lib`, `zod`), 5 `provided_by_template`, 0 Tooling-Pakete. Geprüft durch `qa:blackbox-preflight` (13/13 PASS, inkl. Determinismus und Installationssimulation).
 - `qa/phase30-blackbox-preflight.ts` — wiederholbarer Preflight (`bun run qa:blackbox-preflight`).
