@@ -23,6 +23,7 @@ export const EYIS_OWNED_PATHS: string[] = [
   "src/integrations/supabase/cron-auth.ts",
   "supabase/migrations/**",
   "installer/database/**",
+  "installer/eyis.ts",
   "installer/distribution/**",
   "installer/resources/**",
   "docs/agent/**",
