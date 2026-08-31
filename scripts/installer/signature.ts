@@ -22,12 +22,14 @@ import { baseInstallFiles } from "./route-contract";
 export const REPO_ROOT = process.cwd();
 export const PACK_ROOT = join(REPO_ROOT, "installer", "database");
 export const SIGNATURE_PATH = join(PACK_ROOT, "eyis-database-installer.signature.json");
-export const TRUST_ANCHOR_PATH = join(
-  REPO_ROOT,
-  "installer",
-  "distribution",
-  "eyis-trust-anchor.json",
-);
+// Der Pfad der Vertrauenswurzel ist überschreibbar, damit der Release-Selbsttest
+// mit einem Wegwerf-Schlüssel in einem temporären Verzeichnis laufen kann, ohne
+// den produktiven Trust Anchor zu verändern. Im Release-Workflow ist die
+// Variable nicht gesetzt.
+export const TRUST_ANCHOR_PATH =
+  process.env["EYIS_TRUST_ANCHOR_PATH"] ??
+  join(REPO_ROOT, "installer", "distribution", "eyis-trust-anchor.json");
+
 
 export type TrustAnchorKey = {
   key_id: string;
