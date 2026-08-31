@@ -2,7 +2,7 @@
  * Auslieferung des EYIS-Admin-Scopes (Phase 29).
  *
  * Blackbox-Befund: Das Distribution-Manifest beschrieb den CSS-Eingriff nur als
- * `.eyis-admin { /* EYIS Design-Tokens */ }`. Damit installierte ein Agent einen
+ * einen leeren `.eyis-admin`-Rumpf ohne Tokens. Damit installierte ein Agent einen
  * leeren Scope — das Backoffice erbte anschließend die Tokens des Kunden-`:root`.
  *
  * Die echten Tokens stehen zwischen den Markern in `src/styles.css`. Diese Datei
