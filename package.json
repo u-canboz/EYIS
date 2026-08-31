@@ -70,7 +70,9 @@
     "eyis:pack:keygen": "bun run scripts/eyis-pack-signature.ts keygen",
     "eyis:pack:sign": "bun run scripts/eyis-pack-signature.ts sign",
     "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify",
-    "eyis:database:reintrospect": "bun run scripts/eyis-database-reintrospect.ts"
+    "eyis:database:reintrospect": "bun run scripts/eyis-database-reintrospect.ts",
+    "eyis:release:selftest": "bun run scripts/eyis-release-selftest.ts extracted",
+    "eyis:release:selftest:simulate": "bun run scripts/eyis-release-selftest.ts simulate"
   },
   "overrides": {
     "rolldown": "1.2.1"

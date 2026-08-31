@@ -22,12 +22,24 @@ import { baseInstallFiles } from "./route-contract";
 export const REPO_ROOT = process.cwd();
 export const PACK_ROOT = join(REPO_ROOT, "installer", "database");
 export const SIGNATURE_PATH = join(PACK_ROOT, "eyis-database-installer.signature.json");
-export const TRUST_ANCHOR_PATH = join(
+// Der Pfad der Vertrauenswurzel ist überschreibbar, damit der Release-Selbsttest
+// mit einem Wegwerf-Schlüssel in einem temporären Verzeichnis laufen kann, ohne
+// den produktiven Trust Anchor zu verändern. Im Release-Workflow ist die
+// Variable nicht gesetzt.
+export const DEFAULT_TRUST_ANCHOR_PATH = join(
   REPO_ROOT,
   "installer",
   "distribution",
   "eyis-trust-anchor.json",
 );
+
+/** Aktiver Anchor-Pfad — pro Aufruf gelesen, damit der Selbsttest ihn setzen kann. */
+export function anchorPath(): string {
+  return process.env["EYIS_TRUST_ANCHOR_PATH"] ?? DEFAULT_TRUST_ANCHOR_PATH;
+}
+
+export const TRUST_ANCHOR_PATH = DEFAULT_TRUST_ANCHOR_PATH;
+
 
 export type TrustAnchorKey = {
   key_id: string;
@@ -50,10 +62,11 @@ export type AnchorLookup =
  * unbekannte oder nicht aktive key_id → FAIL (Vertrauensbruch).
  */
 export function resolveAnchorKey(keyId: string | undefined): AnchorLookup {
-  if (!existsSync(TRUST_ANCHOR_PATH)) {
+  const path = anchorPath();
+  if (!existsSync(path)) {
     return { ok: false, status: "BLOCKED", reason: "Trust Anchor fehlt." };
   }
-  const anchor = JSON.parse(readFileSync(TRUST_ANCHOR_PATH, "utf8")) as TrustAnchor;
+  const anchor = JSON.parse(readFileSync(path, "utf8")) as TrustAnchor;
   const keys = anchor.keys ?? [];
   if (keys.length === 0) {
     return { ok: false, status: "BLOCKED", reason: "Trust Anchor enthält keinen Schlüssel." };

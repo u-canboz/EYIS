@@ -19,6 +19,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { join, relative } from "node:path";
 import { gzipSync } from "node:zlib";
 
+import { anchorPath } from "./signature";
+
 export const ROOT = process.cwd();
 export const ARTIFACT_DIR = join(ROOT, "installer", "artifact");
 
@@ -169,9 +171,11 @@ export function buildArtifact(version: string, opts: { write: boolean } = { writ
   const fingerprint = JSON.parse(
     readFileSync(join(ROOT, "installer", "database", "verification", "fingerprint.json"), "utf8"),
   ) as Record<string, unknown>;
-  const anchor = JSON.parse(
-    readFileSync(join(ROOT, "installer", "distribution", "eyis-trust-anchor.json"), "utf8"),
-  ) as { keys: { key_id: string; status?: string }[] };
+  // Einzige Quelle für den aktiven Schlüssel: derselbe Anchor, den auch Signer
+  // und Verifier verwenden.
+  const anchor = JSON.parse(readFileSync(anchorPath(), "utf8")) as {
+    keys: { key_id: string; status?: string }[];
+  };
   const activeKey = (anchor.keys ?? []).find((k) => (k.status ?? "active") === "active");
 
   const manifest = {
