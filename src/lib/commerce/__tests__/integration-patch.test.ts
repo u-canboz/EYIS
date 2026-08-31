@@ -21,7 +21,7 @@ import {
 const CUSTOMER_CSS = `:root {\n  --brand: #123456;\n}\n\nbody {\n  color: var(--brand);\n}\n`;
 const BLOCK = `.eyis-admin {\n  --primary: #ED4800;\n}`;
 
-const CUSTOMER_ROOT = `import { Outlet, createRootRoute, useRouterState } from "@tanstack/react-router";
+const CUSTOMER_ROOT = `import { Outlet, createRootRoute } from "@tanstack/react-router";
 
 function RootLayout() {
   return (
@@ -83,7 +83,8 @@ describe("Root Guard Patch", () => {
   it("integriert den Guard genau einmal", () => {
     const first = applyRootGuard(CUSTOMER_ROOT);
     expect(first.outcome).toBe("INSERTED");
-    expect(first.content).toContain("isEyisInternalRoute");
+    expect(first.content).toContain("<EyisRouteBoundary>");
+    expect(first.content).toMatch(/import\s*\{\s*EyisRouteBoundary\s*\}/);
   });
 
   it("ist idempotent", () => {
@@ -91,7 +92,7 @@ describe("Root Guard Patch", () => {
     const second = applyRootGuard(first.content);
     expect(second.outcome).toBe("NOOP");
     expect(second.content).toBe(first.content);
-    expect(second.content.split("isEyisInternalRoute").length - 1).toBe(2); // Import + Aufruf
+    expect(second.content.split("EyisRouteBoundary").length - 1).toBe(3); // Import + Auf/Zu
   });
 
   it("bricht ab, wenn die Root-Komponente fehlt", () => {
