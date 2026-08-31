@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-30T21:51:26.035Z",
-  "source_commit": "3990dbb3ca77af9bc5113e0280bb7a4bde0a8d6d",
+  "generated_at": "2026-08-31T07:32:43.528Z",
+  "source_commit": "f9ad61d5abf3d908d0941d177f16130a1beda6bd",
   "latest_migration": "20260830200942_22be5c38-c77a-4a65-bded-ffa26e43ce24.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
@@ -126,7 +126,8 @@
     "eyis:resources:cron": "bun run scripts/eyis-resources.ts cron",
     "eyis:pack:keygen": "bun run scripts/eyis-pack-signature.ts keygen",
     "eyis:pack:sign": "bun run scripts/eyis-pack-signature.ts sign",
-    "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify"
+    "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify",
+    "eyis:database:reintrospect": "bun run scripts/eyis-database-reintrospect.ts"
   },
   "blocked_integrations": [
     "stripe-live",

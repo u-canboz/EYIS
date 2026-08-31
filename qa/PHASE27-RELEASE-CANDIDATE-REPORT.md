@@ -52,3 +52,18 @@ bun run verify
 | Tag `v1.0.0-rc.1` pushen | BLOCKED | Veröffentlichung liegt beim Owner |
 | Blackbox-Durchlauf gegen den RC | OFFEN | startet nach der Veröffentlichung des Pre-Releases |
 | Stripe Live, echter E-Mail-Versand, echte Carrier-Labels | BLOCKED | extern, siehe `docs/production/KNOWN_LIMITATIONS.md` |
+
+## Nachtrag — Fingerprint-Korrektur und Gate-Abschluss
+
+| Prüfung | Status | Nachweis |
+| --- | --- | --- |
+| Schema-Fingerprint neu introspiziert | PASS | `eyis:database:reintrospect` → `401b9985a42722f233f9ebace860fdaece85640476b6a9eb0a50b158fe04f0e4` (vorher stale `8867…`, `schema_fingerprint_state` jetzt `CURRENT`) |
+| Database Installer QA | PASS | 13/13 (Fresh Install, Recovery, RLS, Reconciliation) |
+| Pack-Signatur | PASS | 324 Dateien, key_id `e796e7191e5da23eddc85ae9d17d9bc8` |
+| Release-Artefakt | PASS | `eyis-dedicated-1.0.0-rc.1.tar.gz`, 402 Dateien, SHA-256 `3ee34848f3cba061477f32cf2e4ffab9ca5bb21b13b0adb06cb8c5c4f41bd9b6` |
+| Artefakt-Signatur gegen Trust Anchor | PASS | `eyis:release:verify` |
+| Product Smoke | PASS | 6/6 (`qa:product-smoke`, angemeldete Sitzung) |
+| UI-/CSS-Isolation | PASS | 7/7 (`qa:ui-isolation`; Harness wartet jetzt auf `.eyis-admin` statt fester Zeitspanne) |
+| `bun run verify` | PASS | docs:validate, typecheck, 171 Tests, Build |
+| Cron-Provisionierung lokal | BLOCKED | Sandbox ohne `cron`-Schema-Rechte; Nachweis erfolgt auf der Zielplattform via `eyis_cron_status()` |
+| Tag `v1.0.0-rc.1` veröffentlicht | OFFEN | Git-Operationen sind aus der Agentenumgebung gesperrt |
