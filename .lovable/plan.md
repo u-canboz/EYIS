@@ -113,6 +113,16 @@ Verbindliche Ergebnisse:
 - Revoked Key: REJECTED
 - Unknown Key: REJECTED
 - `REGISTRY_SETUP_REQUIRED` bei vorhandenem Trust Anchor: NONE
+- Dependency- und Import-Scan: PASS
+- Pre-Database Build: PASS
+- Generated Types/Route Tree Contract: PASS
+- Migration Resume/Idempotency: PASS
+- Bootstrap/Auth Preflight: PASS
+- Cron-/Secret-Namen konsistent: PASS
+- Kunden-Verifikationsbefehle real vorhanden: PASS
+- Blackbox-Runbook auf aktuellen Release vorbereitet: PASS
+- Update-Verifikation gegen reales Release-Format: PASS
+- Unbekannter Public-Key-Override in Production: REJECTED
 
 Kein Tag und kein Release erstellen.
 
