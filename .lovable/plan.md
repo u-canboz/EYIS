@@ -70,7 +70,9 @@ Befund im Code: `src/lib/commerce/updates/providers.server.ts` liest den Verifik
 Änderungen:
 - Der Trust Anchor wird als gepinnte Konstante in die Runtime übernommen (nur öffentliche Schlüssel, keine Secrets) und dient als Standardquelle der Verifikation. `EYIS_RELEASE_PUBLIC_KEY` bleibt optionaler Override und wird nicht mehr vorausgesetzt.
 - `verifyManifestSignature` akzeptiert zusätzlich SPKI-PEM (Import über `spki`), damit der Anchor-Key ohne Formatumwandlung nutzbar ist; das bestehende Rohformat bleibt unterstützt.
-- Nur Keys mit `status: "active"` werden akzeptiert; widerrufene Keys (`e796e719…`) führen zu einem Verifikationsfehler. Keine Rotation, keine Änderung am aktiven Key.
+- Single Source of Truth: Es wird keine zweite manuell gepflegte Kopie des Public Keys erzeugt. Die Runtime-Repräsentation des Trust Anchors wird deterministisch aus derselben kanonischen Quelle `installer/distribution/eyis-trust-anchor.json` erzeugt bzw. importiert, damit Installer und Update Center niemals unterschiedliche Schlüsselstände verwenden.
+- Die Signaturprüfung wählt anhand der `key_id` der Signaturdatei den passenden Key aus dem Anchor und prüft danach dessen Status: `active` → Verifikation erlaubt; `revoked` → zwingend ablehnen; unbekannte `key_id` → zwingend ablehnen. Es wird nicht pauschal „der aktuell aktive Key" für jede Signatur verwendet.
+- Keine Rotation, keine Änderung am aktiven Key (`4e7f55e68fa9a1b934ce2d04719c9177`), der widerrufene Key (`e796e719…`) bleibt widerrufen.
 - Die Setup-Meldung/Remediation in `providers.server.ts` erscheint nur noch, wenn weder Anchor-Key noch Override verfügbar sind.
 - Kein privater Schlüssel in Runtime, Client-Bundle oder Logs; `EYIS_PACK_SIGNING_KEY` bleibt ausschließlich im GitHub-Release-Workflow.
 
