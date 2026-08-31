@@ -24,24 +24,25 @@ import { anchorPath } from "./signature";
 export const ROOT = process.cwd();
 export const ARTIFACT_DIR = join(ROOT, "installer", "artifact");
 
-const EXTRA_FILES = [
-  "scripts/installer/runner.ts",
-  "scripts/installer/signature.ts",
-  "scripts/installer/route-contract.ts",
-  "scripts/installer/seeds.ts",
-  "scripts/installer/system-seeds.ts",
-  "scripts/installer/fingerprint.ts",
-  "scripts/installer/migration-history.ts",
-  "scripts/installer/introspect.ts",
-  "scripts/installer/agent-plan.ts",
-  "scripts/commerce-bootstrap.ts",
-  "scripts/commerce-doctor.ts",
-  "installer/eyis.ts",
-  "scripts/eyis-install.ts",
-  "scripts/eyis-seeds.ts",
-  "scripts/eyis-resources.ts",
-  "scripts/eyis-pack-signature.ts",
-];
+/**
+ * BB-RC7-03/04 — die ausgelieferten Installer-Skripte stehen nicht mehr
+ * doppelt im Code, sondern ausschließlich im Distribution-Manifest
+ * (Kategorie `install_tooling`). Manifest und Tarball können dadurch nicht
+ * mehr auseinanderlaufen.
+ */
+function distributionManifest(): DistManifest {
+  return JSON.parse(
+    readFileSync(
+      join(ROOT, "installer", "distribution", "eyis-code-distribution.manifest.json"),
+      "utf8",
+    ),
+  ) as DistManifest;
+}
+
+export function installToolingFiles(): string[] {
+  return distributionManifest().install_tooling ?? [];
+}
+
 
 /** Pfade, die niemals in ein Artefakt gelangen dürfen. */
 const FORBIDDEN = [
@@ -65,7 +66,12 @@ const FORBIDDEN = [
   /\/__tests__\//,
 ];
 
-type DistManifest = { version: string; install: string[] };
+type DistManifest = {
+  version: string;
+  install: string[];
+  install_tooling?: string[];
+  exclude_from_install?: string[];
+};
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir).sort()) {
@@ -94,16 +100,23 @@ function expand(pattern: string): string[] {
 
 /** Alle Dateien des Artefakts, deterministisch sortiert. */
 export function artifactFiles(): string[] {
-  const dist = JSON.parse(
-    readFileSync(join(ROOT, "installer", "distribution", "eyis-code-distribution.manifest.json"), "utf8"),
-  ) as DistManifest;
+  const dist = distributionManifest();
   const files = new Set<string>();
   for (const pattern of dist.install) for (const f of expand(pattern)) files.add(f);
-  for (const extra of EXTRA_FILES) for (const f of expand(extra)) files.add(f);
+  for (const extra of dist.install_tooling ?? []) for (const f of expand(extra)) files.add(f);
 
   const list = [...files].filter((f) => !FORBIDDEN.some((re) => re.test(f))).sort();
   if (list.length === 0) throw new Error("PACK COMPLETENESS: FAIL — leeres Artefakt.");
   return list;
+}
+
+/** Dateien, die durch FORBIDDEN aus dem Artefakt fallen (Begründungspflicht). */
+export function droppedFromArtifact(): string[] {
+  const dist = distributionManifest();
+  const files = new Set<string>();
+  for (const pattern of dist.install) for (const f of expand(pattern)) files.add(f);
+  for (const extra of dist.install_tooling ?? []) for (const f of expand(extra)) files.add(f);
+  return [...files].filter((f) => FORBIDDEN.some((re) => re.test(f))).sort();
 }
 
 // ---------------------------------------------------------------- tar (ustar)
