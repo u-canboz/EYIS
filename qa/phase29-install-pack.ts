@@ -129,10 +129,10 @@ record(
 {
   const legacy = CUSTOMER_ROOT.replace(
     "<ThemeProvider>",
-    "<ThemeProvider>\n        /* EYIS:ROUTE_GUARD:START */",
+    "<ThemeProvider>\n        /* EYIS:ROUTE_GUARD:START */<EyisRouteBoundary>",
   ).replace(
     "</ThemeProvider>",
-    "        /* EYIS:ROUTE_GUARD:END */\n      </ThemeProvider>",
+    "        </EyisRouteBoundary>/* EYIS:ROUTE_GUARD:END */\n      </ThemeProvider>",
   );
   const upgraded = applyRootGuard(legacy);
   record(
