@@ -39,3 +39,26 @@ Einziges Ziel: Der Integration-Patch für `src/routes/__root.tsx` darf keine sic
 
 ## Nicht angefasst
 Commerce-Engines, Store API/SDK, Datenmodell, RLS, Migrationen, Seeds, Bootstrap, Doctor, Admin-CSS-Scope und -Tokens, Signing, Trust Anchor, Release-Packaging, Update Center, Portal, Provider.
+
+## 8. Update-Center: fehlender Release-Signaturschlüssel
+
+Befund im Code: `src/lib/commerce/updates/providers.server.ts` liest den Verifikationsschlüssel ausschließlich aus der Umgebungsvariable `EYIS_RELEASE_PUBLIC_KEY` (roher 32-Byte-Ed25519-Key, base64). Ist sie nicht gesetzt, bricht `fetchSignedReleases` in `registry.server.ts` mit „Kein Release-Signaturschlüssel konfiguriert — Releases können nicht verifiziert werden." ab. Der gepinnte Trust Anchor `installer/distribution/eyis-trust-anchor.json` (aktiver Key `4e7f55e68fa9a1b934ce2d04719c9177`, SPKI-PEM) wird vom Update Center gar nicht gelesen. Es fehlt also der Public Key, nicht der private Signing Key.
+
+Änderungen:
+- Der Trust Anchor wird als gepinnte Konstante in die Runtime übernommen (nur öffentliche Schlüssel, keine Secrets) und dient als Standardquelle der Verifikation. `EYIS_RELEASE_PUBLIC_KEY` bleibt optionaler Override und wird nicht mehr vorausgesetzt.
+- `verifyManifestSignature` akzeptiert zusätzlich SPKI-PEM (Import über `spki`), damit der Anchor-Key ohne Formatumwandlung nutzbar ist; das bestehende Rohformat bleibt unterstützt.
+- Nur Keys mit `status: "active"` werden akzeptiert; widerrufene Keys (`e796e719…`) führen zu einem Verifikationsfehler. Keine Rotation, keine Änderung am aktiven Key.
+- Die Setup-Meldung/Remediation in `providers.server.ts` erscheint nur noch, wenn weder Anchor-Key noch Override verfügbar sind.
+- Kein privater Schlüssel in Runtime, Client-Bundle oder Logs; `EYIS_PACK_SIGNING_KEY` bleibt ausschließlich im GitHub-Release-Workflow.
+
+Regressionstests (Vitest, ohne Netzwerk; signierte Fixtures mit Wegwerf-Keys plus Anchor-Fixture):
+1. Gültig signiertes Release mit aktivem Anchor-Key → PASS.
+2. Manipuliertes Manifest → FAIL.
+3. Signatur mit unbekanntem oder widerrufenem Key → FAIL.
+4. Kein privater Signing Key in der Runtime → Verifikation funktioniert trotzdem.
+5. Bei vorhandenem Anchor erscheint `REGISTRY_SETUP_REQUIRED` nicht mehr.
+
+Ergänzte Verifikationspunkte:
+- Update-Center Release-Verifikation: PASS
+- Trust-Anchor-Verifikation ohne privaten Runtime-Key: PASS
+- Manipulierte/ungültige Signaturen werden abgelehnt: PASS
