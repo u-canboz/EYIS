@@ -125,7 +125,7 @@ export function checkExtractedArtifact(version: string, env: NodeJS.ProcessEnv =
       stdio: ["ignore", "pipe", "pipe"],
     });
     const line = (label: string) =>
-      out.split("\n").find((l) => l.startsWith(label))?.split(":").slice(1).join(":").trim() ?? "";
+      out.split("\n").find((l) => l.startsWith(`${label}:`))?.split(":").slice(1).join(":").trim() ?? "";
     for (const label of ["Checksummen", "Kompatibilität", "Signatur", "Gesamt"]) {
       add(`Entpacktes Tarball — ${label}`, line(label) === "PASS", line(label) || "keine Ausgabe");
     }
