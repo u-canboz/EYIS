@@ -113,6 +113,47 @@ function resolvedVersion(name: string): string | null {
   return declared ? declared.replace(/^[\^~]/, "") : null;
 }
 
+/** Entfernt Zeilen- und Blockkommentare, damit Beispiel-Imports in Doku-Kommentaren nicht gescannt werden. */
+export function stripComments(source: string): string {
+  let out = "";
+  let i = 0;
+  let quote: string | null = null;
+  while (i < source.length) {
+    const c = source[i]!;
+    const next = source[i + 1];
+    if (quote) {
+      if (c === "\\") {
+        out += c + (next ?? "");
+        i += 2;
+        continue;
+      }
+      if (c === quote) quote = null;
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === "`") {
+      quote = c;
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === "/" && next === "/") {
+      while (i < source.length && source[i] !== "\n") i += 1;
+      continue;
+    }
+    if (c === "/" && next === "*") {
+      i += 2;
+      while (i < source.length && !(source[i] === "*" && source[i + 1] === "/")) i += 1;
+      i += 2;
+      continue;
+    }
+    out += c;
+    i += 1;
+  }
+  return out;
+}
+
 function fail(message: string): never {
   console.error(`✗ ${message}`);
   process.exit(1);
