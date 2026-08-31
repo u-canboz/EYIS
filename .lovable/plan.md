@@ -39,9 +39,6 @@ Außer diesen beiden konkret beschriebenen Fehlern werden keine weiteren Funktio
 - Neuer Render-Test: gepatchte Quelle mit esbuild zu JS transformieren, Stub-Komponenten einsetzen und mit `react-dom/server` zu HTML rendern. Assertions: `EyisRouteBoundary` gerendert, Provider-Verschachtelung erhalten, und die Strings `EYIS:ROUTE_GUARD:START` / `:END` kommen im HTML **nicht** vor.
 - `qa/phase29-install-pack.ts` (B4): zusätzlicher Check „keine EYIS-Marker im gerenderten DOM" und „Marker liegen als JSX-Kommentar vor", damit `qa:install-pack` ein Release mit diesem Defekt ablehnt.
 
-### 7. Verifikation
-`bun install --frozen-lockfile`, `bun run verify`, `bun run qa:install-pack`, neue Route-Guard-Tests. Kein Tag, kein Release.
-
 ## Nicht angefasst
 
 - Commerce-Engines
