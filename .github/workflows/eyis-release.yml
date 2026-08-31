@@ -89,15 +89,26 @@ jobs:
       - name: Stable-Promotion prüfen
         run: bun run eyis:release:promote check "${{ steps.version.outputs.version }}"
 
-      - name: Artefakt bauen
-        env:
-          EYIS_RELEASE_VERSION: ${{ steps.version.outputs.version }}
-        run: bun run eyis:release:artifact
-
+      # Reihenfolge ist sicherheitsrelevant (RC.5-Befund): Erst wird der finale
+      # Pack-Zustand signiert und geprüft, danach das Tarball gebaut. Wird das
+      # Tarball vorher gebaut, enthält es eine veraltete Signaturdatei.
       - name: Pack signieren
         env:
           EYIS_PACK_SIGNING_KEY: ${{ secrets.EYIS_PACK_SIGNING_KEY }}
         run: bun run eyis:pack:sign
+
+      - name: Pack-Signatur gegen Trust Anchor prüfen
+        run: bun run eyis:pack:verify
+
+      - name: Artefakt bauen (enthält die soeben erzeugte Signatur)
+        env:
+          EYIS_RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: bun run eyis:release:artifact
+
+      - name: Pack-Gate aus dem entpackten Tarball
+        env:
+          EYIS_RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: bun run eyis:release:selftest
 
       - name: Artefakt signieren
         env:
@@ -109,6 +120,7 @@ jobs:
           set -euo pipefail
           bun run eyis:pack:verify
           bun run eyis:release:verify installer/artifact/eyis-release.json
+
 
       - name: Release veröffentlichen
         uses: softprops/action-gh-release@v2
