@@ -62,7 +62,7 @@
     "20260830200835",
     "20260830200942"
   ],
-  "schema_fingerprint": "8867849192ba1ac3596f79db45ff9b3d5faac825c84503e8f1450c5c1055f657",
+  "schema_fingerprint": "401b9985a42722f233f9ebace860fdaece85640476b6a9eb0a50b158fe04f0e4",
   "payload_budget": {
     "target_unit_bytes": 18432,
     "hard_statement_bytes": 49152,
@@ -588,6 +588,6 @@
   "system_seed_fingerprint": "3d56b91cabc04cd885b70998c432fe1b1b34642024ca4e5150a869f4dde1a163",
   "system_seeds_manifest": "seeds/eyis-system-seeds.manifest.json",
   "migration_set_fingerprint": "31db2ec8525bf5d9b8adf0dbf613c194098cac04bbe601ef16f35ed924ef01d9",
-  "schema_fingerprint_state": "REQUIRES_REINTROSPECTION",
-  "schema_fingerprint_migration_head": "20260828213156"
+  "schema_fingerprint_state": "CURRENT",
+  "schema_fingerprint_migration_head": "20260830200942"
 }
