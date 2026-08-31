@@ -1,0 +1,38 @@
+{
+  "phase": "28",
+  "title": "Blackbox-Vorbereitung v1.0.0-rc.4",
+  "date": "2026-08-31",
+  "release": {
+    "tag": "v1.0.0-rc.4",
+    "channel": "prerelease",
+    "commit": "4122565450c270703a8e332bc601472f7ee6510c",
+    "artifact": "eyis-dedicated-1.0.0-rc.4.tar.gz",
+    "artifact_sha256": "8d57c9ed03d7699f5c834fa5309d5c7e90f53fbfd131ab54319f08040fd312a9",
+    "artifact_bytes": 685435,
+    "file_count": 402,
+    "key_id": "4e7f55e68fa9a1b934ce2d04719c9177",
+    "schema_fingerprint": "401b9985a42722f233f9ebace860fdaece85640476b6a9eb0a50b158fe04f0e4",
+    "system_seed_fingerprint": "3d56b91cabc04cd885b70998c432fe1b1b34642024ca4e5150a869f4dde1a163",
+    "baseline_units": 46,
+    "system_seeds": 5,
+    "migration_head": "057"
+  },
+  "checks": [
+    { "id": 1, "check": "Artefakt-SHA-256", "status": "PASS" },
+    { "id": 2, "check": "Release-Signatur Ed25519", "status": "PASS" },
+    { "id": 3, "check": "Trust Anchor aktiv/revoked", "status": "PASS" },
+    { "id": 4, "check": "402 Dateiprüfsummen", "status": "PASS", "detail": "0 missing, 0 mismatch, 0 extra" },
+    { "id": 5, "check": "Pack-Gate im Paket", "status": "PASS", "detail": "324 Dateien, Digest 39b1faf9488b857c45284988e4a3574cf6e5b0b0d3890c2014eb77b66213e09b" },
+    { "id": 6, "check": "Datenbank-Pack-Manifest", "status": "PASS" },
+    { "id": 7, "check": "System-Seed-Fingerprint", "status": "PASS" },
+    { "id": 8, "check": "Verteilungsgrenzen (keine docs/qa/Marketing-Routen)", "status": "PASS" },
+    { "id": 9, "check": "Secret-Scan Archiv", "status": "PASS" },
+    { "id": 10, "check": "Installer-CLI aus dem Paket", "status": "PASS" },
+    { "id": 11, "check": "Ressourcen-Manifest", "status": "PASS" },
+    { "id": 12, "check": "Frische Instanz: Install, Migration, Bootstrap, Doctor", "status": "OFFEN", "detail": "erfordert neues Lovable-Projekt mit leerer Datenbank" },
+    { "id": 13, "check": "Stripe Live, echter E-Mail-Versand, Carrier-Labels", "status": "BLOCKED" }
+  ],
+  "summary": { "pass": 11, "fail": 0, "offen": 1, "blocked": 1 },
+  "rc_modified": false,
+  "stable_tagged": false
+}
