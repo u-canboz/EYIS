@@ -63,6 +63,7 @@
   ],
   "repository_only": [
     "scripts/docs-validate.ts",
+    "scripts/eyis-blackbox-simulate.ts",
     "scripts/eyis-database-reintrospect.ts",
     "scripts/eyis-database-sync.ts",
     "scripts/eyis-distribution.ts",
@@ -81,6 +82,7 @@
     "scripts/installer/generate-baseline.ts",
     "scripts/installer/generate-system-seeds.ts",
     "scripts/installer/pack-sync.ts",
+    "scripts/installer/tarball-consistency.ts",
     "scripts/manifest/generate.ts",
     "scripts/manifest/modules.def.ts"
   ],

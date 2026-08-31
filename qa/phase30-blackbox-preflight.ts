@@ -11,6 +11,7 @@ import path from "node:path";
 
 import { buildAgentPlan, planInstructions } from "../scripts/installer/agent-plan";
 import { loadManifest } from "../scripts/installer/runner";
+import { validateTarballConsistency } from "../scripts/installer/tarball-consistency";
 
 type Check = { id: string; status: "PASS" | "FAIL"; detail: string };
 const checks: Check[] = [];
@@ -257,6 +258,51 @@ record(
     !/"secret_key": "CRON_SECRET"/.test(resources) &&
     cronAuth.includes("LOVABLE_CRON_SECRET"),
   "Manifest und Runtime nutzen LOVABLE_CRON_SECRET (Authorization: Bearer).",
+);
+
+// ---- 6. Route-Guard-Regressionsmatrix (BB-RC7-01/05/06)
+const matrix = Bun.spawnSync(
+  ["bunx", "vitest", "run", "src/lib/commerce/__tests__/route-guard-matrix.test.ts"],
+  { cwd: ROOT },
+);
+record(
+  "P6 Route-Guard-Regressionsmatrix (Fälle A–L)",
+  matrix.exitCode === 0,
+  matrix.exitCode === 0
+    ? "Root-Komponente korrekt erkannt, Guard innerster Wrapper, Rollback byte-exakt."
+    : "Matrix fehlgeschlagen.",
+);
+
+// ---- 7. Manifest ⇄ Tarball bidirektional (BB-RC7-03/04)
+const consistency = validateTarballConsistency();
+record(
+  "P7 Tarball ⇄ Manifest bidirektional konsistent",
+  consistency.status === "PASS",
+  consistency.status === "PASS"
+    ? `${consistency.files} Dateien, jede kategorisiert, keine toten Befehlsverweise, Skripte autonom.`
+    : consistency.problems.slice(0, 5).join(" | "),
+);
+
+// ---- 8. Backoffice ohne plattformgenerierte Module (BB-RC7-02)
+const generatedLeak = runtimeFiles.filter((f) =>
+  /from\s+["']@\/integrations\/lovable/.test(readFileSync(path.join(ROOT, f), "utf8")),
+);
+record(
+  "P8 Kein Import plattformgenerierter Lovable-Module im Auslieferungscode",
+  generatedLeak.length === 0,
+  generatedLeak.length === 0
+    ? "Auth läuft über die standardisierte Supabase-Schnittstelle."
+    : `Harte Kopplung in: ${generatedLeak.join(", ")}`,
+);
+
+// ---- 9. Pre-Database Blackbox-Simulation (BB-RC7-08)
+const sim = Bun.spawnSync(["bun", "run", "scripts/eyis-blackbox-simulate.ts"], { cwd: ROOT });
+record(
+  "P9 Pre-Database Blackbox-Simulation",
+  sim.exitCode === 0,
+  sim.exitCode === 0
+    ? "Installation ohne DB/Netz/Secrets: Patches, Parse-Gate und Importauflösung PASS."
+    : "Simulation fehlgeschlagen — siehe bun run eyis:blackbox:simulate.",
 );
 
 // ---- Report
