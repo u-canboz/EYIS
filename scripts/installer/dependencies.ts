@@ -143,7 +143,7 @@ const runtime: Array<{ name: string; version: string; reason: string }> = [];
 const baseline: Array<{ name: string; version: string; reason: string }> = [];
 
 for (const rel of runtimeFiles) {
-  const source = readFileSync(path.join(ROOT, rel), "utf8");
+  const source = stripComments(readFileSync(path.join(ROOT, rel), "utf8"));
   const re = /(?:import|export)[^'"]*?from\s*['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)|require\(\s*['"]([^'"]+)['"]\s*\)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(source))) {
