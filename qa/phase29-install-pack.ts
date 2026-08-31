@@ -114,6 +114,46 @@ record(
   "Boundary liegt innerhalb des innersten Providers; kein früher Return.",
 );
 record("B4 idempotent", twice.outcome === "NOOP" && twice.content === guarded.content, "Zweiter Lauf: NOOP.");
+record(
+  "B4 rc.6 Marker sind maskierte JSX-Kommentare",
+  guarded.content.includes("{/* EYIS:ROUTE_GUARD:START */}") &&
+    guarded.content.includes("{/* EYIS:ROUTE_GUARD:END */}"),
+  "Keine rohen Text-Marker — kein DOM-Leak in der Storefront.",
+);
+record(
+  "B4 rc.6 Rollback stellt Original exakt wieder her",
+  removeRootGuard(guarded.content).content === CUSTOMER_ROOT,
+  "removeRootGuard liefert byte-exakt den Ausgangszustand.",
+);
+{
+  const legacy = CUSTOMER_ROOT.replace(
+    "<ThemeProvider>",
+    "<ThemeProvider>\n        /* EYIS:ROUTE_GUARD:LEGACY_START */",
+  ).replace(
+    "</ThemeProvider>",
+    "        /* EYIS:ROUTE_GUARD:LEGACY_END */\n      </ThemeProvider>",
+  );
+  const upgraded = applyRootGuard(legacy);
+  record(
+    "B4 rc.6 Legacy-Marker werden erkannt und auf JSX-Form gehoben",
+    !legacy.includes("{/*") &&
+      upgraded.content.includes("{/* EYIS:ROUTE_GUARD:START */}") &&
+      !upgraded.content.includes("EYIS:ROUTE_GUARD:LEGACY"),
+    "Altinstallationen (rc.4/rc.5) migrieren ohne Doppel-Block.",
+  );
+}
+record(
+  "B4 rc.6 Früh-Return wird abgelehnt",
+  (() => {
+    try {
+      applyRootGuard("export function R() { return <Outlet />; }");
+      return false;
+    } catch (error) {
+      return String(error).includes("ROOT_EARLY_RETURN");
+    }
+  })(),
+  "Kein Guard bei frühem return <Outlet />.",
+);
 
 // ------------------------------------------------------------ B5 Admin Scope
 const scope = checkAdminScope();
