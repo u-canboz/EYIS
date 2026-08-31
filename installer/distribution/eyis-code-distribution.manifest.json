@@ -77,8 +77,8 @@
       "instruction": "EyisRouteBoundary INNERHALB der bestehenden Provider einsetzen; niemals frueh aus der Root-Komponente zurueckkehren. Genau ein neuer Import: EyisRouteBoundary aus @/eyis/shell/EyisRouteBoundary.",
       "snippet": "<QueryClientProvider client={queryClient}>\\n  {/* EYIS:ROUTE_GUARD:START */}<EyisRouteBoundary>\\n    <CustomerChrome><Outlet /></CustomerChrome>\\n  </EyisRouteBoundary>{/* EYIS:ROUTE_GUARD:END */}\\n</QueryClientProvider>",
       "markers": [
-        "/* EYIS:ROUTE_GUARD:START */",
-        "/* EYIS:ROUTE_GUARD:END */"
+        "{/* EYIS:ROUTE_GUARD:START */}",
+        "{/* EYIS:ROUTE_GUARD:END */}"
       ],
       "idempotent": true
     },
