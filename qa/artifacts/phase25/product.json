@@ -1,0 +1,35 @@
+{
+  "steps": [
+    {
+      "name": "Wizard erreichbar (angemeldet)",
+      "ok": true,
+      "detail": "http://localhost:8080/app/produkte/neu"
+    },
+    {
+      "name": "Produktart w\u00e4hlbar",
+      "ok": true,
+      "detail": "Standard"
+    },
+    {
+      "name": "Zusammenfassung zeigt Eingaben",
+      "ok": true,
+      "detail": "QA Smoke Produkt Phase 25"
+    },
+    {
+      "name": "Produkt angelegt und Detailseite ge\u00f6ffnet",
+      "ok": true,
+      "detail": "http://localhost:8080/app/produkte/98b96a12-fcac-4c9b-9d8c-c7ad968b53f0"
+    },
+    {
+      "name": "Detailseite zeigt Produktnamen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Keine Konsolenfehler",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "product_url": "http://localhost:8080/app/produkte/98b96a12-fcac-4c9b-9d8c-c7ad968b53f0"
+}
