@@ -22,6 +22,8 @@ export const DISTRIBUTION_PATH = join(
 export type DistributionManifest = {
   version: string;
   install: string[];
+  install_tooling?: string[];
+  repository_only?: string[];
   reference_only: string[];
   customer_owned: string[];
   customer_routes?: string[];
@@ -35,6 +37,8 @@ export type DistributionManifest = {
 /** Erwartete Laufzeit-Klassifikation je Manifest-Kategorie. */
 const EXPECTED: Record<string, OwnershipDecision> = {
   install: "eyis",
+  install_tooling: "eyis",
+  repository_only: "reference_only",
   reference_only: "reference_only",
   customer_owned: "customer",
   generated: "generated",
@@ -64,6 +68,8 @@ export function validateDistribution(
 ): DistributionResult {
   const categories: [string, string[]][] = [
     ["install", manifest.install],
+    ["install_tooling", manifest.install_tooling ?? []],
+    ["repository_only", manifest.repository_only ?? []],
     ["reference_only", manifest.reference_only],
     ["customer_owned", manifest.customer_owned],
     ["generated", manifest.generated],
@@ -100,7 +106,8 @@ export function validateDistribution(
       // Repo-interne Referenzordner (qa/, docs/) sind für die Ownership-Engine
       // bewusst unmanaged — sie werden nie ausgeliefert und nie ersetzt.
       const repoInternalReference =
-        category === "reference_only" && actual === "unmanaged" && !pattern.startsWith("src/") && !pattern.startsWith("public/");
+        (category === "reference_only" || category === "repository_only") &&
+        actual === "unmanaged" && !pattern.startsWith("src/") && !pattern.startsWith("public/");
       if (expected && actual !== expected && !repoInternalReference) {
         ownershipMismatches.push(
           `${pattern}: Manifest "${category}" ⇄ Laufzeit "${actual}"`,

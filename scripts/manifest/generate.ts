@@ -23,6 +23,26 @@ import {
 } from "../../src/lib/commerce/store/api-catalog";
 
 export const GENERATOR_VERSION = "1.0.0";
+/**
+ * Teilt die Befehle danach, ob alle referenzierten Skripte im
+ * Release-Artefakt liegen. Befehle ohne Skriptverweis (vite, eslint …) gelten
+ * als installiert, weil sie zum Kundenprojekt selbst gehören.
+ */
+function splitCommands(scripts: Record<string, string>) {
+  const shipped = new Set(artifactFiles());
+  const installed: Record<string, string> = {};
+  const repositoryOnly: Record<string, string> = {};
+  for (const [name, command] of Object.entries(scripts)) {
+    const refs = referencedScripts(command);
+    const nested = [...command.matchAll(/bun run ([\w:.-]+)/g)].map((m) => m[1]!);
+    const nestedRefs = nested.flatMap((n) => referencedScripts(scripts[n] ?? ""));
+    const all = [...refs, ...nestedRefs];
+    if (all.every((s) => shipped.has(s))) installed[name] = command;
+    else repositoryOnly[name] = command;
+  }
+  return { installed, repositoryOnly };
+}
+
 const ROOT = process.cwd();
 const CHECK = process.argv.includes("--check");
 
@@ -311,6 +331,10 @@ function buildRootManifest(
       change_playbook: "docs/agent/CHANGE_PLAYBOOK.md",
     },
     commands: pkg.scripts,
+    // BB-RC7-03: In einem installierten Kundenprojekt existieren nur die
+    // ausgelieferten Skripte. Die Aufteilung verhindert tote Verweise.
+    installed_commands: splitCommands(pkg.scripts).installed,
+    repository_only_commands: splitCommands(pkg.scripts).repositoryOnly,
     blocked_integrations: ["stripe-live", "email-delivery", "carrier-labels"],
     source_of_truth_order: [
       "code",
