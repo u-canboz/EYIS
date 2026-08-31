@@ -1,0 +1,48 @@
+{
+  "schema": "eyis.install.dependencies.v1",
+  "package_manager": "bun",
+  "description": "Runtime-Abhängigkeiten, die der EYIS-Installations-Code über die Lovable-Template-Baseline hinaus benötigt. Maschinell erzeugt, nicht von Hand editieren.",
+  "generated_from": "installer/distribution/eyis-code-distribution.manifest.json + src/",
+  "dependencies": [
+    {
+      "name": "lucide-react",
+      "version": "0.575.0",
+      "reason": "imported by eyis/data/ActionMenu.tsx"
+    },
+    {
+      "name": "vitest",
+      "version": "4.1.11",
+      "reason": "imported by lib/commerce/__tests__/cart-engine.test.ts"
+    },
+    {
+      "name": "@\\/eyis\\",
+      "version": "0.0.0",
+      "reason": "imported by lib/commerce/__tests__/integration-patch.test.ts"
+    },
+    {
+      "name": "typescript",
+      "version": "5.9.3",
+      "reason": "imported by lib/commerce/__tests__/integration-patch.test.ts"
+    },
+    {
+      "name": "pdf-lib",
+      "version": "1.17.1",
+      "reason": "imported by lib/commerce/documents/pdf.server.ts"
+    },
+    {
+      "name": "zod",
+      "version": "3.25.76",
+      "reason": "imported by lib/commerce/store/gateway.server.ts"
+    },
+    {
+      "name": "@supabase/supabase-js",
+      "version": "2.112.3",
+      "reason": "imported by lib/commerce/store/routes.server.ts"
+    },
+    {
+      "name": "<module>",
+      "version": "0.0.0",
+      "reason": "imported by lib/commerce/updates/integration-patch.ts"
+    }
+  ]
+}
