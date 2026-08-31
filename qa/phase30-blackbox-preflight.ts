@@ -75,20 +75,21 @@ record(
 const workflow = existsSync(".github/workflows/eyis-release.yml")
   ? readFileSync(".github/workflows/eyis-release.yml", "utf8")
   : "";
-const buildIdx = workflow.search(/bun run build/);
+const verifyIdx = workflow.search(/bun run (verify|build)/);
 const dbIdx = workflow.search(/supabase (db push|migration)/);
+const artifactIdx = workflow.search(/eyis:release:artifact/);
 record(
-  "P2 Build-Gate vor Datenbank-Schritten",
-  buildIdx !== -1 && (dbIdx === -1 || buildIdx < dbIdx),
-  "Release-Reihenfolge: Code-Artefakt baut, bevor irgendetwas die DB berührt.",
+  "P2 Build-Gate vor Datenbank- und Artefakt-Schritten",
+  verifyIdx !== -1 && (dbIdx === -1 || verifyIdx < dbIdx) && (artifactIdx === -1 || verifyIdx < artifactIdx),
+  "Release-Reihenfolge: verify/build läuft, bevor Artefakt oder DB berührt werden.",
 );
 
 // ---- 3. Typ-Generierung im Installationspfad vorhanden
-const installer = readFileSync("installer/eyis.ts", "utf8");
+const instructions = planInstructions(buildAgentPlan(loadManifest()));
 record(
-  "P3 Supabase-Typgenerierung im Installer verdrahtet",
-  /gen types|db push|migration/.test(installer) || existsSync("scripts/installer/apply-migrations.ts"),
-  "Installer ruft Plattform-Typgenerierung/Migrationsanwendung auf.",
+  "P3 Typgenerierung nach Migrationen vor typecheck/build angeordnet",
+  /gen types|Plattform-Generierung/.test(instructions),
+  "Agent-Plan weist die Plattform-Typgenerierung nach den Migrationen ausdrücklich an.",
 );
 
 // ---- 4. Agent Plan: Resume/Retry idempotent
