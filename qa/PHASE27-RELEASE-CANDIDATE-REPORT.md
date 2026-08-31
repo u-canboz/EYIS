@@ -67,3 +67,12 @@ bun run verify
 | `bun run verify` | PASS | docs:validate, typecheck, 171 Tests, Build |
 | Cron-Provisionierung lokal | BLOCKED | Sandbox ohne `cron`-Schema-Rechte; Nachweis erfolgt auf der Zielplattform via `eyis_cron_status()` |
 | Tag `v1.0.0-rc.1` veröffentlicht | OFFEN | Git-Operationen sind aus der Agentenumgebung gesperrt |
+
+## Nachtrag 2 — CI-Fehler Run 33369468064 behoben
+
+| Prüfung | Status | Nachweis |
+| --- | --- | --- |
+| Fehlerursache | PASS | `typecheck` rief `tsgo` auf; Paket `@typescript/native-preview` fehlte in `package.json`/Lockfile → Exit 127 in der CI |
+| Fix | PASS | `@typescript/native-preview` als devDependency installiert, Lockfile-Eintrag vorhanden, `bun install --frozen-lockfile` + `bun run typecheck` grün |
+| Bun-Version gepinnt | PASS | Workflow nutzt `bun-version: 1.3.3` statt `latest` (Reproduzierbarkeit) |
+| Tag `v1.0.0-rc.1` | FAIL | Workflow vor der Signatur abgebrochen, keine Assets — RC wird als `v1.0.0-rc.2` neu getaggt (RC-Unveränderlichkeit) |
