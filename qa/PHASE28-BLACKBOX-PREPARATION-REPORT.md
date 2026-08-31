@@ -44,4 +44,4 @@ zwingend eine leere Datenbank; in `BLACKBOX_INSTALL_TEST.md`, Abschnitt 5 dokume
 
 Blackbox-Durchlauf in einem neuen Lovable-Projekt gemäß
 `docs/production/BLACKBOX_INSTALL_TEST.md` (Abschnitte 2–4). Ergebnis wird als
-`qa/PHASE28-BLACKBOX-INSTALL-REPORT.md` festgehalten. Stable `v1.0.0` erst danach.
+einem Bericht unter `qa/` (Namensschema `PHASE28-BLACKBOX-INSTALL-REPORT`) festgehalten. Stable `v1.0.0` erst danach.
