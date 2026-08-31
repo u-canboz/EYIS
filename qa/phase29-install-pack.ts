@@ -15,6 +15,7 @@ import { loadManifest } from "../scripts/installer/runner";
 import {
   applyCssAdminScope,
   applyRootGuard,
+  removeRootGuard,
   validateCss,
 } from "../src/lib/commerce/updates/integration-patch";
 
