@@ -1,6 +1,11 @@
-# RC.6 Hotfix — Route-Guard-Integration
+# RC.6 Hotfix — Route-Guard + Update-Verifikation
 
-Einziges Ziel: Der Integration-Patch für `src/routes/__root.tsx` darf keine sichtbaren EYIS-Marker mehr im Kunden-DOM erzeugen und muss syntaktisch sauberes, idempotentes und rücknehmbares JSX schreiben. Keine weiteren Änderungen.
+Dieser Hotfix hat genau zwei freigegebene Ziele:
+
+1. Der Integration-Patch für `src/routes/__root.tsx` darf keine sichtbaren EYIS-Marker mehr im Kunden-DOM erzeugen und muss syntaktisch sauberes, idempotentes und rücknehmbares JSX schreiben.
+2. Das Update Center muss veröffentlichte EYIS-Releases über den vorhandenen gepinnten Public Trust Anchor verifizieren können, ohne `EYIS_RELEASE_PUBLIC_KEY` zwingend als Runtime-Umgebungsvariable vorauszusetzen.
+
+Außer diesen beiden konkret beschriebenen Fehlern werden keine weiteren Funktionen oder Architekturbereiche geändert.
 
 ## Ursache
 
