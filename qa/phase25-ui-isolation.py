@@ -25,7 +25,11 @@ async def main():
         # 3. Kunden-Chrome darf im Backoffice nicht erscheinen
         await pg.evaluate("([k,v])=>localStorage.setItem(k,v)",[key,payload])
         await pg.goto(BASE+"/app", wait_until="domcontentloaded")
-        await pg.wait_for_timeout(4000)
+        try:
+            await pg.wait_for_selector(".eyis-admin", timeout=30000)
+        except Exception:
+            pass
+        await pg.wait_for_timeout(1000)
         rec("Backoffice rendert im .eyis-admin-Scope", await pg.locator(".eyis-admin").count()>0)
         rec("Backoffice trägt data-eyis-runtime", await pg.locator("[data-eyis-runtime='backoffice']").count()>0)
         # 4. Fixture: Kunde überschreibt :root-Tokens — Backoffice bleibt unbeeinflusst

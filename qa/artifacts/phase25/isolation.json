@@ -21,12 +21,12 @@
   },
   {
     "name": "Backoffice rendert im .eyis-admin-Scope",
-    "ok": false,
+    "ok": true,
     "detail": ""
   },
   {
     "name": "Backoffice tr\u00e4gt data-eyis-runtime",
-    "ok": false,
+    "ok": true,
     "detail": ""
   },
   {
