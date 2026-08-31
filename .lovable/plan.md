@@ -84,3 +84,44 @@ Ergänzte Verifikationspunkte:
 - Update-Center Release-Verifikation: PASS
 - Trust-Anchor-Verifikation ohne privaten Runtime-Key: PASS
 - Manipulierte/ungültige Signaturen werden abgelehnt: PASS
+
+## 9. Gesamtverifikation
+
+Nach Umsetzung beider Hotfixes vollständig ausführen:
+
+- `bun install --frozen-lockfile`
+- `bun run verify`
+- `bun run qa:install-pack`
+- Route-Guard Regressionstests
+- Update-Center Signaturtests
+
+Verbindliche Ergebnisse:
+
+- Typecheck: PASS
+- Tests: PASS
+- Build: PASS
+- Install-Pack-QA: PASS
+- Route-Guard Render-Test: PASS
+- Marker im DOM: NONE
+- Provider-Hierarchie: PASS
+- Import-Handling: PASS
+- Idempotenz: PASS
+- Rollback: PASS
+- Update-Center Release-Verifikation: PASS
+- Trust-Anchor-Verifikation ohne privaten Runtime-Key: PASS
+- Manipulierte Signaturen: REJECTED
+- Revoked Key: REJECTED
+- Unknown Key: REJECTED
+- `REGISTRY_SETUP_REQUIRED` bei vorhandenem Trust Anchor: NONE
+
+Kein Tag und kein Release erstellen.
+
+Abschlussmeldung:
+
+RC6 HOTFIX COMPLETE — READY FOR RC.7
+
+Commit: <FINALER_SHA>
+Verify: PASS
+Install-Pack-QA: PASS
+Route-Guard: PASS
+Update-Verifikation: PASS
