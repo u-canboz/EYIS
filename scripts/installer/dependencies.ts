@@ -50,13 +50,21 @@ function installedVersion(name: string): string {
   return typeof declared === "string" ? declared.replace(/^[\^~]/, "") : "0.0.0";
 }
 
-const manifest = JSON.parse(readFileSync(MANIFEST, "utf8")) as {
-  files: Array<{ path: string; category: string }>;
-};
-const files = manifest.files
-  .filter((f) => f.category === "install" || f.category === "update" || f.category === "shared")
-  .map((f) => f.path)
-  .sort();
+const manifest = JSON.parse(readFileSync(MANIFEST, "utf8")) as { install: string[] };
+const glob = new Bun.Glob("**/*.{ts,tsx}");
+const files: string[] = [];
+for (const pattern of manifest.install) {
+  if (pattern.endsWith("/**")) {
+    for (const f of glob.scanSync({ cwd: path.join(ROOT, pattern.slice(0, -3)), onlyFiles: true })) {
+      files.push(`${pattern.slice(0, -3)}/${f}`);
+    }
+  } else if (pattern.includes("*")) {
+    for (const f of new Bun.Glob(pattern).scanSync({ cwd: ROOT, onlyFiles: true })) files.push(f);
+  } else if (existsSync(path.join(ROOT, pattern))) {
+    files.push(pattern);
+  }
+}
+files.sort();
 
 const seen = new Set<string>();
 const deps: Array<{ name: string; version: string; reason: string }> = [];
