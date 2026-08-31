@@ -170,6 +170,9 @@ function simulate(version: string): SelftestResult {
     );
 
     const env = { EYIS_PACK_SIGNING_KEY: pem, EYIS_TRUST_ANCHOR_PATH: anchorPath };
+    // Auch der eigene Prozess (Artifact-Builder, Anchor-Auflösung) nutzt den
+    // temporären Anchor; der produktive bleibt unverändert.
+    process.env["EYIS_TRUST_ANCHOR_PATH"] = anchorPath;
     const run = (args: string[]) =>
       execFileSync("bun", ["run", ...args], {
         cwd: ROOT,
@@ -196,6 +199,7 @@ function simulate(version: string): SelftestResult {
 
     return { checks: result.checks, ok: result.checks.every((c) => c.status === "PASS") };
   } finally {
+    delete process.env["EYIS_TRUST_ANCHOR_PATH"];
     if (backup) writeFileSync(SIGNATURE_PATH, backup);
     for (const file of artifacts) rmSync(file, { force: true });
     rmSync(work, { recursive: true, force: true });
