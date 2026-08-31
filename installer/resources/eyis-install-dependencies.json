@@ -3,8 +3,13 @@
   "package_manager": "bun",
   "description": "Runtime-Abhängigkeiten, die der installierte EYIS-Produktionscode über die Lovable-Template-Baseline hinaus benötigt. Maschinell erzeugt (bun run installer:dependencies), nicht von Hand editieren.",
   "generated_from": "installer/distribution/eyis-code-distribution.manifest.json + src/ (nur Runtime-Dateien)",
-  "scanned_runtime_files": 272,
+  "scanned_runtime_files": 273,
   "runtime_dependencies": [
+    {
+      "name": "@babel/parser",
+      "version": "8.0.4",
+      "reason": "imported by lib/commerce/updates/integration-patch.ts"
+    },
     {
       "name": "@supabase/supabase-js",
       "version": "2.112.3",
@@ -54,5 +59,5 @@
     }
   ],
   "installer_tooling_dependencies": [],
-  "install_command": "bun add @supabase/supabase-js@2.112.3 lucide-react@0.575.0 pdf-lib@1.17.1 zod@3.25.76"
+  "install_command": "bun add @babel/parser@8.0.4 @supabase/supabase-js@2.112.3 lucide-react@0.575.0 pdf-lib@1.17.1 zod@3.25.76"
 }

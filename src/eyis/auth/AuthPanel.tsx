@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithOAuthProvider } from "@/eyis/auth/oauth";
 import { supabase } from "@/integrations/supabase/client";
 
 function safeNext(value: string | null) {
@@ -83,15 +83,13 @@ export function AuthPanel({ authPath }: { authPath: string }) {
   }
 
   async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${authPath}`,
-    });
-    if (result.error) {
+    const { error } = await signInWithOAuthProvider(
+      "google",
+      `${window.location.origin}${authPath}`,
+    );
+    if (error) {
       toast.error("Google-Anmeldung fehlgeschlagen.");
-      return;
     }
-    if (result.redirected) return;
-    navigate({ to: next });
   }
 
   return (
