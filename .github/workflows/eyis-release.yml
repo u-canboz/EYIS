@@ -63,12 +63,18 @@ jobs:
       - name: Verify (docs, sync, routes, distribution, artifact, typecheck, tests, build)
         run: bun run verify
 
-      - name: Datenbank-Pack, Seeds und Ressourcen prüfen
+      # Statische Prüfung des Install Packs. Der Release-Workflow baut ein
+      # herunterladbares Paket und setzt deshalb bewusst KEINE laufende
+      # Datenbank, App-Instanz, Cron-Jobs, Storage-Buckets, Provider oder
+      # Runtime-Konfiguration voraus. Diese Prüfungen bleiben vollständig
+      # erhalten und laufen nach der Installation über `commerce:doctor`,
+      # `eyis:resources:verify` und die Blackbox-QA.
+      - name: Install Pack statisch prüfen (Manifeste und Seeds)
         run: |
           set -euo pipefail
           bun run eyis:seeds:audit
           bun run eyis:seeds:verify
-          bun run eyis:resources:verify
+
 
       - name: Secret-Scan des Artefakts
         run: |
