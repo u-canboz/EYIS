@@ -49,16 +49,25 @@ export function applyCssAdminScope(
   const next = `${CSS_MARKER_START}\n${scoped}\n${CSS_MARKER_END}`;
   const start = source.indexOf(CSS_MARKER_START);
   const end = source.indexOf(CSS_MARKER_END);
-  if (
-    (start !== -1 && source.indexOf(CSS_MARKER_START, start + 1) !== -1) ||
-    (end !== -1 && source.indexOf(CSS_MARKER_END, end + 1) !== -1)
-  ) {
-    throw new IntegrationPatchError(
-      "CSS_MARKERS_AMBIGUOUS",
-      "Admin-Scope-Marker kommen mehrfach vor — manuelle Klärung nötig, kein Blind-Patch.",
-    );
+  if (start !== -1 || end !== -1) {
+    if (start === -1 || end === -1 || end < start) {
+      throw new IntegrationPatchError(
+        "CSS_MARKERS_INVALID",
+        "Admin-Scope-Marker sind unvollständig oder in falscher Reihenfolge — manuelle Klärung nötig.",
+      );
+    }
+    const before = source.slice(0, start);
+    const after = source.slice(source.indexOf(CSS_MARKER_END) + CSS_MARKER_END.length);
+    return { content: `${before}${CSS_MARKER_START}\n${scopedBlock}\n${CSS_MARKER_END}${after}`, outcome: "REPLACED" };
   }
-  if ((start === -1) !== (end === -1) || (start !== -1 && end < start)) {
+  const css = `${source.trimEnd()}\n\n${CSS_MARKER_START}\n${scopedBlock}\n${CSS_MARKER_END}\n`;
+  validateCss(css);
+  return { content: css, outcome: "INSERTED" };
+}
+
+function applyCssAdminScopeLegacyRemoved(): never {
+  throw new IntegrationPatchError("UNREACHABLE", "");
+}
     throw new IntegrationPatchError(
       "CSS_MARKERS_INVALID",
       "CSS-Scope-Marker unvollständig oder in falscher Reihenfolge — kein Blind-Patch.",
