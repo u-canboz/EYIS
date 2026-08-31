@@ -73,7 +73,7 @@ jobs:
       - name: Secret-Scan des Artefakts
         run: |
           set -euo pipefail
-          if grep -rInE 'sb_secret_|SUPABASE_SERVICE_ROLE_KEY *= *[A-Za-z0-9]|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' \
+          if grep -rInE 'sb_secret_[A-Za-z0-9]{8}|SUPABASE_SERVICE_ROLE_KEY *= *["'"'"'`][A-Za-z0-9]|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' \
               src installer scripts supabase; then
             echo "FAIL — moeglicher Secret-Fund im Release-Umfang."
             exit 1

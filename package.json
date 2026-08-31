@@ -64,7 +64,8 @@
     "eyis:resources:cron": "bun run scripts/eyis-resources.ts cron",
     "eyis:pack:keygen": "bun run scripts/eyis-pack-signature.ts keygen",
     "eyis:pack:sign": "bun run scripts/eyis-pack-signature.ts sign",
-    "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify"
+    "eyis:pack:verify": "bun run scripts/eyis-pack-signature.ts verify",
+    "eyis:database:reintrospect": "bun run scripts/eyis-database-reintrospect.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

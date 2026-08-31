@@ -7,12 +7,12 @@
   {
     "name": "Produkt angelegt (Entwurf)",
     "ok": true,
-    "detail": "28c29314-f8e9-405b-bac8-b458e8bf4e73"
+    "detail": "9eb6cf57-a3a3-4fe1-8f40-8708a62e0f41"
   },
   {
     "name": "Variante angelegt",
     "ok": true,
-    "detail": "b064eab2-9b22-4526-aa8e-e908441b2cc5"
+    "detail": "a33b003c-1329-43e8-a056-637f8ff555ea"
   },
   {
     "name": "Preis über Price-Set gesetzt",
@@ -52,7 +52,7 @@
   {
     "name": "SDK liest dasselbe Produkt",
     "ok": true,
-    "detail": "qa-smoke-1788120005756"
+    "detail": "qa-smoke-1788161262992"
   },
   {
     "name": "Warenkorb rechnet serverseitig 2 × Preis",

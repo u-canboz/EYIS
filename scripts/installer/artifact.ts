@@ -136,7 +136,7 @@ const sha256 = (data: Buffer | string) => createHash("sha256").update(data).dige
 
 export type ArtifactResult = {
   version: string;
-  channel: "stable" | "rc";
+  channel: "stable" | "prerelease";
   files: { path: string; bytes: number; sha256: string }[];
   tarball: string;
   tarballSha256: string;
@@ -173,7 +173,7 @@ export function buildArtifact(version: string, opts: { write: boolean } = { writ
   const manifest = {
     manifest: "eyis-release",
     version,
-    channel: version.includes("-rc.") ? "rc" : "stable",
+    channel: version.includes("-rc.") ? "prerelease" : "stable",
     commit: process.env["GITHUB_SHA"] ?? "local",
     generated_at: process.env["EYIS_RELEASE_TIMESTAMP"] ?? "deterministic",
     pack_version: installer.version,
@@ -198,7 +198,7 @@ export function buildArtifact(version: string, opts: { write: boolean } = { writ
 
   return {
     version,
-    channel: manifest.channel as "stable" | "rc",
+    channel: manifest.channel as "stable" | "prerelease",
     files: entries,
     tarball,
     tarballSha256: manifest.artifact.sha256,
