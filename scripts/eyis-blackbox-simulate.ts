@@ -175,7 +175,11 @@ const parseFailures: string[] = [];
 for (const file of [...sources, "src/routes/__root.tsx"]) {
   const code = readFileSync(join(WORKSPACE, file), "utf8");
   try {
-    parseTsx(code, { sourceType: "module", errorRecovery: false, plugins: ["typescript", "jsx"] });
+    parseTsx(code, {
+      sourceType: "module",
+      errorRecovery: false,
+      plugins: file.endsWith(".tsx") ? ["typescript", "jsx"] : ["typescript"],
+    });
   } catch (error) {
     parseFailures.push(`${file}: ${(error as Error).message}`);
   }
@@ -201,6 +205,10 @@ const NODE_BUILTINS = new Set([
   "http", "https", "net", "timers", "assert",
 ]);
 
+/** Kommentare entfernen — Beispiel-Importe in Doc-Blöcken sind kein Code. */
+const stripComments = (source: string) =>
+  source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|\s)\/\/[^\n]*/g, "$1");
+
 const exists = (base: string) =>
   [`${base}.ts`, `${base}.tsx`, join(base, "index.ts"), join(base, "index.tsx"), base].some((c) =>
     existsSync(join(WORKSPACE, c)),
@@ -209,7 +217,7 @@ const exists = (base: string) =>
 const unresolved: string[] = [];
 const unknownPackages: string[] = [];
 for (const file of sources) {
-  const code = readFileSync(join(WORKSPACE, file), "utf8");
+  const code = stripComments(readFileSync(join(WORKSPACE, file), "utf8"));
   const specs = [
     ...code.matchAll(/(?:import|export)[^'"]*?from\s*['"]([^'"]+)['"]/g),
     ...code.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g),
