@@ -21,6 +21,8 @@ import {
   STORE_HEADERS,
   STORE_RATE_LIMITS,
 } from "../../src/lib/commerce/store/api-catalog";
+import { artifactFiles } from "../installer/artifact";
+import { referencedScripts } from "../installer/tarball-consistency";
 
 export const GENERATOR_VERSION = "1.0.0";
 /**

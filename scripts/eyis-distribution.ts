@@ -12,8 +12,10 @@
  */
 
 import { validateDistribution } from "./installer/distribution";
+import { validateTarballConsistency } from "./installer/tarball-consistency";
 
 const result = validateDistribution();
+const consistency = validateTarballConsistency();
 
 console.log("EYIS — Distribution-Manifest");
 console.log("=".repeat(72));
@@ -24,6 +26,13 @@ console.log(`Pfade vorhanden:       ${result.missing.length === 0 ? "PASS" : "FA
 console.log(`Quelle/Ziel getrennt:  ${result.routeConflicts.length === 0 ? "PASS" : "FAIL"}`);
 console.log(`Ownership-Abgleich:    ${result.ownershipMismatches.length === 0 ? "PASS" : "FAIL"}`);
 for (const problem of result.problems) console.log(`  ! ${problem}`);
-console.log(`Gesamt:                ${result.status}`);
+console.log(`Tarball-Dateien:       ${consistency.files}`);
+console.log(`Tarball → Manifest:    ${consistency.uncategorized.length === 0 ? "PASS" : "FAIL"}`);
+console.log(`Manifest → Tarball:    ${consistency.unexplainedDrops.length === 0 ? "PASS" : "FAIL"}`);
+console.log(`Befehlsverweise:       ${consistency.deadCommandRefs.length === 0 ? "PASS" : "FAIL"}`);
+console.log(`Skript-Autonomie:      ${consistency.unresolvedImports.length === 0 ? "PASS" : "FAIL"}`);
+for (const problem of consistency.problems.slice(0, 40)) console.log(`  ! ${problem}`);
+const status = result.status === "PASS" && consistency.status === "PASS" ? "PASS" : "FAIL";
+console.log(`Gesamt:                ${status}`);
 
-process.exit(result.status === "PASS" ? 0 : 1);
+process.exit(status === "PASS" ? 0 : 1);
