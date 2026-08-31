@@ -10,6 +10,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { check as checkAdminScope, missingTokens } from "../scripts/installer/admin-scope";
 import { buildAgentPlan } from "../scripts/installer/agent-plan";
 import { artifactFiles } from "../scripts/installer/artifact";
+import { runSelftest } from "../scripts/eyis-release-selftest";
 import { loadManifest } from "../scripts/installer/runner";
 import {
   applyCssAdminScope,
@@ -134,6 +135,22 @@ record(
   "B5 Patch bringt Tokens ins Kundenprojekt",
   patchedCss.content.includes("--primary: #ED4800") && second.outcome === "NOOP",
   "Kunden-:root bleibt unberührt, Scope trägt eigene Tokens, zweiter Lauf ist NOOP.",
+);
+
+// ------------------------------------------------- R1 Release-Signaturpaketierung
+// Realer RC.5-Befund: Tarball wurde vor der Pack-Signatur gebaut und enthielt
+// eine veraltete Signaturdatei. Der Selbsttest signiert mit einem Wegwerf-Key
+// in einem temporären Verzeichnis, baut das Tarball, entpackt es und führt das
+// Pack-Gate ausschließlich aus dem entpackten Tarball aus.
+const selftest = runSelftest("simulate", "0.0.0-qa");
+for (const c of selftest.checks) record(`R1 ${c.id}`, c.status === "PASS", c.detail);
+
+const workflow = readFileSync(".github/workflows/eyis-release.yml", "utf8");
+record(
+  "R1 Workflow signiert vor dem Tarball-Bau",
+  workflow.indexOf("bun run eyis:pack:sign") < workflow.indexOf("bun run eyis:release:artifact") &&
+    workflow.indexOf("bun run eyis:release:selftest") < workflow.indexOf("Release veröffentlichen"),
+  "Signieren → verifizieren → Tarball → Pack-Gate aus dem Tarball → veröffentlichen.",
 );
 
 // ---------------------------------------------------------------- Ausgabe
