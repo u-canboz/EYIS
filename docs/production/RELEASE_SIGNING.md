@@ -68,3 +68,31 @@ Stand, der nicht als RC getestet wurde.
    Pre-Release.
 4. Blackbox-Test nach `docs/production/BLACKBOX_INSTALL_TEST.md` gegen genau diesen Tag.
 5. Bei bestandenem Durchlauf: `eyis:release:promote record 1.0.0-rc.1`, danach Tag `v1.0.0`.
+
+## 7. Signaturreihenfolge (RC.5-Befund)
+
+Das Tarball darf **niemals** vor der Pack-Signatur gebaut werden. Bei `v1.0.0-rc.5` lief der
+Workflow in der Reihenfolge „Artefakt bauen → Pack signieren“; das ausgelieferte Tarball enthielt
+dadurch die veraltete `installer/database/eyis-database-installer.signature.json` aus rc.4,
+während das separat veröffentlichte Signatur-Asset korrekt war. Das Pack-Gate aus dem entpackten
+Tarball meldete `Signatur: FAIL`.
+
+Verbindliche Reihenfolge im Release-Workflow:
+
+1. `bun run verify`, statische Installer- und Seed-Prüfungen
+2. `bun run eyis:pack:sign` — signiert den finalen Pack-Zustand
+3. `bun run eyis:pack:verify` — gegen den gepinnten Trust Anchor
+4. `bun run eyis:release:artifact` — Tarball enthält jetzt genau diese Signaturdatei
+5. `bun run eyis:release:selftest` — entpackt das Tarball in ein leeres Verzeichnis und führt
+   dort `bun run installer/eyis.ts pack` aus; vergleicht eingebettete und externe Signaturdatei
+   byte-genau, prüft Digest, Dateienanzahl, `key_id` und Tarball-SHA-256
+6. Release-Manifest signieren und verifizieren
+7. erst danach veröffentlichen
+
+Die Signaturdatei selbst ist **nicht** Teil des signierten Payloads (`signedFiles()` in
+`scripts/installer/signature.ts` ist die einzige Quelle der Dateiliste für Signer und Verifier),
+wird aber nach dem Signieren in das Tarball aufgenommen.
+
+Lokal: `bun run eyis:release:selftest:simulate` — vollständiger Durchlauf mit einem
+Wegwerf-Ed25519-Schlüssel in einem temporären Verzeichnis. Der produktive Trust Anchor und
+`EYIS_PACK_SIGNING_KEY` bleiben unverändert; temporäre Schlüssel und Artefakte werden gelöscht.
