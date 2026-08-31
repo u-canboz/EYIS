@@ -43,7 +43,25 @@ Außer diesen beiden konkret beschriebenen Fehlern werden keine weiteren Funktio
 `bun install --frozen-lockfile`, `bun run verify`, `bun run qa:install-pack`, neue Route-Guard-Tests. Kein Tag, kein Release.
 
 ## Nicht angefasst
-Commerce-Engines, Store API/SDK, Datenmodell, RLS, Migrationen, Seeds, Bootstrap, Doctor, Admin-CSS-Scope und -Tokens, Signing, Trust Anchor, Release-Packaging, Update Center, Portal, Provider.
+
+- Commerce-Engines
+- Store API / SDK
+- Datenmodell
+- RLS
+- Migrationen
+- Seeds
+- Bootstrap
+- Doctor
+- Admin-CSS-Scope
+- Admin Design Tokens
+- privater Signing Key
+- GitHub Release Signing
+- Trust-Anchor-Keymaterial und Key-Status
+- Release-Packaging
+- Portal
+- Provider außerhalb der Update-Verifikation
+
+Das Update Center darf ausschließlich soweit verändert werden, wie es für die in Punkt 8 beschriebene Public-Key-/Trust-Anchor-Verifikation erforderlich ist.
 
 ## 8. Update-Center: fehlender Release-Signaturschlüssel
 
