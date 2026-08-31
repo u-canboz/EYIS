@@ -43,9 +43,16 @@ describe("Trust Anchor", () => {
     expect(active[0]!.public_key).toContain("BEGIN PUBLIC KEY");
   });
 
-  it("löst die gepinnte key_id auf", () => {
-    const result = resolveAnchorKey(anchor.keys[0]!.key_id);
+  it("löst die gepinnte aktive key_id auf", () => {
+    const active = anchor.keys.find((k) => (k.status ?? "active") === "active")!;
+    const result = resolveAnchorKey(active.key_id);
     expect(result.ok).toBe(true);
+  });
+
+  it("lehnt eine widerrufene key_id ab (FAIL)", () => {
+    const revoked = anchor.keys.find((k) => k.status === "revoked");
+    if (!revoked) return;
+    expect(resolveAnchorKey(revoked.key_id)).toMatchObject({ ok: false, status: "FAIL" });
   });
 
   it("lehnt eine unbekannte key_id ab (FAIL)", () => {
