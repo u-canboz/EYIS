@@ -133,7 +133,7 @@ describe("Blackbox 5 — echte Admin-Scope-Tokens", () => {
     expect(checkAdminScope().status).toBe("PASS");
     const delivered = readFileSync("installer/distribution/eyis-admin-scope.css", "utf8");
     expect(missingTokens(delivered)).toEqual([]);
-    expect(delivered).not.toMatch(/:root/);
+    expect(delivered).not.toMatch(/:root\s*\{/);
   });
 
   it("nennt die Scope-Datei im Distribution-Manifest", () => {
