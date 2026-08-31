@@ -33,8 +33,8 @@
       "method": "POST",
       "expected_status_without_secret": 401,
       "timeout_seconds": 60,
-      "secret_header": "x-cron-secret",
-      "secret_key": "CRON_SECRET"
+      "secret_header": "Authorization: Bearer",
+      "secret_key": "LOVABLE_CRON_SECRET"
     },
     {
       "id": "communications",
@@ -47,8 +47,8 @@
       "method": "POST",
       "expected_status_without_secret": 401,
       "timeout_seconds": 60,
-      "secret_header": "x-cron-secret",
-      "secret_key": "CRON_SECRET"
+      "secret_header": "Authorization: Bearer",
+      "secret_key": "LOVABLE_CRON_SECRET"
     },
     {
       "id": "automation",
@@ -61,8 +61,8 @@
       "method": "POST",
       "expected_status_without_secret": 401,
       "timeout_seconds": 60,
-      "secret_header": "x-cron-secret",
-      "secret_key": "CRON_SECRET"
+      "secret_header": "Authorization: Bearer",
+      "secret_key": "LOVABLE_CRON_SECRET"
     }
   ],
   "runtime_configuration": [
@@ -86,7 +86,7 @@
       "value_in_manifest": false
     },
     {
-      "key": "CRON_SECRET",
+      "key": "LOVABLE_CRON_SECRET",
       "required": true,
       "expected": "Projektlokales Secret für die Job-Endpunkte.",
       "secret": true,
@@ -107,7 +107,7 @@
       "pg_net"
     ],
     "base_url_source": "COMMERCE_OS_URL (stabile Projekt-URL des Kundenprojekts)",
-    "secret_source": "CRON_SECRET (projektlokal, nie im Manifest)",
+    "secret_source": "LOVABLE_CRON_SECRET (projektlokal, nie im Manifest)",
     "provisioning": "bun run eyis:resources:cron --print gibt die vollständige SQL-Definition aus; eyis:resources:provision prüft Registrierung und Endpunkt-Absicherung.",
     "note": "Die SQL enthält niemals das Secret im Klartext; es wird aus Vault/Settings gelesen."
   }

@@ -13,6 +13,7 @@ import {
   resolveGithubAuth,
   type GithubAuth,
 } from "./github.server";
+import { activeTrustKeys, matchesActiveAnchorKey } from "./trust-anchor";
 import type { CapabilityProof } from "./types";
 
 export type HostingVariant = "git_auto_deploy" | "lovable_sync" | "unknown";
@@ -313,19 +314,51 @@ function probeRegistry(config: UpdateConfig): CapabilityProof {
       remediation: "EYIS_RELEASE_REPO setzen (Standard: u-canboz/EYIS).",
     };
   }
-  if (!config.releasePublicKey) {
+  // Vertrauenswurzel ist der gepinnte Trust Anchor, der mit jeder
+  // Installation ausgeliefert wird — kein manueller Schlüssel nötig.
+  const anchorKeys = activeTrustKeys();
+  const override = config.releasePublicKey;
+  if (override) {
+    if (matchesActiveAnchorKey(override)) {
+      return {
+        provider: "github_releases",
+        status: "SUPPORTED",
+        detail: `Signierte Releases aus ${config.releaseRepo}; Override-Schlüssel entspricht einem aktiven Anchorschlüssel.`,
+        evidence: ["signature=ed25519", "checksum=sha256", "override=anchor_key"],
+      };
+    }
+    const environment = (process.env["APP_ENV"] ?? "").toLowerCase();
+    if (environment === "production") {
+      return {
+        provider: "github_releases",
+        status: "SETUP_REQUIRED",
+        detail:
+          "EYIS_RELEASE_PUBLIC_KEY steht nicht im EYIS Trust Anchor — der Override würde in Production abgelehnt.",
+        remediation:
+          "Override entfernen (der gepinnte Trust Anchor reicht) oder auf einen Schlüssel setzen, der im Trust Anchor als aktiv geführt ist.",
+      };
+    }
+    return {
+      provider: "github_releases",
+      status: "SUPPORTED",
+      detail: `Signierte Releases aus ${config.releaseRepo}; Dev/Test-Override aktiv (außerhalb von Production zulässig).`,
+      evidence: ["signature=ed25519", "checksum=sha256", "override=dev_test"],
+    };
+  }
+  if (anchorKeys.length === 0) {
     return {
       provider: "github_releases",
       status: "SETUP_REQUIRED",
-      detail: "Kein Signaturschlüssel hinterlegt — unsignierte Releases werden abgelehnt.",
-      remediation: "EYIS_RELEASE_PUBLIC_KEY (Ed25519, roh, base64) setzen.",
+      detail: "Trust Anchor enthält keinen aktiven Schlüssel — unsignierte Releases werden abgelehnt.",
+      remediation:
+        "Installation reparieren: installer/distribution/eyis-trust-anchor.json muss einen aktiven Ed25519-Schlüssel enthalten (gehört zum signierten Release-Artefakt).",
     };
   }
   return {
     provider: "github_releases",
     status: "SUPPORTED",
-    detail: `Signierte Releases aus ${config.releaseRepo}.`,
-    evidence: ["signature=ed25519", "checksum=sha256"],
+    detail: `Signierte Releases aus ${config.releaseRepo}; Vertrauenswurzel ist der gepinnte EYIS Trust Anchor (key_id ${anchorKeys[0]!.key_id}).`,
+    evidence: ["signature=ed25519", "checksum=sha256", `anchor_keys=${anchorKeys.length}`],
   };
 }
 

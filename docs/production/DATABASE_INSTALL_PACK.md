@@ -90,7 +90,7 @@ erreichbar — unabhängig von der kundeneigenen `package.json`.
 - Kundendaten und Kundentabellen werden nie gelöscht. Recovery entfernt ausschließlich Objekte, die
   in `verification/ownership.json` als EYIS-eigen geführt sind — und nur, solange keine
   Commerce-Daten vorhanden sind.
-- Secrets stehen niemals im Pack. `PROVIDER_CREDENTIALS_KEY` und `CRON_SECRET` werden projektlokal
+- Secrets stehen niemals im Pack. `PROVIDER_CREDENTIALS_KEY` und `LOVABLE_CRON_SECRET` werden projektlokal
   erzeugt.
 
 ## Nach der Installation

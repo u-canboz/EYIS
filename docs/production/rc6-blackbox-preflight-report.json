@@ -1,0 +1,17 @@
+{
+  "report": "rc6-blackbox-preflight",
+  "date": "2026-09-01",
+  "checks": [
+    { "id": "P1", "status": "PASS", "detail": "Dependency-Graph vollständig, inkl. pdf-lib" },
+    { "id": "P2", "status": "PASS", "detail": "Build-Gate vor DB-/Artefakt-Schritten" },
+    { "id": "P3", "status": "PASS", "detail": "Typgenerierung nach Migrationen vor typecheck/build angeordnet" },
+    { "id": "P4", "status": "PASS", "detail": "Agent Plan deterministisch, Journal-Resume via ON CONFLICT" },
+    { "id": "P5", "status": "PASS", "detail": "Kanonischer Cron-Secret-Name LOVABLE_CRON_SECRET" }
+  ],
+  "hotfixes": {
+    "route_guard": "PASS",
+    "update_verification_trust_anchor": "PASS",
+    "release_order_signature_before_tarball": "PASS"
+  },
+  "overall": "PASS"
+}

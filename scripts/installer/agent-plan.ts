@@ -222,7 +222,9 @@ export function planInstructions(plan: AgentPlan): string {
     "     wird mit dem zuletzt nicht bestätigten Schritt fortgesetzt.",
     "",
     "Nach dem letzten Schritt:",
-    "  bun run installer/eyis.ts doctor",
+    "  1. Plattform-Typen nach den Migrationen neu erzeugen",
+    "     (supabase gen types / Plattform-Generierung) — erst danach typecheck/build.",
+    "  2. bun run installer/eyis.ts doctor",
     "",
   ].join("\n");
 }

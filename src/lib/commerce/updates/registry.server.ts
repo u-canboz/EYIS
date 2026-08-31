@@ -6,13 +6,57 @@
  * Nur Manifeste mit gültiger Signatur werden angenommen.
  */
 import { listReleases, downloadAssetText, resolveGithubAuth } from "./github.server";
-import { verifyManifestSignature } from "./signature";
+import { verifyManifestSignature, verifyReleaseManifest } from "./signature";
+import { activeTrustKeys, matchesActiveAnchorKey } from "./trust-anchor";
 import { UpdateError, type ReleaseManifest, type UpdateChannel } from "./types";
 import { loadUpdateConfig, type UpdateConfig } from "./providers.server";
 import { resolveInstallCandidate, type ReleaseResolution } from "./versions";
 
 const MANIFEST_ASSET = "eyis-release.json";
 const SIGNATURE_ASSET = "eyis-release.json.sig";
+
+/**
+ * key_id des Manifests — nur zur Schlüsselwahl. Vertrauen entsteht erst
+ * durch die Signaturprüfung gegen den Trust Anchor.
+ */
+function manifestKeyId(manifestRaw: string): string | null {
+  try {
+    const parsed = JSON.parse(manifestRaw) as { key_id?: unknown };
+    return typeof parsed.key_id === "string" && parsed.key_id.length > 0 ? parsed.key_id : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Schlüsselwahl je Release. Standard: gepinnter Trust Anchor.
+ * EYIS_RELEASE_PUBLIC_KEY ist ein Override und wird nur akzeptiert, wenn er
+ * einem aktiven Anchorschlüssel entspricht oder außerhalb von Production
+ * (Dev/Test) gesetzt ist. Ein unbekannter Override in Production ist ein
+ * harter Fehler — niemals stiller Fallback.
+ */
+function keyStrategy(config: UpdateConfig): { mode: "anchor" } | { mode: "override"; rawKey: string } {
+  const override = config.releasePublicKey;
+  if (override) {
+    if (matchesActiveAnchorKey(override)) return { mode: "override", rawKey: override };
+    const environment = (process.env["APP_ENV"] ?? "").toLowerCase();
+    if (environment === "production") {
+      throw new UpdateError(
+        "REGISTRY_KEY_UNTRUSTED",
+        "EYIS_RELEASE_PUBLIC_KEY entspricht keinem aktiven Schlüssel des EYIS Trust Anchor — Override in Production abgelehnt.",
+      );
+    }
+    // Dev/Test: expliziter Override zulässig (z. B. Wegwerf-Key des Selbsttests).
+    return { mode: "override", rawKey: override };
+  }
+  if (activeTrustKeys().length === 0) {
+    throw new UpdateError(
+      "REGISTRY_SETUP_REQUIRED",
+      "Trust Anchor enthält keinen aktiven Schlüssel — Releases können nicht verifiziert werden.",
+    );
+  }
+  return { mode: "anchor" };
+}
 
 function parseManifest(raw: string): ReleaseManifest {
   const data = JSON.parse(raw) as Partial<ReleaseManifest>;
@@ -62,12 +106,7 @@ export type RegistryResult = {
 export async function fetchSignedReleases(
   config: UpdateConfig = loadUpdateConfig(),
 ): Promise<RegistryResult> {
-  if (!config.releasePublicKey) {
-    throw new UpdateError(
-      "REGISTRY_SETUP_REQUIRED",
-      "Kein Release-Signaturschlüssel konfiguriert — Releases können nicht verifiziert werden.",
-    );
-  }
+  const strategy = keyStrategy(config);
   const auth = await resolveGithubAuth();
   const raw = await listReleases(config.releaseRepo, auth.token);
   const releases: ReleaseManifest[] = [];
@@ -84,7 +123,11 @@ export async function fetchSignedReleases(
     try {
       const manifestRaw = await downloadAssetText(manifestAsset.url, auth.token);
       const signature = (await downloadAssetText(signatureAsset.url, auth.token)).trim();
-      await verifyManifestSignature(manifestRaw, signature, config.releasePublicKey);
+      if (strategy.mode === "override") {
+        await verifyManifestSignature(manifestRaw, signature, strategy.rawKey);
+      } else {
+        await verifyReleaseManifest(manifestRaw, signature, manifestKeyId(manifestRaw));
+      }
       releases.push(parseManifest(manifestRaw));
     } catch (e) {
       rejected.push({
