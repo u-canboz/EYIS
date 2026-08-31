@@ -167,6 +167,8 @@
     "src/eyis/portal/**",
     "src/routes/portal/**",
     "src/integrations/supabase/types.ts",
-    "src/integrations/lovable/**"
+    "src/integrations/lovable/**",
+    "**/__tests__/**",
+    "src/routes/store/**"
   ]
 }
