@@ -12,9 +12,19 @@
       "key_id": "e796e7191e5da23eddc85ae9d17d9bc8",
       "label": "eyis-release-2026-01",
       "algorithm": "ed25519",
-      "status": "active",
+      "status": "revoked",
       "created_at": "2026-08-30",
-      "public_key": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAukVjyE31fWpWrBzKidWFwZ9SfpnZKnUSSxy8Y2CJ5CQ=\n-----END PUBLIC KEY-----\n"
+      "public_key": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAukVjyE31fWpWrBzKidWFwZ9SfpnZKnUSSxy8Y2CJ5CQ=\n-----END PUBLIC KEY-----\n",
+      "revoked_at": "2026-08-31",
+      "revocation_reason": "Privater Schlüssel nicht verfügbar — Schlüssel wurde nie produktiv zum Signieren verwendet."
+    },
+    {
+      "key_id": "4e7f55e68fa9a1b934ce2d04719c9177",
+      "label": "eyis-release-2026-08",
+      "algorithm": "ed25519",
+      "status": "active",
+      "created_at": "2026-08-31",
+      "public_key": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEABtQgqbMkFk3GhqjP0Ij9QOabGDo1So0txorr2drPRKs=\n-----END PUBLIC KEY-----\n"
     }
   ]
 }
