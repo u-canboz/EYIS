@@ -1,6 +1,6 @@
 {
   "manifest": "eyis-code-distribution",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen und ausschließlich die unter 'integration_patch' beschriebenen minimalen Eingriffe an kundeneigenen Dateien vornehmen.",
   "categories": {
     "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
@@ -10,7 +10,9 @@
     "optional": "Gehört zu EYIS, ist aber nicht Teil der Basisinstallation. Nur auf ausdrückliche Anforderung — beansprucht dann zusätzliche Routen-Präfixe.",
     "integration_patch": "Kundeneigene Datei, an der genau ein klar umrissener, additiver Eingriff nötig ist. Niemals ersetzen, niemals umschreiben.",
     "shared_convention": "Von Lovable-Projekten geteilte Konvention (shadcn-Primitive). Wird vorausgesetzt, nie überschrieben.",
-    "customer_routes": "Routen, die im Kundenprojekt bereits existieren und nie beansprucht werden. Die Startseite gehoert immer dem Kunden; src/routes/index.tsx im EYIS-Repo ist ausschliesslich Referenz."
+    "customer_routes": "Routen, die im Kundenprojekt bereits existieren und nie beansprucht werden. Die Startseite gehoert immer dem Kunden; src/routes/index.tsx im EYIS-Repo ist ausschliesslich Referenz.",
+    "install_tooling": "Installer- und Betriebsskripte, die mit dem Artefakt ausgeliefert werden. Wird bei Updates ersetzt.",
+    "repository_only": "Skripte des EYIS-Hauptrepositories (Release, Generatoren, Verifikation). Nicht Teil des Artefakts; im Kundenprojekt bewusst nicht verfügbar."
   },
   "install": [
     "src/lib/commerce/**",
@@ -32,6 +34,23 @@
     "src/integrations/supabase/cron-auth.ts",
     "installer/eyis.ts"
   ],
+  "install_tooling": [
+    "scripts/installer/runner.ts",
+    "scripts/installer/signature.ts",
+    "scripts/installer/route-contract.ts",
+    "scripts/installer/seeds.ts",
+    "scripts/installer/system-seeds.ts",
+    "scripts/installer/fingerprint.ts",
+    "scripts/installer/migration-history.ts",
+    "scripts/installer/introspect.ts",
+    "scripts/installer/agent-plan.ts",
+    "scripts/commerce-bootstrap.ts",
+    "scripts/commerce-doctor.ts",
+    "scripts/eyis-install.ts",
+    "scripts/eyis-seeds.ts",
+    "scripts/eyis-resources.ts",
+    "scripts/eyis-pack-signature.ts"
+  ],
   "reference_only": [
     "src/routes/index.tsx",
     "src/routes/entwickler.tsx",
@@ -41,6 +60,29 @@
     "LOVABLE_STOREFRONT_PROMPT.md",
     "qa/**",
     "docs/**"
+  ],
+  "repository_only": [
+    "scripts/docs-validate.ts",
+    "scripts/eyis-database-reintrospect.ts",
+    "scripts/eyis-database-sync.ts",
+    "scripts/eyis-distribution.ts",
+    "scripts/eyis-release-artifact.ts",
+    "scripts/eyis-release-promote.ts",
+    "scripts/eyis-release-selftest.ts",
+    "scripts/eyis-routes.ts",
+    "scripts/installer/admin-scope.ts",
+    "scripts/installer/artifact.ts",
+    "scripts/installer/dependencies.ts",
+    "scripts/installer/distribution.ts",
+    "scripts/installer/dml-audit.ts",
+    "scripts/installer/domains.ts",
+    "scripts/installer/emit.ts",
+    "scripts/installer/forward-port.ts",
+    "scripts/installer/generate-baseline.ts",
+    "scripts/installer/generate-system-seeds.ts",
+    "scripts/installer/pack-sync.ts",
+    "scripts/manifest/generate.ts",
+    "scripts/manifest/modules.def.ts"
   ],
   "customer_owned": [
     "src/routes/store/**",
@@ -112,7 +154,11 @@
     "Integration Patches sind markerbasiert und idempotent. Ein zweiter Lauf aendert nichts.",
     "Der Fresh-Install-Pack muss den Migrationsstand vollstaendig abbilden. Erzwungen durch 'bun run eyis:database:sync-check' in 'bun run verify'.",
     "Vertrauenswurzel der Signatur ist ausschliesslich 'installer/distribution/eyis-trust-anchor.json'. Ein in der Signaturdatei mitgelieferter Schluessel wird nicht akzeptiert.",
-    "Signiert wird das gesamte Release-Artefakt: SQL-Pack, Manifeste und der ausgelieferte Laufzeit-Code."
+    "Signiert wird das gesamte Release-Artefakt: SQL-Pack, Manifeste und der ausgelieferte Laufzeit-Code.",
+    "Jede Datei im Release-Tarball gehört genau einer Kategorie ('install' oder 'install_tooling'). Unkategorisierte Dateien sind ein Release-Stopper.",
+    "Jeder Pfad aus 'install' und 'install_tooling', der nicht im Tarball landet, muss in 'exclude_from_install' begründet sein.",
+    "Kein Skriptverweis in 'commerce-os.manifest.json' zeigt in einem installierten Projekt ins Leere: ausgelieferte Befehle stehen unter 'installed_commands', alles andere unter 'repository_only_commands'.",
+    "Ausgelieferte Skripte sind autonom: jeder relative Import eines Tarball-Skripts liegt selbst im Tarball. Erzwungen durch 'bun run eyis:dist:verify'."
   ],
   "shared_convention": [
     "src/components/ui/**"
