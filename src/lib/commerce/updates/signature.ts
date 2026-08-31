@@ -59,7 +59,7 @@ async function importEd25519Key(publicKey: string): Promise<CryptoKey> {
     if (pem) {
       return await crypto.subtle.importKey(
         "spki",
-        base64ToBytes(pem[1]) as unknown as BufferSource,
+        base64ToBytes(pem[1] ?? "") as unknown as BufferSource,
         { name: "Ed25519" },
         false,
         ["verify"],

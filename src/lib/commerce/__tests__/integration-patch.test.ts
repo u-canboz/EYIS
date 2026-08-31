@@ -295,9 +295,9 @@ describe("Root Guard — Render-Nachweis (kein Marker im DOM)", () => {
     }).outputText;
 
     const Outlet = () => React.createElement("main", null, "Seiteninhalt");
-    const EyisRouteBoundary = ({ children }: { children?: unknown }) =>
+    const EyisRouteBoundary = ({ children }: { children?: React.ReactNode }) =>
       React.createElement("div", { "data-eyis-boundary": true }, children);
-    const passthrough = ({ children }: { children?: unknown }) =>
+    const passthrough = ({ children }: { children?: React.ReactNode }) =>
       React.createElement(React.Fragment, null, children);
 
     const factory = new Function(

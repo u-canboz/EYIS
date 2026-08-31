@@ -298,7 +298,7 @@ function findInnermostProvider(jsx: string): { start: number; end: number } | nu
 /** Einrückung des ersten Kind-Elements einer Region. */
 function childIndentOf(region: string): string {
   const firstLine = /\n([ \t]*)\S/.exec(region);
-  return firstLine ? firstLine[1] : "  ";
+  return firstLine?.[1] ?? "  ";
 }
 
 /**

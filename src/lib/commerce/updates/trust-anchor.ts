@@ -99,7 +99,7 @@ export function resolveTrustKey(keyId: string | null | undefined): TrustKeyResol
 export function spkiPemToRawBase64(pem: string): string | null {
   const match = pem.match(/-----BEGIN PUBLIC KEY-----([\s\S]*?)-----END PUBLIC KEY-----/);
   if (!match) return null;
-  const der = match[1].replace(/\s+/g, "");
+  const der = (match[1] ?? "").replace(/\s+/g, "");
   try {
     const binary = atob(der);
     // Ed25519 SPKI: 12-Byte-Header (302a300506032b6570032100) + 32-Byte-Schlüssel.
