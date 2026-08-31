@@ -63,14 +63,18 @@ fehl, wird **nicht** installiert.
 > Lade ausschließlich die Release-Assets; nutze keinen anderen Repository-Stand.
 > Prüfe zuerst SHA-256, Pack-Signatur und Trust Anchor — ohne PASS keine Installation.
 > Bestehendes Design behalten. Meine Administrator-E-Mail ist `<E-Mail>`.
-> Halte dich an `eyis-code-distribution.manifest.json` (Version 6.0.0):
+> Halte dich an `eyis-code-distribution.manifest.json` (Version 7.0.0):
 > Nur `install`-Pfade übernehmen, `customer_owned` und `customer_routes` niemals ersetzen,
 > an `src/routes/__root.tsx` und `src/styles.css` ausschließlich den beschriebenen additiven
-> `integration_patch` vornehmen. Danach `installer/database/` als Fresh Install einspielen
-> (Units in Manifest-Reihenfolge → Seeds → `reconcile/001_migration_history.sql`),
-> `bun run eyis:install:verify` ausführen, dann
-> `EYIS_OWNER_EMAIL=<E-Mail> bun run commerce:bootstrap` und
-> `bun run eyis:resources:provision`.
+> `integration_patch` vornehmen — den CSS-Block wörtlich aus
+> `installer/distribution/eyis-admin-scope.css`, den Route-Guard mit `EyisRouteBoundary`
+> **innerhalb** der bestehenden Provider.
+> Die Datenbank wird nicht über `psql` aufgebaut: hole mit `bun run installer/eyis.ts plan`
+> den Agent Migration Plan und wende dann für n = 1 … 53 jeweils die Ausgabe von
+> `bun run installer/eyis.ts step <n>` unverändert über das Plattform-Migration-Tool an.
+> Reihenfolge ist verbindlich; jede Stufe journalisiert sich selbst.
+> Danach `EYIS_OWNER_EMAIL=<E-Mail> bun run installer/eyis.ts bootstrap`,
+> `bun run installer/eyis.ts resources` und `bun run installer/eyis.ts doctor`.
 
 ## 4. Prüfpunkte des Durchlaufs
 
@@ -78,8 +82,8 @@ Jeder Punkt ist PASS, FAIL, OFFEN oder BLOCKED. Kein PASS ohne Nachweis.
 
 | # | Schritt | Erwartung |
 | --- | --- | --- |
-| 0 | Paketprüfung | SHA-256, 402 Dateiprüfsummen, Pack- und Release-Signatur gegen den aktiven Trust-Anchor-Key PASS |
-| 1 | Installation Pack | Alle 46 Units + 5 Seeds eingespielt, Journal vollständig, Reconciliation angewendet |
+| 0 | Paketprüfung | SHA-256, alle Dateiprüfsummen, Pack- und Release-Signatur gegen den aktiven Trust-Anchor-Key PASS |
+| 1 | Installation Pack | Alle 53 Planschritte (46 Units + 5 Seeds + Reconciliation + Abschluss) über das Plattform-Migration-Tool angewendet, Journal vollständig |
 | 2 | Fingerprints | `schema_fingerprint` **und** `system_seed_fingerprint` PASS |
 | 3 | Kundenoberfläche | Startseite, Header, Footer, Farben, Schriften unverändert; `/` bleibt Kundenroute |
 | 4 | Registrierung | Konto mit der Administrator-E-Mail anlegen |
@@ -91,8 +95,8 @@ Jeder Punkt ist PASS, FAIL, OFFEN oder BLOCKED. Kein PASS ohne Nachweis.
 | 10 | Storefront | Produkt erscheint in der **bestehenden** Kundenoberfläche über das SDK |
 | 11 | Warenkorb | Summen kommen vom Server, kein Client rechnet nach |
 | 12 | Checkout | Bestellung mit Testzahlung, Bestand wird gebucht |
-| 13 | Jobs | `bun run eyis:resources:provision` → drei Zeitpläne aktiv |
-| 14 | Doctor | `bun run commerce:doctor` bzw. `/app/system` — alle Prüfungen PASS, insbesondere „Katalog (Preisauflösung)", „Kommunikation (Kernvorlagen)" und „Job-Zeitpläne (Cron)" |
+| 13 | Jobs | `bun run installer/eyis.ts resources` → drei Zeitpläne aktiv |
+| 14 | Doctor | `bun run installer/eyis.ts doctor` bzw. `/app/system` — alle Prüfungen PASS, insbesondere „Katalog (Preisauflösung)", „Kommunikation (Kernvorlagen)" und „Job-Zeitpläne (Cron)" |
 | 15 | Verify | `bun run verify` im Kundenprojekt grün |
 
 **Abbruchregel:** Sobald ein Schritt nur durch Handanpassung am gelieferten Code funktioniert,
@@ -101,6 +105,11 @@ der Durchlauf von vorn begonnen. `v1.0.0-rc.4` selbst wird nicht verändert.
 
 ## 5. Bekannte Umgebungsfallen
 
+- Die Installationsbefehle hängen nicht an der kundeneigenen `package.json`. Alles läuft über
+  `bun run installer/eyis.ts <befehl>` (`plan`, `step`, `seeds`, `verify`, `pack`, `bootstrap`,
+  `doctor`, `resources`).
+- Direktes DDL über `psql` ist auf einer frischen Lovable-Cloud-Datenbank nicht erlaubt. Der
+  Installer bricht dort bewusst mit `DIRECT_DDL_UNAVAILABLE` ab und verweist auf den Plan.
 - Der Installer erkennt den Zustand über die Datenbankverbindung der Umgebung. Läuft die CLI
   gegen eine bereits bestückte Datenbank (z. B. eine Entwicklungsumgebung mit gesetzten
   `PG*`-Variablen), meldet `eyis:install:status` „INSTALLED". Der Blackbox-Lauf braucht deshalb
