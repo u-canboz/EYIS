@@ -92,7 +92,7 @@ describe("Root Guard Patch", () => {
     const second = applyRootGuard(first.content);
     expect(second.outcome).toBe("NOOP");
     expect(second.content).toBe(first.content);
-    expect(second.content.split("EyisRouteBoundary").length - 1).toBe(3); // Import + Auf/Zu
+    expect(second.content.split("EyisRouteBoundary").length - 1).toBe(4); // Import (2x) + Auf + Zu
   });
 
   it("bricht ab, wenn die Root-Komponente fehlt", () => {
