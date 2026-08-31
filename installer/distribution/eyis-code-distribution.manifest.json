@@ -1,6 +1,6 @@
 {
   "manifest": "eyis-code-distribution",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen und ausschließlich die unter 'integration_patch' beschriebenen minimalen Eingriffe an kundeneigenen Dateien vornehmen.",
   "categories": {
     "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
@@ -29,7 +29,8 @@
     "installer/distribution/**",
     "installer/resources/**",
     "commerce-os.manifest.json",
-    "src/integrations/supabase/cron-auth.ts"
+    "src/integrations/supabase/cron-auth.ts",
+    "installer/eyis.ts"
   ],
   "reference_only": [
     "src/routes/index.tsx",
@@ -73,8 +74,8 @@
       "path": "src/routes/__root.tsx",
       "reason": "Das Kunden-Root-Layout rendert Header, Footer und Navigation um <Outlet />. Ohne Grenze erbt das EYIS-Backoffice dieses Chrome.",
       "change": "additive_guard",
-      "instruction": "Guard markerbasiert einfügen. Fehlt die Root-Komponente oder schlaegt der Build danach fehl, wird zurückgerollt und gestoppt — die Datei wird nie ersetzt.",
-      "snippet": "const pathname = useRouterState({ select: (s) => s.location.pathname });\nif (isEyisInternalRoute(pathname)) return <Outlet />;\nreturn (<CustomerChrome><Outlet /></CustomerChrome>);",
+      "instruction": "EyisRouteBoundary INNERHALB der bestehenden Provider einsetzen; niemals frueh aus der Root-Komponente zurueckkehren. Genau ein neuer Import: EyisRouteBoundary aus @/eyis/shell/EyisRouteBoundary.",
+      "snippet": "<QueryClientProvider client={queryClient}>\\n  {/* EYIS:ROUTE_GUARD:START */}<EyisRouteBoundary>\\n    <CustomerChrome><Outlet /></CustomerChrome>\\n  </EyisRouteBoundary>{/* EYIS:ROUTE_GUARD:END */}\\n</QueryClientProvider>",
       "markers": [
         "/* EYIS:ROUTE_GUARD:START */",
         "/* EYIS:ROUTE_GUARD:END */"
@@ -85,13 +86,14 @@
       "path": "src/styles.css",
       "reason": "Das Backoffice braucht seinen eigenen Token-Scope, damit Kunden-Overrides auf :root es nicht verfärben.",
       "change": "append_scope_block",
-      "instruction": "Den Block markerbasiert einfügen oder zwischen den Markern aktualisieren. Zweimaliges Anwenden erzeugt keinen zweiten Block. Danach wird das CSS auf Klammerbalance geprüft; bei Verstoss wird zurückgerollt.",
-      "snippet": ".eyis-admin { /* EYIS Design-Tokens, lokal aufgelöst */ }",
+      "instruction": "Den vollstaendigen Tokenblock aus installer/distribution/eyis-admin-scope.css markerbasiert einfuegen oder zwischen den Markern aktualisieren. Ein leerer .eyis-admin-Block ist ein Installationsfehler: das Backoffice wuerde die Tokens des Kunden-:root erben.",
+      "snippet": "/* Inhalt aus installer/distribution/eyis-admin-scope.css — vollständiger .eyis-admin Token-Block */",
       "markers": [
         "/* EYIS:ADMIN_SCOPE:START */",
         "/* EYIS:ADMIN_SCOPE:END */"
       ],
-      "idempotent": true
+      "idempotent": true,
+      "source_file": "installer/distribution/eyis-admin-scope.css"
     }
   ],
   "rules": [

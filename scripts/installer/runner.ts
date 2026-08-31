@@ -162,8 +162,43 @@ export type RunOptions = { env?: NodeJS.ProcessEnv; stopAfter?: number; onUnit?:
  * Wendet alle offenen Units an. Baseline wird niemals über eine bestehende
  * Installation gelegt — das ist eine harte Sperre, keine Empfehlung.
  */
+export function preflightDirectDdl(env: NodeJS.ProcessEnv = {}): { ok: boolean; reason?: string } {
+  try {
+    psql("select 1", env);
+  } catch (error) {
+    return { ok: false, reason: `Kein direkter Datenbankzugang: ${error instanceof Error ? error.message : String(error)}` };
+  }
+  try {
+    psql("create table if not exists public.eyis_ddl_probe(id int); drop table if exists public.eyis_ddl_probe", env);
+  } catch (error) {
+    return {
+      ok: false,
+      reason: `Der verfügbare Datenbankbenutzer darf kein DDL im Schema public ausführen (${
+        error instanceof Error ? error.message.split("\n")[0] : String(error)
+      }).`,
+    };
+  }
+  return { ok: true };
+}
+
+export class DirectDdlUnavailableError extends Error {
+  code = "DIRECT_DDL_UNAVAILABLE";
+  constructor(reason: string) {
+    super(
+      `${reason}\n\nDas ist auf einer frischen Lovable-Cloud-Datenbank der Normalfall. ` +
+        "Verwende den Agent Migration Plan: `bun run installer/eyis.ts plan`, " +
+        "danach je Schritt `bun run installer/eyis.ts step <n>` über das Plattform-Migration-Tool anwenden.",
+    );
+    this.name = "DirectDdlUnavailableError";
+  }
+}
+
 export function runFreshInstall(manifest: Manifest, options: RunOptions = {}) {
   const env = options.env ?? {};
+  // Kein blindes psql mehr: fehlt das Recht, wird sauber auf den Agent
+  // Migration Plan verwiesen statt mitten in Unit 000 abzubrechen.
+  const preflight = preflightDirectDdl(env);
+  if (!preflight.ok) throw new DirectDdlUnavailableError(preflight.reason!);
   // Harte Sperre: ohne bestandenes Pack-Gate wird keine SQL-Anweisung ausgeführt.
   assertPackGate({ ...process.env, ...env });
   const before = detectState(manifest, env);
