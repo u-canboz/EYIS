@@ -129,17 +129,17 @@ record(
 {
   const legacy = CUSTOMER_ROOT.replace(
     "<ThemeProvider>",
-    "<ThemeProvider>\n        /* EYIS:ROUTE_GUARD:LEGACY_START */",
+    "<ThemeProvider>\n        /* EYIS:ROUTE_GUARD:START */",
   ).replace(
     "</ThemeProvider>",
-    "        /* EYIS:ROUTE_GUARD:LEGACY_END */\n      </ThemeProvider>",
+    "        /* EYIS:ROUTE_GUARD:END */\n      </ThemeProvider>",
   );
   const upgraded = applyRootGuard(legacy);
   record(
     "B4 rc.6 Legacy-Marker werden erkannt und auf JSX-Form gehoben",
     !legacy.includes("{/*") &&
       upgraded.content.includes("{/* EYIS:ROUTE_GUARD:START */}") &&
-      !upgraded.content.includes("EYIS:ROUTE_GUARD:LEGACY"),
+      !/(?<!\{)\/\* EYIS:ROUTE_GUARD:(START|END) \*\//.test(upgraded.content),
     "Altinstallationen (rc.4/rc.5) migrieren ohne Doppel-Block.",
   );
 }
@@ -150,7 +150,7 @@ record(
       applyRootGuard("export function R() { return <Outlet />; }");
       return false;
     } catch (error) {
-      return String(error).includes("ROOT_EARLY_RETURN");
+      return (error as { code?: string }).code === "ROOT_EARLY_RETURN";
     }
   })(),
   "Kein Guard bei frühem return <Outlet />.",
