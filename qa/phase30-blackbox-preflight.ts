@@ -9,7 +9,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
-import { buildAgentPlan } from "../scripts/installer/agent-plan";
+import { buildAgentPlan, planInstructions } from "../scripts/installer/agent-plan";
 import { loadManifest } from "../scripts/installer/runner";
 
 type Check = { id: string; status: "PASS" | "FAIL"; detail: string };
