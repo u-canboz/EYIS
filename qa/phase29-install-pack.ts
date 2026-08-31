@@ -169,9 +169,11 @@ record(
 );
 
 const customerCss = `:root {\n  --primary: #00f;\n  --background: #fff;\n}\n`;
-const patchedCss = applyCssAdminScope(customerCss, delivered.slice(delivered.indexOf(".eyis-admin")));
+const ruleStart = delivered.search(/^\.eyis-admin/m);
+const scopeBlock = delivered.slice(ruleStart);
+const patchedCss = applyCssAdminScope(customerCss, scopeBlock);
 validateCss(patchedCss.content);
-const second = applyCssAdminScope(patchedCss.content, delivered.slice(delivered.indexOf(".eyis-admin")));
+const second = applyCssAdminScope(patchedCss.content, scopeBlock);
 record(
   "B5 Patch bringt Tokens ins Kundenprojekt",
   patchedCss.content.includes("--primary: #ED4800") && second.outcome === "NOOP",
