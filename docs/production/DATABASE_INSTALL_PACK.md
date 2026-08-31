@@ -46,6 +46,25 @@ Der `system_seed_fingerprint` im Seed-Manifest gehört zusammen mit dem `schema_
 Ready-Kriterium: **beide** müssen PASS melden.
 
 
+## Weg ohne privilegierten Datenbankzugang (Regelfall)
+
+Eine frische Lovable-Cloud-Datenbank erlaubt dem verfügbaren Benutzer kein DDL im Schema `public`.
+Privilegierte Migrationen laufen dort ausschließlich über das Plattform-Migration-Tool, das dem
+installierenden Agenten zur Verfügung steht. Der Installer erzeugt dafür einen deterministischen
+Agent Migration Plan:
+
+```
+bun run installer/eyis.ts plan        # 53 Schritte: Units → Seeds → Reconciliation → Abschluss
+bun run installer/eyis.ts step <n>    # genau eine Migration, unverändert an das Plattformwerkzeug
+```
+
+Jede Stufe schreibt ihren Journaleintrag in derselben Migration. Zustand, Wiederaufnahme und
+Nachweis brauchen deshalb keinen direkten Datenbankzugang. `runFreshInstall` (psql-Pfad) bleibt für
+Umgebungen mit echtem Superuser-Zugang, prüft die Rechte vorab und verweist sonst auf den Plan.
+
+Alle Installationsbefehle sind über den ausgelieferten Einstiegspunkt `installer/eyis.ts`
+erreichbar — unabhängig von der kundeneigenen `package.json`.
+
 ## Reihenfolge im Kundenprojekt
 
 1. `bun run eyis:install:status` — Zustand feststellen (`NOT_INSTALLED`, `PARTIAL_INSTALL`, `INSTALLED`).

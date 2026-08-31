@@ -1,0 +1,99 @@
+/*
+ * EYIS Admin Scope — ausgelieferter Token-Block für Dedicated-Installationen.
+ * Wird markerbasiert in die kundeneigene src/styles.css eingefügt.
+ * Erzeugt aus src/styles.css. Nicht von Hand bearbeiten.
+ */
+/*
+ * EYIS Admin-Scope — CSS-Isolation für Dedicated-Installationen.
+ *
+ * Bei einer Installation in ein bestehendes Kundenprojekt gehört `:root` dem
+ * Kunden. Überschreibt dessen Design-System dieselben Variablennamen, würde
+ * das Backoffice fremde Farben, Radien und Typografie erben. Deshalb deklariert
+ * der Scope-Container `.eyis-admin` alle Tokens, die die EYIS-Oberfläche
+ * braucht, noch einmal lokal. Die Auflösung erfolgt beim nächstgelegenen
+ * Vorfahren — Kunden-Overrides auf `:root` erreichen das Backoffice nicht mehr,
+ * und EYIS-Tokens greifen umgekehrt niemals in die Kundenseite.
+ */
+.eyis-admin {
+  --radius: 0.625rem;
+  --content-max: 84rem;
+  --tap: 2.75rem;
+  --elevation-1: 0 1px 2px oklch(0.2 0.005 60 / 4%);
+  --elevation-2: 0 16px 40px -20px oklch(0.2 0.005 60 / 28%);
+
+  /* Typografie lokal deklariert: ein Kunden-:root darf die Backoffice-Schrift
+     nicht verändern. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  --background: oklch(0.972 0.003 85);
+  --foreground: oklch(0.205 0 0);
+
+  --surface: oklch(0.988 0.002 85);
+  --surface-foreground: oklch(0.205 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.205 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.205 0 0);
+
+  --primary: #ED4800;
+  --primary-foreground: oklch(0.995 0.002 85);
+  --secondary: oklch(0.955 0.004 85);
+  --secondary-foreground: oklch(0.3 0.005 70);
+  --muted: oklch(0.958 0.004 85);
+  --muted-foreground: oklch(0.507 0.004 70);
+  --accent: color-mix(in srgb, #ED4800 9%, white);
+  --accent-foreground: color-mix(in srgb, #ED4800 82%, black);
+  --signal: #ED4800;
+  --signal-foreground: oklch(0.995 0.002 85);
+
+  --success: oklch(0.54 0.104 155);
+  --success-foreground: oklch(0.995 0.002 85);
+  --warning: oklch(0.7 0.13 72);
+  --warning-foreground: oklch(0.27 0.03 70);
+  --info: oklch(0.55 0.088 250);
+  --info-foreground: oklch(0.995 0.002 85);
+  --destructive: oklch(0.545 0.185 27);
+  --destructive-foreground: oklch(0.995 0.002 85);
+
+  --border: oklch(0.917 0.004 75);
+  --border-strong: oklch(0.868 0.006 75);
+  --input: oklch(0.9 0.005 75);
+  --ring: #ED4800;
+
+  --chart-1: #ED4800;
+  --chart-2: oklch(0.54 0.104 155);
+  --chart-3: oklch(0.55 0.088 250);
+  --chart-4: oklch(0.7 0.13 72);
+  --chart-5: oklch(0.646 0.006 70);
+
+  --sidebar: oklch(0.955 0.004 85);
+  --sidebar-foreground: oklch(0.32 0.004 70);
+  --sidebar-primary: oklch(1 0 0);
+  --sidebar-primary-foreground: oklch(0.205 0 0);
+  --sidebar-accent: oklch(0.925 0.005 80);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.905 0.005 80);
+  --sidebar-ring: #ED4800;
+
+  /* Der Scope bringt seine eigene Grundlage mit, statt sie von <body> zu erben.
+     Bewusst die scope-eigenen Tokens statt der Theme-Aliase: ein Kunden-Override
+     auf :root kann die Backoffice-Fläche damit nicht verfärben. */
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  text-align: start;
+  isolation: isolate;
+}
+
+.eyis-admin h1,
+.eyis-admin h2,
+.eyis-admin h3,
+.eyis-admin h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
