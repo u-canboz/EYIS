@@ -115,12 +115,7 @@ if (command === "sign-artifact" || command === "verify-artifact") {
   const sigPath = `${resolve(manifestPath)}.sig`;
 
   if (command === "sign-artifact") {
-    const pem = process.env["EYIS_PACK_SIGNING_KEY"];
-    if (!pem) {
-      console.log("Artefakt-Signatur: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.");
-      process.exit(3);
-    }
-    const key = createPrivateKey(pem);
+    const key = signingKeyFromEnv("Artefakt-Signatur");
     const publicKey = createPublicKey(key).export({ type: "spki", format: "pem" }).toString();
     const keyId = createHash("sha256").update(publicKey).digest("hex").slice(0, 32);
     const anchor = resolveAnchorKey(keyId);
