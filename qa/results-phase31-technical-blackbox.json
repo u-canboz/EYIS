@@ -57,7 +57,7 @@
     "area": "Owner",
     "name": "Auto-Claim des vorbereiteten Owners",
     "status": "PASS",
-    "detail": "org=565d9550-ab68-4b84-8718-a94f8cae7d4c"
+    "detail": "org=bae8925d-3385-444c-9934-ee3e9bcd70af"
   },
   {
     "area": "Owner",
@@ -140,8 +140,8 @@
   {
     "area": "RLS/Grants",
     "name": "Keine erreichbare Tabelle ohne Policy",
-    "status": "FAIL",
-    "detail": "eyis_installation_state, eyis_installation_units, provider_credentials, idempotency_keys, automation_rule_counters, oauth_states, store_api_rate_counters, outbox_events, store_confirmation_tokens, store_privacy_salts, update_runs, update_run_steps, commerce_installation"
+    "status": "PASS",
+    "detail": "0 Lücken"
   },
   {
     "area": "RLS/Grants",
@@ -152,7 +152,13 @@
   {
     "area": "Doctor",
     "name": "Kein FAIL im Doctor",
-    "status": "FAIL",
+    "status": "PASS",
+    "detail": "24 Prüfungen"
+  },
+  {
+    "area": "Doctor",
+    "name": "Storage-Prüfung",
+    "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
     "detail": "Storage: service unavailable in isolated cluster"
   },
   {
@@ -171,13 +177,13 @@
     "area": "Katalog",
     "name": "Produkt angelegt",
     "status": "PASS",
-    "detail": "2d64a5dc-c338-4c97-bbde-a583e4dbefb6"
+    "detail": "43ffb43f-a3f6-482f-98f2-d805835f1565"
   },
   {
     "area": "Katalog",
     "name": "Standardvariante angelegt",
     "status": "PASS",
-    "detail": "variant=51b5eb44-0d0a-492d-94b2-5b8bfb1b10fd"
+    "detail": "variant=2e46068b-92b8-45b6-be5c-99b5dbe90158"
   },
   {
     "area": "Katalog",
@@ -237,13 +243,13 @@
     "area": "Order",
     "name": "Order aus bezahlter Sitzung erzeugt",
     "status": "PASS",
-    "detail": "01a2fd8d-6e3f-42c4-8c2a-77875234ae01"
+    "detail": "9678c3d4-49c6-474d-8df9-9d9745ed90d6"
   },
   {
     "area": "Order",
     "name": "Wiederholte Finalisierung erzeugt keine zweite Order",
     "status": "PASS",
-    "detail": "01a2fd8d-6e3f-42c4-8c2a-77875234ae01"
+    "detail": "9678c3d4-49c6-474d-8df9-9d9745ed90d6"
   },
   {
     "area": "Order",
@@ -266,8 +272,8 @@
   {
     "area": "Store API",
     "name": "GET /products liefert Katalog",
-    "status": "FAIL",
-    "detail": "status=200"
+    "status": "PASS",
+    "detail": "status=200, items=1"
   },
   {
     "area": "Store API",
