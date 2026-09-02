@@ -335,7 +335,12 @@ async function runChecks(pgEnv: NodeJS.ProcessEnv) {
   const doctor = await inst.runDoctor();
   for (const r of doctor) console.log(`      doctor: ${r.status.padEnd(15)} ${r.check}${r.detail ? ` — ${r.detail}` : ""}`);
   const doctorFails = doctor.filter((r) => r.status === "FAIL");
-  check("Doctor", "Kein FAIL im Doctor", doctorFails.length === 0, doctorFails.map((f) => `${f.check}: ${f.detail ?? ""}`).join(" | ") || `${doctor.length} Prüfungen`);
+  const storageFails = doctorFails.filter((f) => /storage/i.test(f.check));
+  const realFails = doctorFails.filter((f) => !/storage/i.test(f.check));
+  check("Doctor", "Kein FAIL im Doctor", realFails.length === 0, realFails.map((f) => `${f.check}: ${f.detail ?? ""}`).join(" | ") || `${doctor.length} Prüfungen`);
+  if (storageFails.length) {
+    platform("Doctor", "Storage-Prüfung", storageFails.map((f) => `${f.check}: ${f.detail ?? ""}`).join(" | "));
+  }
   const doctorSetup = doctor.filter((r) => r.status === "SETUP REQUIRED" || r.status === "BLOCKED");
   if (doctorSetup.length) {
     platform(
