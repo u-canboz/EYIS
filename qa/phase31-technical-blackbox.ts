@@ -261,7 +261,7 @@ async function runChecks(pgEnv: NodeJS.ProcessEnv) {
   const shopCount = Number(psql("select count(*) from public.shops", pgEnv).trim());
   check("Owner", "Organisation + Hauptshop angelegt", orgCount === 1 && shopCount === 1, `orgs=${orgCount}, shops=${shopCount}`);
   const roleRow = psql(
-    `select role from public.organization_members where organization_id='${orgId}' and user_id='${ownerId}'`,
+    `select role from public.memberships where organization_id='${orgId}' and user_id='${ownerId}'`,
     pgEnv,
   ).trim();
   check("Owner", "Owner-Rolle vergeben", roleRow === "owner", `role=${roleRow || "none"}`);
