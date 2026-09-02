@@ -52,14 +52,37 @@ if (command === "keygen") {
 }
 
 
-if (command === "sign") {
-  const pem = process.env["EYIS_PACK_SIGNING_KEY"];
-  if (!pem) {
-    console.log("Pack-Signatur: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.");
+/**
+ * Normalisiert einen PEM-Wert aus einem Secret-Speicher: escaped `\n`-Sequenzen
+ * und verflachte Leerzeichen (Secret-Eingabefelder sind oft einzeilig) werden
+ * wieder zu echten Zeilenumbrüchen.
+ */
+function normalizePem(raw: string): string {
+  const text = raw.replace(/\\n/g, "\n").trim();
+  if (text.includes("\n")) return text;
+  const match = text.match(/^(-----BEGIN [^-]+-----)\s+(.*?)\s+(-----END [^-]+-----)$/);
+  if (!match) return text;
+  return `${match[1]}\n${match[2].replace(/\s+/g, "\n")}\n${match[3]}\n`;
+}
+
+/**
+ * Lädt den privaten Signierschlüssel aus der Umgebung. Der Schlüssel wird
+ * ausschließlich im Speicher verwendet und nie geloggt oder ausgegeben.
+ */
+function signingKeyFromEnv(what: string): ReturnType<typeof createPrivateKey> {
+  const raw = process.env["EYIS_PACK_SIGNING_KEY"];
+  if (!raw) {
+    console.log(`${what}: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.`);
     console.log("Es wird bewusst keine Signatur erzeugt. Schlüssel bereitstellen (eyis:pack:keygen) und erneut ausführen.");
     process.exit(3);
   }
-  const key = createPrivateKey(pem);
+  const pem = normalizePem(raw);
+  return createPrivateKey(pem);
+}
+
+
+if (command === "sign") {
+  const key = signingKeyFromEnv("Pack-Signatur");
   const { digest, entries } = packDigest();
   const signature = sign(null, Buffer.from(digest, "hex"), key).toString("base64");
   const publicKey = createPublicKey(key).export({ type: "spki", format: "pem" }).toString();
@@ -103,12 +126,7 @@ if (command === "sign-artifact" || command === "verify-artifact") {
   const sigPath = `${resolve(manifestPath)}.sig`;
 
   if (command === "sign-artifact") {
-    const pem = process.env["EYIS_PACK_SIGNING_KEY"];
-    if (!pem) {
-      console.log("Artefakt-Signatur: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.");
-      process.exit(3);
-    }
-    const key = createPrivateKey(pem);
+    const key = signingKeyFromEnv("Artefakt-Signatur");
     const publicKey = createPublicKey(key).export({ type: "spki", format: "pem" }).toString();
     const keyId = createHash("sha256").update(publicKey).digest("hex").slice(0, 32);
     const anchor = resolveAnchorKey(keyId);
