@@ -1,0 +1,314 @@
+[
+  {
+    "area": "Installation",
+    "name": "Database Install Pack angewendet",
+    "status": "PASS",
+    "detail": "46/46 Units"
+  },
+  {
+    "area": "Installation",
+    "name": "System Seeds angewendet",
+    "status": "PASS",
+    "detail": "5 Seeds"
+  },
+  {
+    "area": "Installation",
+    "name": "Daten-API (PostgREST) erreichbar",
+    "status": "PASS",
+    "detail": "port 3932"
+  },
+  {
+    "area": "Bootstrap",
+    "name": "Bootstrap gegen frische Datenbank",
+    "status": "PASS",
+    "detail": "preflight_owner_email=ok | environment=development, mode=dedicated | central_dependencies=none | database=ok | installation_registered (seed singleton) | system_seed=ok (role_permissions=482) | storage_buckets=0 | recovery_claim_token_issued | pending_owner_registered"
+  },
+  {
+    "area": "Bootstrap",
+    "name": "Pending Owner vorbereitet",
+    "status": "PASS",
+    "detail": "AWAITING_OWNER_REGISTRATION"
+  },
+  {
+    "area": "Bootstrap",
+    "name": "Kein Claim-Token im Antwortkörper",
+    "status": "PASS",
+    "detail": "recovery token bleibt intern"
+  },
+  {
+    "area": "Bootstrap",
+    "name": "Installation-Singleton genau einmal",
+    "status": "PASS",
+    "detail": "rows=1"
+  },
+  {
+    "area": "Bootstrap",
+    "name": "Bootstrap-Idempotenz (zweiter Lauf gesperrt)",
+    "status": "PASS",
+    "detail": "code=INSTALLATION_ALREADY_INITIALIZED"
+  },
+  {
+    "area": "Bootstrap",
+    "name": "Zweiter Bootstrap ohne Nebenwirkung",
+    "status": "PASS",
+    "detail": "rows=1"
+  },
+  {
+    "area": "Owner",
+    "name": "Auto-Claim des vorbereiteten Owners",
+    "status": "PASS",
+    "detail": "org=565d9550-ab68-4b84-8718-a94f8cae7d4c"
+  },
+  {
+    "area": "Owner",
+    "name": "Registrierung + E-Mail-Bestätigung des Owners (GoTrue)",
+    "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
+    "detail": "Identität/Verifikation stammt aus Supabase Auth; lokal kein GoTrue vorhanden — Claim wurde mit serverseitig gesetzten, verifizierten Auth-Claims geprüft"
+  },
+  {
+    "area": "Owner",
+    "name": "Organisation + Hauptshop angelegt",
+    "status": "PASS",
+    "detail": "orgs=1, shops=1"
+  },
+  {
+    "area": "Owner",
+    "name": "Owner-Rolle vergeben",
+    "status": "PASS",
+    "detail": "role=owner"
+  },
+  {
+    "area": "Owner",
+    "name": "Zweiter Claim abgelehnt",
+    "status": "PASS",
+    "detail": "code=OWNER_ALREADY_CLAIMED"
+  },
+  {
+    "area": "Default Settings",
+    "name": "Steuerklassen",
+    "status": "PASS",
+    "detail": "2 Zeilen"
+  },
+  {
+    "area": "Default Settings",
+    "name": "Steuer-Settings",
+    "status": "PASS",
+    "detail": "1 Zeilen"
+  },
+  {
+    "area": "Default Settings",
+    "name": "Nummernkreise",
+    "status": "PASS",
+    "detail": "3 Zeilen"
+  },
+  {
+    "area": "Default Settings",
+    "name": "Lagerort",
+    "status": "PASS",
+    "detail": "1 Zeilen"
+  },
+  {
+    "area": "Default Settings",
+    "name": "Shop-Währung und Locale gesetzt",
+    "status": "PASS",
+    "detail": "EUR/de-DE"
+  },
+  {
+    "area": "System Seeds",
+    "name": "Rollen/Rechte",
+    "status": "PASS",
+    "detail": "482 Zeilen"
+  },
+  {
+    "area": "System Seeds",
+    "name": "Produkt-Blueprints",
+    "status": "PASS",
+    "detail": "9 Zeilen"
+  },
+  {
+    "area": "System Seeds",
+    "name": "Kommunikations-Vorlagen",
+    "status": "PASS",
+    "detail": "23 Zeilen"
+  },
+  {
+    "area": "RLS/Grants",
+    "name": "Alle public-Tabellen mit RLS",
+    "status": "PASS",
+    "detail": "0 Lücken"
+  },
+  {
+    "area": "RLS/Grants",
+    "name": "Keine erreichbare Tabelle ohne Policy",
+    "status": "FAIL",
+    "detail": "eyis_installation_state, eyis_installation_units, provider_credentials, idempotency_keys, automation_rule_counters, oauth_states, store_api_rate_counters, outbox_events, store_confirmation_tokens, store_privacy_salts, update_runs, update_run_steps, commerce_installation"
+  },
+  {
+    "area": "RLS/Grants",
+    "name": "service_role auf allen Tabellen berechtigt",
+    "status": "PASS",
+    "detail": "0 Lücken"
+  },
+  {
+    "area": "Doctor",
+    "name": "Kein FAIL im Doctor",
+    "status": "FAIL",
+    "detail": "Storage: service unavailable in isolated cluster"
+  },
+  {
+    "area": "Doctor",
+    "name": "Prüfungen mit Plattform-/Provider-Abhängigkeit",
+    "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
+    "detail": "Setup=SETUP REQUIRED, Katalog (Preisauflösung)=SETUP REQUIRED, Job-Zeitpläne (Cron)=SETUP REQUIRED"
+  },
+  {
+    "area": "Doctor",
+    "name": "Storage-Buckets",
+    "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
+    "detail": "Supabase Storage existiert im isolierten Cluster nicht"
+  },
+  {
+    "area": "Katalog",
+    "name": "Produkt angelegt",
+    "status": "PASS",
+    "detail": "2d64a5dc-c338-4c97-bbde-a583e4dbefb6"
+  },
+  {
+    "area": "Katalog",
+    "name": "Standardvariante angelegt",
+    "status": "PASS",
+    "detail": "variant=51b5eb44-0d0a-492d-94b2-5b8bfb1b10fd"
+  },
+  {
+    "area": "Katalog",
+    "name": "Preis über die Pricing Engine gesetzt",
+    "status": "PASS",
+    "detail": "49,90 EUR"
+  },
+  {
+    "area": "Katalog",
+    "name": "Bestand eingebucht",
+    "status": "PASS",
+    "detail": "on_hand=10"
+  },
+  {
+    "area": "Katalog",
+    "name": "Versandart angelegt",
+    "status": "PASS",
+    "detail": "4,90 EUR"
+  },
+  {
+    "area": "Katalog",
+    "name": "Test-Zahlungsanbieter aktiviert",
+    "status": "PASS",
+    "detail": "mock/test"
+  },
+  {
+    "area": "Cart",
+    "name": "Cart mit Position und Serverpreis",
+    "status": "PASS",
+    "detail": "subtotal=4990"
+  },
+  {
+    "area": "Checkout",
+    "name": "Checkout gestartet + Bestand reserviert",
+    "status": "PASS",
+    "detail": "reservations=1"
+  },
+  {
+    "area": "Checkout",
+    "name": "Checkout vollständig validierbar",
+    "status": "PASS",
+    "detail": "total=5480"
+  },
+  {
+    "area": "Checkout",
+    "name": "Server-Total = 49,90 + 4,90",
+    "status": "PASS",
+    "detail": "5480"
+  },
+  {
+    "area": "Zahlung",
+    "name": "Zahlungssitzung (Test-Anbieter) erstellt",
+    "status": "PASS",
+    "detail": "mock/test 5480"
+  },
+  {
+    "area": "Order",
+    "name": "Order aus bezahlter Sitzung erzeugt",
+    "status": "PASS",
+    "detail": "01a2fd8d-6e3f-42c4-8c2a-77875234ae01"
+  },
+  {
+    "area": "Order",
+    "name": "Wiederholte Finalisierung erzeugt keine zweite Order",
+    "status": "PASS",
+    "detail": "01a2fd8d-6e3f-42c4-8c2a-77875234ae01"
+  },
+  {
+    "area": "Order",
+    "name": "Order-Totals und Status korrekt",
+    "status": "PASS",
+    "detail": "5480 / paid"
+  },
+  {
+    "area": "Order",
+    "name": "Bestand nach Commit korrekt",
+    "status": "PASS",
+    "detail": "on_hand=9, reserved=0"
+  },
+  {
+    "area": "Store API",
+    "name": "GET /config über das Gateway",
+    "status": "PASS",
+    "detail": "status=200"
+  },
+  {
+    "area": "Store API",
+    "name": "GET /products liefert Katalog",
+    "status": "FAIL",
+    "detail": "status=200"
+  },
+  {
+    "area": "Store API",
+    "name": "Ungültiger Schlüssel wird abgewiesen",
+    "status": "PASS",
+    "detail": "status=401"
+  },
+  {
+    "area": "Jobs",
+    "name": "Automation-Queue lauffähig",
+    "status": "PASS",
+    "detail": "{\"claimed\":0,\"results\":[]}"
+  },
+  {
+    "area": "Jobs",
+    "name": "Reclaim hängengebliebener Jobs lauffähig",
+    "status": "PASS",
+    "detail": "{\"reclaimed\":0}"
+  },
+  {
+    "area": "Jobs",
+    "name": "Zeitpläne einreihbar",
+    "status": "PASS",
+    "detail": "{\"queued\":0}"
+  },
+  {
+    "area": "Jobs",
+    "name": "Kommunikations-Queue lauffähig",
+    "status": "PASS",
+    "detail": "{\"processed\":0,\"sent\":0,\"failed\":0}"
+  },
+  {
+    "area": "Jobs",
+    "name": "pg_cron-Auslösung im Betrieb",
+    "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
+    "detail": "pg_cron/Hosting-Scheduler existiert nur auf der Plattform"
+  },
+  {
+    "area": "Store API",
+    "name": "Öffentliche HTTPS-Auslieferung der Store API",
+    "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
+    "detail": "Hosting/Domain wird von der Plattform bereitgestellt"
+  }
+]
