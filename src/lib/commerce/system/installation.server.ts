@@ -296,7 +296,8 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
     } as never)
     .eq("singleton", true);
   if (claimError) {
-    await admin.from("commerce_installation").delete().eq("singleton", true);
+    await rollbackRegistration();
+
     throw new InstallationError(
       "BOOTSTRAP_INCOMPLETE",
       `Claim-Registrierung fehlgeschlagen (${claimError.message}). Die Registrierung wurde zurückgenommen — Bootstrap ist wiederholbar.`,
