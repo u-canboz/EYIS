@@ -198,8 +198,18 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
   steps.push("database=ok");
 
   // 5  Bereits initialisiert? (dauerhafte Sperre)
+  //    Ausnahme: das Database Install Pack legt den Singleton bereits über den
+  //    System-Seed an (seeds/002_installation.sql). Eine solche Zeile ist noch
+  //    KEINE initialisierte Installation — ohne Claim-Hash, ohne Pending Owner
+  //    und ohne Owner. Andernfalls wäre der Bootstrap nach jedem Fresh Install
+  //    dauerhaft gesperrt und der Owner könnte nie übernehmen (Blackbox-Defekt).
   const existing = await getInstallation();
-  if (existing) {
+  const seededSingleton =
+    existing != null &&
+    existing.owner_claimed_at == null &&
+    existing.claim_token_hash == null &&
+    existing.pending_owner_email == null;
+  if (existing && !seededSingleton) {
     throw new InstallationError(
       "INSTALLATION_ALREADY_INITIALIZED",
       "EYIS ist auf dieser Instanz bereits initialisiert.",
@@ -208,13 +218,16 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
 
   // 6  Installation registrieren (Singleton)
   const installationId = `inst_${generateToken().slice(0, 24)}`;
-  const { error: insError } = await admin.from("commerce_installation").insert({
+  const registration = {
     installation_id: installationId,
     mode,
     core_version: CORE_VERSION,
     api_version: "v1",
     health_status: { bootstrap_environment: environment },
-  } as never);
+  };
+  const { error: insError } = seededSingleton
+    ? await admin.from("commerce_installation").update(registration as never).eq("singleton", true)
+    : await admin.from("commerce_installation").insert(registration as never);
   if (insError) {
     // Unique-Verletzung auf singleton = paralleler Bootstrap
     throw new InstallationError(
@@ -222,7 +235,24 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
       `Installation konnte nicht registriert werden (${insError.message}).`,
     );
   }
-  steps.push("installation_registered");
+  steps.push(seededSingleton ? "installation_registered (seed singleton)" : "installation_registered");
+
+  /** Registrierung zurücknehmen, ohne den Seed-Singleton zu löschen. */
+  const rollbackRegistration = async () => {
+    if (seededSingleton) {
+      await admin
+        .from("commerce_installation")
+        .update({
+          claim_token_hash: null,
+          claim_token_expires_at: null,
+          pending_owner_email: null,
+          pending_owner_set_at: null,
+        } as never)
+        .eq("singleton", true);
+      return;
+    }
+    await admin.from("commerce_installation").delete().eq("singleton", true);
+  };
 
   // 7  System Seed: Rollen/Permissions stammen aus den Migrationen — hier verifizieren.
   const { count: rolePermCount, error: rpError } = await admin
@@ -231,12 +261,13 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
   if (rpError || !rolePermCount) {
     // Registrierung zurücknehmen, damit der Bootstrap nach dem Nachziehen der
     // Seeds wiederholbar bleibt statt dauerhaft gesperrt zu sein.
-    await admin.from("commerce_installation").delete().eq("singleton", true);
+    await rollbackRegistration();
     throw new InstallationError(
       "SYSTEM_SEED_INCOMPLETE",
       "System Seed unvollständig: role_permissions leer oder nicht erreichbar. Migrationen prüfen. Die Registrierung wurde zurückgenommen — Bootstrap ist wiederholbar.",
     );
   }
+
   steps.push(`system_seed=ok (role_permissions=${rolePermCount})`);
 
   // 8  Storage-Buckets prüfen (best effort, kein Abbruch)
