@@ -1,89 +1,159 @@
-# Update Center + Dedicated Installation — Diagnose & maximale Automatik
+# Erstinstallation stabilisieren, danach Update-Transport bedienbar machen
 
-## Ausgangslage
+## Zielsatz
 
-Das Update Center funktioniert nachweisbasiert: Jeder Transportweg (GitHub-Auth,
-Workflow im Kunden-Repo, Hosting, Deployment-Health, Migrationen, Signatur,
-Backup) muss real geprüft sein, sonst steht die betreffende Fähigkeit auf
-**SETUP REQUIRED** und Updates werden gesperrt. Das ist Absicht (kein Fake-PASS),
-aber im Kundenprojekt gibt es bisher **keine geführte Einrichtung**: Der Betreiber
-muss bis zu 8 Umgebungsvariablen und einen GitHub-Workflow manuell korrekt
-kombinieren, ohne zu sehen, welcher einzelne Nachweis fehlt oder warum.
+Einmal EYIS installieren und den Update-Transport einrichten. Danach laufen
+zukünftige EYIS-Updates weitgehend automatisch. Erstinstallation und
+Update Center bleiben strikt getrennt — zwei Prozesse, zwei Oberflächen,
+eine gemeinsame Diagnosequelle.
 
-Zielzustand: Einmal einrichten, danach laufen Installation und jedes Update
-ohne manuelle Eingriffe. Drei Dinge lassen sich **nicht** automatisieren und
-werden ehrlich als manuelle Einmalschritte geführt: GitHub-Zugangsdaten,
-Repo-Secrets für Migrationen, Backup-Nachweis. Alles andere wird automatisch
-erkannt oder vorbefüllt.
+## Reihenfolge (verbindlich)
 
-## Arbeitspakete
+1. Erstinstallation Blackbox PASS
+2. EYIS v1.0.0
+3. Update-Setup-Assistent
+4. echter Test v1.0.0 → v1.0.1
+5. erst danach gilt das Update Center als produktionsreif
 
-### 1. Diagnose — Ist-Zustand beider Projekte belegen
+Alles unterhalb von Schritt 3 wird nicht begonnen, solange Schritt 1 nicht
+nachgewiesen PASS ist.
 
-- Hier (Hauptprojekt): `eyis:blackbox:simulate`, `qa:install-pack`,
-  `qa:blackbox-preflight` laufen lassen; Update-Overview live prüfen und
-  festhalten, welche Fähigkeiten SUPPORTED bzw. SETUP_REQUIRED sind.
-- Für das Kundenprojekt: Diagnose-Pfad schaffen, der ohne Shell-Zugang
-  funktioniert — siehe Paket 2 (Setup-Assistent mit Selbstdiagnose) und
-  `installer/eyis.ts doctor` als CLI-Alternative.
+---
 
-### 2. Setup-Assistent im Update Center (Kernstück)
+## Schritt 1 — Erstinstallation Blackbox PASS
 
-Neuer Bereich „Einrichtung" auf `/app/system/updates`, der den Betreiber
-durch exakt die fehlenden Nachweise führt:
+Ziel: nachweisen, dass EYIS zuverlässig erstmals in ein fremdes Projekt
+installiert werden kann — ohne Update-Transport, ohne GitHub, ohne Secrets.
 
-- **Schritt-für-Schritt-Karte** pro Fähigkeit (Auth → Registry → Code →
-  Deployment → Migration → Backup), jeweils mit Live-Prüfung („Jetzt prüfen"),
-  verständlicher Begründung und konkretem nächsten Schritt.
-- **Auto-Erkennung** dessen, was die Instanz selbst weiß: Hosting-Variante,
-  Health-URL der eigenen Installation, Release-Registry, Trust Anchor —
-  Vorschläge werden automatisch befüllt und nur noch bestätigt.
-- **Persistenter Setup-Stand** in `commerce_installation.update_config`:
-  erledigte Schritte bleiben sichtbar, wiederholte Prüfungen sind idempotent.
-- **Diagnose-Export**: ein Knopf erzeugt einen vollständigen, secrets-freien
-  Bericht (welche Prüfung, Status, Detail, Remediation) zum Kopieren — damit
-  ist jede Kundenprojekt-Blockade mit einer Nachricht hier diagnostizierbar.
+- Vollständigen Blackbox-Durchlauf fahren: `eyis:dist:verify`,
+  `eyis:blackbox:simulate`, `qa:install-pack`, `qa:blackbox-preflight`,
+  `bun run verify`. Jedes FAIL wird als Befund mit Ursache dokumentiert.
+- Installationsstrecke Ende-zu-Ende belegen: Dateisatz → Integration Patches
+  → Agent Migration Plan (Schritt 1…n) → Systemseeds → Bootstrap → Owner →
+  Doctor → `EYIS READY`.
+- Fingerprints als Abschlusskriterium: `schema_fingerprint` **und**
+  `system_seed_fingerprint` müssen PASS melden. Struktur allein zählt nicht.
+- Gefundene Defekte minimal beheben — keine neuen Features, keine
+  Architekturänderung.
 
-### 3. Automatik-Grad erhöhen, ohne die Nachweis-Disziplin aufzuweichen
+Ergebnis: Befundliste mit Status je Prüfung; Schritt 2 startet erst bei
+durchgängigem PASS.
 
-- Defaults dort setzen, wo sie eindeutig sind (`EYIS_RELEASE_REPO`,
-  Hosting-Erkennung, Health-URL), damit nur noch wirklich unvermeidbare
-  Variablen manuell gesetzt werden müssen.
-- Klare Statussemantik in der UI: „vollautomatisch bereit" vs. „manueller
-  Schritt nötig (Publish bei Lovable-Hosting)" — letzteres bleibt benannt,
-  nicht versteckt.
-- Keine Änderung an den Sperrlogiken selbst (Preflight, Single-Active-Run,
-  Backup-Nachweis) — die sind gewollt.
+## Schritt 2 — EYIS v1.0.0
 
-### 4. Installer-Seite (Dedicated Installation)
+- Release-Kette unverändert nutzen (Pack signieren → Tarball → Manifest →
+  Ed25519-Signatur → Trust Anchor gepinnt).
+- Keine Änderung an Signatur- oder Promotion-Logik in diesem Schritt.
 
-- `installer/eyis.ts status` und `doctor` um einen Hinweis-Block „Update Center
-  einrichten" ergänzen: nach erfolgreicher Installation zeigt der Installer
-  direkt die als Nächstes fehlenden Update-Nachweise an.
-- Template-Workflow `templates/customer-repo/.github/workflows/eyis-update.yml`:
-  Platzhalter-SHAs und benötigte Repo-Secrets in einer Setup-Checkliste
-  im Assistenten spiegeln (keine Codeänderung am Workflow nötig, nur Führung).
+## Schritt 3 — Zentrale Capability-Matrix (Single Source of Truth)
 
-### 5. QA & Nachweise
+Kern der Bedienbarkeit. `probeCapabilities()` bleibt die **einzige** Stelle,
+die Zustände berechnet; UI, Doctor und CLI konsumieren nur noch dasselbe
+Ergebnis.
 
-- Neue/erweiterte Tests: Setup-Assistenten-Logik (Auto-Erkennung, Persistenz,
-  Idempotenz), Diagnose-Export enthält keine Secrets.
-- `bun run verify` komplett grün; Bericht der Diagnose aus Paket 1 als
-  Anhang im Abschluss.
+```text
+probeCapabilities()
+        │
+   ┌────┼────┐
+  UI  Doctor CLI
+```
+
+Matrix mit stabilen Schlüsseln und Zuständen (PASS / SETUP_REQUIRED /
+MANUAL / FAIL):
+
+```text
+release_registry       PASS
+trust_anchor           PASS
+github_auth            SETUP_REQUIRED
+customer_repository    SETUP_REQUIRED
+deployment_workflow    SETUP_REQUIRED
+migration_transport    SETUP_REQUIRED
+backup_restore         SETUP_REQUIRED
+deployment_health      PASS
+lovable_publish        MANUAL
+```
+
+- `lovable_publish` ist ein eigener Zustand `MANUAL` — kein Fehler, kein
+  verstecktes PASS. Es gibt keinen programmatischen Publish-Endpunkt.
+- Doctor (`installer/eyis.ts doctor`) und CLI geben exakt diese Matrix aus,
+  ohne eigene Ableitungen. Divergenz UI/Doctor/CLI wird per Test verhindert.
+
+## Schritt 3b — Update-Setup-Assistent (nur Update Center)
+
+Eigener Bereich „Update Center einrichten" auf `/app/system/updates` —
+**nicht** vermischt mit der Erstinstallation.
+
+```text
+Update Center einrichten
+  ✓ EYIS Release Registry
+  ✓ Trust Anchor
+  ✓ Hosting erkannt
+  ✓ Health Endpoint
+  ! GitHub-Zugang verbinden
+  ! Migration-Secrets hinterlegen
+  ! Backup bestätigen
+  → Einrichtung abschließen
+```
+
+- Pro Eintrag: Live-Prüfung („Jetzt prüfen"), verständliche Begründung,
+  konkreter nächster Schritt.
+- Auto-Erkennung statt Handeingabe, wo die Instanz es selbst weiß: Hosting,
+  eigene Health-URL, Release-Registry, Trust Anchor.
+- Secrets-freier Diagnose-Export zum Kopieren (Prüfung, Status, Detail,
+  Remediation) — damit ist jede Blockade im Kundenprojekt aus der Ferne
+  diagnostizierbar.
+- Keine Aufweichung bestehender Gates: Preflight, Single-Active-Run,
+  Backup-Nachweis, Signaturprüfung bleiben unverändert.
+
+### Datenhaltung — bewusst eng gefasst
+
+`commerce_installation.update_config` nimmt ausschließlich ungefährliche
+Einstellungen und Statusinformationen auf:
+
+```text
+repository
+update_channel
+hosting_type
+health_url
+setup_progress
+last_verified_at
+capability_status
+```
+
+Alles Sicherheitsrelevante (GitHub-Token, App Private Key, Migrations-
+Zugangsdaten) bleibt ausschließlich im Secret-/Vault-System und wird nie in
+diese Spalte geschrieben, nie geloggt und nie exportiert. Ein Test erzwingt,
+dass der Diagnose-Export und `update_config` keine Secrets enthalten.
+
+## Schritt 4 — Echter Update-Test v1.0.0 → v1.0.1
+
+- Minimales v1.0.1 erzeugen und den vollen Lauf gegen eine Nicht-Production-
+  Installation fahren: preflight → backup → code → database → deployment →
+  doctor.
+- Jeder Schritt braucht echten Nachweis; ein übersprungener Schritt wird als
+  `skipped` mit Begründung geführt, nicht als PASS.
+
+## Schritt 5 — Freigabe
+
+Update Center gilt erst nach bestandenem Schritt 4 als produktionsreif.
+Der Bericht hält je Fähigkeit den belegten Zustand fest.
+
+---
 
 ## Bewusst außen vor
 
-- Keine neuen Features außerhalb Setup/Diagnose/Update-Transport.
-- Kein Gate-C-Ausbau (Staging, Provider-Live-Schaltung).
-- Keine Aufweichung der Production-Sperren (Backup-Nachweis, Signatur,
-  Single-Active-Run).
-- Lovable-Publish bleibt ein manueller Schritt — es gibt keinen
-  programmatischen Publish-Endpunkt; die UI nennt das offen.
+- Keine neue Update-Architektur — das hier ist eine Bedien- und
+  Automatisierungsschicht über dem bestehenden System.
+- Kein Gate-C-Ausbau (Staging, Live-Provider-Schaltung).
+- Keine Vermischung von Installations- und Update-Assistent.
+- Keine Aufweichung der Production-Sperren.
 
 ## Technische Anker
 
-- Orchestrion: `src/lib/commerce/updates/update-center.server.ts`,
-  Fähigkeitsproben: `providers.server.ts` (`probeCapabilities`), UI:
-  `src/routes/_authenticated/app/system/updates.tsx`, Installer-CLI:
-  `installer/eyis.ts`, Setup-Persistenz: Tabelle `commerce_installation`
-  (`update_config`, kein neues Schema nötig).
+- Fähigkeitsproben: `src/lib/commerce/updates/providers.server.ts`
+  (`probeCapabilities`) — wird zur alleinigen Quelle.
+- Orchestrierung: `src/lib/commerce/updates/update-center.server.ts`
+- UI: `src/routes/_authenticated/app/system/updates.tsx`
+- Doctor/CLI: `installer/eyis.ts`, `scripts/commerce-doctor.ts`
+- Installationsstrecke: `installer/database/**`, `scripts/eyis-*.ts`
+- Persistenz: `commerce_installation.update_config` (kein neues Schema)
