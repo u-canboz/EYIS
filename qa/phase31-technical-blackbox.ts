@@ -66,10 +66,13 @@ function signJwt(payload: Record<string, unknown>) {
  * sind. Muss VOR der Installation gesetzt werden — genau wie in Lovable Cloud.
  */
 function preparePlatformGrants(env: NodeJS.ProcessEnv) {
+  /* Supabase-Standardprivilegien: Rollen dürfen das Schema sehen; Tabellen-
+     rechte für anon/authenticated entstehen ausschließlich aus expliziten
+     GRANTs des Install Packs. service_role ist die Rolle des Serverstacks. */
   psql(
     `grant usage on schema public to anon, authenticated, service_role;
-     alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
-     alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+     alter default privileges in schema public grant all on tables to service_role;
+     alter default privileges in schema public grant all on sequences to service_role;
      alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;`,
     env,
   );
