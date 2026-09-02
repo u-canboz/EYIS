@@ -61,6 +61,7 @@
     "eyis:dist:admin-scope:check": "bun run scripts/installer/admin-scope.ts check",
     "qa:install-pack": "bun run qa/phase29-install-pack.ts",
     "qa:database-installer": "bun run qa/database-installer.ts",
+    "qa:technical-blackbox": "bun run qa/phase31-technical-blackbox.ts",
     "eyis:seeds:audit": "bun run scripts/installer/dml-audit.ts",
     "eyis:seeds:generate": "bun run scripts/installer/generate-system-seeds.ts",
     "eyis:seeds:verify": "bun run scripts/eyis-seeds.ts verify",
