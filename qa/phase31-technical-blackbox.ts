@@ -564,8 +564,9 @@ async function commerceChecks(orgId: string, shopId: string, ownerId: string) {
   const cfgBody = (await cfgRes.json()) as { data?: { shop?: { currencyCode?: string } } };
   check("Store API", "GET /config über das Gateway", cfgRes.status === 200 && cfgBody.data?.shop?.currencyCode === "EUR", `status=${cfgRes.status}`);
   const prodRes = await callStore("/products");
-  const prodBody = (await prodRes.json()) as { data?: { items?: unknown[] } };
-  check("Store API", "GET /products liefert Katalog", prodRes.status === 200 && (prodBody.data?.items?.length ?? 0) >= 1, `status=${prodRes.status}`);
+  const prodBody = (await prodRes.json()) as { data?: { data?: unknown[] } };
+  const prodCount = prodBody.data?.data?.length ?? 0;
+  check("Store API", "GET /products liefert Katalog", prodRes.status === 200 && prodCount >= 1, `status=${prodRes.status}, items=${prodCount}`);
   const denied = await gateway.handleStoreRequest(
     new Request("http://localhost:8080/api/public/store/v1/config", { headers: { "x-commerce-key": "pk_test_invalid" } }),
     routesMod.storeRoutes,
