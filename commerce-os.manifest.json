@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-31T16:44:42.352Z",
-  "source_commit": "c576fb7f95dee683eb41034bb8101e8d0ce4453c",
+  "generated_at": "2026-09-02T12:03:36.495Z",
+  "source_commit": "a561a0cd011c7ac7d15897653557e47a6a4147df",
   "latest_migration": "20260830200942_22be5c38-c77a-4a65-bded-ffa26e43ce24.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
@@ -77,7 +77,7 @@
     "test:watch": "vitest",
     "generate:manifests": "bun run scripts/manifest/generate.ts",
     "docs:validate": "bun run scripts/docs-validate.ts",
-    "verify": "bun run docs:validate && bun run eyis:database:sync-check && bun run eyis:routes:verify && bun run eyis:dist:verify && bun run eyis:blackbox:simulate && bun run eyis:dist:admin-scope:check && bun run eyis:release:artifact:check && bun run typecheck && bun run test && bun run build",
+    "verify": "bun run docs:validate && bun run eyis:database:sync-check && bun run eyis:routes:verify && bun run eyis:dist:verify && bun run eyis:blackbox:simulate && bun run eyis:dist:admin-scope:check && bun run eyis:release:artifact:check && bun run eyis:pack:verify && bun run typecheck && bun run test && bun run build",
     "qa:e2e": "bun run qa/e2e.ts",
     "qa:store-api": "bun run qa/phase12.ts",
     "qa:security": "bun run qa/phase14-security.ts",
@@ -175,7 +175,7 @@
   "repository_only_commands": {
     "generate:manifests": "bun run scripts/manifest/generate.ts",
     "docs:validate": "bun run scripts/docs-validate.ts",
-    "verify": "bun run docs:validate && bun run eyis:database:sync-check && bun run eyis:routes:verify && bun run eyis:dist:verify && bun run eyis:blackbox:simulate && bun run eyis:dist:admin-scope:check && bun run eyis:release:artifact:check && bun run typecheck && bun run test && bun run build",
+    "verify": "bun run docs:validate && bun run eyis:database:sync-check && bun run eyis:routes:verify && bun run eyis:dist:verify && bun run eyis:blackbox:simulate && bun run eyis:dist:admin-scope:check && bun run eyis:release:artifact:check && bun run eyis:pack:verify && bun run typecheck && bun run test && bun run build",
     "qa:e2e": "bun run qa/e2e.ts",
     "qa:store-api": "bun run qa/phase12.ts",
     "qa:security": "bun run qa/phase14-security.ts",
