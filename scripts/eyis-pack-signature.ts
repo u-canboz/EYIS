@@ -53,10 +53,21 @@ if (command === "keygen") {
 
 
 /**
- * Lädt den privaten Signierschlüssel aus der Umgebung. Secret-Speicher liefern
- * mehrzeilige PEM-Werte häufig mit escaped `\n`-Sequenzen aus — sie werden hier
- * normalisiert. Der Schlüssel wird ausschließlich im Speicher verwendet und nie
- * geloggt oder ausgegeben.
+ * Normalisiert einen PEM-Wert aus einem Secret-Speicher: escaped `\n`-Sequenzen
+ * und verflachte Leerzeichen (Secret-Eingabefelder sind oft einzeilig) werden
+ * wieder zu echten Zeilenumbrüchen.
+ */
+function normalizePem(raw: string): string {
+  const text = raw.replace(/\\n/g, "\n").trim();
+  if (text.includes("\n")) return text;
+  const match = text.match(/^(-----BEGIN [^-]+-----)\s+(.*?)\s+(-----END [^-]+-----)$/);
+  if (!match) return text;
+  return `${match[1]}\n${match[2].replace(/\s+/g, "\n")}\n${match[3]}\n`;
+}
+
+/**
+ * Lädt den privaten Signierschlüssel aus der Umgebung. Der Schlüssel wird
+ * ausschließlich im Speicher verwendet und nie geloggt oder ausgegeben.
  */
 function signingKeyFromEnv(what: string): ReturnType<typeof createPrivateKey> {
   const raw = process.env["EYIS_PACK_SIGNING_KEY"];
