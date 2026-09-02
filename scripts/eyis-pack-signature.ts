@@ -65,7 +65,7 @@ function signingKeyFromEnv(what: string): ReturnType<typeof createPrivateKey> {
     console.log("Es wird bewusst keine Signatur erzeugt. Schlüssel bereitstellen (eyis:pack:keygen) und erneut ausführen.");
     process.exit(3);
   }
-  const pem = raw.replace(/\\n/g, "\n").trim();
+  const pem = normalizePem(raw);
   return createPrivateKey(pem);
 }
 
