@@ -52,14 +52,26 @@ if (command === "keygen") {
 }
 
 
-if (command === "sign") {
-  const pem = process.env["EYIS_PACK_SIGNING_KEY"];
-  if (!pem) {
-    console.log("Pack-Signatur: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.");
+/**
+ * Lädt den privaten Signierschlüssel aus der Umgebung. Secret-Speicher liefern
+ * mehrzeilige PEM-Werte häufig mit escaped `\n`-Sequenzen aus — sie werden hier
+ * normalisiert. Der Schlüssel wird ausschließlich im Speicher verwendet und nie
+ * geloggt oder ausgegeben.
+ */
+function signingKeyFromEnv(what: string): ReturnType<typeof createPrivateKey> {
+  const raw = process.env["EYIS_PACK_SIGNING_KEY"];
+  if (!raw) {
+    console.log(`${what}: BLOCKED — EYIS_PACK_SIGNING_KEY ist nicht gesetzt.`);
     console.log("Es wird bewusst keine Signatur erzeugt. Schlüssel bereitstellen (eyis:pack:keygen) und erneut ausführen.");
     process.exit(3);
   }
-  const key = createPrivateKey(pem);
+  const pem = raw.replace(/\\n/g, "\n").trim();
+  return createPrivateKey(pem);
+}
+
+
+if (command === "sign") {
+  const key = signingKeyFromEnv("Pack-Signatur");
   const { digest, entries } = packDigest();
   const signature = sign(null, Buffer.from(digest, "hex"), key).toString("base64");
   const publicKey = createPublicKey(key).export({ type: "spki", format: "pem" }).toString();
