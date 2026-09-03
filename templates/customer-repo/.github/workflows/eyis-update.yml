@@ -49,20 +49,35 @@ jobs:
           mkdir -p /tmp/eyis && tar -xzf eyis-release.tar.gz -C /tmp/eyis
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Signatur des Manifests prüfen (Ed25519)
-        env:
-          PUBLIC_KEY: ${{ secrets.EYIS_RELEASE_PUBLIC_KEY }}
+      - name: Signatur des Manifests gegen gepinnten Trust Anchor prüfen (Ed25519)
         run: |
           set -euo pipefail
-          test -n "$PUBLIC_KEY"
+          test -f installer/distribution/eyis-trust-anchor.json
           python3 - <<'PY'
-          import base64, os, sys
-          from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-          key = Ed25519PublicKey.from_public_bytes(base64.b64decode(os.environ["PUBLIC_KEY"]))
-          manifest = open("/tmp/eyis/eyis-release.json","rb").read()
+          import base64, json, sys
+          from cryptography.hazmat.primitives.serialization import load_pem_public_key
+
+          anchor = json.load(open("installer/distribution/eyis-trust-anchor.json"))
+          manifest_raw = open("/tmp/eyis/eyis-release.json", "rb").read()
+          manifest = json.loads(manifest_raw)
+          key_id = manifest.get("key_id")
+          if not key_id:
+              sys.exit("FAIL — Release-Manifest nennt keine key_id.")
+
+          entry = next((k for k in anchor.get("keys", []) if k.get("key_id") == key_id), None)
+          if entry is None:
+              sys.exit(f"FAIL — Signaturschlüssel {key_id} steht nicht im EYIS Trust Anchor.")
+          if entry.get("status", "active") != "active":
+              sys.exit(f"FAIL — Signaturschlüssel {key_id} ist {entry.get('status')}.")
+          if entry.get("algorithm", "ed25519") != "ed25519":
+              sys.exit(f"FAIL — Nicht unterstützter Algorithmus {entry.get('algorithm')}.")
+
+          # Der öffentliche Schlüssel kommt ausschliesslich aus dem gepinnten
+          # Anchor — niemals aus der Signaturdatei und niemals aus einem Secret.
+          key = load_pem_public_key(entry["public_key"].encode())
           sig = base64.b64decode(open("/tmp/eyis/eyis-release.json.sig").read().strip())
-          key.verify(sig, manifest)
-          print("signature ok")
+          key.verify(sig, manifest_raw)
+          print(f"signature ok (key_id {key_id})")
           PY
 
       - name: Nur EYIS-owned Dateien ersetzen
