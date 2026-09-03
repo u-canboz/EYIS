@@ -4,9 +4,14 @@
 # dem DEFAULT-BRANCH dieses Repositories liegt. Das zentrale Repository
 # u-canboz/EYIS liefert ausschliesslich signierte Releases.
 #
-# Alle Actions sind auf vollständige Commit-SHAs gepinnt (GitHub-Empfehlung).
-# Die SHAs unten sind Platzhalter aus dem jeweils aktuellen Release-Tag und
-# müssen beim Einrichten einmalig auf die tatsächlichen SHAs gesetzt werden.
+# Alle Actions sind auf tatsächliche, unveränderliche Commit-SHAs gepinnt
+# (GitHub-Empfehlung). Es gibt hier keine Platzhalter: jede SHA verweist auf
+# genau den veröffentlichten Release-Commit der jeweiligen Action.
+#
+# Die Release-Signatur wird ausschliesslich gegen die gepinnte EYIS-
+# Vertrauenswurzel geprüft (installer/distribution/eyis-trust-anchor.json aus
+# diesem Repository). Kein Secret kann diese Vertrauenswurzel ersetzen oder
+# umgehen.
 
 name: EYIS Update
 
