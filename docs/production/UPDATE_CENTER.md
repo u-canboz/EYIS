@@ -66,7 +66,7 @@ Migrationen laufen weiter; der Schritt „Datenbank" wird dann als `skipped` mit
 | Variable | Zweck |
 | --- | --- |
 | `EYIS_RELEASE_REPO` | Registry, Standard `u-canboz/EYIS` |
-| `EYIS_RELEASE_PUBLIC_KEY` | Ed25519-Public-Key (roh, base64). Ohne Schlüssel: kein gültiges Release |
+| `EYIS_RELEASE_PUBLIC_KEY` | optionaler Override (roh, base64). Vertrauenswurzel bleibt der gepinnte Trust Anchor `installer/distribution/eyis-trust-anchor.json`; ein Override, der keinem aktiven Anchor-Schlüssel entspricht, wird abgelehnt. Auch der Kunden-Update-Workflow prüft ausschliesslich gegen den Anchor |
 | `EYIS_UPDATE_BACKUP_PROOF` | Kennung der nachgewiesenen Sicherung; ohne Nachweis kein Update |
 | `EYIS_UPDATE_DEPLOY_HEALTH_URL` | öffentlicher Endpunkt, der die aktive Version meldet |
 
