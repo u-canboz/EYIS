@@ -582,5 +582,6 @@
     "expected_objects": "verification/expected-objects.json",
     "ownership": "verification/ownership.json"
   },
-  "resources": "../resources/eyis-resources.manifest.json"
+  "resources": "../resources/eyis-resources.manifest.json",
+  "migration_set_fingerprint": "3d666c88db92fa48dc58f2136e9b3b87c3ea715bb46ba878395bf78b48621d60"
 }
