@@ -32,8 +32,8 @@ Verbindlicher Ablauf — Abweichungen sind ein FAIL, keine Improvisation:
 4. Signatur des Packs prüfen: `bun run installer/eyis.ts pack`. Nur gegen den im
    Repository gepinnten Trust Anchor; kein Secret ersetzt ihn.
 5. Erst danach Datenbankänderungen. Plan holen: `bun run installer/eyis.ts plan`
-   (muss 53 Schritte melden).
-6. Für n = 1 … 53: `bun run installer/eyis.ts step <n>` und die Ausgabe
+   (muss 50 Schritte melden).
+6. Für n = 1 … 50: `bun run installer/eyis.ts step <n>` und die Ausgabe
    **unverändert** über das Plattform-Migrationstool anwenden — eine Migration je
    Schritt, strikt in dieser Reihenfolge.
 7. Nach einem Abbruch beim ersten noch nicht bestätigten Schritt fortsetzen, nicht

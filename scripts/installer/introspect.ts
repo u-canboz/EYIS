@@ -36,6 +36,8 @@ export type PolicyDef = {
 
 export type GrantDef = { table: string; grantee: string; privilege: string };
 
+export type FunctionGrantDef = { identity: string; grantee: string };
+
 export type Schema = {
   extensions: { name: string; schema: string }[];
   enums: { name: string; values: string[] }[];
@@ -46,8 +48,10 @@ export type Schema = {
   triggers: { table: string; name: string; def: string }[];
   policies: PolicyDef[];
   grants: GrantDef[];
+  functionGrants: FunctionGrantDef[];
   sequencesOwned: string[];
 };
+
 
 const PROTECTED_EXTENSION_SCHEMAS = new Set(["pg_catalog", "vault", "information_schema"]);
 
@@ -170,6 +174,19 @@ export function introspect(connection: NodeJS.ProcessEnv = {}): Schema {
       and grantee in ('anon','authenticated','service_role')
     order by table_name, grantee, privilege_type`);
 
+  // Ausführungsrechte der Funktionen. Ohne diese Introspektion würde der Pack
+  // Funktionen mit dem Postgres-Default (EXECUTE für PUBLIC) ausliefern.
+  const functionGrants = q<FunctionGrantDef[]>(`
+    select p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' as identity,
+           g.grantee
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    cross join lateral (select unnest(array['anon','authenticated','service_role']) as grantee) g
+    where n.nspname = 'public' and p.prokind in ('f','p')
+      and ${EXTENSION_OWNED_FILTER.replace("%OID%", "p.oid")}
+      and has_function_privilege(g.grantee, p.oid, 'EXECUTE')
+    order by 1, 2`);
+
   return {
     extensions: extensions.filter((e) => !PROTECTED_EXTENSION_SCHEMAS.has(e.schema)),
     enums,
@@ -180,6 +197,8 @@ export function introspect(connection: NodeJS.ProcessEnv = {}): Schema {
     triggers,
     policies,
     grants,
+    functionGrants,
     sequencesOwned: [],
   };
 }
+

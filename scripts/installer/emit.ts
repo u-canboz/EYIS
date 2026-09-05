@@ -121,3 +121,38 @@ export function emitGrants(grants: GrantDef[]): Statement[] {
       };
     });
 }
+
+/**
+ * Ausführungsrechte der Funktionen. Postgres vergibt EXECUTE per Default an
+ * PUBLIC — ohne diesen Block wäre jede Funktion (auch SECURITY DEFINER) für
+ * anon und authenticated aufrufbar. Der Pack entzieht das Recht explizit und
+ * vergibt danach genau die in der Quelle vorhandenen Rechte.
+ */
+export function emitFunctionGrants(schema: Schema): Statement[] {
+  const byIdentity = new Map<string, string[]>();
+  for (const g of schema.functionGrants) {
+    if (!byIdentity.has(g.identity)) byIdentity.set(g.identity, []);
+    byIdentity.get(g.identity)!.push(g.grantee);
+  }
+  const statements: Statement[] = schema.functions
+    .map((f) => f.identity)
+    .sort((a, b) => a.localeCompare(b))
+    .map((identity) => {
+      const grantees = (byIdentity.get(identity) ?? []).sort();
+      const lines = [
+        `REVOKE ALL ON FUNCTION public.${identity} FROM PUBLIC;`,
+        `REVOKE ALL ON FUNCTION public.${identity} FROM anon;`,
+        `REVOKE ALL ON FUNCTION public.${identity} FROM authenticated;`,
+      ];
+      if (grantees.length) {
+        lines.push(`GRANT EXECUTE ON FUNCTION public.${identity} TO ${grantees.join(", ")};`);
+      }
+      return { kind: "function_grant", object: identity, sql: lines.join("\n") };
+    });
+  statements.push({
+    kind: "function_grant_default",
+    object: "default_privileges",
+    sql: "ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;",
+  });
+  return statements;
+}

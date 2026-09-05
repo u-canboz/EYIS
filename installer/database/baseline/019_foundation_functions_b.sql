@@ -3,6 +3,39 @@
 
 SET check_function_bodies = off;
 
+CREATE OR REPLACE FUNCTION public.ful_complete_picking(_org uuid, _ful uuid, _actor uuid, _picked jsonb, _idem text DEFAULT NULL::text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE f public.fulfillments; it jsonb; res jsonb; total integer := 0;
+BEGIN
+  res := public.inv_idem_get(_org, 'ful_complete_picking', _idem);
+  IF res IS NOT NULL THEN RETURN res; END IF;
+  PERFORM public.inv_assert(_actor, _org, 'fulfillment.pick');
+  SELECT * INTO f FROM public.fulfillments WHERE id = _ful AND organization_id = _org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Fulfillment nicht gefunden.' USING ERRCODE = 'check_violation'; END IF;
+  IF f.status <> 'picking' THEN
+    RAISE EXCEPTION 'Picking ist in Status % nicht aktiv.', f.status USING ERRCODE = 'check_violation';
+  END IF;
+
+  FOR it IN SELECT * FROM jsonb_array_elements(COALESCE(_picked,'[]'::jsonb)) LOOP
+    UPDATE public.fulfillment_items
+    SET picked_quantity = LEAST((it ->> 'pickedQuantity')::integer, quantity)
+    WHERE id = (it ->> 'fulfillmentItemId')::uuid AND fulfillment_id = f.id;
+  END LOOP;
+
+  SELECT COALESCE(SUM(picked_quantity),0) INTO total FROM public.fulfillment_items WHERE fulfillment_id = f.id;
+  IF total <= 0 THEN RAISE EXCEPTION 'Es wurde nichts gepickt.' USING ERRCODE = 'check_violation'; END IF;
+
+  PERFORM public.inv_audit(_org, _actor, 'fulfillment.updated', 'fulfillment', f.id::text,
+    jsonb_build_object('status','picked','picked_total', total));
+  res := jsonb_build_object('fulfillment_id', f.id, 'status', 'picking', 'picked_total', total);
+  PERFORM public.inv_idem_put(_org, 'ful_complete_picking', _idem, res);
+  RETURN res;
+END; $function$;
+
 CREATE OR REPLACE FUNCTION public.ful_create(_org uuid, _shop uuid, _order uuid, _location uuid, _actor uuid, _items jsonb, _notes text DEFAULT NULL::text, _idem text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql

@@ -3,7 +3,7 @@
 
 SET check_function_bodies = off;
 
-CREATE EXTENSION IF NOT EXISTS "pg_net" WITH SCHEMA "public";
+CREATE EXTENSION IF NOT EXISTS "pg_net" WITH SCHEMA "extensions";
 
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
 

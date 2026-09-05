@@ -23,6 +23,7 @@ import {
   emitEnums,
   emitExtensions,
   emitForeignKeys,
+  emitFunctionGrants,
   emitFunctions,
   emitGrants,
   emitIndexes,
@@ -122,6 +123,11 @@ function buildSections(): { sections: Section[]; schema: ReturnType<typeof intro
     statements: [...emitRls(schema), ...schema.policies.map(emitPolicy)],
   });
   sections.push({ id: "security-grants", title: "Grants", statements: emitGrants(schema.grants) });
+  sections.push({
+    id: "security-function-grants",
+    title: "Ausführungsrechte Funktionen",
+    statements: emitFunctionGrants(schema),
+  });
 
   return { sections: sections.filter((s) => s.statements.length > 0), schema };
 }
@@ -186,6 +192,7 @@ function fingerprint(schema: ReturnType<typeof introspect>) {
     triggers: schema.triggers.map((t) => `${t.table}.${t.name}`).sort(),
     policies: schema.policies.map((p) => `${p.table}.${p.name}:${p.cmd}:${p.roles.join("+")}`).sort(),
     grants: schema.grants.map((g) => `${g.table}:${g.grantee}:${g.privilege}`).sort(),
+    functionGrants: schema.functionGrants.map((g) => `${g.identity}:${g.grantee}`).sort(),
   };
   return { hash: sha256(JSON.stringify(normalized)), normalized };
 }

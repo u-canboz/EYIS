@@ -39,6 +39,9 @@ export function normalize(schema: Schema) {
       .filter((g) => !JOURNAL_TABLES.has(g.table))
       .map((g) => `${g.table}:${g.grantee}:${g.privilege}`)
       .sort(),
+    // Ausführungsrechte gehören zur Sicherheitsstruktur: ohne sie wäre ein
+    // Installationsstand mit offenen Funktionsrechten fingerprint-gleich.
+    functionGrants: (schema.functionGrants ?? []).map((g) => `${g.identity}:${g.grantee}`).sort(),
   };
 }
 
@@ -62,6 +65,7 @@ export function diffNormalized(expected: ReturnType<typeof normalize>, actual: R
   compareList("triggers", expected.triggers, actual.triggers);
   compareList("policies", expected.policies, actual.policies);
   compareList("grants", expected.grants, actual.grants);
+  compareList("functionGrants", expected.functionGrants ?? [], actual.functionGrants ?? []);
   compareList("foreignKeys", expected.foreignKeys, actual.foreignKeys);
   compareList("indexes", expected.indexes, actual.indexes);
   for (const table of expected.tables) {
