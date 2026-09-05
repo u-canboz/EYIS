@@ -55,7 +55,11 @@ Was soll entstehen?
   Cron.
 - **Wann?** Nur wenn der Kunde vollständige Isolation ausdrücklich verlangt (Datenhoheit,
   Compliance, eigener Vertrag). Nie als Standardweg und nie als stille Annahme.
-- **Arbeit:** Repository ausrollen, alle Migrationen aus `supabase/migrations/` anwenden, Secrets
+- **Arbeit:** Repository ausrollen, die Datenbank **ausschließlich** aus dem EYIS Database Install
+  Pack aufbauen (Agent Migration Plan, jede Stufe unverändert über das Plattform-Migration-Tool —
+  siehe [../production/DATABASE_INSTALL_PACK.md](../production/DATABASE_INSTALL_PACK.md)). Die
+  historische Migrationskette aus `supabase/migrations/` wird dabei **nicht** nachgespielt, und
+  direktes DDL per `psql` steht in Lovable Cloud nicht zur Verfügung. Danach Secrets
   nach `docs/production/SECRET_REGISTER_TEMPLATE.md` setzen, Cron-Zeitpläne einrichten, Health-Checks und
   Restore-Drill nach `docs/production/DISASTER_RECOVERY_RUNBOOK.md` durchführen.
 - **Kosten/Folgen ehrlich benennen:** eigener Betrieb, eigene Backups, eigene Updates, eigene

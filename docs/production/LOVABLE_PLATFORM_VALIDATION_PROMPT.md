@@ -17,10 +17,37 @@ Regeln:
   mit exakter Ursache, Reproduktionsschritten und betroffenem Bereich.
 
 ## 1. Installation
+
 Installiere EYIS ausschließlich über den offiziellen Installationsweg aus
 https://github.com/u-canboz/EYIS.git (aktueller freigegebener Testkandidat).
-Datenbank muss vor Beginn leer sein. Protokolliere: Installation Units, System Seeds,
-Migration Reconciliation, Schema Fingerprint, Seed Fingerprint.
+Die Datenbank muss vor Beginn leer sein.
+
+Verbindlicher Ablauf — Abweichungen sind ein FAIL, keine Improvisation:
+
+1. Aktiviere Lovable Cloud, bevor irgendetwas anderes passiert.
+2. Übernimm den Code des freigegebenen Testkandidaten vollständig, inklusive
+   `installer/`, `scripts/installer/` und `installer/eyis.ts`. Fehlt einer dieser
+   Teile, stoppe sofort — ohne sie ist keine gültige Installation möglich.
+3. `bun install` mit der mitgelieferten Lockfile.
+4. Signatur des Packs prüfen: `bun run installer/eyis.ts pack`. Nur gegen den im
+   Repository gepinnten Trust Anchor; kein Secret ersetzt ihn.
+5. Erst danach Datenbankänderungen. Plan holen: `bun run installer/eyis.ts plan`
+   (muss 53 Schritte melden).
+6. Für n = 1 … 53: `bun run installer/eyis.ts step <n>` und die Ausgabe
+   **unverändert** über das Plattform-Migrationstool anwenden — eine Migration je
+   Schritt, strikt in dieser Reihenfolge.
+7. Nach einem Abbruch beim ersten noch nicht bestätigten Schritt fortsetzen, nicht
+   erneut bei Schritt 1 beginnen.
+
+Ausdrücklich verboten:
+
+- DDL über `psql` oder einen direkten Datenbankbenutzer (in Lovable Cloud nicht verfügbar)
+- Nachspielen der historischen Migrationskette aus `supabase/migrations/`
+- Zusammenfassen, Umsortieren, Kürzen oder Umschreiben von SQL-Schritten
+- Anlegen von Buckets per SQL (nur über die Plattformwerkzeuge)
+
+Protokolliere: Installation Units, System Seeds, Migration Reconciliation,
+Schema Fingerprint, Seed Fingerprint.
 
 ## 2. Auth / GoTrue
 Registrierung, E-Mail-Bestätigung (falls aktiviert), Login, Session, Owner-Zuordnung,
