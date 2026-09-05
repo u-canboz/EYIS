@@ -91,6 +91,45 @@ BEGIN
 END;
 $function$;
 
+CREATE OR REPLACE FUNCTION public.claim_installation_owner_verified(_user_id uuid, _verified_email text, _org_name text, _org_slug text, _shop_name text, _shop_slug text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE
+  inst public.commerce_installation%ROWTYPE;
+  new_org_id uuid;
+  new_shop_id uuid;
+BEGIN
+  SELECT * INTO inst FROM public.commerce_installation WHERE singleton = true FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'INSTALLATION_NOT_FOUND';
+  END IF;
+  IF inst.owner_claimed_at IS NOT NULL THEN
+    RAISE EXCEPTION 'OWNER_ALREADY_CLAIMED';
+  END IF;
+  IF inst.pending_owner_email IS NULL OR inst.pending_owner_consumed_at IS NOT NULL THEN
+    RAISE EXCEPTION 'OWNER_NOT_PREAUTHORIZED';
+  END IF;
+  IF _verified_email IS NULL
+     OR lower(btrim(_verified_email)) <> lower(btrim(inst.pending_owner_email)) THEN
+    RAISE EXCEPTION 'OWNER_NOT_PREAUTHORIZED';
+  END IF;
+
+  INSERT INTO public.organizations (name, slug) VALUES (_org_name, _org_slug) RETURNING id INTO new_org_id;
+  INSERT INTO public.shops (organization_id, name, slug) VALUES (new_org_id, _shop_name, _shop_slug) RETURNING id INTO new_shop_id;
+  INSERT INTO public.memberships (organization_id, user_id, role) VALUES (new_org_id, _user_id, 'owner');
+
+  UPDATE public.commerce_installation
+    SET owner_claimed_at = now(),
+        pending_owner_consumed_at = now()
+    WHERE singleton = true;
+
+  RETURN jsonb_build_object('organization_id', new_org_id, 'shop_id', new_shop_id);
+END;
+$function$;
+
 CREATE OR REPLACE FUNCTION public.comm_ensure_shop_defaults(_org uuid, _shop uuid)
  RETURNS void
  LANGUAGE plpgsql
@@ -342,6 +381,23 @@ BEGIN
   RETURN missing;
 END; $function$;
 
+CREATE OR REPLACE FUNCTION public.eyis_cron_status()
+ RETURNS TABLE(jobname text, schedule text, active boolean)
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  if not exists (select 1 from pg_extension where extname = 'pg_cron') then
+    return;
+  end if;
+  return query execute
+    'select j.jobname::text, j.schedule::text, j.active
+       from cron.job j
+      where j.jobname like ''eyis%''';
+end;
+$function$;
+
 CREATE OR REPLACE FUNCTION public.ful_cancel(_org uuid, _ful uuid, _actor uuid, _reason text DEFAULT NULL::text, _idem text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -377,38 +433,5 @@ BEGIN
 
   res := jsonb_build_object('fulfillment_id', f.id, 'status', 'cancelled', 'changed', true);
   PERFORM public.inv_idem_put(_org, 'ful_cancel', _idem, res);
-  RETURN res;
-END; $function$;
-
-CREATE OR REPLACE FUNCTION public.ful_complete_picking(_org uuid, _ful uuid, _actor uuid, _picked jsonb, _idem text DEFAULT NULL::text)
- RETURNS jsonb
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-DECLARE f public.fulfillments; it jsonb; res jsonb; total integer := 0;
-BEGIN
-  res := public.inv_idem_get(_org, 'ful_complete_picking', _idem);
-  IF res IS NOT NULL THEN RETURN res; END IF;
-  PERFORM public.inv_assert(_actor, _org, 'fulfillment.pick');
-  SELECT * INTO f FROM public.fulfillments WHERE id = _ful AND organization_id = _org FOR UPDATE;
-  IF NOT FOUND THEN RAISE EXCEPTION 'Fulfillment nicht gefunden.' USING ERRCODE = 'check_violation'; END IF;
-  IF f.status <> 'picking' THEN
-    RAISE EXCEPTION 'Picking ist in Status % nicht aktiv.', f.status USING ERRCODE = 'check_violation';
-  END IF;
-
-  FOR it IN SELECT * FROM jsonb_array_elements(COALESCE(_picked,'[]'::jsonb)) LOOP
-    UPDATE public.fulfillment_items
-    SET picked_quantity = LEAST((it ->> 'pickedQuantity')::integer, quantity)
-    WHERE id = (it ->> 'fulfillmentItemId')::uuid AND fulfillment_id = f.id;
-  END LOOP;
-
-  SELECT COALESCE(SUM(picked_quantity),0) INTO total FROM public.fulfillment_items WHERE fulfillment_id = f.id;
-  IF total <= 0 THEN RAISE EXCEPTION 'Es wurde nichts gepickt.' USING ERRCODE = 'check_violation'; END IF;
-
-  PERFORM public.inv_audit(_org, _actor, 'fulfillment.updated', 'fulfillment', f.id::text,
-    jsonb_build_object('status','picked','picked_total', total));
-  res := jsonb_build_object('fulfillment_id', f.id, 'status', 'picking', 'picked_total', total);
-  PERFORM public.inv_idem_put(_org, 'ful_complete_picking', _idem, res);
   RETURN res;
 END; $function$;

@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
-  "generated_at": "2026-08-30",
-  "schema_version": "20260830200942",
-  "migration_head": "057",
+  "generated_at": "2026-09-05",
+  "schema_version": "20260905200316",
+  "migration_head": "058",
   "migration_versions": [
     "20260825074450",
     "20260825074512",
@@ -60,9 +60,10 @@
     "20260828213156",
     "20260830131955",
     "20260830200835",
-    "20260830200942"
+    "20260830200942",
+    "20260905200316"
   ],
-  "schema_fingerprint": "401b9985a42722f233f9ebace860fdaece85640476b6a9eb0a50b158fe04f0e4",
+  "schema_fingerprint": "466d81221091380bc31ec447d81aa325d657ef0f1211d4d21b7ff4cca2588588",
   "payload_budget": {
     "target_unit_bytes": 18432,
     "hard_statement_bytes": 49152,
@@ -87,8 +88,8 @@
         "file": "baseline/001_foundation_extensions_a.sql",
         "position": 1,
         "title": "Extensions und Enums",
-        "bytes": 9160,
-        "checksum": "5c601f269414b442f6341bb49fa8bca383b6e89ba9ed3353856c9bd70f3ac3cd",
+        "bytes": 9164,
+        "checksum": "617ae5212b0f5844cb54876ac2241c4bc68d7da2773ed40c7777069c39590ffe",
         "statements": 77,
         "required": true
       },
@@ -217,8 +218,8 @@
         "file": "baseline/014_system_updates_tables_a.sql",
         "position": 14,
         "title": "Tabellen: system-updates",
-        "bytes": 7655,
-        "checksum": "40aa4632088771c2f77e02c72974cd1eb9ee5f1d871b4125a533aa5b2c8407e5",
+        "bytes": 7792,
+        "checksum": "d90c138a9ea266f00c24234a44e8f41f2f110f6594e648cb0935d692614abd7d",
         "statements": 7,
         "required": true
       },
@@ -257,9 +258,9 @@
         "file": "baseline/018_foundation_functions_a.sql",
         "position": 18,
         "title": "Funktionen: foundation",
-        "bytes": 18042,
-        "checksum": "447713c1f197e08a20225b0cd967db13ab1bcb9734becfed2cadc839113243d7",
-        "statements": 15,
+        "bytes": 18338,
+        "checksum": "cb0874661e440d8b01e3614b6ecbb7989ab1b5868b95e85bc0c8ee6bb54b15ab",
+        "statements": 16,
         "required": true
       },
       {
@@ -267,9 +268,9 @@
         "file": "baseline/019_foundation_functions_b.sql",
         "position": 19,
         "title": "Funktionen: foundation",
-        "bytes": 9634,
-        "checksum": "81251352b347100db688f77641b041fc7200dae823374bca2001e34529f2e41e",
-        "statements": 7,
+        "bytes": 11338,
+        "checksum": "2a92b879e8e5cbd6e63e3d529aafcea7cabd873ca3bce4ac8d22ec575fec48d4",
+        "statements": 8,
         "required": true
       },
       {
@@ -503,33 +504,33 @@
         "required": true
       },
       {
-        "id": "forward-20260830131955",
-        "file": "baseline/043_forward_20260830131955.sql",
+        "id": "security-function-grants-a",
+        "file": "baseline/043_security_function_grants_a.sql",
         "position": 43,
-        "title": "Forward-Port 20260830131955",
-        "bytes": 2411,
-        "checksum": "662280cc5ceeeff65ca98e85522bb9f2af21145ff8461c11c211b62ce032c4ec",
-        "statements": 24,
+        "title": "Ausführungsrechte Funktionen",
+        "bytes": 18320,
+        "checksum": "a96c6257392b0b557de48bc7508d3bedd2ddedf9c0a97f02100053de2e20f1f5",
+        "statements": 43,
         "required": true
       },
       {
-        "id": "forward-20260830200835",
-        "file": "baseline/044_forward_20260830200835.sql",
+        "id": "security-function-grants-b",
+        "file": "baseline/044_security_function_grants_b.sql",
         "position": 44,
-        "title": "Forward-Port 20260830200835",
-        "bytes": 897,
-        "checksum": "add1623f4c7d48ba1f9929afb1c56ee53276ce267349de0767b04d4d66ae8b47",
-        "statements": 9,
+        "title": "Ausführungsrechte Funktionen",
+        "bytes": 18228,
+        "checksum": "e214208a2d0667936e74e92fdde0fe9be38a56127e6f782dfa7d02aa791d6181",
+        "statements": 39,
         "required": true
       },
       {
-        "id": "forward-20260830200942",
-        "file": "baseline/045_forward_20260830200942.sql",
+        "id": "security-function-grants-c",
+        "file": "baseline/045_security_function_grants_c.sql",
         "position": 45,
-        "title": "Forward-Port 20260830200942",
-        "bytes": 896,
-        "checksum": "b3a967870fab5e40832c0524ca1fd7410c3041a4d39904b92481dbd9ef662769",
-        "statements": 9,
+        "title": "Ausführungsrechte Funktionen",
+        "bytes": 12782,
+        "checksum": "2411e054f39db5a60b24d59a39340258fb826de202821e7a3a7f48f007cede50",
+        "statements": 27,
         "required": true
       }
     ]
@@ -538,56 +539,29 @@
     {
       "id": "001_role_permissions",
       "file": "seeds/001_role_permissions.sql",
-      "version": "1.1.0",
+      "version": "1.0.0",
       "checksum": "2e1117972e40994fab35c78dcea5179e07e48a19f600aab2c5a31a6aab76c93d",
       "idempotent": true
     },
     {
       "id": "002_installation",
       "file": "seeds/002_installation.sql",
-      "version": "1.1.0",
+      "version": "1.0.0",
       "checksum": "6b9a8a6db1a194bed2f4197b9979090fdc9836f9eddcd968649dcb932c510a3d",
-      "idempotent": true
-    },
-    {
-      "id": "003_product_blueprints",
-      "file": "seeds/003_product_blueprints.sql",
-      "version": "1.1.0",
-      "checksum": "fe6fd482a9cb6935d6cca5feddcabe80bc6e84a4c588ee9eaea23ce87a34aad5",
-      "idempotent": true
-    },
-    {
-      "id": "004_communication_templates",
-      "file": "seeds/004_communication_templates.sql",
-      "version": "1.1.0",
-      "checksum": "844cebc4af66fbe37e8cc18e53f9d5051f2f635a30b1b2b61bdad9da3c851a5b",
-      "idempotent": true
-    },
-    {
-      "id": "005_tax_system",
-      "file": "seeds/005_tax_system.sql",
-      "version": "1.1.0",
-      "checksum": "8bbf547902feb370e5e9da5938a3cf519d644803e244a646c7907c9352cb56a6",
       "idempotent": true
     }
   ],
   "migration_history_reconciliation": {
     "file": "reconcile/001_migration_history.sql",
-    "checksum": "8877ad8099f821fb2a6866d549b29b403fe0613bd14f22f6b65e21b7f486fa68",
-    "registers_versions": 57,
+    "checksum": "30545d90a6b80fad554797b4f1cda53546c07ecce330a3866d93cb7e5e35312f",
+    "registers_versions": 58,
     "required_before": "supabase db push"
   },
   "verification": {
     "fingerprint": "verification/fingerprint.json",
     "expected_objects": "verification/expected-objects.json",
-    "ownership": "verification/ownership.json",
-    "system_seeds": "seeds/eyis-system-seeds.manifest.json",
-    "dml_audit": "seeds/eyis-dml-audit.json"
+    "ownership": "verification/ownership.json"
   },
   "resources": "../resources/eyis-resources.manifest.json",
-  "system_seed_fingerprint": "3d56b91cabc04cd885b70998c432fe1b1b34642024ca4e5150a869f4dde1a163",
-  "system_seeds_manifest": "seeds/eyis-system-seeds.manifest.json",
-  "migration_set_fingerprint": "31db2ec8525bf5d9b8adf0dbf613c194098cac04bbe601ef16f35ed924ef01d9",
-  "schema_fingerprint_state": "CURRENT",
-  "schema_fingerprint_migration_head": "20260830200942"
+  "migration_set_fingerprint": "3d666c88db92fa48dc58f2136e9b3b87c3ea715bb46ba878395bf78b48621d60"
 }

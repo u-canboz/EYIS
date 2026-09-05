@@ -1,5 +1,5 @@
 {
-  "schema_fingerprint": "401b9985a42722f233f9ebace860fdaece85640476b6a9eb0a50b158fe04f0e4",
+  "schema_fingerprint": "466d81221091380bc31ec447d81aa325d657ef0f1211d4d21b7ff4cca2588588",
   "baseline_version": "1.0.0",
-  "migration_head": "054"
+  "migration_head": "058"
 }
