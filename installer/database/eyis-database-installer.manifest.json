@@ -63,7 +63,7 @@
     "20260830200942",
     "20260905200316"
   ],
-  "schema_fingerprint": "466d81221091380bc31ec447d81aa325d657ef0f1211d4d21b7ff4cca2588588",
+  "schema_fingerprint": "23d34e50df676ae91d043c9f0e1f6bce564f25cf6529040bbebdcd96c66d9c17",
   "payload_budget": {
     "target_unit_bytes": 18432,
     "hard_statement_bytes": 49152,
@@ -504,9 +504,29 @@
         "required": true
       },
       {
-        "id": "security-function-grants-a",
-        "file": "baseline/043_security_function_grants_a.sql",
+        "id": "security-grants-a",
+        "file": "baseline/043_security_grants_a.sql",
         "position": 43,
+        "title": "Grants",
+        "bytes": 18513,
+        "checksum": "bb7fed1fccc326d40f222c00d9c1130a509ddb609d1b24417291995a64e4af22",
+        "statements": 180,
+        "required": true
+      },
+      {
+        "id": "security-grants-b",
+        "file": "baseline/044_security_grants_b.sql",
+        "position": 44,
+        "title": "Grants",
+        "bytes": 6061,
+        "checksum": "41c6210d961dd7600d2d172f9687b7fac4d5a7ff8335e78ca32d0fc448932f44",
+        "statements": 57,
+        "required": true
+      },
+      {
+        "id": "security-function-grants-a",
+        "file": "baseline/045_security_function_grants_a.sql",
+        "position": 45,
         "title": "Ausführungsrechte Funktionen",
         "bytes": 18320,
         "checksum": "a96c6257392b0b557de48bc7508d3bedd2ddedf9c0a97f02100053de2e20f1f5",
@@ -515,8 +535,8 @@
       },
       {
         "id": "security-function-grants-b",
-        "file": "baseline/044_security_function_grants_b.sql",
-        "position": 44,
+        "file": "baseline/046_security_function_grants_b.sql",
+        "position": 46,
         "title": "Ausführungsrechte Funktionen",
         "bytes": 18228,
         "checksum": "e214208a2d0667936e74e92fdde0fe9be38a56127e6f782dfa7d02aa791d6181",
@@ -525,8 +545,8 @@
       },
       {
         "id": "security-function-grants-c",
-        "file": "baseline/045_security_function_grants_c.sql",
-        "position": 45,
+        "file": "baseline/047_security_function_grants_c.sql",
+        "position": 47,
         "title": "Ausführungsrechte Funktionen",
         "bytes": 12782,
         "checksum": "2411e054f39db5a60b24d59a39340258fb826de202821e7a3a7f48f007cede50",
@@ -562,6 +582,5 @@
     "expected_objects": "verification/expected-objects.json",
     "ownership": "verification/ownership.json"
   },
-  "resources": "../resources/eyis-resources.manifest.json",
-  "migration_set_fingerprint": "3d666c88db92fa48dc58f2136e9b3b87c3ea715bb46ba878395bf78b48621d60"
+  "resources": "../resources/eyis-resources.manifest.json"
 }
