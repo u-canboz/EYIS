@@ -103,12 +103,20 @@ Manual Code/SQL Repairs:    0
 
 Commerce Smoke umfasst Produkt → Variante → Preis → Bestand → Warenkorb → Checkout mit Test-Provider → Bestellung → Bestandsbuchung.
 
-### 7. Ergebnis und Rückwirkung
+### 7. Shop-Anbindung nachweisen
+
+- Im installierten Zielprojekt einen Publishable Key mit Origin-Beschränkung erzeugen.
+- Aus einem getrennten Frontend-Projekt über Store API v1 und Store SDK Katalog, Warenkorb und Checkout abrufen.
+- Damit ist belegt, dass die Installation als Backend-Engine für neu gebaute Shops nutzbar ist.
+- Das Shop-Frontend erhält ausschließlich API-Adresse und Publishable Key — keinen Datenbankzugang.
+
+### 8. Ergebnis und Rückwirkung
 
 - Nur bei vollständiger Liste: `EYIS FULL BLACKBOX INSTALL PASS — READY FOR v1.0.0`.
 - Bei Fehler: exakten Schritt, Plattformmeldung, Pack-/Commit-Digest und Journalstand sichern; Status FAIL, niemals simuliertes PASS.
 - Ein nachgewiesener Produktdefekt wird ausschließlich im EYIS-Hauptprojekt minimal behoben, neu signiert und erzwingt einen komplett neuen Lauf in einem wieder leeren Ziel.
 - Erst nach diesem PASS werden v1.0.0, Update-Setup-Assistent und Update-Test freigegeben.
+
 
 ## Technische Leitplanken
 
