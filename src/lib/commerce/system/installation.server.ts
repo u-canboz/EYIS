@@ -119,6 +119,43 @@ export async function isOwnerClaimed(): Promise<boolean> {
 const CORE_VERSION = "1.0.0";
 const CLAIM_TTL_HOURS = 72;
 
+/**
+ * Kern-Tabellen, ohne deren Tabellenrechte die Anwendung nachweislich nicht
+ * arbeitsfähig ist. Struktur allein genügt nicht: fehlt ein GRANT, meldet
+ * PostgREST "permission denied" — im Blackbox-Lauf der teuerste Defekt.
+ */
+const GRANT_PROBE_TABLES = [
+  "organizations",
+  "shops",
+  "memberships",
+  "role_permissions",
+  "products",
+  "product_variants",
+  "prices",
+  "inventory_levels",
+  "carts",
+  "orders",
+  "customers",
+  "communication_templates",
+  "tax_classes",
+] as const;
+
+/** Prüft die Tabellenrechte ohne Katalogzugriff: ein Lesezugriff je Kern-Tabelle. */
+export async function checkCoreGrants(
+  admin: Awaited<ReturnType<typeof getAdmin>>,
+): Promise<{ missing: string[]; checked: number }> {
+  const missing: string[] = [];
+  for (const table of GRANT_PROBE_TABLES) {
+    const { error } = await admin.from(table as never).select("*", { head: true, count: "exact" });
+    if (!error) continue;
+    const denied =
+      error.code === "42501" || /permission denied|not allowed|does not exist/i.test(error.message);
+    if (denied) missing.push(table);
+  }
+  return { missing, checked: GRANT_PROBE_TABLES.length };
+}
+
+
 export type BootstrapResult = {
   ok: true;
   installationId: string;
