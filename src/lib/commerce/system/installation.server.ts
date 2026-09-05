@@ -845,6 +845,18 @@ export async function runDoctor(): Promise<DoctorRow[]> {
   const { error: dbError } = await admin.from("organizations").select("id").limit(1);
   rows.push({ check: "Database", status: dbError ? "FAIL" : "PASS", detail: dbError?.message ?? "erreichbar" });
 
+  // Tabellenrechte — eigener Prüfpunkt, damit ein unvollständig angewendetes
+  // Installationspaket sofort sichtbar wird statt erst beim ersten Klick.
+  const grantCheck = await checkCoreGrants(admin);
+  rows.push({
+    check: "Tabellenrechte (GRANTs)",
+    status: grantCheck.missing.length ? "FAIL" : "PASS",
+    detail: grantCheck.missing.length
+      ? `fehlen: ${grantCheck.missing.join(", ")}`
+      : `${grantCheck.checked} Kern-Tabellen erreichbar`,
+  });
+
+
   // RLS-Nachweis: server-only Tabellen dürfen über den Publishable-Client
   // nicht lesbar sein (keine Policies → kein Zugriff für anon).
   try {
