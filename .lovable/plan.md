@@ -14,9 +14,26 @@ Damit ist `sandbox_exec` nicht die eigentliche Produktursache. Der Fehler entsta
 
 ## Ziel
 
-Eine einzige saubere, vollständige Dedicated-Installation ohne manuelle SQL-, Import-, Abhängigkeits- oder Code-Reparaturen mit dem Abschlussstatus:
+EYIS ist in einem frischen, leeren Lovable-Projekt direkt installierbar und läuft dort anschließend als eigenständige Backend-Engine, an die ein neu gebauter Shop angebunden wird.
 
-`EYIS FULL BLACKBOX INSTALL PASS`
+Das heißt konkret:
+
+- Installation ohne manuelle SQL-, Import-, Abhängigkeits- oder Code-Reparaturen.
+- Nach der Installation stehen Backoffice, Datenbank, Anmeldung und die Store API v1 im Zielprojekt bereit.
+- Ein neuer Shop wird nicht in die Datenbank hineinkopiert, sondern spricht ausschließlich über die Store API v1 und das Store SDK mit dieser Engine.
+
+Abschlussstatus: `EYIS FULL BLACKBOX INSTALL PASS`
+
+## Was am Installationsweg tatsächlich repariert werden muss
+
+Die Fehlversuche zeigen einen Ablauf-, keinen Fachlogikfehler. Vor dem nächsten Lauf wird deshalb im EYIS-Hauptprojekt sichergestellt:
+
+- Der ausgelieferte Installationsauftrag beschreibt ausschließlich den Weg über das offizielle Lovable-Migrationstool. Der Weg über direkte Datenbankausführung wird als in Lovable Cloud nicht verfügbar gekennzeichnet.
+- Der Installationsauftrag enthält keinen Hinweis mehr auf das Abspielen der historischen Migrationskette.
+- Installer, Install-Pack, Agent Migration Plan und Betriebsbefehle gehören zum Pflichtlieferumfang und werden vor der ersten Datenbankänderung auf Vollständigkeit geprüft; fehlen sie, wird gestoppt.
+- Der auszugebende Startprompt für ein frisches Projekt wird an genau diesen Ablauf angeglichen.
+
+
 
 ## Vorgehen
 
