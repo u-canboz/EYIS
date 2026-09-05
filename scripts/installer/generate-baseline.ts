@@ -122,7 +122,20 @@ function buildSections(): { sections: Section[]; schema: ReturnType<typeof intro
     title: "Row Level Security",
     statements: [...emitRls(schema), ...schema.policies.map(emitPolicy)],
   });
-  sections.push({ id: "security-grants", title: "Grants", statements: emitGrants(schema.grants) });
+  const grantStatements = emitGrants(schema.grants);
+  // Harte Sperre: ein Pack ohne Tabellenrechte ist unbrauchbar (PostgREST und
+  // service_role kommen sonst an keine Tabelle). Lieber Abbruch als stille
+  // Auslieferung — genau dieser Fall kostete im Blackbox-Lauf 233 Handgriffe.
+  if (schema.tables.length > 0 && grantStatements.length === 0) {
+    console.error(
+      "GENERATOR FAIL — keine Tabellenrechte introspiziert, obwohl Tabellen vorhanden sind.\n" +
+        "  Ursache ist fast immer eine Rolle ohne Katalogsicht auf pg_class.relacl.\n" +
+        "  Ein Pack ohne GRANTs darf nicht ausgeliefert werden.",
+    );
+    process.exit(1);
+  }
+  sections.push({ id: "security-grants", title: "Grants", statements: grantStatements });
+
   sections.push({
     id: "security-function-grants",
     title: "Ausführungsrechte Funktionen",

@@ -167,12 +167,22 @@ export function introspect(connection: NodeJS.ProcessEnv = {}): Schema {
     from pg_policies where schemaname = 'public'
     order by tablename, policyname`);
 
+  // Tabellenrechte kommen aus dem Systemkatalog (pg_class.relacl), nicht aus
+  // information_schema.role_table_grants: diese Sicht zeigt nur Rechte, die für
+  // die *aktuell angemeldete* Rolle sichtbar sind. Erzeugt eine eingeschränkte
+  // Rolle den Pack, lieferte sie null Zeilen — die Grant-Unit fiel still aus dem
+  // Paket und die Installation scheiterte später an "permission denied".
   const grants = q<GrantDef[]>(`
-    select table_name as table, grantee, privilege_type as privilege
-    from information_schema.role_table_grants
-    where table_schema = 'public'
-      and grantee in ('anon','authenticated','service_role')
-    order by table_name, grantee, privilege_type`);
+    select c.relname as table, a.grantee::regrole::text as grantee, a.privilege_type as privilege
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    cross join lateral aclexplode(c.relacl) a
+    where n.nspname = 'public'
+      and c.relkind in ('r','p','v')
+      and ${EXTENSION_OWNED_FILTER.replace("%OID%", "c.oid")}
+      and a.grantee::regrole::text in ('anon','authenticated','service_role')
+    order by 1, 2, 3`);
+
 
   // Ausführungsrechte der Funktionen. Ohne diese Introspektion würde der Pack
   // Funktionen mit dem Postgres-Default (EXECUTE für PUBLIC) ausliefern.

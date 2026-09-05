@@ -119,6 +119,43 @@ export async function isOwnerClaimed(): Promise<boolean> {
 const CORE_VERSION = "1.0.0";
 const CLAIM_TTL_HOURS = 72;
 
+/**
+ * Kern-Tabellen, ohne deren Tabellenrechte die Anwendung nachweislich nicht
+ * arbeitsfähig ist. Struktur allein genügt nicht: fehlt ein GRANT, meldet
+ * PostgREST "permission denied" — im Blackbox-Lauf der teuerste Defekt.
+ */
+const GRANT_PROBE_TABLES = [
+  "organizations",
+  "shops",
+  "memberships",
+  "role_permissions",
+  "products",
+  "product_variants",
+  "prices",
+  "inventory_levels",
+  "carts",
+  "orders",
+  "customers",
+  "communication_templates",
+  "tax_classes",
+] as const;
+
+/** Prüft die Tabellenrechte ohne Katalogzugriff: ein Lesezugriff je Kern-Tabelle. */
+export async function checkCoreGrants(
+  admin: Awaited<ReturnType<typeof getAdmin>>,
+): Promise<{ missing: string[]; checked: number }> {
+  const missing: string[] = [];
+  for (const table of GRANT_PROBE_TABLES) {
+    const { error } = await admin.from(table as never).select("*", { head: true, count: "exact" });
+    if (!error) continue;
+    const denied =
+      error.code === "42501" || /permission denied|not allowed|does not exist/i.test(error.message);
+    if (denied) missing.push(table);
+  }
+  return { missing, checked: GRANT_PROBE_TABLES.length };
+}
+
+
 export type BootstrapResult = {
   ok: true;
   installationId: string;
@@ -196,6 +233,19 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
     );
   }
   steps.push("database=ok");
+
+  // 4b  Tabellenrechte. Ohne GRANTs ist das Schema zwar vorhanden, aber für die
+  // Anwendung unerreichbar. Das muss VOR jeder Persistenz auffallen.
+  const grantCheck = await checkCoreGrants(admin);
+  if (grantCheck.missing.length > 0) {
+    throw new InstallationError(
+      "GRANTS_MISSING",
+      `Tabellenrechte fehlen für: ${grantCheck.missing.join(", ")}. ` +
+        "Die Rechte-Schritte des Installationspakets (security_grants) wurden nicht angewendet — Bootstrap STOP.",
+    );
+  }
+  steps.push(`grants=ok(${grantCheck.checked})`);
+
 
   // 5  Bereits initialisiert? (dauerhafte Sperre)
   //    Ausnahme: das Database Install Pack legt den Singleton bereits über den
@@ -795,6 +845,18 @@ export async function runDoctor(): Promise<DoctorRow[]> {
   const { error: dbError } = await admin.from("organizations").select("id").limit(1);
   rows.push({ check: "Database", status: dbError ? "FAIL" : "PASS", detail: dbError?.message ?? "erreichbar" });
 
+  // Tabellenrechte — eigener Prüfpunkt, damit ein unvollständig angewendetes
+  // Installationspaket sofort sichtbar wird statt erst beim ersten Klick.
+  const grantCheck = await checkCoreGrants(admin);
+  rows.push({
+    check: "Tabellenrechte (GRANTs)",
+    status: grantCheck.missing.length ? "FAIL" : "PASS",
+    detail: grantCheck.missing.length
+      ? `fehlen: ${grantCheck.missing.join(", ")}`
+      : `${grantCheck.checked} Kern-Tabellen erreichbar`,
+  });
+
+
   // RLS-Nachweis: server-only Tabellen dürfen über den Publishable-Client
   // nicht lesbar sein (keine Policies → kein Zugriff für anon).
   try {
@@ -1008,6 +1070,33 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     });
   }
 
+  // Verkaufsbereitschaft: was ein Shop zwingend braucht, bevor eine echte
+  // Bestellung möglich ist. Fehlendes ist SETUP REQUIRED, kein FAIL — es ist
+  // eine Aufgabe des Betreibers, kein Installationsfehler.
+  const readiness: { check: string; table: string; hint: string }[] = [
+    { check: "Verkaufsbereitschaft (Versandarten)", table: "shipping_methods", hint: "Versandart anlegen" },
+    { check: "Verkaufsbereitschaft (Steuersätze)", table: "tax_rates", hint: "Steuersatz hinterlegen" },
+    {
+      check: "Verkaufsbereitschaft (Zahlungsart)",
+      table: "payment_provider_configs",
+      hint: "Zahlungsart im Integration Center verbinden",
+    },
+  ];
+  for (const r of readiness) {
+    const { count, error } = await admin.from(r.table as never).select("*", { count: "exact", head: true });
+    const value = count ?? 0;
+    rows.push({
+      check: r.check,
+      status: error ? "FAIL" : value > 0 ? "PASS" : "SETUP REQUIRED",
+      detail: error ? error.message : value > 0 ? `${value} konfiguriert` : r.hint,
+    });
+  }
+  rows.push({
+    check: "Verkaufsbereitschaft (Storefront-Origin)",
+    status: inst?.storefront_origin ? "PASS" : "SETUP REQUIRED",
+    detail: inst?.storefront_origin ?? "noch nicht gesetzt",
+  });
+
   rows.push({
     check: "Dedicated independence",
     status: central.length ? "FAIL" : "PASS",
@@ -1016,3 +1105,4 @@ export async function runDoctor(): Promise<DoctorRow[]> {
 
   return rows;
 }
+
