@@ -37,11 +37,11 @@ describe("Ausführungsrechte der Datenbankfunktionen im Install Pack", () => {
 
   it("entzieht jeder erzeugten Funktion das Default-Recht für PUBLIC", () => {
     const created = [...sql.matchAll(/CREATE OR REPLACE FUNCTION public\.([a-z0-9_]+)\s*\(/gi)].map(
-      (m) => m[1].toLowerCase(),
+      (m) => String(m[1]).toLowerCase(),
     );
     const revoked = new Set(
       [...sql.matchAll(/REVOKE ALL ON FUNCTION public\.([a-z0-9_]+)\s*\(/gi)].map((m) =>
-        m[1].toLowerCase(),
+        String(m[1]).toLowerCase(),
       ),
     );
     const missing = [...new Set(created)].filter((fn) => !revoked.has(fn));
@@ -52,8 +52,8 @@ describe("Ausführungsrechte der Datenbankfunktionen im Install Pack", () => {
     const granted = [
       ...sql.matchAll(/GRANT EXECUTE ON FUNCTION public\.([a-z0-9_]+)\s*\([^)]*\)\s*TO ([^;]+);/gi),
     ]
-      .filter((m) => /\b(anon|authenticated)\b/.test(m[2]))
-      .map((m) => m[1].toLowerCase());
+      .filter((m) => /\b(anon|authenticated)\b/.test(String(m[2])))
+      .map((m) => String(m[1]).toLowerCase());
     const unexpected = [...new Set(granted)].filter((fn) => !ALLOWED_AUTHENTICATED.has(fn));
     expect(unexpected).toEqual([]);
   });
