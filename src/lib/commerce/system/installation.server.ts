@@ -1070,6 +1070,33 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     });
   }
 
+  // Verkaufsbereitschaft: was ein Shop zwingend braucht, bevor eine echte
+  // Bestellung möglich ist. Fehlendes ist SETUP REQUIRED, kein FAIL — es ist
+  // eine Aufgabe des Betreibers, kein Installationsfehler.
+  const readiness: { check: string; table: string; hint: string }[] = [
+    { check: "Verkaufsbereitschaft (Versandarten)", table: "shipping_methods", hint: "Versandart anlegen" },
+    { check: "Verkaufsbereitschaft (Steuersätze)", table: "tax_rates", hint: "Steuersatz hinterlegen" },
+    {
+      check: "Verkaufsbereitschaft (Zahlungsart)",
+      table: "payment_provider_configs",
+      hint: "Zahlungsart im Integration Center verbinden",
+    },
+  ];
+  for (const r of readiness) {
+    const { count, error } = await admin.from(r.table as never).select("*", { count: "exact", head: true });
+    const value = count ?? 0;
+    rows.push({
+      check: r.check,
+      status: error ? "FAIL" : value > 0 ? "PASS" : "SETUP REQUIRED",
+      detail: error ? error.message : value > 0 ? `${value} konfiguriert` : r.hint,
+    });
+  }
+  rows.push({
+    check: "Verkaufsbereitschaft (Storefront-Origin)",
+    status: inst?.storefront_origin ? "PASS" : "SETUP REQUIRED",
+    detail: inst?.storefront_origin ?? "noch nicht gesetzt",
+  });
+
   rows.push({
     check: "Dedicated independence",
     status: central.length ? "FAIL" : "PASS",
@@ -1078,3 +1105,4 @@ export async function runDoctor(): Promise<DoctorRow[]> {
 
   return rows;
 }
+
