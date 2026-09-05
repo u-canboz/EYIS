@@ -234,6 +234,19 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
   }
   steps.push("database=ok");
 
+  // 4b  Tabellenrechte. Ohne GRANTs ist das Schema zwar vorhanden, aber für die
+  // Anwendung unerreichbar. Das muss VOR jeder Persistenz auffallen.
+  const grantCheck = await checkCoreGrants(admin);
+  if (grantCheck.missing.length > 0) {
+    throw new InstallationError(
+      "GRANTS_MISSING",
+      `Tabellenrechte fehlen für: ${grantCheck.missing.join(", ")}. ` +
+        "Die Rechte-Schritte des Installationspakets (security_grants) wurden nicht angewendet — Bootstrap STOP.",
+    );
+  }
+  steps.push(`grants=ok(${grantCheck.checked})`);
+
+
   // 5  Bereits initialisiert? (dauerhafte Sperre)
   //    Ausnahme: das Database Install Pack legt den Singleton bereits über den
   //    System-Seed an (seeds/002_installation.sql). Eine solche Zeile ist noch
