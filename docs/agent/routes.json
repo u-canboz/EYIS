@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-05T20:05:51.522Z",
-  "source_commit": "c6beb97769b8b4fb9d779ca305df8b7965b4d81f",
-  "latest_migration": "20260905200316_404e67fe-a349-46a7-adff-e56abe3108c3.sql",
+  "generated_at": "2026-09-09T10:04:17.018Z",
+  "source_commit": "3676bace337099864b32b7399314f11bf6b566bc",
+  "latest_migration": "20260909095717_17148a64-7ce9-492b-8bf8-4b3375f3c868.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 92,
+  "total": 94,
   "by_kind": {
-    "backoffice": 63,
-    "public-api": 4,
+    "backoffice": 64,
+    "public-api": 5,
     "job-endpoint": 3,
     "public-store-api": 2,
     "webhook": 5,
@@ -140,6 +140,16 @@
     {
       "url": "/app/entwickler/api",
       "source": "src/routes/_authenticated/app/entwickler/api.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/entwickler/feeds",
+      "source": "src/routes/_authenticated/app/entwickler/feeds.tsx",
       "kind": "backoffice",
       "methods": [
         "GET"
@@ -646,6 +656,16 @@
       ],
       "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
       "ssr": false
+    },
+    {
+      "url": "/api/public/feeds/:token",
+      "source": "src/routes/api/public/feeds/$token.ts",
+      "kind": "public-api",
+      "methods": [
+        "GET"
+      ],
+      "auth": "server-side check in handler",
+      "ssr": true
     },
     {
       "url": "/api/public/install/bootstrap",
