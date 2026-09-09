@@ -673,8 +673,8 @@ export async function searchProducts(input: {
 
   const merged = new Map<string, Row>();
   for (const row of [
-    ...(((textRows ?? []) as Row[]) ?? []),
-    ...((((categoryHits as { data?: unknown }).data ?? []) as Row[]) ?? []),
+    ...((textRows ?? []) as Row[]),
+    ...(((categoryHits as { data?: unknown }).data ?? []) as Row[]),
   ]) {
     merged.set(row["id"] as string, row);
   }
