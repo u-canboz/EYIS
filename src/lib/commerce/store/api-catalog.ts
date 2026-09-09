@@ -201,6 +201,45 @@ export const STORE_API_GROUPS: StoreEndpointGroup[] = [
     ],
   },
   {
+    key: "content",
+    title: "Inhalte",
+    description:
+      "Pflegbare Storefront-Inhalte und Rechtstexte. Nur veröffentlichte Datensätze werden ausgeliefert.",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/content/blocks",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Veröffentlichte Startseiten-Blöcke, optional nach Abschnitt gefiltert.",
+        input: "section",
+        output: "StoreContentBlock[]",
+        errors: ["UNAUTHORIZED", "RATE_LIMITED"],
+        sdk: 'await client.content.blocks("home")',
+      },
+      {
+        method: "GET",
+        path: "/content/pages",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Übersicht der veröffentlichten Seiten (Impressum, AGB, Datenschutz).",
+        output: "StoreContentPageSummary[]",
+        errors: ["UNAUTHORIZED"],
+        sdk: "await client.content.pages()",
+      },
+      {
+        method: "GET",
+        path: "/content/pages/:handle",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Einzelne Seite mit vollständigem Text.",
+        output: "StoreContentPage",
+        errors: ["NOT_FOUND", "UNAUTHORIZED"],
+        sdk: 'await client.content.page("impressum")',
+      },
+    ],
+  },
+  {
     key: "cart",
     title: "Warenkorb",
     description:
