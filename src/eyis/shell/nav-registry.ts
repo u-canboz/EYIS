@@ -188,6 +188,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/app/entwickler", label: "API-Keys", icon: Code2 },
       { to: "/app/entwickler/api", label: "API-Referenz", icon: FileText },
       { to: "/app/entwickler/protokoll", label: "Request-Protokoll", icon: History },
+      { to: "/app/entwickler/feeds", label: "Produktdatenfeed", icon: ShoppingBag },
       { to: "/app/system/storefront-test", label: "Test-Storefront", icon: Store },
     ],
   },
