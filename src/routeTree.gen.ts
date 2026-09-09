@@ -46,6 +46,7 @@ import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './ro
 import { Route as AuthenticatedAppEinstellungenIntegrationenRouteImport } from './routes/_authenticated/app/einstellungen/integrationen'
 import { Route as AuthenticatedAppEntwicklerIndexRouteImport } from './routes/_authenticated/app/entwickler/index'
 import { Route as AuthenticatedAppEntwicklerApiRouteImport } from './routes/_authenticated/app/entwickler/api'
+import { Route as AuthenticatedAppEntwicklerFeedsRouteImport } from './routes/_authenticated/app/entwickler/feeds'
 import { Route as AuthenticatedAppEntwicklerProtokollRouteImport } from './routes/_authenticated/app/entwickler/protokoll'
 import { Route as AuthenticatedAppKommunikationIndexRouteImport } from './routes/_authenticated/app/kommunikation/index'
 import { Route as AuthenticatedAppKommunikationBrandingRouteImport } from './routes/_authenticated/app/kommunikation/branding'
@@ -301,6 +302,12 @@ const AuthenticatedAppEntwicklerApiRoute =
   AuthenticatedAppEntwicklerApiRouteImport.update({
     id: '/app/entwickler/api',
     path: '/app/entwickler/api',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppEntwicklerFeedsRoute =
+  AuthenticatedAppEntwicklerFeedsRouteImport.update({
+    id: '/app/entwickler/feeds',
+    path: '/app/entwickler/feeds',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppEntwicklerProtokollRoute =
@@ -665,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
+  '/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
@@ -758,6 +766,7 @@ export interface FileRoutesByTo {
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
+  '/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
@@ -854,6 +863,7 @@ export interface FileRoutesById {
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/_authenticated/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/_authenticated/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
+  '/_authenticated/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/_authenticated/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/_authenticated/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/_authenticated/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
@@ -950,6 +960,7 @@ export interface FileRouteTypes {
     | '/app/dokumente/einstellungen'
     | '/app/einstellungen/integrationen'
     | '/app/entwickler/api'
+    | '/app/entwickler/feeds'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
     | '/app/kommunikation/regeln'
@@ -1043,6 +1054,7 @@ export interface FileRouteTypes {
     | '/app/dokumente/einstellungen'
     | '/app/einstellungen/integrationen'
     | '/app/entwickler/api'
+    | '/app/entwickler/feeds'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
     | '/app/kommunikation/regeln'
@@ -1138,6 +1150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/dokumente/einstellungen'
     | '/_authenticated/app/einstellungen/integrationen'
     | '/_authenticated/app/entwickler/api'
+    | '/_authenticated/app/entwickler/feeds'
     | '/_authenticated/app/entwickler/protokoll'
     | '/_authenticated/app/kommunikation/branding'
     | '/_authenticated/app/kommunikation/regeln'
@@ -1487,6 +1500,13 @@ declare module '@tanstack/react-router' {
       path: '/app/entwickler/api'
       fullPath: '/app/entwickler/api'
       preLoaderRoute: typeof AuthenticatedAppEntwicklerApiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/entwickler/feeds': {
+      id: '/_authenticated/app/entwickler/feeds'
+      path: '/app/entwickler/feeds'
+      fullPath: '/app/entwickler/feeds'
+      preLoaderRoute: typeof AuthenticatedAppEntwicklerFeedsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/entwickler/protokoll': {
@@ -1902,6 +1922,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
   AuthenticatedAppEinstellungenIntegrationenRoute: typeof AuthenticatedAppEinstellungenIntegrationenRoute
   AuthenticatedAppEntwicklerApiRoute: typeof AuthenticatedAppEntwicklerApiRoute
+  AuthenticatedAppEntwicklerFeedsRoute: typeof AuthenticatedAppEntwicklerFeedsRoute
   AuthenticatedAppEntwicklerProtokollRoute: typeof AuthenticatedAppEntwicklerProtokollRoute
   AuthenticatedAppKommunikationBrandingRoute: typeof AuthenticatedAppKommunikationBrandingRoute
   AuthenticatedAppKommunikationRegelnRoute: typeof AuthenticatedAppKommunikationRegelnRoute
@@ -1974,6 +1995,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppEinstellungenIntegrationenRoute:
     AuthenticatedAppEinstellungenIntegrationenRoute,
   AuthenticatedAppEntwicklerApiRoute: AuthenticatedAppEntwicklerApiRoute,
+  AuthenticatedAppEntwicklerFeedsRoute: AuthenticatedAppEntwicklerFeedsRoute,
   AuthenticatedAppEntwicklerProtokollRoute:
     AuthenticatedAppEntwicklerProtokollRoute,
   AuthenticatedAppKommunikationBrandingRoute:
