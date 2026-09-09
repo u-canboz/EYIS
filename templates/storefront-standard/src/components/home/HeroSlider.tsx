@@ -44,7 +44,7 @@ export function HeroSlider() {
   return (
     <section
       aria-roledescription="Karussell"
-      aria-label=`${shop.name} entdecken`
+      aria-label={`${shop.name} entdecken`}
       className="hero-stage relative bg-olive text-olive-foreground"
       onMouseEnter={() => setInteractionPaused(true)}
       onMouseLeave={() => setInteractionPaused(false)}
