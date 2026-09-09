@@ -149,8 +149,10 @@ export const STORE_API_GROUPS: StoreEndpointGroup[] = [
         path: "/products",
         auth: "key",
         profile: "catalog_read",
-        summary: "Produktliste mit Paging, Kategorie-/Kollektionsfilter und Sortierung.",
-        input: "page, pageSize, category, collection, sort",
+        summary:
+          "Produktliste mit Paging, Kategorie-/Kollektionsfilter, Preis- und Verfügbarkeitsfilter sowie Sortierung.",
+        input:
+          "page, pageSize, category, collection, sort, minPrice, maxPrice, availability, vendor, productType",
         output: "StoreList<StoreProductSummary>",
         errors: ["UNAUTHORIZED", "RATE_LIMITED"],
         sdk: "await client.catalog.products({ page: 1, pageSize: 24 })",
