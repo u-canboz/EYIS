@@ -228,9 +228,19 @@ for (const file of sources) {
       continue;
     }
     if (spec.startsWith("@/")) {
-      if (!exists(join("src", spec.slice(2)))) unresolved.push(`${file} → ${spec}`);
+      // Die Standard-Storefront ist eine Kopiervorlage: ihre "@/"-Importe
+      // treffen entweder ihr eigenes src/ oder — nach dem Kopieren — die
+      // installierten Module des Kundenprojekts.
+      const roots = file.startsWith("templates/storefront-standard/")
+        ? ["templates/storefront-standard/src", "src"]
+        : ["src"];
+      if (!roots.some((root) => exists(join(root, spec.slice(2))))) {
+        unresolved.push(`${file} → ${spec}`);
+      }
       continue;
     }
+
+
     if (/^(node|bun):/.test(spec)) continue;
     const parts = spec.split("/");
     const name = spec.startsWith("@") ? `${parts[0]}/${parts[1]}` : parts[0]!;

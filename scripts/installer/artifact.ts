@@ -62,7 +62,10 @@ const FORBIDDEN = [
   /^src\/integrations\/supabase\/(?!cron-auth)/,
   /^src\/styles\.css$/,
   /^src\/routes\/__root\.tsx$/,
-  /^templates\//,
+  // Nur die Repo-Vorlage des Kundenprojekts bleibt draußen; die
+  // Standard-Storefront wird ausgeliefert (Kategorie storefront_template).
+  /^templates\/customer-repo\//,
+
   /\/__tests__\//,
 ];
 

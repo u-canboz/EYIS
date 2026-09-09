@@ -42,6 +42,11 @@ export const EYIS_OWNED_PATHS: string[] = [
   "scripts/eyis-pack-signature.ts",
   "installer/distribution/**",
   "installer/resources/**",
+  // Kopiervorlage der Standard-Storefront. Der Ordner selbst wird bei Updates
+  // ersetzt; die daraus im Kundenprojekt entstandenen Dateien (src/routes/**,
+  // src/content/**, public/storefront/**) bleiben kundeneigen.
+  "templates/storefront-standard/**",
+
   "docs/agent/**",
   "commerce-os.manifest.json",
   "package.json",
