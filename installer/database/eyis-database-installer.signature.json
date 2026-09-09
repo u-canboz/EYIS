@@ -2,9 +2,9 @@
   "manifest": "eyis-database-installer-signature",
   "algorithm": "ed25519",
   "version": "2.0.0",
-  "signed_at": "2026-09-09T10:04:25.117Z",
-  "files": 333,
+  "signed_at": "2026-09-09T10:30:42.691Z",
+  "files": 342,
   "key_id": "4e7f55e68fa9a1b934ce2d04719c9177",
-  "digest": "b8e9d91df297a354ca76b897fca544423b10d625f1ccab69027e7e79137163d1",
-  "signature": "JvqE9b322fNBkqyxUFf/iUIHqT33XX3+IVdkZNlIz8BT5A+83HVBaQCxfUklfxVYVxOxeasE8AJsjNFLqljrCQ=="
+  "digest": "80c49fa59f3b0c8c1240c4dd87d411da79515c697b1246108f9b036b0d43d28f",
+  "signature": "bRG4v/fnIflHLEgnbNe8dY4MtAIWkavUSuOzqQZWCoKVcGZr92n0W//x3u2gWn30cN8Up3M3ltSaUIEMpNAzCQ=="
 }

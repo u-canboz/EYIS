@@ -86,7 +86,7 @@
         "tags": [
           "Katalog"
         ],
-        "summary": "Produktliste mit Paging, Kategorie-/Kollektionsfilter und Sortierung.",
+        "summary": "Produktliste mit Paging, Kategorie-/Kollektionsfilter, Preis- und Verfügbarkeitsfilter sowie Sortierung.",
         "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.catalog.products({ page: 1, pageSize: 24 })`",
         "security": [
           {
@@ -196,6 +196,78 @@
           },
           "401": {
             "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/content/blocks": {
+      "get": {
+        "tags": [
+          "Inhalte"
+        ],
+        "summary": "Veröffentlichte Startseiten-Blöcke, optional nach Abschnitt gefiltert.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.content.blocks(\"home\")`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreContentBlock[]"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/content/pages": {
+      "get": {
+        "tags": [
+          "Inhalte"
+        ],
+        "summary": "Übersicht der veröffentlichten Seiten (Impressum, AGB, Datenschutz).",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.content.pages()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreContentPageSummary[]"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/content/pages/:handle": {
+      "get": {
+        "tags": [
+          "Inhalte"
+        ],
+        "summary": "Einzelne Seite mit vollständigem Text.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.content.page(\"impressum\")`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreContentPage"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
           }
         }
       }

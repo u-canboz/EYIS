@@ -59,6 +59,8 @@ import { Route as AuthenticatedAppLagerLagerorteRouteImport } from './routes/_au
 import { Route as AuthenticatedAppLagerReservierungenRouteImport } from './routes/_authenticated/app/lager/reservierungen'
 import { Route as AuthenticatedAppLagerTransfersRouteImport } from './routes/_authenticated/app/lager/transfers'
 import { Route as AuthenticatedAppLagerWareneingangRouteImport } from './routes/_authenticated/app/lager/wareneingang'
+import { Route as AuthenticatedAppMarketingGoogleShoppingRouteImport } from './routes/_authenticated/app/marketing/google-shopping'
+import { Route as AuthenticatedAppMarketingInhalteRouteImport } from './routes/_authenticated/app/marketing/inhalte'
 import { Route as AuthenticatedAppMarketingPromotionsRouteImport } from './routes/_authenticated/app/marketing/promotions'
 import { Route as AuthenticatedAppPreiseIndexRouteImport } from './routes/_authenticated/app/preise/index'
 import { Route as AuthenticatedAppPreiseTestenRouteImport } from './routes/_authenticated/app/preise/testen'
@@ -90,6 +92,7 @@ import { Route as ApiPublicInstallSetupStateRouteImport } from './routes/api/pub
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicJobsExpirationRouteImport } from './routes/api/public/jobs/expiration'
+import { Route as ApiPublicJobsMerchantSyncRouteImport } from './routes/api/public/jobs/merchant-sync'
 import { Route as ApiPublicWebhooksMollieRouteImport } from './routes/api/public/webhooks/mollie'
 import { Route as ApiPublicWebhooksPaypalRouteImport } from './routes/api/public/webhooks/paypal'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
@@ -99,6 +102,7 @@ import { Route as AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport
 import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
 import { Route as AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/$templateId'
 import { Route as AuthenticatedAppSystemEinrichtungIndexRouteImport } from './routes/_authenticated/app/system/einrichtung/index'
+import { Route as ApiPublicMerchantGoogleCallbackRouteImport } from './routes/api/public/merchant/google/callback'
 import { Route as ApiPublicStoreV1SplatRouteImport } from './routes/api/public/store/v1/$'
 import { Route as ApiPublicStoreV1RuntimeConfigRouteImport } from './routes/api/public/store/v1/runtime-config'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
@@ -382,6 +386,18 @@ const AuthenticatedAppLagerWareneingangRoute =
     path: '/app/lager/wareneingang',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppMarketingGoogleShoppingRoute =
+  AuthenticatedAppMarketingGoogleShoppingRouteImport.update({
+    id: '/app/marketing/google-shopping',
+    path: '/app/marketing/google-shopping',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppMarketingInhalteRoute =
+  AuthenticatedAppMarketingInhalteRouteImport.update({
+    id: '/app/marketing/inhalte',
+    path: '/app/marketing/inhalte',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppMarketingPromotionsRoute =
   AuthenticatedAppMarketingPromotionsRouteImport.update({
     id: '/app/marketing/promotions',
@@ -564,6 +580,12 @@ const ApiPublicJobsExpirationRoute = ApiPublicJobsExpirationRouteImport.update({
   path: '/api/public/jobs/expiration',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsMerchantSyncRoute =
+  ApiPublicJobsMerchantSyncRouteImport.update({
+    id: '/api/public/jobs/merchant-sync',
+    path: '/api/public/jobs/merchant-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksMollieRoute = ApiPublicWebhooksMollieRouteImport.update({
   id: '/api/public/webhooks/mollie',
   path: '/api/public/webhooks/mollie',
@@ -614,6 +636,12 @@ const AuthenticatedAppSystemEinrichtungIndexRoute =
     id: '/app/system/einrichtung/',
     path: '/app/system/einrichtung/',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicMerchantGoogleCallbackRoute =
+  ApiPublicMerchantGoogleCallbackRouteImport.update({
+    id: '/api/public/merchant/google/callback',
+    path: '/api/public/merchant/google/callback',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicStoreV1SplatRoute = ApiPublicStoreV1SplatRouteImport.update({
   id: '/api/public/store/v1/$',
@@ -682,6 +710,8 @@ export interface FileRoutesByFullPath {
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
+  '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -708,6 +738,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/jobs/merchant-sync': typeof ApiPublicJobsMerchantSyncRoute
   '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
   '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -726,6 +757,7 @@ export interface FileRoutesByFullPath {
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -776,6 +808,8 @@ export interface FileRoutesByTo {
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
+  '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -802,6 +836,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/jobs/merchant-sync': typeof ApiPublicJobsMerchantSyncRoute
   '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
   '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -820,6 +855,7 @@ export interface FileRoutesByTo {
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -873,6 +909,8 @@ export interface FileRoutesById {
   '/_authenticated/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/_authenticated/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/_authenticated/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
+  '/_authenticated/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  '/_authenticated/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/_authenticated/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/_authenticated/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -899,6 +937,7 @@ export interface FileRoutesById {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/jobs/merchant-sync': typeof ApiPublicJobsMerchantSyncRoute
   '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
   '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -917,6 +956,7 @@ export interface FileRoutesById {
   '/_authenticated/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -970,6 +1010,8 @@ export interface FileRouteTypes {
     | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
+    | '/app/marketing/google-shopping'
+    | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
@@ -996,6 +1038,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/jobs/merchant-sync'
     | '/api/public/webhooks/mollie'
     | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
@@ -1014,6 +1057,7 @@ export interface FileRouteTypes {
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/merchant/google/callback'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1064,6 +1108,8 @@ export interface FileRouteTypes {
     | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
+    | '/app/marketing/google-shopping'
+    | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
@@ -1090,6 +1136,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/jobs/merchant-sync'
     | '/api/public/webhooks/mollie'
     | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
@@ -1108,6 +1155,7 @@ export interface FileRouteTypes {
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/merchant/google/callback'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1160,6 +1208,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/lager/reservierungen'
     | '/_authenticated/app/lager/transfers'
     | '/_authenticated/app/lager/wareneingang'
+    | '/_authenticated/app/marketing/google-shopping'
+    | '/_authenticated/app/marketing/inhalte'
     | '/_authenticated/app/marketing/promotions'
     | '/_authenticated/app/preise/testen'
     | '/_authenticated/app/produkte/$productId'
@@ -1186,6 +1236,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/jobs/merchant-sync'
     | '/api/public/webhooks/mollie'
     | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
@@ -1204,6 +1255,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/automationen/regel/$ruleId'
     | '/_authenticated/app/kommunikation/verlauf/$communicationId'
     | '/_authenticated/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/merchant/google/callback'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1232,9 +1284,11 @@ export interface RootRouteChildren {
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicJobsExpirationRoute: typeof ApiPublicJobsExpirationRoute
+  ApiPublicJobsMerchantSyncRoute: typeof ApiPublicJobsMerchantSyncRoute
   ApiPublicWebhooksMollieRoute: typeof ApiPublicWebhooksMollieRoute
   ApiPublicWebhooksPaypalRoute: typeof ApiPublicWebhooksPaypalRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
+  ApiPublicMerchantGoogleCallbackRoute: typeof ApiPublicMerchantGoogleCallbackRoute
   ApiPublicStoreV1SplatRoute: typeof ApiPublicStoreV1SplatRoute
   ApiPublicStoreV1RuntimeConfigRoute: typeof ApiPublicStoreV1RuntimeConfigRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
@@ -1593,6 +1647,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppLagerWareneingangRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/marketing/google-shopping': {
+      id: '/_authenticated/app/marketing/google-shopping'
+      path: '/app/marketing/google-shopping'
+      fullPath: '/app/marketing/google-shopping'
+      preLoaderRoute: typeof AuthenticatedAppMarketingGoogleShoppingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/marketing/inhalte': {
+      id: '/_authenticated/app/marketing/inhalte'
+      path: '/app/marketing/inhalte'
+      fullPath: '/app/marketing/inhalte'
+      preLoaderRoute: typeof AuthenticatedAppMarketingInhalteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/marketing/promotions': {
       id: '/_authenticated/app/marketing/promotions'
       path: '/app/marketing/promotions'
@@ -1810,6 +1878,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsExpirationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/merchant-sync': {
+      id: '/api/public/jobs/merchant-sync'
+      path: '/api/public/jobs/merchant-sync'
+      fullPath: '/api/public/jobs/merchant-sync'
+      preLoaderRoute: typeof ApiPublicJobsMerchantSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/mollie': {
       id: '/api/public/webhooks/mollie'
       path: '/api/public/webhooks/mollie'
@@ -1873,6 +1948,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSystemEinrichtungIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/merchant/google/callback': {
+      id: '/api/public/merchant/google/callback'
+      path: '/api/public/merchant/google/callback'
+      fullPath: '/api/public/merchant/google/callback'
+      preLoaderRoute: typeof ApiPublicMerchantGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/store/v1/$': {
       id: '/api/public/store/v1/$'
       path: '/api/public/store/v1/$'
@@ -1932,6 +2014,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppLagerReservierungenRoute: typeof AuthenticatedAppLagerReservierungenRoute
   AuthenticatedAppLagerTransfersRoute: typeof AuthenticatedAppLagerTransfersRoute
   AuthenticatedAppLagerWareneingangRoute: typeof AuthenticatedAppLagerWareneingangRoute
+  AuthenticatedAppMarketingGoogleShoppingRoute: typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  AuthenticatedAppMarketingInhalteRoute: typeof AuthenticatedAppMarketingInhalteRoute
   AuthenticatedAppMarketingPromotionsRoute: typeof AuthenticatedAppMarketingPromotionsRoute
   AuthenticatedAppPreiseTestenRoute: typeof AuthenticatedAppPreiseTestenRoute
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
@@ -2010,6 +2094,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppLagerTransfersRoute: AuthenticatedAppLagerTransfersRoute,
   AuthenticatedAppLagerWareneingangRoute:
     AuthenticatedAppLagerWareneingangRoute,
+  AuthenticatedAppMarketingGoogleShoppingRoute:
+    AuthenticatedAppMarketingGoogleShoppingRoute,
+  AuthenticatedAppMarketingInhalteRoute: AuthenticatedAppMarketingInhalteRoute,
   AuthenticatedAppMarketingPromotionsRoute:
     AuthenticatedAppMarketingPromotionsRoute,
   AuthenticatedAppPreiseTestenRoute: AuthenticatedAppPreiseTestenRoute,
@@ -2109,9 +2196,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicJobsExpirationRoute: ApiPublicJobsExpirationRoute,
+  ApiPublicJobsMerchantSyncRoute: ApiPublicJobsMerchantSyncRoute,
   ApiPublicWebhooksMollieRoute: ApiPublicWebhooksMollieRoute,
   ApiPublicWebhooksPaypalRoute: ApiPublicWebhooksPaypalRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
+  ApiPublicMerchantGoogleCallbackRoute: ApiPublicMerchantGoogleCallbackRoute,
   ApiPublicStoreV1SplatRoute: ApiPublicStoreV1SplatRoute,
   ApiPublicStoreV1RuntimeConfigRoute: ApiPublicStoreV1RuntimeConfigRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,

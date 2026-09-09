@@ -84,6 +84,18 @@ export const NAV_GROUPS: NavGroup[] = [
         keywords: "carts sessions",
       },
       { to: "/app/marketing/promotions", label: "Promotions", icon: Megaphone, keywords: "rabatte" },
+      {
+        to: "/app/marketing/inhalte",
+        label: "Storefront-Inhalte",
+        icon: FileText,
+        keywords: "impressum agb datenschutz texte suchbegriffe",
+      },
+      {
+        to: "/app/marketing/google-shopping",
+        label: "Google Merchant Center",
+        icon: ShoppingBag,
+        keywords: "google shopping merchant feed",
+      },
     ],
   },
   {

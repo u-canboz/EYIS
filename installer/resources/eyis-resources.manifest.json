@@ -63,6 +63,20 @@
       "timeout_seconds": 60,
       "secret_header": "Authorization: Bearer",
       "secret_key": "LOVABLE_CRON_SECRET"
+    },
+    {
+      "id": "merchant-sync",
+      "endpoint": "/api/public/jobs/merchant-sync",
+      "schedule": "30 3 * * *",
+      "auth": "authenticateCronRequest",
+      "cron_job_name": "eyis_job_merchant_sync",
+      "purpose": "Verbundene Google-Merchant-Konten täglich mit dem Katalog abgleichen",
+      "timezone": "UTC",
+      "method": "POST",
+      "expected_status_without_secret": 401,
+      "timeout_seconds": 60,
+      "secret_header": "Authorization: Bearer",
+      "secret_key": "LOVABLE_CRON_SECRET"
     }
   ],
   "runtime_configuration": [
