@@ -1,6 +1,6 @@
 {
   "manifest": "eyis-code-distribution",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "description": "Verbindliche Verteilungsgrenzen für EYIS Dedicated Installationen. Ein Dedicated-Agent darf ausschließlich Pfade der Kategorie 'install' übernehmen und ausschließlich die unter 'integration_patch' beschriebenen minimalen Eingriffe an kundeneigenen Dateien vornehmen.",
   "categories": {
     "install": "Wird in das Kundenprojekt installiert und bei Updates ersetzt.",
@@ -12,7 +12,8 @@
     "shared_convention": "Von Lovable-Projekten geteilte Konvention (shadcn-Primitive). Wird vorausgesetzt, nie überschrieben.",
     "customer_routes": "Routen, die im Kundenprojekt bereits existieren und nie beansprucht werden. Die Startseite gehoert immer dem Kunden; src/routes/index.tsx im EYIS-Repo ist ausschliesslich Referenz.",
     "install_tooling": "Installer- und Betriebsskripte, die mit dem Artefakt ausgeliefert werden. Wird bei Updates ersetzt.",
-    "repository_only": "Skripte des EYIS-Hauptrepositories (Release, Generatoren, Verifikation). Nicht Teil des Artefakts; im Kundenprojekt bewusst nicht verfügbar."
+    "repository_only": "Skripte des EYIS-Hauptrepositories (Release, Generatoren, Verifikation). Nicht Teil des Artefakts; im Kundenprojekt bewusst nicht verfügbar.",
+    "storefront_template": "Markenneutrale Standard-Storefront. Wird als Kopiervorlage ausgeliefert und bei Updates ersetzt; die im Kundenprojekt daraus entstandenen Dateien unter 'src/routes/**' und 'public/storefront/**' gehören danach dem Kunden und werden nie überschrieben."
   },
   "install": [
     "src/lib/commerce/**",
@@ -32,7 +33,8 @@
     "installer/resources/**",
     "commerce-os.manifest.json",
     "src/integrations/supabase/cron-auth.ts",
-    "installer/eyis.ts"
+    "installer/eyis.ts",
+    "templates/storefront-standard/**"
   ],
   "install_tooling": [
     "scripts/installer/runner.ts",
@@ -160,7 +162,10 @@
     "Jede Datei im Release-Tarball gehört genau einer Kategorie ('install' oder 'install_tooling'). Unkategorisierte Dateien sind ein Release-Stopper.",
     "Jeder Pfad aus 'install' und 'install_tooling', der nicht im Tarball landet, muss in 'exclude_from_install' begründet sein.",
     "Kein Skriptverweis in 'commerce-os.manifest.json' zeigt in einem installierten Projekt ins Leere: ausgelieferte Befehle stehen unter 'installed_commands', alles andere unter 'repository_only_commands'.",
-    "Ausgelieferte Skripte sind autonom: jeder relative Import eines Tarball-Skripts liegt selbst im Tarball. Erzwungen durch 'bun run eyis:dist:verify'."
+    "Ausgelieferte Skripte sind autonom: jeder relative Import eines Tarball-Skripts liegt selbst im Tarball. Erzwungen durch 'bun run eyis:dist:verify'.",
+    "Die Standard-Storefront unter 'templates/storefront-standard/**' ist eine Kopiervorlage. Sie wird bei der Erstinstallation einmalig in das Kundenprojekt kopiert und bei Updates niemals über bereits kopierte Kundendateien gelegt.",
+    "Die Standard-Storefront ist markenneutral: Name, Kontakt, Navigation und Texte stehen ausschliesslich in 'src/content/**', Bilder in 'public/storefront/**', Farben und Schriften im Scope '.storefront'. Sie fasst weder ':root' noch '.eyis-admin' an.",
+    "Die Standard-Storefront enthaelt keine erfundenen Bewertungen, keine Lieferzeit- und keine Rabattversprechen."
   ],
   "shared_convention": [
     "src/components/ui/**"
@@ -172,5 +177,8 @@
     "src/integrations/lovable/**",
     "**/__tests__/**",
     "src/routes/store/**"
+  ],
+  "storefront_template": [
+    "templates/storefront-standard/**"
   ]
 }
