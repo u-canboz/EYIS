@@ -100,6 +100,7 @@ import { Route as AuthenticatedAppKommunikationVerlaufCommunicationIdRouteImport
 import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/index'
 import { Route as AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/$templateId'
 import { Route as AuthenticatedAppSystemEinrichtungIndexRouteImport } from './routes/_authenticated/app/system/einrichtung/index'
+import { Route as ApiPublicMerchantGoogleCallbackRouteImport } from './routes/api/public/merchant/google/callback'
 import { Route as ApiPublicStoreV1SplatRouteImport } from './routes/api/public/store/v1/$'
 import { Route as ApiPublicStoreV1RuntimeConfigRouteImport } from './routes/api/public/store/v1/runtime-config'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
@@ -622,6 +623,12 @@ const AuthenticatedAppSystemEinrichtungIndexRoute =
     path: '/app/system/einrichtung/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicMerchantGoogleCallbackRoute =
+  ApiPublicMerchantGoogleCallbackRouteImport.update({
+    id: '/api/public/merchant/google/callback',
+    path: '/api/public/merchant/google/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicStoreV1SplatRoute = ApiPublicStoreV1SplatRouteImport.update({
   id: '/api/public/store/v1/$',
   path: '/api/public/store/v1/$',
@@ -734,6 +741,7 @@ export interface FileRoutesByFullPath {
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -829,6 +837,7 @@ export interface FileRoutesByTo {
   '/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -927,6 +936,7 @@ export interface FileRoutesById {
   '/_authenticated/app/automationen/regel/$ruleId': typeof AuthenticatedAppAutomationenRegelRuleIdRoute
   '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
+  '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -1025,6 +1035,7 @@ export interface FileRouteTypes {
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/merchant/google/callback'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1120,6 +1131,7 @@ export interface FileRouteTypes {
     | '/app/automationen/regel/$ruleId'
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/merchant/google/callback'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1217,6 +1229,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/automationen/regel/$ruleId'
     | '/_authenticated/app/kommunikation/verlauf/$communicationId'
     | '/_authenticated/app/kommunikation/vorlagen/$templateId'
+    | '/api/public/merchant/google/callback'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1248,6 +1261,7 @@ export interface RootRouteChildren {
   ApiPublicWebhooksMollieRoute: typeof ApiPublicWebhooksMollieRoute
   ApiPublicWebhooksPaypalRoute: typeof ApiPublicWebhooksPaypalRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
+  ApiPublicMerchantGoogleCallbackRoute: typeof ApiPublicMerchantGoogleCallbackRoute
   ApiPublicStoreV1SplatRoute: typeof ApiPublicStoreV1SplatRoute
   ApiPublicStoreV1RuntimeConfigRoute: typeof ApiPublicStoreV1RuntimeConfigRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
@@ -1893,6 +1907,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSystemEinrichtungIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/merchant/google/callback': {
+      id: '/api/public/merchant/google/callback'
+      path: '/api/public/merchant/google/callback'
+      fullPath: '/api/public/merchant/google/callback'
+      preLoaderRoute: typeof ApiPublicMerchantGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/store/v1/$': {
       id: '/api/public/store/v1/$'
       path: '/api/public/store/v1/$'
@@ -2134,6 +2155,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWebhooksMollieRoute: ApiPublicWebhooksMollieRoute,
   ApiPublicWebhooksPaypalRoute: ApiPublicWebhooksPaypalRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
+  ApiPublicMerchantGoogleCallbackRoute: ApiPublicMerchantGoogleCallbackRoute,
   ApiPublicStoreV1SplatRoute: ApiPublicStoreV1SplatRoute,
   ApiPublicStoreV1RuntimeConfigRoute: ApiPublicStoreV1RuntimeConfigRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,
