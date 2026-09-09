@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" role="img" aria-label="Shop">
+  <rect x="1" y="1" width="46" height="46" rx="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M15 32c0-9 4-16 9-16s9 7 9 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="62" y="32" font-family="Georgia, 'Times New Roman', serif" font-size="22" letter-spacing="3" fill="currentColor">SHOP</text>
+</svg>
