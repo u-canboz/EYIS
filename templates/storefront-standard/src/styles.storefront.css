@@ -1,0 +1,195 @@
+/* ------------------------------------------------------------------ */
+/* EYIS Standard-Storefront — Design-Tokens und Bewegung               */
+/*                                                                     */
+/* Dieser Block wird an die Datei `src/styles.css` des Kundenprojekts   */
+/* angehängt. Er wirkt ausschließlich innerhalb von `.storefront` und   */
+/* fasst weder `:root` noch den Backoffice-Scope `.eyis-admin` an.      */
+/*                                                                     */
+/* Anpassen: Farben, Radien und Schriften unten ändern. Schriften über  */
+/* ein <link>-Tag im Root-Layout laden — niemals per @import hier.      */
+/* ------------------------------------------------------------------ */
+
+.storefront {
+  /* Flächen und Text */
+  --storefront-background: oklch(0.985 0.006 85);
+  --storefront-foreground: oklch(0.29 0.02 130);
+  --storefront-surface: oklch(0.965 0.01 85);
+  --storefront-border: oklch(0.89 0.02 85);
+  --storefront-muted: oklch(0.52 0.02 130);
+
+  /* Akzente */
+  --storefront-accent: oklch(0.62 0.07 70);
+  --storefront-accent-foreground: oklch(0.99 0.005 85);
+  --storefront-deep: oklch(0.36 0.03 140);
+  --storefront-deep-foreground: oklch(0.98 0.005 85);
+
+  /* Maße */
+  --content-max: 80rem;
+  --tap: 2.75rem;
+
+  font-family: var(--storefront-font-body, system-ui, -apple-system, "Segoe UI", Arial, sans-serif);
+  letter-spacing: 0;
+  background-color: var(--storefront-background);
+  color: var(--storefront-foreground);
+}
+
+.storefront h1,
+.storefront h2,
+.storefront h3,
+.storefront h4,
+.storefront .font-display {
+  font-family: var(--storefront-font-display, Georgia, "Times New Roman", serif);
+  letter-spacing: 0;
+}
+
+/* --- Bewegung der Startseiten-Bühne ------------------------------- */
+
+@keyframes storefront-hero-image {
+  from {
+    transform: scale(1.025);
+  }
+  to {
+    transform: scale(1.085) translateX(-0.35%);
+  }
+}
+
+@keyframes storefront-hero-copy {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes storefront-hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.storefront .hero-image {
+  transform: scale(1.025);
+  filter: saturate(0.92) contrast(1.03);
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.storefront .hero-image-active {
+  animation: storefront-hero-image 8s linear both;
+}
+
+.storefront .hero-panel {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 1.35s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 1.35s;
+}
+
+.storefront .hero-panel-active {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.storefront .hero-copy-active {
+  animation: storefront-hero-copy 900ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both;
+}
+
+.storefront .hero-progress {
+  animation: storefront-hero-progress 8s linear both;
+  transform-origin: left center;
+}
+
+.storefront .hero-progress-paused {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storefront .hero-image-active,
+  .storefront .hero-copy-active,
+  .storefront .hero-progress {
+    animation: none;
+  }
+
+  .storefront .hero-panel {
+    transition: none;
+  }
+}
+
+/* --- Hinweise (Toasts) der Storefront ----------------------------- */
+
+.storefront-toaster [data-sonner-toast].storefront-toast {
+  background: var(--storefront-background);
+  border: 1px solid var(--storefront-border);
+  border-left: 3px solid var(--storefront-accent);
+  border-radius: 6px;
+  padding: 14px 18px;
+  color: var(--storefront-foreground);
+}
+
+.storefront-toaster .storefront-toast-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--storefront-foreground);
+}
+
+.storefront-toaster .storefront-toast-description {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--storefront-muted);
+}
+
+.storefront-toaster [data-sonner-toast][data-type="success"] .storefront-toast-icon {
+  color: var(--storefront-deep);
+}
+
+.storefront-toaster [data-sonner-toast][data-type="error"] .storefront-toast-icon {
+  color: oklch(0.55 0.11 35);
+}
+
+.storefront-toaster [data-sonner-toast][data-type="warning"] .storefront-toast-icon,
+.storefront-toaster [data-sonner-toast][data-type="info"] .storefront-toast-icon {
+  color: var(--storefront-accent);
+}
+
+.storefront-toaster .storefront-toast-close {
+  background: var(--storefront-background);
+  border: 1px solid var(--storefront-border);
+  color: var(--storefront-muted);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.storefront-toaster .storefront-toast-close:hover {
+  color: var(--storefront-foreground);
+  border-color: var(--storefront-accent);
+}
+
+.storefront-toaster .storefront-toast-action {
+  background: var(--storefront-deep);
+  color: var(--storefront-deep-foreground);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+}
+
+.storefront-toaster .storefront-toast-cancel {
+  background: transparent;
+  color: var(--storefront-muted);
+  border: 1px solid var(--storefront-border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 14px;
+}
