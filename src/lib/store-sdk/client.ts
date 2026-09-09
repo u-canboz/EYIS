@@ -16,6 +16,9 @@ import type {
   StoreCheckout,
   StoreCollection,
   StoreConfig,
+  StoreContentBlock,
+  StoreContentPage,
+  StoreContentPageSummary,
   StoreCustomer,
   StoreList,
   StoreOrder,
@@ -309,6 +312,11 @@ export function createCommerceClient(input: CommerceClientConfig) {
       category?: string | null;
       collection?: string | null;
       sort?: string | null;
+      minPrice?: number | null;
+      maxPrice?: number | null;
+      availability?: "in_stock" | null;
+      vendor?: string | null;
+      productType?: string | null;
     }) =>
       request<StoreList<StoreProductSummary>>({
         path: "/products",
@@ -318,6 +326,11 @@ export function createCommerceClient(input: CommerceClientConfig) {
           category: params?.category ?? null,
           collection: params?.collection ?? null,
           sort: params?.sort ?? null,
+          minPrice: params?.minPrice ?? null,
+          maxPrice: params?.maxPrice ?? null,
+          availability: params?.availability ?? null,
+          vendor: params?.vendor ?? null,
+          productType: params?.productType ?? null,
         },
       }),
     product: (handle: string) =>
@@ -328,6 +341,18 @@ export function createCommerceClient(input: CommerceClientConfig) {
     collections: () => request<StoreCollection[]>({ path: "/collections" }),
   };
 
+  const content = {
+    blocks: (section?: string) =>
+      request<StoreContentBlock[]>({
+        path: "/content/blocks",
+        query: { section: section ?? null },
+      }),
+    pages: () => request<StoreContentPageSummary[]>({ path: "/content/pages" }),
+    page: (handle: string) =>
+      request<StoreContentPage>({ path: `/content/pages/${encodeURIComponent(handle)}` }),
+  };
+
+
   return {
     config: () => request<StoreConfig>({ path: "/config" }),
     /**
@@ -336,6 +361,7 @@ export function createCommerceClient(input: CommerceClientConfig) {
      */
     paymentMethods: () => request<StorePaymentMethod[]>({ path: "/payment-methods" }),
     catalog,
+    content,
     cart,
     checkout,
     payments,

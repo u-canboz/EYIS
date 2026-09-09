@@ -4520,6 +4520,187 @@ export type Database = {
           },
         ]
       }
+      merchant_connections: {
+        Row: {
+          account_label: string | null
+          auto_sync: boolean
+          created_at: string
+          credential_reference: string | null
+          data_source_id: string | null
+          id: string
+          last_error: string | null
+          last_sync_at: string | null
+          merchant_id: string | null
+          organization_id: string
+          provider: string
+          shop_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_label?: string | null
+          auto_sync?: boolean
+          created_at?: string
+          credential_reference?: string | null
+          data_source_id?: string | null
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          merchant_id?: string | null
+          organization_id: string
+          provider?: string
+          shop_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_label?: string | null
+          auto_sync?: boolean
+          created_at?: string
+          credential_reference?: string | null
+          data_source_id?: string | null
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          merchant_id?: string | null
+          organization_id?: string
+          provider?: string
+          shop_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_connections_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_connections_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merchant_sync_errors: {
+        Row: {
+          code: string | null
+          created_at: string
+          id: string
+          message: string
+          offer_id: string | null
+          organization_id: string
+          product_title: string | null
+          run_id: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          offer_id?: string | null
+          organization_id: string
+          product_title?: string | null
+          run_id: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          offer_id?: string | null
+          organization_id?: string
+          product_title?: string | null
+          run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_sync_errors_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_sync_errors_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "merchant_sync_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merchant_sync_runs: {
+        Row: {
+          connection_id: string
+          finished_at: string | null
+          id: string
+          items_failed: number
+          items_ok: number
+          items_total: number
+          message: string | null
+          organization_id: string
+          shop_id: string
+          started_at: string
+          status: string
+          trigger_source: string
+        }
+        Insert: {
+          connection_id: string
+          finished_at?: string | null
+          id?: string
+          items_failed?: number
+          items_ok?: number
+          items_total?: number
+          message?: string | null
+          organization_id: string
+          shop_id: string
+          started_at?: string
+          status?: string
+          trigger_source?: string
+        }
+        Update: {
+          connection_id?: string
+          finished_at?: string | null
+          id?: string
+          items_failed?: number
+          items_ok?: number
+          items_total?: number
+          message?: string | null
+          organization_id?: string
+          shop_id?: string
+          started_at?: string
+          status?: string
+          trigger_source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_sync_runs_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "merchant_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_sync_runs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_sync_runs_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       oauth_states: {
         Row: {
           created_at: string
@@ -6973,6 +7154,51 @@ export type Database = {
         }
         Relationships: []
       }
+      search_synonyms: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          shop_id: string
+          synonyms: string[]
+          term: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          shop_id: string
+          synonyms?: string[]
+          term: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          shop_id?: string
+          synonyms?: string[]
+          term?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_synonyms_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "search_synonyms_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sender_domains: {
         Row: {
           created_at: string
@@ -7849,6 +8075,126 @@ export type Database = {
           salt_date?: string
         }
         Relationships: []
+      }
+      storefront_blocks: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          link_label: string | null
+          link_url: string | null
+          organization_id: string
+          position: number
+          published: boolean
+          section: string
+          shop_id: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_label?: string | null
+          link_url?: string | null
+          organization_id: string
+          position?: number
+          published?: boolean
+          section: string
+          shop_id: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_label?: string | null
+          link_url?: string | null
+          organization_id?: string
+          position?: number
+          published?: boolean
+          section?: string
+          shop_id?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storefront_blocks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storefront_blocks_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storefront_pages: {
+        Row: {
+          body: string
+          created_at: string
+          excerpt: string | null
+          handle: string
+          id: string
+          organization_id: string
+          published: boolean
+          shop_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          excerpt?: string | null
+          handle: string
+          id?: string
+          organization_id: string
+          published?: boolean
+          shop_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          excerpt?: string | null
+          handle?: string
+          id?: string
+          organization_id?: string
+          published?: boolean
+          shop_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storefront_pages_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storefront_pages_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {

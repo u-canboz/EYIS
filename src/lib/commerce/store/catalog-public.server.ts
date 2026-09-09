@@ -85,9 +85,18 @@ export async function listProducts(input: {
   categoryHandle?: string | null;
   collectionHandle?: string | null;
   sort?: string | null;
+  minPriceMinor?: number | null;
+  maxPriceMinor?: number | null;
+  inStockOnly?: boolean;
+  vendor?: string | null;
+  productType?: string | null;
 }): Promise<StoreList<StoreProductSummary>> {
   const admin = await getAdmin();
   const from = (input.page - 1) * input.pageSize;
+  const empty = {
+    data: [] as StoreProductSummary[],
+    pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false },
+  };
 
   let productIdFilter: string[] | null = null;
   if (input.categoryHandle) {
@@ -97,11 +106,7 @@ export async function listProducts(input: {
       .eq("shop_id", input.shopId)
       .eq("handle", input.categoryHandle)
       .maybeSingle();
-    if (!cat)
-      return {
-        data: [],
-        pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false },
-      };
+    if (!cat) return empty;
     const { data: links } = await admin
       .from("product_categories")
       .select("product_id")
@@ -115,11 +120,7 @@ export async function listProducts(input: {
       .eq("shop_id", input.shopId)
       .eq("handle", input.collectionHandle)
       .maybeSingle();
-    if (!col)
-      return {
-        data: [],
-        pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false },
-      };
+    if (!col) return empty;
     const { data: links } = await admin
       .from("product_collections")
       .select("product_id")
@@ -127,28 +128,95 @@ export async function listProducts(input: {
     const ids = ((links ?? []) as Row[]).map((l) => l["product_id"] as string);
     productIdFilter = productIdFilter ? productIdFilter.filter((id) => ids.includes(id)) : ids;
   }
-  if (productIdFilter && productIdFilter.length === 0)
-    return {
-      data: [],
-      pagination: { page: input.page, pageSize: input.pageSize, total: 0, hasMore: false },
-    };
+  if (productIdFilter && productIdFilter.length === 0) return empty;
 
-  let query = admin
-    .from("products")
-    .select("id, handle, name, subtitle, status, archived_at, created_at, featured", {
-      count: "exact",
-    })
-    .eq("shop_id", input.shopId)
-    .eq("organization_id", input.organizationId)
-    .eq("status", "active")
-    .is("archived_at", null);
-  if (productIdFilter) query = query.in("id", productIdFilter);
+  const selection = "id, handle, name, subtitle, status, archived_at, created_at, featured";
+  const baseQuery = () => {
+    let q = admin
+      .from("products")
+      .select(selection, { count: "exact" })
+      .eq("shop_id", input.shopId)
+      .eq("organization_id", input.organizationId)
+      .eq("status", "active")
+      .is("archived_at", null);
+    if (productIdFilter) q = q.in("id", productIdFilter);
+    if (input.vendor) q = q.eq("vendor", input.vendor);
+    if (input.productType) q = q.eq("product_type", input.productType);
+    return q;
+  };
+
+  const priceSort = input.sort === "price_asc" || input.sort === "price_desc";
+  const needsFacetPass =
+    priceSort ||
+    input.inStockOnly === true ||
+    typeof input.minPriceMinor === "number" ||
+    typeof input.maxPriceMinor === "number";
+
+  // Preis und Verfügbarkeit liegen nicht auf der Produktzeile. Für Filter oder
+  // Preissortierung wird deshalb die (begrenzte) Trefferliste serverseitig
+  // angereichert, gefiltert, sortiert und erst danach paginiert.
+  if (needsFacetPass) {
+    const { data, error } = await baseQuery()
+      .order("name", { ascending: true })
+      .range(0, FACET_SCAN_LIMIT - 1);
+    if (error) throw new Error(error.message);
+    const candidates = (data ?? []) as Row[];
+    if (!candidates.length) return empty;
+    const ids = candidates.map((r) => r["id"] as string);
+    const [floors, availability] = await Promise.all([
+      lowestVariantPrices(input.organizationId, ids),
+      input.inStockOnly
+        ? productAvailabilities(input.organizationId, input.shopId, ids)
+        : Promise.resolve(new Map<string, ReturnType<typeof availabilityFrom>>()),
+    ]);
+    let filtered = candidates.filter((row) => {
+      const id = row["id"] as string;
+      const amount = floors.get(id)?.amountMinor ?? null;
+      if (typeof input.minPriceMinor === "number" && (amount === null || amount < input.minPriceMinor))
+        return false;
+      if (typeof input.maxPriceMinor === "number" && (amount === null || amount > input.maxPriceMinor))
+        return false;
+      if (input.inStockOnly && availability.get(id) === "out_of_stock") return false;
+      return true;
+    });
+    if (priceSort) {
+      const dir = input.sort === "price_desc" ? -1 : 1;
+      filtered = filtered.sort((a, b) => {
+        const av = floors.get(a["id"] as string)?.amountMinor;
+        const bv = floors.get(b["id"] as string)?.amountMinor;
+        if (av === undefined && bv === undefined) return 0;
+        if (av === undefined) return 1;
+        if (bv === undefined) return -1;
+        return (av - bv) * dir;
+      });
+    } else if (input.sort === "newest") {
+      filtered = filtered.sort((a, b) =>
+        String(b["created_at"]).localeCompare(String(a["created_at"])),
+      );
+    }
+    const total = filtered.length;
+    const pageRows = filtered.slice(from, from + input.pageSize);
+    const summaries = await summarizeProducts(pageRows, input.organizationId, input.shopId);
+    return {
+      data: summaries,
+      pagination: {
+        page: input.page,
+        pageSize: input.pageSize,
+        total,
+        hasMore: from + summaries.length < total,
+      },
+    };
+  }
+
+  let query = baseQuery();
   query =
     input.sort === "title_asc"
       ? query.order("name", { ascending: true })
-      : input.sort === "newest"
-        ? query.order("created_at", { ascending: false })
-        : query.order("featured", { ascending: false }).order("name", { ascending: true });
+      : input.sort === "title_desc"
+        ? query.order("name", { ascending: false })
+        : input.sort === "newest"
+          ? query.order("created_at", { ascending: false })
+          : query.order("featured", { ascending: false }).order("name", { ascending: true });
 
   const { data, count, error } = await query.range(from, from + input.pageSize - 1);
   if (error) throw new Error(error.message);
@@ -165,6 +233,10 @@ export async function listProducts(input: {
     },
   };
 }
+
+/** Obergrenze für den Anreicherungsdurchlauf bei Preis-/Verfügbarkeitsfiltern. */
+const FACET_SCAN_LIMIT = 500;
+
 
 /**
  * Zusammenfassungen für eine Produktliste. Gebündelte Zusatzdaten: eine Abfrage
@@ -516,6 +588,24 @@ export async function getProduct(input: {
 
 type StoreCategoryRef = { id: string; handle: string; name: string };
 
+/** Pflegbare Suchbegriffe des Shops: Begriff → Alternativbegriffe. */
+async function expandTerm(shopId: string, term: string): Promise<string[]> {
+  const admin = await getAdmin();
+  const lower = term.toLowerCase();
+  const { data } = await admin.from("search_synonyms").select("term, synonyms").eq("shop_id", shopId);
+  const terms = new Set<string>([term]);
+  for (const row of ((data ?? []) as Row[])) {
+    const key = String(row["term"] ?? "").toLowerCase();
+    const list = (row["synonyms"] as string[] | null) ?? [];
+    const lowerList = list.map((s) => String(s).toLowerCase());
+    if (key === lower || lowerList.includes(lower)) {
+      terms.add(key);
+      for (const s of list) terms.add(String(s));
+    }
+  }
+  return [...terms].filter((t) => t.trim().length >= 2).slice(0, 8);
+}
+
 export async function searchProducts(input: {
   organizationId: string;
   shopId: string;
@@ -525,17 +615,73 @@ export async function searchProducts(input: {
   const admin = await getAdmin();
   const term = input.term.trim().slice(0, 80);
   if (term.length < 2) return [];
-  const { data } = await admin
-    .from("products")
-    .select("id, handle, name, subtitle, featured")
+  const terms = await expandTerm(input.shopId, term);
+  const clean = (value: string) => value.replace(/[%,()]/g, "").trim();
+
+  // Kategorien, deren Name auf einen der Begriffe passt, erweitern die Treffer.
+  const { data: catRows } = await admin
+    .from("categories")
+    .select("id, name")
     .eq("shop_id", input.shopId)
-    .eq("organization_id", input.organizationId)
-    .eq("status", "active")
-    .is("archived_at", null)
-    .or(`name.ilike.%${term.replace(/[%,]/g, "")}%,subtitle.ilike.%${term.replace(/[%,]/g, "")}%`)
-    .limit(input.limit);
-  return summarizeProducts((data ?? []) as Row[], input.organizationId, input.shopId);
+    .eq("status", "active");
+  const matchingCategoryIds = ((catRows ?? []) as Row[])
+    .filter((c) =>
+      terms.some((t) =>
+        String(c["name"] ?? "")
+          .toLowerCase()
+          .includes(t.toLowerCase()),
+      ),
+    )
+    .map((c) => c["id"] as string);
+  let categoryProductIds: string[] = [];
+  if (matchingCategoryIds.length) {
+    const { data: links } = await admin
+      .from("product_categories")
+      .select("product_id")
+      .in("category_id", matchingCategoryIds);
+    categoryProductIds = ((links ?? []) as Row[]).map((l) => l["product_id"] as string);
+  }
+
+  const or = terms
+    .map(clean)
+    .filter(Boolean)
+    .flatMap((t) => [
+      `name.ilike.%${t}%`,
+      `subtitle.ilike.%${t}%`,
+      `vendor.ilike.%${t}%`,
+      `product_type.ilike.%${t}%`,
+    ])
+    .join(",");
+
+  const base = () =>
+    admin
+      .from("products")
+      .select("id, handle, name, subtitle, featured")
+      .eq("shop_id", input.shopId)
+      .eq("organization_id", input.organizationId)
+      .eq("status", "active")
+      .is("archived_at", null);
+
+  const [{ data: textRows }, categoryHits] = await Promise.all([
+    base().or(or).limit(input.limit),
+    categoryProductIds.length
+      ? base()
+          .in("id", categoryProductIds.slice(0, 200))
+          .limit(input.limit)
+      : Promise.resolve({ data: [] as unknown }),
+  ]);
+
+  const merged = new Map<string, Row>();
+  for (const row of [
+    ...(((textRows ?? []) as Row[]) ?? []),
+    ...((((categoryHits as { data?: unknown }).data ?? []) as Row[]) ?? []),
+  ]) {
+    merged.set(row["id"] as string, row);
+  }
+  const rows = [...merged.values()].slice(0, input.limit);
+  return summarizeProducts(rows, input.organizationId, input.shopId);
 }
+
 
 export async function listCategories(shopId: string): Promise<StoreCategory[]> {
   const admin = await getAdmin();

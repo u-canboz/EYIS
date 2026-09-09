@@ -21,6 +21,12 @@ import {
   listProducts,
   searchProducts,
 } from "./catalog-public.server";
+import {
+  getContentPage,
+  listContentBlocks,
+  listContentPages,
+} from "./content-public.server";
+
 import { mapCart, mapCheckout, mapOrder } from "./mappers.server";
 import { getAdmin, generateToken, hashToken } from "../core.server";
 import { methodMatchesContext, methodsForProvider } from "../payments/methods";
@@ -175,8 +181,14 @@ export const storeRoutes: RouteDef[] = [
     method: "GET",
     path: "/products",
     profile: "catalog_read",
-    handler: (ctx) =>
-      listProducts({
+    handler: (ctx) => {
+      const minor = (key: string) => {
+        const raw = ctx.query.get(key);
+        if (raw === null || raw.trim() === "") return null;
+        const value = Number(raw);
+        return Number.isFinite(value) && value >= 0 ? Math.floor(value) : null;
+      };
+      return listProducts({
         organizationId: ctx.key.organizationId,
         shopId: ctx.key.shopId,
         page: intPage(ctx, "page", 1, 500),
@@ -184,8 +196,47 @@ export const storeRoutes: RouteDef[] = [
         categoryHandle: ctx.query.get("category"),
         collectionHandle: ctx.query.get("collection"),
         sort: ctx.query.get("sort"),
+        minPriceMinor: minor("minPrice"),
+        maxPriceMinor: minor("maxPrice"),
+        inStockOnly: ctx.query.get("availability") === "in_stock",
+        vendor: ctx.query.get("vendor"),
+        productType: ctx.query.get("productType"),
+      });
+    },
+  },
+  {
+    method: "GET",
+    path: "/content/blocks",
+    profile: "catalog_read",
+    handler: (ctx) =>
+      listContentBlocks({
+        organizationId: ctx.key.organizationId,
+        shopId: ctx.key.shopId,
+        section: ctx.query.get("section"),
       }),
   },
+  {
+    method: "GET",
+    path: "/content/pages",
+    profile: "catalog_read",
+    handler: (ctx) =>
+      listContentPages({
+        organizationId: ctx.key.organizationId,
+        shopId: ctx.key.shopId,
+      }),
+  },
+  {
+    method: "GET",
+    path: "/content/pages/:handle",
+    profile: "catalog_read",
+    handler: (ctx) =>
+      getContentPage({
+        organizationId: ctx.key.organizationId,
+        shopId: ctx.key.shopId,
+        handle: ctx.params["handle"] ?? "",
+      }),
+  },
+
   {
     method: "GET",
     path: "/products/:handle",

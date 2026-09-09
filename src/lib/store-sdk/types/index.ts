@@ -92,6 +92,29 @@ export type StoreCollection = {
   description: string | null;
 };
 
+export type StoreContentBlock = {
+  id: string;
+  section: string;
+  position: number;
+  title: string | null;
+  subtitle: string | null;
+  body: string | null;
+  imageUrl: string | null;
+  linkUrl: string | null;
+  linkLabel: string | null;
+};
+
+export type StoreContentPageSummary = {
+  handle: string;
+  title: string;
+  excerpt: string | null;
+};
+
+export type StoreContentPage = StoreContentPageSummary & {
+  body: string;
+  updatedAt: string | null;
+};
+
 export type StorePagination = { page: number; pageSize: number; total: number; hasMore: boolean };
 export type StoreList<T> = { data: T[]; pagination: StorePagination };
 
