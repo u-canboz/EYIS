@@ -46,6 +46,7 @@ import { Route as AuthenticatedAppDokumenteEinstellungenRouteImport } from './ro
 import { Route as AuthenticatedAppEinstellungenIntegrationenRouteImport } from './routes/_authenticated/app/einstellungen/integrationen'
 import { Route as AuthenticatedAppEntwicklerIndexRouteImport } from './routes/_authenticated/app/entwickler/index'
 import { Route as AuthenticatedAppEntwicklerApiRouteImport } from './routes/_authenticated/app/entwickler/api'
+import { Route as AuthenticatedAppEntwicklerFeedsRouteImport } from './routes/_authenticated/app/entwickler/feeds'
 import { Route as AuthenticatedAppEntwicklerProtokollRouteImport } from './routes/_authenticated/app/entwickler/protokoll'
 import { Route as AuthenticatedAppKommunikationIndexRouteImport } from './routes/_authenticated/app/kommunikation/index'
 import { Route as AuthenticatedAppKommunikationBrandingRouteImport } from './routes/_authenticated/app/kommunikation/branding'
@@ -81,6 +82,7 @@ import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
 import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './routes/_authenticated/app/versand/dienstleister'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
+import { Route as ApiPublicFeedsTokenRouteImport } from './routes/api/public/feeds/$token'
 import { Route as ApiPublicInstallBootstrapRouteImport } from './routes/api/public/install/bootstrap'
 import { Route as ApiPublicInstallClaimSessionRouteImport } from './routes/api/public/install/claim-session'
 import { Route as ApiPublicInstallDoctorRouteImport } from './routes/api/public/install/doctor'
@@ -302,6 +304,12 @@ const AuthenticatedAppEntwicklerApiRoute =
     path: '/app/entwickler/api',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppEntwicklerFeedsRoute =
+  AuthenticatedAppEntwicklerFeedsRouteImport.update({
+    id: '/app/entwickler/feeds',
+    path: '/app/entwickler/feeds',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppEntwicklerProtokollRoute =
   AuthenticatedAppEntwicklerProtokollRouteImport.update({
     id: '/app/entwickler/protokoll',
@@ -512,6 +520,11 @@ const AuthenticatedAppVersandVersandartenRoute =
     path: '/app/versand/versandarten',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicFeedsTokenRoute = ApiPublicFeedsTokenRouteImport.update({
+  id: '/api/public/feeds/$token',
+  path: '/api/public/feeds/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicInstallBootstrapRoute =
   ApiPublicInstallBootstrapRouteImport.update({
     id: '/api/public/install/bootstrap',
@@ -659,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
+  '/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
@@ -686,6 +700,7 @@ export interface FileRoutesByFullPath {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/feeds/$token': typeof ApiPublicFeedsTokenRoute
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
@@ -751,6 +766,7 @@ export interface FileRoutesByTo {
   '/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
+  '/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
@@ -778,6 +794,7 @@ export interface FileRoutesByTo {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/feeds/$token': typeof ApiPublicFeedsTokenRoute
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
@@ -846,6 +863,7 @@ export interface FileRoutesById {
   '/_authenticated/app/dokumente/einstellungen': typeof AuthenticatedAppDokumenteEinstellungenRoute
   '/_authenticated/app/einstellungen/integrationen': typeof AuthenticatedAppEinstellungenIntegrationenRoute
   '/_authenticated/app/entwickler/api': typeof AuthenticatedAppEntwicklerApiRoute
+  '/_authenticated/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/_authenticated/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/_authenticated/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
   '/_authenticated/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
@@ -873,6 +891,7 @@ export interface FileRoutesById {
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/feeds/$token': typeof ApiPublicFeedsTokenRoute
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
@@ -941,6 +960,7 @@ export interface FileRouteTypes {
     | '/app/dokumente/einstellungen'
     | '/app/einstellungen/integrationen'
     | '/app/entwickler/api'
+    | '/app/entwickler/feeds'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
     | '/app/kommunikation/regeln'
@@ -968,6 +988,7 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/feeds/$token'
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
@@ -1033,6 +1054,7 @@ export interface FileRouteTypes {
     | '/app/dokumente/einstellungen'
     | '/app/einstellungen/integrationen'
     | '/app/entwickler/api'
+    | '/app/entwickler/feeds'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
     | '/app/kommunikation/regeln'
@@ -1060,6 +1082,7 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/feeds/$token'
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
@@ -1127,6 +1150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/dokumente/einstellungen'
     | '/_authenticated/app/einstellungen/integrationen'
     | '/_authenticated/app/entwickler/api'
+    | '/_authenticated/app/entwickler/feeds'
     | '/_authenticated/app/entwickler/protokoll'
     | '/_authenticated/app/kommunikation/branding'
     | '/_authenticated/app/kommunikation/regeln'
@@ -1154,6 +1178,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
     | '/_authenticated/app/versand/versandarten'
+    | '/api/public/feeds/$token'
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
@@ -1199,6 +1224,7 @@ export interface RootRouteChildren {
   PortalGastRoute: typeof PortalGastRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
+  ApiPublicFeedsTokenRoute: typeof ApiPublicFeedsTokenRoute
   ApiPublicInstallBootstrapRoute: typeof ApiPublicInstallBootstrapRoute
   ApiPublicInstallClaimSessionRoute: typeof ApiPublicInstallClaimSessionRoute
   ApiPublicInstallDoctorRoute: typeof ApiPublicInstallDoctorRoute
@@ -1476,6 +1502,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppEntwicklerApiRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/entwickler/feeds': {
+      id: '/_authenticated/app/entwickler/feeds'
+      path: '/app/entwickler/feeds'
+      fullPath: '/app/entwickler/feeds'
+      preLoaderRoute: typeof AuthenticatedAppEntwicklerFeedsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/entwickler/protokoll': {
       id: '/_authenticated/app/entwickler/protokoll'
       path: '/app/entwickler/protokoll'
@@ -1721,6 +1754,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppVersandVersandartenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/feeds/$token': {
+      id: '/api/public/feeds/$token'
+      path: '/api/public/feeds/$token'
+      fullPath: '/api/public/feeds/$token'
+      preLoaderRoute: typeof ApiPublicFeedsTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/install/bootstrap': {
       id: '/api/public/install/bootstrap'
       path: '/api/public/install/bootstrap'
@@ -1882,6 +1922,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppDokumenteEinstellungenRoute: typeof AuthenticatedAppDokumenteEinstellungenRoute
   AuthenticatedAppEinstellungenIntegrationenRoute: typeof AuthenticatedAppEinstellungenIntegrationenRoute
   AuthenticatedAppEntwicklerApiRoute: typeof AuthenticatedAppEntwicklerApiRoute
+  AuthenticatedAppEntwicklerFeedsRoute: typeof AuthenticatedAppEntwicklerFeedsRoute
   AuthenticatedAppEntwicklerProtokollRoute: typeof AuthenticatedAppEntwicklerProtokollRoute
   AuthenticatedAppKommunikationBrandingRoute: typeof AuthenticatedAppKommunikationBrandingRoute
   AuthenticatedAppKommunikationRegelnRoute: typeof AuthenticatedAppKommunikationRegelnRoute
@@ -1954,6 +1995,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppEinstellungenIntegrationenRoute:
     AuthenticatedAppEinstellungenIntegrationenRoute,
   AuthenticatedAppEntwicklerApiRoute: AuthenticatedAppEntwicklerApiRoute,
+  AuthenticatedAppEntwicklerFeedsRoute: AuthenticatedAppEntwicklerFeedsRoute,
   AuthenticatedAppEntwicklerProtokollRoute:
     AuthenticatedAppEntwicklerProtokollRoute,
   AuthenticatedAppKommunikationBrandingRoute:
@@ -2059,6 +2101,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalGastRoute: PortalGastRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
+  ApiPublicFeedsTokenRoute: ApiPublicFeedsTokenRoute,
   ApiPublicInstallBootstrapRoute: ApiPublicInstallBootstrapRoute,
   ApiPublicInstallClaimSessionRoute: ApiPublicInstallClaimSessionRoute,
   ApiPublicInstallDoctorRoute: ApiPublicInstallDoctorRoute,

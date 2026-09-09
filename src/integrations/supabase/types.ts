@@ -5861,6 +5861,81 @@ export type Database = {
           },
         ]
       }
+      product_feeds: {
+        Row: {
+          base_url: string | null
+          created_at: string
+          created_by: string | null
+          default_brand: string | null
+          format: string
+          id: string
+          include_out_of_stock: boolean
+          last_downloaded_at: string | null
+          last_item_count: number | null
+          name: string
+          organization_id: string
+          revoked_at: string | null
+          shop_id: string
+          status: string
+          token_hash: string
+          token_prefix: string
+          updated_at: string
+        }
+        Insert: {
+          base_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          default_brand?: string | null
+          format?: string
+          id?: string
+          include_out_of_stock?: boolean
+          last_downloaded_at?: string | null
+          last_item_count?: number | null
+          name?: string
+          organization_id: string
+          revoked_at?: string | null
+          shop_id: string
+          status?: string
+          token_hash: string
+          token_prefix: string
+          updated_at?: string
+        }
+        Update: {
+          base_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          default_brand?: string | null
+          format?: string
+          id?: string
+          include_out_of_stock?: boolean
+          last_downloaded_at?: string | null
+          last_item_count?: number | null
+          name?: string
+          organization_id?: string
+          revoked_at?: string | null
+          shop_id?: string
+          status?: string
+          token_hash?: string
+          token_prefix?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_feeds_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_feeds_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_media: {
         Row: {
           created_at: string
