@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/app/marketing/google-shopp
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: GoogleShopping;
+  component: GoogleShopping,
 });
 
 function GoogleShopping() {
