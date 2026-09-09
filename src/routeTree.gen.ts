@@ -81,6 +81,7 @@ import { Route as AuthenticatedAppVersandIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedAppVersandFulfillmentIdRouteImport } from './routes/_authenticated/app/versand/$fulfillmentId'
 import { Route as AuthenticatedAppVersandDienstleisterRouteImport } from './routes/_authenticated/app/versand/dienstleister'
 import { Route as AuthenticatedAppVersandVersandartenRouteImport } from './routes/_authenticated/app/versand/versandarten'
+import { Route as ApiPublicFeedsTokenRouteImport } from './routes/api/public/feeds/$token'
 import { Route as ApiPublicInstallBootstrapRouteImport } from './routes/api/public/install/bootstrap'
 import { Route as ApiPublicInstallClaimSessionRouteImport } from './routes/api/public/install/claim-session'
 import { Route as ApiPublicInstallDoctorRouteImport } from './routes/api/public/install/doctor'
@@ -512,6 +513,11 @@ const AuthenticatedAppVersandVersandartenRoute =
     path: '/app/versand/versandarten',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicFeedsTokenRoute = ApiPublicFeedsTokenRouteImport.update({
+  id: '/api/public/feeds/$token',
+  path: '/api/public/feeds/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicInstallBootstrapRoute =
   ApiPublicInstallBootstrapRouteImport.update({
     id: '/api/public/install/bootstrap',
@@ -686,6 +692,7 @@ export interface FileRoutesByFullPath {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/feeds/$token': typeof ApiPublicFeedsTokenRoute
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
@@ -778,6 +785,7 @@ export interface FileRoutesByTo {
   '/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/feeds/$token': typeof ApiPublicFeedsTokenRoute
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
@@ -873,6 +881,7 @@ export interface FileRoutesById {
   '/_authenticated/app/versand/$fulfillmentId': typeof AuthenticatedAppVersandFulfillmentIdRoute
   '/_authenticated/app/versand/dienstleister': typeof AuthenticatedAppVersandDienstleisterRoute
   '/_authenticated/app/versand/versandarten': typeof AuthenticatedAppVersandVersandartenRoute
+  '/api/public/feeds/$token': typeof ApiPublicFeedsTokenRoute
   '/api/public/install/bootstrap': typeof ApiPublicInstallBootstrapRoute
   '/api/public/install/claim-session': typeof ApiPublicInstallClaimSessionRoute
   '/api/public/install/doctor': typeof ApiPublicInstallDoctorRoute
@@ -968,6 +977,7 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/feeds/$token'
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
@@ -1060,6 +1070,7 @@ export interface FileRouteTypes {
     | '/app/versand/$fulfillmentId'
     | '/app/versand/dienstleister'
     | '/app/versand/versandarten'
+    | '/api/public/feeds/$token'
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
@@ -1154,6 +1165,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/versand/$fulfillmentId'
     | '/_authenticated/app/versand/dienstleister'
     | '/_authenticated/app/versand/versandarten'
+    | '/api/public/feeds/$token'
     | '/api/public/install/bootstrap'
     | '/api/public/install/claim-session'
     | '/api/public/install/doctor'
@@ -1199,6 +1211,7 @@ export interface RootRouteChildren {
   PortalGastRoute: typeof PortalGastRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalBestellungenOrderIdRoute: typeof PortalBestellungenOrderIdRoute
+  ApiPublicFeedsTokenRoute: typeof ApiPublicFeedsTokenRoute
   ApiPublicInstallBootstrapRoute: typeof ApiPublicInstallBootstrapRoute
   ApiPublicInstallClaimSessionRoute: typeof ApiPublicInstallClaimSessionRoute
   ApiPublicInstallDoctorRoute: typeof ApiPublicInstallDoctorRoute
@@ -1721,6 +1734,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppVersandVersandartenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/feeds/$token': {
+      id: '/api/public/feeds/$token'
+      path: '/api/public/feeds/$token'
+      fullPath: '/api/public/feeds/$token'
+      preLoaderRoute: typeof ApiPublicFeedsTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/install/bootstrap': {
       id: '/api/public/install/bootstrap'
       path: '/api/public/install/bootstrap'
@@ -2059,6 +2079,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalGastRoute: PortalGastRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalBestellungenOrderIdRoute: PortalBestellungenOrderIdRoute,
+  ApiPublicFeedsTokenRoute: ApiPublicFeedsTokenRoute,
   ApiPublicInstallBootstrapRoute: ApiPublicInstallBootstrapRoute,
   ApiPublicInstallClaimSessionRoute: ApiPublicInstallClaimSessionRoute,
   ApiPublicInstallDoctorRoute: ApiPublicInstallDoctorRoute,
