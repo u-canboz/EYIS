@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-09-09T10:04:17.018Z",
-  "source_commit": "3676bace337099864b32b7399314f11bf6b566bc",
-  "latest_migration": "20260909095717_17148a64-7ce9-492b-8bf8-4b3375f3c868.sql",
+  "generated_at": "2026-09-09T10:29:10.415Z",
+  "source_commit": "9b1d95cc0697a46fb4b37e400b1989fe32d76ef3",
+  "latest_migration": "20260909101522_2f41f09a-4da0-49af-b83a-82677ddef90b.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 94,
+  "total": 98,
   "by_kind": {
-    "backoffice": 64,
-    "public-api": 5,
-    "job-endpoint": 3,
+    "backoffice": 66,
+    "public-api": 6,
+    "job-endpoint": 4,
     "public-store-api": 2,
     "webhook": 5,
     "public-page": 5,
@@ -340,6 +340,26 @@
     {
       "url": "/app/lager/wareneingang",
       "source": "src/routes/_authenticated/app/lager/wareneingang.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/marketing/google-shopping",
+      "source": "src/routes/_authenticated/app/marketing/google-shopping.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/marketing/inhalte",
+      "source": "src/routes/_authenticated/app/marketing/inhalte.tsx",
       "kind": "backoffice",
       "methods": [
         "GET"
@@ -735,6 +755,26 @@
         "POST"
       ],
       "auth": "LOVABLE_CRON_SECRET (authenticateCronRequest)",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/jobs/merchant-sync",
+      "source": "src/routes/api/public/jobs/merchant-sync.ts",
+      "kind": "job-endpoint",
+      "methods": [
+        "POST"
+      ],
+      "auth": "LOVABLE_CRON_SECRET (authenticateCronRequest)",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/merchant/google/callback",
+      "source": "src/routes/api/public/merchant/google/callback.ts",
+      "kind": "public-api",
+      "methods": [
+        "GET"
+      ],
+      "auth": "server-side check in handler",
       "ssr": true
     },
     {
