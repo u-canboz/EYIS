@@ -91,6 +91,7 @@ import { Route as ApiPublicInstallSetupStateRouteImport } from './routes/api/pub
 import { Route as ApiPublicJobsAutomationRouteImport } from './routes/api/public/jobs/automation'
 import { Route as ApiPublicJobsCommunicationsRouteImport } from './routes/api/public/jobs/communications'
 import { Route as ApiPublicJobsExpirationRouteImport } from './routes/api/public/jobs/expiration'
+import { Route as ApiPublicJobsMerchantSyncRouteImport } from './routes/api/public/jobs/merchant-sync'
 import { Route as ApiPublicWebhooksMollieRouteImport } from './routes/api/public/webhooks/mollie'
 import { Route as ApiPublicWebhooksPaypalRouteImport } from './routes/api/public/webhooks/paypal'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
@@ -572,6 +573,12 @@ const ApiPublicJobsExpirationRoute = ApiPublicJobsExpirationRouteImport.update({
   path: '/api/public/jobs/expiration',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsMerchantSyncRoute =
+  ApiPublicJobsMerchantSyncRouteImport.update({
+    id: '/api/public/jobs/merchant-sync',
+    path: '/api/public/jobs/merchant-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksMollieRoute = ApiPublicWebhooksMollieRouteImport.update({
   id: '/api/public/webhooks/mollie',
   path: '/api/public/webhooks/mollie',
@@ -723,6 +730,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/jobs/merchant-sync': typeof ApiPublicJobsMerchantSyncRoute
   '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
   '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -819,6 +827,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/jobs/merchant-sync': typeof ApiPublicJobsMerchantSyncRoute
   '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
   '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -918,6 +927,7 @@ export interface FileRoutesById {
   '/api/public/jobs/automation': typeof ApiPublicJobsAutomationRoute
   '/api/public/jobs/communications': typeof ApiPublicJobsCommunicationsRoute
   '/api/public/jobs/expiration': typeof ApiPublicJobsExpirationRoute
+  '/api/public/jobs/merchant-sync': typeof ApiPublicJobsMerchantSyncRoute
   '/api/public/webhooks/mollie': typeof ApiPublicWebhooksMollieRoute
   '/api/public/webhooks/paypal': typeof ApiPublicWebhooksPaypalRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
@@ -1017,6 +1027,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/jobs/merchant-sync'
     | '/api/public/webhooks/mollie'
     | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
@@ -1113,6 +1124,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/jobs/merchant-sync'
     | '/api/public/webhooks/mollie'
     | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
@@ -1211,6 +1223,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/automation'
     | '/api/public/jobs/communications'
     | '/api/public/jobs/expiration'
+    | '/api/public/jobs/merchant-sync'
     | '/api/public/webhooks/mollie'
     | '/api/public/webhooks/paypal'
     | '/api/public/webhooks/stripe'
@@ -1258,6 +1271,7 @@ export interface RootRouteChildren {
   ApiPublicJobsAutomationRoute: typeof ApiPublicJobsAutomationRoute
   ApiPublicJobsCommunicationsRoute: typeof ApiPublicJobsCommunicationsRoute
   ApiPublicJobsExpirationRoute: typeof ApiPublicJobsExpirationRoute
+  ApiPublicJobsMerchantSyncRoute: typeof ApiPublicJobsMerchantSyncRoute
   ApiPublicWebhooksMollieRoute: typeof ApiPublicWebhooksMollieRoute
   ApiPublicWebhooksPaypalRoute: typeof ApiPublicWebhooksPaypalRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
@@ -1844,6 +1858,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsExpirationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/merchant-sync': {
+      id: '/api/public/jobs/merchant-sync'
+      path: '/api/public/jobs/merchant-sync'
+      fullPath: '/api/public/jobs/merchant-sync'
+      preLoaderRoute: typeof ApiPublicJobsMerchantSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/mollie': {
       id: '/api/public/webhooks/mollie'
       path: '/api/public/webhooks/mollie'
@@ -2152,6 +2173,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsAutomationRoute: ApiPublicJobsAutomationRoute,
   ApiPublicJobsCommunicationsRoute: ApiPublicJobsCommunicationsRoute,
   ApiPublicJobsExpirationRoute: ApiPublicJobsExpirationRoute,
+  ApiPublicJobsMerchantSyncRoute: ApiPublicJobsMerchantSyncRoute,
   ApiPublicWebhooksMollieRoute: ApiPublicWebhooksMollieRoute,
   ApiPublicWebhooksPaypalRoute: ApiPublicWebhooksPaypalRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
