@@ -38,6 +38,7 @@ import {
   SlidersHorizontal,
   Palette,
   History,
+  ShoppingBag,
   RefreshCw,
   Settings,
   type LucideIcon,
