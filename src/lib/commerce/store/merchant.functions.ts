@@ -55,17 +55,12 @@ export const startMerchantAuthorizationFn = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ url: string }> => {
     await guard(context, data.organizationId);
     const { authorizationUrl } = await import("./merchant.server");
-    const state = `${data.organizationId}:${data.shopId}:${crypto.randomUUID()}`;
-    const { getAdmin } = await import("../core.server");
-    const admin = await getAdmin();
-    await admin.from("oauth_states").insert({
-      state,
-      organization_id: data.organizationId,
-      shop_id: data.shopId,
+    const { createOAuthState } = await import("../integrations/integration.server");
+    const { state } = await createOAuthState({
+      organizationId: data.organizationId,
+      shopId: data.shopId,
       provider: "google_merchant",
-      redirect_uri: data.redirectUri,
-      expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-    } as never);
+    });
     return { url: authorizationUrl({ redirectUri: data.redirectUri, state }) };
   });
 
