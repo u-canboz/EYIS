@@ -219,12 +219,12 @@ export function SiteHeader() {
                 </section>
               ))}
             </div>
-            <Link to="/kategorie/$handle" params={{ handle: "datteln" }} onClick={closeNavigation} className="group relative min-h-56 overflow-hidden bg-olive">
-              <img src={assets.categoryTwo} alt="Auswahl an Datteln" className="absolute inset-0 h-full w-full object-cover opacity-75 transition-transform duration-700 group-hover:scale-105" />
+            <Link to="/shop" onClick={closeNavigation} className="group relative min-h-56 overflow-hidden bg-olive">
+              <img src={assets.categoryTwo} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75 transition-transform duration-700 group-hover:scale-105" />
               <span className="absolute inset-0 bg-olive/45" aria-hidden />
               <span className="absolute inset-x-0 bottom-0 p-5 text-olive-foreground">
                 <span className="block text-xs font-semibold uppercase">Aus dem Sortiment</span>
-                <span className="mt-1 block font-display text-2xl">Die Welt der Datteln</span>
+                <span className="mt-1 block font-display text-2xl">Alles entdecken</span>
                 <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold">Entdecken <ChevronRight className="size-4" /></span>
               </span>
             </Link>

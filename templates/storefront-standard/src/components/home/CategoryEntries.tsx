@@ -10,7 +10,7 @@ export function CategoryEntries() {
         <Link to="/shop" className="hidden min-h-11 items-center text-sm underline underline-offset-4 sm:inline-flex">Alles entdecken</Link>
       </div>
       <div className="mt-9 grid grid-cols-2 gap-x-3 gap-y-8 sm:mt-12 sm:gap-x-8 sm:gap-y-10 md:grid-cols-4 lg:grid-cols-4">
-        {categoryEntries.map((entry) => (
+        {categoryEntries.map((entry, index) => (
           <Link
             key={entry.handle}
             to="/kategorie/$handle"
