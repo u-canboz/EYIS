@@ -181,7 +181,9 @@ export function buildArtifact(
 ): ArtifactResult {
   const parsedVersion = parseVersion(version);
   if (!parsedVersion) throw new Error("Ungültige Release-Version.");
-  const minFromVersion = process.env["EYIS_UPDATE_MIN_FROM_VERSION"];
+  // Ein leer gesetztes CI-Secret darf nicht als leerer String ins Manifest
+  // wandern — sonst schlägt die Manifest-Validierung im Update Center fehl.
+  const minFromVersion = process.env["EYIS_UPDATE_MIN_FROM_VERSION"]?.trim() || undefined;
   if (
     minFromVersion &&
     (!parseVersion(minFromVersion) || compareVersions(minFromVersion, version) >= 0)
