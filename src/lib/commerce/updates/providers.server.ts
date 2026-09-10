@@ -9,6 +9,7 @@
  */
 import { getFileContent, getRepo, resolveGithubAuth, type GithubAuth } from "./github.server";
 import { activeTrustKeys, matchesActiveAnchorKey } from "./trust-anchor";
+import updateDefaults from "../../../../installer/distribution/eyis-update-defaults.json";
 import { parseVersion } from "./versions";
 import type { CapabilityProof } from "./types";
 
@@ -32,21 +33,42 @@ function env(key: string, fallback = ""): string {
   return (process.env[key] ?? fallback).trim();
 }
 
+/** Wird mit jedem Release ausgeliefert; keine Kundenpflege nötig. */
+type UpdateDefaults = {
+  release_repo?: string;
+  event_type?: string;
+  workflow_path?: string;
+  hosting?: string;
+  migrations?: string;
+  health_path?: string;
+};
+const defaults = updateDefaults as UpdateDefaults;
+
+/** Health-URL aus der bekannten Basis-URL der Installation ableiten. */
+function derivedHealthUrl(): string {
+  const base = env("EYIS_UPDATE_DEPLOY_HEALTH_URL");
+  if (base) return base;
+  const origin = env("APP_BASE_URL") || env("COMMERCE_OS_URL");
+  if (!origin) return "";
+  return `${origin.replace(/\/+$/, "")}${defaults.health_path ?? "/api/public/install/version"}`;
+}
+
 export function loadUpdateConfig(): UpdateConfig {
-  const hostingRaw = env("EYIS_UPDATE_HOSTING").toLowerCase();
+  const hostingRaw = (env("EYIS_UPDATE_HOSTING") || (defaults.hosting ?? "")).toLowerCase();
   const hosting: HostingVariant =
     hostingRaw === "git_auto_deploy" || hostingRaw === "lovable_sync"
       ? (hostingRaw as HostingVariant)
       : "unknown";
   return {
     customerRepo: env("EYIS_UPDATE_REPO"),
-    releaseRepo: env("EYIS_RELEASE_REPO", "u-canboz/EYIS"),
-    eventType: env("EYIS_UPDATE_EVENT_TYPE", "eyis-update"),
-    workflowPath: ".github/workflows/eyis-update.yml",
+    releaseRepo: env("EYIS_RELEASE_REPO", defaults.release_repo ?? "u-canboz/EYIS"),
+    eventType: env("EYIS_UPDATE_EVENT_TYPE", defaults.event_type ?? "eyis-update"),
+    workflowPath: defaults.workflow_path ?? ".github/workflows/eyis-update.yml",
     hosting,
-    deploymentHealthUrl: env("EYIS_UPDATE_DEPLOY_HEALTH_URL"),
+    deploymentHealthUrl: derivedHealthUrl(),
     releasePublicKey: env("EYIS_RELEASE_PUBLIC_KEY"),
-    migrationsEnabled: env("EYIS_UPDATE_MIGRATIONS").toLowerCase() === "enabled",
+    migrationsEnabled:
+      (env("EYIS_UPDATE_MIGRATIONS") || (defaults.migrations ?? "")).toLowerCase() === "enabled",
   };
 }
 
