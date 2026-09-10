@@ -114,8 +114,7 @@
   ],
   "optional": [
     "src/routes/portal/**",
-    "src/eyis/portal/**",
-    "templates/customer-repo/**"
+    "src/eyis/portal/**"
   ],
   "integration_patch": [
     {
