@@ -78,9 +78,10 @@ for (const f of findings) {
 
 const uncovered = findings.filter((f) => f.category === "system_seed" && !f.covered_by);
 
+// Der Bericht ist Teil des Release-Payloads und muss deshalb allein aus der
+// Migrationskette folgen — kein Zeitstempel, keine Umgebungsabhängigkeit.
 const report = {
   manifest: "eyis-dml-audit",
-  generated_at: new Date().toISOString().slice(0, 10),
   migrations_scanned: readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith(".sql")).length,
   totals: {
     all: findings.length,
