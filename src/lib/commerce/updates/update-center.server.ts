@@ -21,7 +21,11 @@ import {
   getWorkflowRun,
   resolveGithubAuth,
 } from "./github.server";
-import { loadUpdateConfig, probeCapabilities, type CapabilityReport } from "./providers.server";
+import {
+  resolveUpdateConfig,
+  probeCapabilities,
+  type CapabilityReport,
+} from "./providers.server";
 import { fetchSignedReleases } from "./registry.server";
 import { EYIS_OWNED_PATHS, CUSTOMER_OWNED_PATHS } from "./ownership";
 import {
@@ -481,7 +485,7 @@ export async function startUpdate(input: {
       "Die Installation befindet sich bereits im Wartungsmodus.",
     );
   const preflight = await runPreflight(available);
-  const config = loadUpdateConfig();
+  const config = await resolveUpdateConfig();
   const admin = await getAdmin();
 
   const schemaChanging = available.migrations.length > 0;
@@ -559,7 +563,7 @@ export async function startUpdate(input: {
   // Code + Deployment: echter repository_dispatch ins Kunden-Repository
   await setStep(runId, "code", "running");
   try {
-    const auth = await resolveGithubAuth();
+    const auth = await resolveGithubAuth(config.customerRepo);
     await dispatchRepositoryEvent(
       config.customerRepo,
       config.eventType,
@@ -642,8 +646,8 @@ export async function pollUpdate(runId: string): Promise<UpdateRunView | null> {
   if (!current) return null;
   if (!ACTIVE_RUN_STATUSES.includes(current.status)) return current;
 
-  const config = loadUpdateConfig();
-  const auth = await resolveGithubAuth();
+  const config = await resolveUpdateConfig();
+  const auth = await resolveGithubAuth(config.customerRepo);
 
   let workflowRunId = current.deploymentReference ? Number(current.deploymentReference) : null;
   if (!workflowRunId) {
@@ -792,8 +796,8 @@ export async function pollUpdate(runId: string): Promise<UpdateRunView | null> {
 export async function abandonRun(runId: string, reason: string): Promise<UpdateRunView | null> {
   const current = await getRun(runId);
   if (!current || !ACTIVE_RUN_STATUSES.includes(current.status)) return current;
-  const config = loadUpdateConfig();
-  const auth = await resolveGithubAuth();
+  const config = await resolveUpdateConfig();
+  const auth = await resolveGithubAuth(config.customerRepo);
   const workflow = current.deploymentReference
     ? await getWorkflowRun(config.customerRepo, Number(current.deploymentReference), auth.token)
     : await findWorkflowRun(config.customerRepo, runId, auth.token, current.startedAt);

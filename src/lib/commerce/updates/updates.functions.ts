@@ -147,3 +147,74 @@ export const getUpdatePreflightFn = createServerFn({ method: "GET" })
     const overview = await getUpdateOverview();
     return overview.available ? runPreflight(overview.available) : null;
   });
+
+// ---------------------------------------------------------------------------
+// Update-Setup-Assistent
+// ---------------------------------------------------------------------------
+
+export const getUpdateSetupFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => orgInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.manage",
+    );
+    const { detectUpdateSetup } = await import("./setup.server");
+    return detectUpdateSetup();
+  });
+
+export const runUpdateSetupFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    orgInput
+      .extend({
+        repo: z
+          .string()
+          .regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/)
+          .optional(),
+        acknowledgePublish: z.boolean().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.install",
+    );
+    const { runUpdateSetup } = await import("./setup.server");
+    const email = (context.claims as { email?: string } | null)?.email ?? null;
+    return runUpdateSetup({
+      repo: data.repo,
+      acknowledgePublish: data.acknowledgePublish,
+      actorEmail: email,
+    });
+  });
+
+export const acknowledgePublishStepFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => orgInput.extend({ acknowledged: z.boolean() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.install",
+    );
+    const { acknowledgePublishStep } = await import("./setup.server");
+    const email = (context.claims as { email?: string } | null)?.email ?? null;
+    return acknowledgePublishStep(data.acknowledged, email);
+  });

@@ -26,6 +26,8 @@ export type UpdateConfig = {
   /** URL, die nach dem Deployment eine neue Version melden muss. */
   deploymentHealthUrl: string;
   releasePublicKey: string;
+  /** Bewusst bestätigter Publish-Handschritt (nur Lovable-Hosting). */
+  publishAcknowledgedAt: string | null;
   migrationsEnabled: boolean;
 };
 
@@ -44,32 +46,52 @@ type UpdateDefaults = {
 };
 const defaults = updateDefaults as UpdateDefaults;
 
+/** Vom Einrichtungsassistenten gespeicherte, nicht-geheime Werte. */
+export type StoredUpdateSetup = {
+  customerRepo?: string | undefined;
+  hosting?: string | undefined;
+  healthUrl?: string | undefined;
+  publishAckAt?: string | null | undefined;
+};
+
 /** Health-URL aus der bekannten Basis-URL der Installation ableiten. */
-function derivedHealthUrl(): string {
-  const base = env("EYIS_UPDATE_DEPLOY_HEALTH_URL");
-  if (base) return base;
+function derivedHealthUrl(stored?: StoredUpdateSetup | null): string {
+  const explicit = env("EYIS_UPDATE_DEPLOY_HEALTH_URL") || (stored?.healthUrl ?? "").trim();
+  if (explicit) return explicit;
   const origin = env("APP_BASE_URL") || env("COMMERCE_OS_URL");
   if (!origin) return "";
   return `${origin.replace(/\/+$/, "")}${defaults.health_path ?? "/api/public/install/version"}`;
 }
 
-export function loadUpdateConfig(): UpdateConfig {
-  const hostingRaw = (env("EYIS_UPDATE_HOSTING") || (defaults.hosting ?? "")).toLowerCase();
+export function loadUpdateConfig(stored?: StoredUpdateSetup | null): UpdateConfig {
+  const hostingRaw = (
+    env("EYIS_UPDATE_HOSTING") ||
+    (stored?.hosting ?? "") ||
+    (defaults.hosting ?? "")
+  ).toLowerCase();
   const hosting: HostingVariant =
     hostingRaw === "git_auto_deploy" || hostingRaw === "lovable_sync"
       ? (hostingRaw as HostingVariant)
       : "unknown";
   return {
-    customerRepo: env("EYIS_UPDATE_REPO"),
+    customerRepo: env("EYIS_UPDATE_REPO") || (stored?.customerRepo ?? "").trim(),
     releaseRepo: env("EYIS_RELEASE_REPO", defaults.release_repo ?? "u-canboz/EYIS"),
     eventType: env("EYIS_UPDATE_EVENT_TYPE", defaults.event_type ?? "eyis-update"),
     workflowPath: defaults.workflow_path ?? ".github/workflows/eyis-update.yml",
     hosting,
-    deploymentHealthUrl: derivedHealthUrl(),
+    deploymentHealthUrl: derivedHealthUrl(stored),
     releasePublicKey: env("EYIS_RELEASE_PUBLIC_KEY"),
+    publishAcknowledgedAt: stored?.publishAckAt ?? null,
     migrationsEnabled:
       (env("EYIS_UPDATE_MIGRATIONS") || (defaults.migrations ?? "")).toLowerCase() === "enabled",
   };
+}
+
+/** Konfiguration inkl. gespeicherter Einrichtung (DB → Umgebung → Defaults). */
+export async function resolveUpdateConfig(): Promise<UpdateConfig> {
+  const { readUpdateSetupSettings } = await import("./setup-settings.server");
+  const stored = await readUpdateSetupSettings();
+  return loadUpdateConfig(stored);
 }
 
 export type CapabilityReport = {
@@ -84,8 +106,8 @@ export type CapabilityReport = {
   schemaChangesAllowed: boolean;
 };
 
-async function probeAuth(): Promise<{ proof: CapabilityProof; auth: GithubAuth }> {
-  const auth = await resolveGithubAuth();
+async function probeAuth(repo?: string): Promise<{ proof: CapabilityProof; auth: GithubAuth }> {
+  const auth = await resolveGithubAuth(repo);
   if (auth.mode === "github_app") {
     return {
       auth,
@@ -278,6 +300,15 @@ async function probeCode(
  */
 function probeDeployment(config: UpdateConfig, workflow: string | null): CapabilityProof {
   if (config.hosting === "lovable_sync") {
+    if (config.publishAcknowledgedAt) {
+      return {
+        provider: "lovable_publish",
+        status: "SUPPORTED",
+        detail:
+          "Lovable-Hosting mit bestätigtem Handschritt: Nach jedem Update wird Publish → Update ausgelöst.",
+        evidence: [`publish_acknowledged_at=${config.publishAcknowledgedAt}`],
+      };
+    }
     return {
       provider: "lovable_publish",
       status: "SETUP_REQUIRED",
@@ -433,8 +464,13 @@ function probeRegistry(config: UpdateConfig): CapabilityProof {
 }
 
 /** Vollständiger Fähigkeitsnachweis. Führt echte Netzwerkprüfungen aus. */
-export async function probeCapabilities(config = loadUpdateConfig()): Promise<CapabilityReport> {
-  const { proof: auth, auth: githubAuth } = await probeAuth();
+export async function probeCapabilities(config?: UpdateConfig): Promise<CapabilityReport> {
+  const resolved = config ?? (await resolveUpdateConfig());
+  return probeCapabilitiesWith(resolved);
+}
+
+async function probeCapabilitiesWith(config: UpdateConfig): Promise<CapabilityReport> {
+  const { proof: auth, auth: githubAuth } = await probeAuth(config.customerRepo);
   const { proof: code, workflow } = await probeCode(config, githubAuth);
   const deployment = probeDeployment(config, workflow);
   const migration = probeMigration(config, workflow);

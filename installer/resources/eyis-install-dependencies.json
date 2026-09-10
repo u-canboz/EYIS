@@ -16,6 +16,11 @@
       "reason": "imported by lib/commerce/store/routes.server.ts"
     },
     {
+      "name": "blakejs",
+      "version": "1.2.1",
+      "reason": "imported by lib/commerce/updates/secret-box.server.ts"
+    },
+    {
       "name": "lucide-react",
       "version": "0.575.0",
       "reason": "imported by eyis/data/ActionMenu.tsx"
@@ -24,6 +29,11 @@
       "name": "pdf-lib",
       "version": "1.17.1",
       "reason": "imported by lib/commerce/documents/pdf.server.ts"
+    },
+    {
+      "name": "tweetnacl",
+      "version": "1.0.3",
+      "reason": "imported by lib/commerce/updates/secret-box.server.ts"
     },
     {
       "name": "zod",
