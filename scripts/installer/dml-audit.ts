@@ -16,7 +16,7 @@
  * geschrieben und von `eyis:seeds:verify` gegen die Seed-Units geprüft.
  */
 
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { MIGRATIONS_DIR, SEED_UNITS, SEEDS_DIR, sha256 } from "./system-seeds";

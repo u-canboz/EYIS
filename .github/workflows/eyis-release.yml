@@ -83,7 +83,7 @@ jobs:
       - name: Install Pack statisch prüfen (Manifeste und Seeds)
         run: |
           set -euo pipefail
-          bun run eyis:seeds:audit
+          bun run eyis:seeds:audit --check
           bun run eyis:seeds:verify
 
       - name: Secret-Scan des Artefakts
