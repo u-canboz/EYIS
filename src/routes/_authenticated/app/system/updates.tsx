@@ -561,6 +561,11 @@ function UpdateCenterPage() {
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
             Vor jedem Start werden zusätzlich Versionskette, Backup und laufende Updates geprüft.
           </p>
+          <Button asChild variant="outline" size="sm" className="mt-3">
+            <Link to="/app/system/updates-einrichtung">
+              {readyCount === proofs.length ? "Einrichtung prüfen" : "Einrichtung starten"}
+            </Link>
+          </Button>
         </Panel>
       </div>
       {data.rejectedReleases.length > 0 && (
