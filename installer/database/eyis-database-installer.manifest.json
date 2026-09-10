@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "generated_at": "2026-09-10",
-  "schema_version": "20260910083239",
-  "migration_head": "061",
+  "schema_version": "20260910135845",
+  "migration_head": "062",
   "migration_versions": [
     "20260825074450",
     "20260825074512",
@@ -64,7 +64,8 @@
     "20260905200316",
     "20260909095717",
     "20260909101522",
-    "20260910083239"
+    "20260910083239",
+    "20260910135845"
   ],
   "schema_fingerprint": "23d34e50df676ae91d043c9f0e1f6bce564f25cf6529040bbebdcd96c66d9c17",
   "payload_budget": {
@@ -585,6 +586,16 @@
         "checksum": "8433338c3f3e4b8310369deebd4aa7f01ac35f6808d6c30109af20001f2321cc",
         "statements": 7,
         "required": true
+      },
+      {
+        "id": "forward-20260910135845",
+        "file": "baseline/051_forward_20260910135845.sql",
+        "position": 51,
+        "title": "Forward-Port 20260910135845",
+        "bytes": 480,
+        "checksum": "94269e3143d0daae6d39eb1e5072fa49b64dd99aaaa9f0949e217d80493db421",
+        "statements": 4,
+        "required": true
       }
     ]
   },
@@ -627,8 +638,8 @@
   ],
   "migration_history_reconciliation": {
     "file": "reconcile/001_migration_history.sql",
-    "checksum": "3ff4c0bc75571811b3464e0e97467547646bbb6865514789b1840c34024f386e",
-    "registers_versions": 61,
+    "checksum": "02542bbc38d3361fe659d23172077cd6234bb4a491f82570734c69f43960132f",
+    "registers_versions": 62,
     "required_before": "supabase db push"
   },
   "verification": {
@@ -637,7 +648,7 @@
     "ownership": "verification/ownership.json"
   },
   "resources": "../resources/eyis-resources.manifest.json",
-  "migration_set_fingerprint": "ab536aae62f8902d587b8f42c5986f8a501ec1333d728e09a8302bc26cf20280",
+  "migration_set_fingerprint": "263a21919f47fc2c55029d44ab60a6d698c3fb580dec3aed5a0b860e367f9398",
   "schema_fingerprint_state": "REQUIRES_REINTROSPECTION",
   "schema_fingerprint_migration_head": "20260828213156"
 }

@@ -3,7 +3,7 @@
     "area": "Installation",
     "name": "Database Install Pack angewendet",
     "status": "PASS",
-    "detail": "46/46 Units"
+    "detail": "52/52 Units"
   },
   {
     "area": "Installation",
@@ -21,7 +21,7 @@
     "area": "Bootstrap",
     "name": "Bootstrap gegen frische Datenbank",
     "status": "PASS",
-    "detail": "preflight_owner_email=ok | environment=development, mode=dedicated | central_dependencies=none | database=ok | installation_registered (seed singleton) | system_seed=ok (role_permissions=482) | storage_buckets=0 | recovery_claim_token_issued | pending_owner_registered"
+    "detail": "preflight_owner_email=ok | environment=development, mode=dedicated | central_dependencies=none | database=ok | grants=ok(13) | installation_registered (seed singleton) | system_seed=ok (role_permissions=482) | storage_buckets=0 | recovery_claim_token_issued | pending_owner_registered"
   },
   {
     "area": "Bootstrap",
@@ -57,7 +57,7 @@
     "area": "Owner",
     "name": "Auto-Claim des vorbereiteten Owners",
     "status": "PASS",
-    "detail": "org=bae8925d-3385-444c-9934-ee3e9bcd70af"
+    "detail": "org=570deffb-25cb-4fe6-8ad7-9db86cb26c30"
   },
   {
     "area": "Owner",
@@ -153,7 +153,7 @@
     "area": "Doctor",
     "name": "Kein FAIL im Doctor",
     "status": "PASS",
-    "detail": "24 Prüfungen"
+    "detail": "29 Prüfungen"
   },
   {
     "area": "Doctor",
@@ -165,7 +165,7 @@
     "area": "Doctor",
     "name": "Prüfungen mit Plattform-/Provider-Abhängigkeit",
     "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
-    "detail": "Setup=SETUP REQUIRED, Katalog (Preisauflösung)=SETUP REQUIRED, Job-Zeitpläne (Cron)=SETUP REQUIRED"
+    "detail": "Setup=SETUP REQUIRED, Katalog (Preisauflösung)=SETUP REQUIRED, Job-Zeitpläne (Cron)=SETUP REQUIRED, Verkaufsbereitschaft (Versandarten)=SETUP REQUIRED, Verkaufsbereitschaft (Zahlungsart)=SETUP REQUIRED, Verkaufsbereitschaft (Storefront-Origin)=SETUP REQUIRED"
   },
   {
     "area": "Doctor",
@@ -177,13 +177,13 @@
     "area": "Katalog",
     "name": "Produkt angelegt",
     "status": "PASS",
-    "detail": "43ffb43f-a3f6-482f-98f2-d805835f1565"
+    "detail": "1cd3b3e4-bdef-476d-8f14-b767e037cb9f"
   },
   {
     "area": "Katalog",
     "name": "Standardvariante angelegt",
     "status": "PASS",
-    "detail": "variant=2e46068b-92b8-45b6-be5c-99b5dbe90158"
+    "detail": "variant=20982af5-a9ec-408b-87f3-4843ae488315"
   },
   {
     "area": "Katalog",
@@ -243,13 +243,13 @@
     "area": "Order",
     "name": "Order aus bezahlter Sitzung erzeugt",
     "status": "PASS",
-    "detail": "9678c3d4-49c6-474d-8df9-9d9745ed90d6"
+    "detail": "eacbf073-6aae-4a0c-bed7-0d2bc48a684b"
   },
   {
     "area": "Order",
     "name": "Wiederholte Finalisierung erzeugt keine zweite Order",
     "status": "PASS",
-    "detail": "9678c3d4-49c6-474d-8df9-9d9745ed90d6"
+    "detail": "eacbf073-6aae-4a0c-bed7-0d2bc48a684b"
   },
   {
     "area": "Order",
