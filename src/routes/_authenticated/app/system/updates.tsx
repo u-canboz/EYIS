@@ -169,7 +169,12 @@ function UpdateCenterPage() {
     queryKey: ["update-center", organizationId],
     queryFn: () => fetchOverview({ data: { organizationId } }),
     enabled: Boolean(organizationId) && can("system_updates.read"),
+    // Automatische Nachprüfung: alle 5 Minuten und beim Zurückkehren auf die Seite.
+    refetchInterval: AUTO_CHECK_INTERVAL_MS,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
+
   const { data } = overview;
   const activeRunId = data?.activeRun?.id ?? null;
   const invalidate = () =>
