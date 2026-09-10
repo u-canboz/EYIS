@@ -90,13 +90,16 @@ export function selectCandidate(
     .sort((a, b) => compareVersions(a.version, b.version));
   if (newer.length === 0) return { candidate: null, blockedBy: null };
 
-  // Nächstes anwendbares Release (Kettenupdate statt Sprung).
-  for (const release of newer) {
+  // Neuestes Release, dessen getestete Mindestversion erfüllt ist.
+  // Ist sie für keines erfüllt, ist ein Zwischenupdate nötig (blockedBy).
+  for (let i = newer.length - 1; i >= 0; i -= 1) {
+    const release = newer[i]!;
     if (compareVersions(installedVersion, release.minFromVersion) >= 0) {
       return { candidate: release, blockedBy: null };
     }
   }
   return { candidate: null, blockedBy: newer[newer.length - 1] ?? null };
+
 }
 
 /** Darf dieses Release ohne Klick automatisch laufen? */
