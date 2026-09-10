@@ -161,6 +161,14 @@ export async function resolveGithubAuth(): Promise<GithubAuth> {
       };
     }
   }
+  // Mitgelieferter Standardweg: GitHub-Connector der Installation.
+  if (env("GITHUB_API_KEY") && env("LOVABLE_API_KEY")) {
+    return {
+      mode: "connector_gateway",
+      token: CONNECTOR_GATEWAY_TOKEN,
+      detail: "GitHub-Connector der Installation (Zugang liegt im Lovable-Gateway).",
+    };
+  }
   const pat = env("EYIS_GITHUB_TOKEN");
   if (pat) {
     return {
@@ -179,6 +187,15 @@ async function ghFetch(path: string, token: string | null, init: RequestInit = {
     "User-Agent": "eyis-update-center",
     ...((init.headers as Record<string, string>) ?? {}),
   };
+  if (token === CONNECTOR_GATEWAY_TOKEN) {
+    headers["Authorization"] = `Bearer ${env("LOVABLE_API_KEY")}`;
+    headers["X-Connection-Api-Key"] = env("GITHUB_API_KEY");
+    return fetch(`${GATEWAY}${path}`, {
+      ...init,
+      headers,
+      signal: init.signal ?? AbortSignal.timeout(20_000),
+    });
+  }
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return fetch(`${API}${path}`, {
     ...init,
