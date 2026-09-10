@@ -36,6 +36,14 @@ Geprüft zur Laufzeit: Repository erreichbar, Default-Branch ermittelt, Workflow
 | `EYIS_GITHUB_APP_ID` / `EYIS_GITHUB_APP_INSTALLATION_ID` / `EYIS_GITHUB_APP_PRIVATE_KEY` | bevorzugt: GitHub App, kurzlebiger Installation Token, nur dieses Repo |
 | `EYIS_GITHUB_TOKEN` | Übergang für wenige Installationen: fine-grained PAT |
 
+Standardweg jeder Installation ist der **mitgelieferte GitHub-Connector**: sind `GITHUB_API_KEY`
+(Connector) und `LOVABLE_API_KEY` gesetzt, nutzt das Update Center den Connector-Gateway und es
+muss kein Schlüssel von Hand hinterlegt werden. Reihenfolge laut
+`installer/distribution/eyis-update-defaults.json`: GitHub App → Connector → PAT.
+Die übrigen Werte (`EYIS_RELEASE_REPO`, `EYIS_UPDATE_EVENT_TYPE`, `EYIS_UPDATE_HOSTING`,
+`EYIS_UPDATE_MIGRATIONS`, Health-Pfad) sind dort vorbelegt und werden bei der Installation gesetzt;
+Umgebungsvariablen überschreiben sie nur im Ausnahmefall.
+
 Ab mehreren Dedicated-Installationen ist die GitHub App verbindlich: Installation Tokens sind
 kurzlebig und auf einzelne Repositories und minimale Rechte begrenzt.
 
@@ -68,7 +76,7 @@ Migrationen laufen weiter; der Schritt „Datenbank" wird dann als `skipped` mit
 | `EYIS_RELEASE_REPO` | Registry, Standard `u-canboz/EYIS` |
 | `EYIS_RELEASE_PUBLIC_KEY` | optionaler Override (roh, base64). Vertrauenswurzel bleibt der gepinnte Trust Anchor `installer/distribution/eyis-trust-anchor.json`; ein Override, der keinem aktiven Anchor-Schlüssel entspricht, wird abgelehnt. Auch der Kunden-Update-Workflow prüft ausschliesslich gegen den Anchor |
 | `EYIS_UPDATE_BACKUP_PROOF` | Kennung der nachgewiesenen Sicherung; ohne Nachweis kein Update |
-| `EYIS_UPDATE_DEPLOY_HEALTH_URL` | öffentlicher Endpunkt, der die aktive Version meldet |
+| `EYIS_UPDATE_DEPLOY_HEALTH_URL` | öffentlicher Endpunkt, der die aktive Version meldet. Ohne Angabe abgeleitet aus `APP_BASE_URL` + `/api/public/install/version` |
 
 ## Ablauf und Zustände
 

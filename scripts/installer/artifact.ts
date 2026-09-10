@@ -62,9 +62,8 @@ const FORBIDDEN = [
   /^src\/integrations\/supabase\/(?!cron-auth)/,
   /^src\/styles\.css$/,
   /^src\/routes\/__root\.tsx$/,
-  // Nur die Repo-Vorlage des Kundenprojekts bleibt draußen; die
-  // Standard-Storefront wird ausgeliefert (Kategorie storefront_template).
-  /^templates\/customer-repo\//,
+  // templates/customer-repo/** wird ausgeliefert: der Update-Workflow gehört
+  // zur Basisinstallation, sonst fehlt jeder Installation der Update-Transport.
 
   /\/__tests__\//,
 ];
