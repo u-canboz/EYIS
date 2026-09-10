@@ -1,9 +1,9 @@
 {
   "manifest": "eyis-release-promotion",
-  "candidate": "1.0.1-rc.1",
-  "digest": "fe2b120d27d49799138a14b8da3c8c7e135ea9b0e77436ca161bc054b5e4addf",
-  "payload_digest": "b09a58803b54b21505ba4f2a1959488945fe7d2e1e7ec4ae9319c2bb35f0c1d6",
+  "candidate": "1.0.2-rc.1",
+  "digest": "256713e14848a5fc8a16fe5f23bd43563afc14b2bcab584f80c1d5d794176330",
+  "payload_digest": "c28b7ac66bed8ba24ecef2f76890f7eba0f48e962ff673f087285b29a7d4c6b3",
   "blackbox": "PASS",
-  "recorded_at": "2026-09-10T15:53:34.330Z",
+  "recorded_at": "2026-09-10T16:20:30.864Z",
   "note": "Code, Datenbank, Seeds und Trust Anchor müssen byte-identisch sein. Nur Versionsidentität, Signaturumschlag und dieser Record dürfen abweichen."
 }
