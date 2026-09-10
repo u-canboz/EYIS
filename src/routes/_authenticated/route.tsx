@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useNavigate, useRouterState, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
@@ -23,18 +23,28 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { orgId, setOrgId } = useWorkspaceStore();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate({ to: EYIS_AUTH_PATH });
+      if (!session) {
+        // Abgemeldet: zwischengespeicherte Arbeitsbereichsdaten verwerfen, damit
+        // keine geschützte Server-Funktion ohne Token nachgeladen wird.
+        queryClient.cancelQueries({ queryKey: ["workspace"] });
+        queryClient.removeQueries({ queryKey: ["workspace"] });
+        navigate({ to: EYIS_AUTH_PATH });
+      }
     });
     return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, queryClient]);
 
   const fetchWorkspace = useServerFn(getWorkspace);
   const { data, isLoading } = useQuery({
     queryKey: ["workspace"],
     queryFn: () => fetchWorkspace(),
+    retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 30_000,
   });
 
   useEffect(() => {
