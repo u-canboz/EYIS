@@ -3,7 +3,7 @@
     "area": "Installation",
     "name": "Database Install Pack angewendet",
     "status": "PASS",
-    "detail": "46/46 Units"
+    "detail": "51/51 Units"
   },
   {
     "area": "Installation",
@@ -21,7 +21,7 @@
     "area": "Bootstrap",
     "name": "Bootstrap gegen frische Datenbank",
     "status": "PASS",
-    "detail": "preflight_owner_email=ok | environment=development, mode=dedicated | central_dependencies=none | database=ok | installation_registered (seed singleton) | system_seed=ok (role_permissions=482) | storage_buckets=0 | recovery_claim_token_issued | pending_owner_registered"
+    "detail": "preflight_owner_email=ok | environment=development, mode=dedicated | central_dependencies=none | database=ok | grants=ok(13) | installation_registered (seed singleton) | system_seed=ok (role_permissions=482) | storage_buckets=0 | recovery_claim_token_issued | pending_owner_registered"
   },
   {
     "area": "Bootstrap",
@@ -57,7 +57,7 @@
     "area": "Owner",
     "name": "Auto-Claim des vorbereiteten Owners",
     "status": "PASS",
-    "detail": "org=bae8925d-3385-444c-9934-ee3e9bcd70af"
+    "detail": "org=e6a717d3-868e-4cbd-9df6-8de44cc12766"
   },
   {
     "area": "Owner",
@@ -140,8 +140,8 @@
   {
     "area": "RLS/Grants",
     "name": "Keine erreichbare Tabelle ohne Policy",
-    "status": "PASS",
-    "detail": "0 Lücken"
+    "status": "FAIL",
+    "detail": "provider_credentials, update_runs, update_run_steps, commerce_installation"
   },
   {
     "area": "RLS/Grants",
@@ -153,7 +153,7 @@
     "area": "Doctor",
     "name": "Kein FAIL im Doctor",
     "status": "PASS",
-    "detail": "24 Prüfungen"
+    "detail": "29 Prüfungen"
   },
   {
     "area": "Doctor",
@@ -165,7 +165,7 @@
     "area": "Doctor",
     "name": "Prüfungen mit Plattform-/Provider-Abhängigkeit",
     "status": "LOVABLE_PLATFORM_VALIDATION_REQUIRED",
-    "detail": "Setup=SETUP REQUIRED, Katalog (Preisauflösung)=SETUP REQUIRED, Job-Zeitpläne (Cron)=SETUP REQUIRED"
+    "detail": "Setup=SETUP REQUIRED, Katalog (Preisauflösung)=SETUP REQUIRED, Job-Zeitpläne (Cron)=SETUP REQUIRED, Verkaufsbereitschaft (Versandarten)=SETUP REQUIRED, Verkaufsbereitschaft (Zahlungsart)=SETUP REQUIRED, Verkaufsbereitschaft (Storefront-Origin)=SETUP REQUIRED"
   },
   {
     "area": "Doctor",
@@ -177,13 +177,13 @@
     "area": "Katalog",
     "name": "Produkt angelegt",
     "status": "PASS",
-    "detail": "43ffb43f-a3f6-482f-98f2-d805835f1565"
+    "detail": "21dfbfb2-baf1-47c0-84c5-9089dc62ab23"
   },
   {
     "area": "Katalog",
     "name": "Standardvariante angelegt",
     "status": "PASS",
-    "detail": "variant=2e46068b-92b8-45b6-be5c-99b5dbe90158"
+    "detail": "variant=1f93b5ea-f619-404f-9eba-3b48d7a2e477"
   },
   {
     "area": "Katalog",
@@ -243,13 +243,13 @@
     "area": "Order",
     "name": "Order aus bezahlter Sitzung erzeugt",
     "status": "PASS",
-    "detail": "9678c3d4-49c6-474d-8df9-9d9745ed90d6"
+    "detail": "16b785ba-ca08-4b65-9817-3fa8699c6b4e"
   },
   {
     "area": "Order",
     "name": "Wiederholte Finalisierung erzeugt keine zweite Order",
     "status": "PASS",
-    "detail": "9678c3d4-49c6-474d-8df9-9d9745ed90d6"
+    "detail": "16b785ba-ca08-4b65-9817-3fa8699c6b4e"
   },
   {
     "area": "Order",
