@@ -84,7 +84,6 @@ export const GENERATED_PATHS: string[] = [
 export const OPTIONAL_PATHS: string[] = [
   "src/routes/portal/**",
   "src/eyis/portal/**",
-  "templates/customer-repo/**",
 ];
 
 /**
