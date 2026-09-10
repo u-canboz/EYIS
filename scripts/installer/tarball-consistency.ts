@@ -53,7 +53,9 @@ export function referencedScripts(command: string): string[] {
 }
 
 function resolveRelative(from: string, spec: string): string | null {
-  const base = normalize(join(dirname(from), spec));
+  // Vite-Asset-Suffixe (?raw, ?url) gehören nicht zum Dateipfad.
+  const cleaned = spec.split("?")[0] as string;
+  const base = normalize(join(dirname(from), cleaned));
   for (const candidate of [`${base}.ts`, `${base}.tsx`, join(base, "index.ts"), base]) {
     if (existsSync(join(ROOT, candidate))) return relative(ROOT, join(ROOT, candidate));
   }
