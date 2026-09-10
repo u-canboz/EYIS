@@ -49,8 +49,15 @@ Nachweise in `src/lib/commerce/updates/__tests__/release-trust.test.ts`.
 
 ## 5. Stable-Promotion
 
-`v1.0.0` darf nur veröffentlicht werden, wenn das Artefakt **byte-identisch** zu einem
-geprüften Release Candidate ist:
+`v1.0.0` darf nur veröffentlicht werden, wenn alle Nutzdateien **byte-identisch** zu einem
+geprüften Release Candidate derselben Versionslinie sind. Ausgenommen sind genau drei
+Release-Umschläge: `installed-release.json` (Versionskennzeichnung), die Pack-Signaturdatei
+(Zeitpunkt/Signatur) und der Promotion-Record selbst. Code, SQL, Seeds und Trust Anchor sind
+vollständig im Payload-Digest enthalten. Das gesamte Tarball wird weiterhin separat signiert.
+
+Der frühere reine Tarball-Vergleich war selbstbezüglich: das Schreiben des enthaltenen
+Promotion-Records änderte den zu vergleichenden Digest. Alte Records ohne `payload_digest`
+werden abgelehnt und müssen nach erneuter RC-Prüfung neu erfasst werden:
 
 ```bash
 bun run eyis:release:promote record 1.0.0-rc.1   # nach bestandenem Blackbox-Test
@@ -62,8 +69,9 @@ Stand, der nicht als RC getestet wurde.
 
 ## 6. Ablauf für `v1.0.0-rc.1`
 
-1. `bun run verify` grün (enthält Sync-, Distribution- und Artefakt-Gates).
+1. `bun run verify:development` grün (isolierte vollständige Prüfkette mit Testschlüssel).
 2. Öffentlichen Schlüssel im Trust Anchor prüfen, privaten Schlüssel als Secret hinterlegen.
+   Der Release-Workflow signiert zuerst den finalen Pack-Stand und führt dann `bun run verify` aus.
 3. Tag `v1.0.0-rc.1` setzen — der Workflow verifiziert, signiert und veröffentlicht als
    Pre-Release.
 4. Blackbox-Test nach `docs/production/BLACKBOX_INSTALL_TEST.md` gegen genau diesen Tag.
@@ -79,9 +87,9 @@ Tarball meldete `Signatur: FAIL`.
 
 Verbindliche Reihenfolge im Release-Workflow:
 
-1. `bun run verify`, statische Installer- und Seed-Prüfungen
-2. `bun run eyis:pack:sign` — signiert den finalen Pack-Zustand
-3. `bun run eyis:pack:verify` — gegen den gepinnten Trust Anchor
+1. `bun run eyis:pack:sign` — signiert den finalen Pack-Zustand
+2. `bun run eyis:pack:verify` — gegen den gepinnten Trust Anchor
+3. `bun run verify`, statische Installer-/Seed-Prüfungen und Stable-Promotion-Gate
 4. `bun run eyis:release:artifact` — Tarball enthält jetzt genau diese Signaturdatei
 5. `bun run eyis:release:selftest` — entpackt das Tarball in ein leeres Verzeichnis und führt
    dort `bun run installer/eyis.ts pack` aus; vergleicht eingebettete und externe Signaturdatei

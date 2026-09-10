@@ -39,7 +39,42 @@ function pemToPkcs8(pem: string): Uint8Array {
   const binary = atob(body);
   const out = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
-  return out;
+  if (!pem.includes("BEGIN RSA PRIVATE KEY")) return out;
+  // GitHub downloads PKCS#1 RSA keys; WebCrypto imports PKCS#8 only.
+  const wrap = (tag: number, data: Uint8Array): Uint8Array => {
+    const bytes: number[] = [];
+    let size = data.length;
+    do {
+      bytes.unshift(size & 255);
+      size >>>= 8;
+    } while (size);
+    const length = data.length < 128 ? [data.length] : [0x80 | bytes.length, ...bytes];
+    return Uint8Array.from([tag, ...length, ...data]);
+  };
+  return wrap(
+    0x30,
+    Uint8Array.from([
+      2,
+      1,
+      0,
+      0x30,
+      0x0d,
+      6,
+      9,
+      0x2a,
+      0x86,
+      0x48,
+      0x86,
+      0xf7,
+      0x0d,
+      1,
+      1,
+      1,
+      5,
+      0,
+      ...wrap(4, out),
+    ]),
+  );
 }
 
 /** App-JWT (RS256, max. 10 Minuten) für die GitHub App. */
@@ -71,28 +106,51 @@ export async function resolveGithubAuth(): Promise<GithubAuth> {
   const installationId = env("EYIS_GITHUB_APP_INSTALLATION_ID");
   const privateKey = env("EYIS_GITHUB_APP_PRIVATE_KEY");
   if (appId && installationId && privateKey) {
-    const jwt = await createAppJwt(appId, privateKey.replace(/\\n/g, "\n"));
-    const res = await fetch(`${API}/app/installations/${installationId}/access_tokens`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    });
-    if (!res.ok) {
+    const repository = env("EYIS_UPDATE_REPO");
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository))
       return {
         mode: "none",
         token: null,
-        detail: `GitHub-App-Token konnte nicht ausgestellt werden (HTTP ${res.status}).`,
+        detail:
+          "EYIS_UPDATE_REPO fehlt oder ist ungültig. Kein unbeschränkter App-Token wird angefordert.",
+      };
+    try {
+      const jwt = await createAppJwt(appId, privateKey.replace(/\\n/g, "\n"));
+      const res = await fetch(`${API}/app/installations/${installationId}/access_tokens`, {
+        method: "POST",
+        signal: AbortSignal.timeout(20_000),
+        body: JSON.stringify({
+          repositories: [repository.split("/")[1]],
+          permissions: { contents: "write", actions: "write" },
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      });
+      if (!res.ok) {
+        return {
+          mode: "none",
+          token: null,
+          detail: `GitHub-App-Token konnte nicht ausgestellt werden (HTTP ${res.status}).`,
+        };
+      }
+      const body = (await res.json()) as { token: string; expires_at: string };
+      return {
+        mode: "github_app",
+        token: body.token,
+        detail: `GitHub App Installation Token (gültig bis ${body.expires_at}).`,
+      };
+    } catch {
+      return {
+        mode: "none",
+        token: null,
+        detail:
+          "GitHub-App-Authentifizierung fehlgeschlagen. App-Konfiguration und PKCS#1-/PKCS#8-Schlüssel prüfen.",
       };
     }
-    const body = (await res.json()) as { token: string; expires_at: string };
-    return {
-      mode: "github_app",
-      token: body.token,
-      detail: `GitHub App Installation Token (gültig bis ${body.expires_at}).`,
-    };
   }
   const pat = env("EYIS_GITHUB_TOKEN");
   if (pat) {
@@ -113,7 +171,11 @@ async function ghFetch(path: string, token: string | null, init: RequestInit = {
     ...((init.headers as Record<string, string>) ?? {}),
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  return fetch(`${API}${path}`, { ...init, headers });
+  return fetch(`${API}${path}`, {
+    ...init,
+    headers,
+    signal: init.signal ?? AbortSignal.timeout(20_000),
+  });
 }
 
 export type RepoInfo = { fullName: string; defaultBranch: string; private: boolean };
@@ -126,7 +188,11 @@ export async function getRepo(repo: string, token: string | null): Promise<RepoI
       `Repository ${repo} nicht erreichbar (HTTP ${res.status}).`,
     );
   }
-  const body = (await res.json()) as { full_name: string; default_branch: string; private: boolean };
+  const body = (await res.json()) as {
+    full_name: string;
+    default_branch: string;
+    private: boolean;
+  };
   return { fullName: body.full_name, defaultBranch: body.default_branch, private: body.private };
 }
 
@@ -207,7 +273,7 @@ export async function findWorkflowRun(
   const match = body.workflow_runs.find(
     (r) => r.display_title?.includes(correlationId) || r.name?.includes(correlationId),
   );
-  const chosen = match ?? body.workflow_runs[0];
+  const chosen = match;
   if (!chosen) return null;
   return {
     id: chosen.id,
@@ -264,7 +330,11 @@ export async function getWorkflowJobs(
   for (const job of body.jobs) {
     out.push({ name: job.name, status: job.status, conclusion: job.conclusion });
     for (const step of job.steps ?? []) {
-      out.push({ name: `${job.name} / ${step.name}`, status: step.status, conclusion: step.conclusion });
+      out.push({
+        name: `${job.name} / ${step.name}`,
+        status: step.status,
+        conclusion: step.conclusion,
+      });
     }
   }
   return out;
@@ -319,4 +389,17 @@ export async function downloadAssetText(url: string, token: string | null): Prom
     throw new UpdateError("ASSET_UNREACHABLE", `Release-Asset nicht lesbar (HTTP ${res.status}).`);
   }
   return res.text();
+}
+
+/** Request cancellation; only a later completed run proves it stopped. */
+export async function cancelWorkflowRun(
+  repo: string,
+  runId: number,
+  token: string | null,
+): Promise<void> {
+  const response = await ghFetch(`/repos/${repo}/actions/runs/${runId}/cancel`, token, {
+    method: "POST",
+  });
+  if (response.status !== 202 && response.status !== 409)
+    throw new UpdateError("CANCEL_FAILED", "Workflow-Abbruch konnte nicht angefordert werden.");
 }

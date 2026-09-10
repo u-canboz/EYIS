@@ -46,6 +46,18 @@ describe("Blackbox 1+2 — Agent Migration Plan statt direktem psql", () => {
     expect(plan.steps.filter((s) => s.kind === "finalize")).toHaveLength(1);
   });
 
+  it("executes every canonical system seed, including product, mail and tax defaults", () => {
+    const canonical = JSON.parse(
+      readFileSync("installer/database/seeds/eyis-system-seeds.manifest.json", "utf8"),
+    );
+    expect(plan.steps.filter((s) => s.kind === "seed").map((s) => s.id)).toEqual(
+      canonical.units.map((s: { id: string }) => s.id),
+    );
+    for (const id of ["003_product_blueprints", "004_communication_templates", "005_tax_system"]) {
+      expect(plan.steps.find((s) => s.id === id)?.sql).toContain("INSERT INTO");
+    }
+  });
+
   it("hält die Manifest-Reihenfolge strikt ein", () => {
     const units = plan.steps.filter((s) => s.kind === "unit").map((s) => s.id);
     expect(units).toEqual(manifest.fresh_install.units.map((u) => u.id));

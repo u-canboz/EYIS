@@ -3,10 +3,10 @@
  * dem Claim durch die verbleibende Einrichtung. Schritte werden in
  * commerce_installation.setup_state (Owner-restricted Server Table) persistiert.
  */
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   Circle,
@@ -33,6 +33,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+import { toast } from "sonner";
+import type { SetupStep } from "@/lib/commerce/system/setup-contract";
+
 type StoreRuntimeConfigView = {
   deploymentMode: "dedicated" | "shared";
   apiBaseUrl: string;
@@ -44,7 +47,11 @@ export const Route = createFileRoute("/_authenticated/app/system/einrichtung/")(
   head: () => ({
     meta: [
       { title: "Einrichtung – EYIS" },
-      { name: "description", content: "Setup-Wizard: Organisation, Storefront, Payments, E-Mail und API für die eigene EYIS-Instanz einrichten." },
+      {
+        name: "description",
+        content:
+          "Setup-Wizard: Organisation, Storefront, Payments, E-Mail und API für die eigene EYIS-Instanz einrichten.",
+      },
       { property: "og:title", content: "Einrichtung – EYIS" },
       { property: "og:description", content: "Geführte Einrichtung einer Dedicated-EYIS-Instanz." },
     ],
@@ -53,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/app/system/einrichtung/")(
 });
 
 interface WizardStep {
-  key: string;
+  key: SetupStep;
   title: string;
   description: string;
   icon: typeof Building2;
@@ -62,50 +69,81 @@ interface WizardStep {
 
 const STEPS: WizardStep[] = [
   {
-    key: "organization",
-    title: "Organisation & Hauptshop",
-    description: "Organisation und Hauptshop wurden mit dem Owner-Claim angelegt.",
+    key: "company",
+    title: "Betreiberangaben",
+    description: "Firmenname und rechtliche Angaben des Händlers prüfen.",
     icon: Building2,
+    action: { label: "Dokument-Einstellungen", to: "/app/dokumente/einstellungen" },
   },
   {
-    key: "storefront-domain",
-    title: "Storefront-Domain",
-    description:
-      "Öffentliche Basis-URL der Storefront hinterlegen (für Webhook-URLs und E-Mail-Links).",
-    icon: Globe,
+    key: "shop",
+    title: "Hauptshop",
+    description: "Shopname, Währung und Sprache prüfen.",
+    icon: Building2,
+    action: { label: "Shops öffnen", to: "/app/shops" },
   },
   {
-    key: "payment-provider",
-    title: "Payment Provider",
-    description: "Mindestens einen Zahlungsanbieter verbinden und im Testmodus prüfen.",
+    key: "administrator",
+    title: "Team & Zugänge",
+    description: "Owner-Konto und Berechtigungen prüfen.",
+    icon: KeyRound,
+    action: { label: "Team öffnen", to: "/app/team" },
+  },
+  {
+    key: "taxes",
+    title: "Steuern",
+    description: "Steuerklassen und Steuersätze für das eigene Sortiment prüfen.",
+    icon: BookOpen,
+    action: { label: "Steuern öffnen", to: "/app/steuern" },
+  },
+  {
+    key: "invoices",
+    title: "Rechnungen & Dokumente",
+    description: "Nummernkreise, Absender und Dokumentgestaltung einrichten.",
+    icon: BookOpen,
+    action: { label: "Dokument-Einstellungen", to: "/app/dokumente/einstellungen" },
+  },
+  {
+    key: "payments",
+    title: "Zahlungsanbieter",
+    description: "Einen Zahlungsanbieter verbinden und im Testmodus prüfen.",
     icon: CreditCard,
     action: { label: "Integrationen öffnen", to: "/app/einstellungen/integrationen" },
   },
   {
-    key: "email-sender",
-    title: "E-Mail Absender",
-    description: "Versand-Provider verbinden und die Absenderdomain verifizieren.",
+    key: "email",
+    title: "E-Mail-Versand",
+    description: "Absender und Versand-Provider einrichten. Lokal bleibt der Test-Provider aktiv.",
     icon: Mail,
     action: { label: "Integrationen öffnen", to: "/app/einstellungen/integrationen" },
   },
   {
-    key: "api-keys",
-    title: "API-Zugänge",
-    description: "Store-API-Keys für Storefront und Integrationen erzeugen.",
-    icon: KeyRound,
-    action: { label: "API-Keys verwalten", to: "/app/entwickler/api-keys" },
+    key: "shipping",
+    title: "Versand",
+    description: "Versandarten, Preise und Lieferländer prüfen.",
+    icon: Building2,
+    action: { label: "Versandarten öffnen", to: "/app/versand/versandarten" },
   },
   {
-    key: "docs-check",
-    title: "Go-live Unterlagen",
-    description: "Impressum, Datenschutz und Betreiberangaben der Storefront pflegen.",
-    icon: BookOpen,
-    action: { label: "Go-live Checkliste", to: "/app/system/status" },
+    key: "storefront",
+    title: "Storefront-Domain",
+    description: "Öffentliche Basis-URL für Shop und E-Mail-Links speichern.",
+    icon: Globe,
+    action: { label: "API-Zugänge", to: "/app/entwickler" },
+  },
+  {
+    key: "systemcheck",
+    title: "Abschließende Systemprüfung",
+    description:
+      "EYIS prüft Installation, Systemvorlagen, Shop-Konfiguration und Job-Zeitpläne. Offene Voraussetzungen verhindern den Abschluss.",
+    icon: ServerCog,
+    action: { label: "Systemstatus öffnen", to: "/app/system/status" },
   },
 ];
 
 function SetupWizardPage() {
-  const router = useRouter();
+  const queryClient = useQueryClient();
+  const refreshStatus = () => queryClient.invalidateQueries({ queryKey: ["installation-status"] });
   const { orgId } = useWorkspaceStore();
   const statusFn = useServerFn(getInstallationStatus);
   const workspaceFn = useServerFn(getWorkspace);
@@ -120,10 +158,10 @@ function SetupWizardPage() {
     queryKey: ["installation-status"],
     queryFn: () => statusFn(),
   });
-  const setupState =
-    status && status.installed ? (status.setupProgress) : {};
+  const setupState = status && status.installed ? status.setupProgress : {};
 
-  const [origin, setOrigin] = useState("");
+  const [origin, setOrigin] = useState<string | null>(null);
+  const currentOrigin = origin ?? (status?.installed ? (status.storefrontOrigin ?? "") : "");
   const [saving, setSaving] = useState<string | null>(null);
   const [adoptError, setAdoptError] = useState<string | null>(null);
   const adoptFn = useServerFn(adoptInstallationFn);
@@ -144,7 +182,7 @@ function SetupWizardPage() {
     try {
       await adoptFn({ data: { organizationId: activeOrg.id } });
       await refetchRuntime();
-      router.invalidate();
+      await refreshStatus();
     } catch (err) {
       setAdoptError(err instanceof Error ? err.message : "Übernahme fehlgeschlagen.");
     } finally {
@@ -157,19 +195,25 @@ function SetupWizardPage() {
     setSaving(step);
     try {
       await saveStepFn({ data: { organizationId: activeOrg.id, step, done } });
-      router.invalidate();
+      await refreshStatus();
+      toast.success(done ? "Schritt gespeichert." : "Schritt wieder geöffnet.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Schritt konnte nicht gespeichert werden.");
     } finally {
       setSaving(null);
     }
   }
 
   async function saveOrigin() {
-    if (!activeOrg || !origin.trim()) return;
-    setSaving("storefront-domain");
+    if (!activeOrg || !currentOrigin.trim()) return;
+    setSaving("storefront");
     try {
-      await setOriginFn({ data: { organizationId: activeOrg.id, origin: origin.trim() } });
-      await saveStepFn({ data: { organizationId: activeOrg.id, step: "storefront-domain", done: true } });
-      router.invalidate();
+      await setOriginFn({ data: { organizationId: activeOrg.id, origin: currentOrigin.trim() } });
+      await saveStepFn({ data: { organizationId: activeOrg.id, step: "storefront", done: true } });
+      await refreshStatus();
+      toast.success("Storefront-Adresse gespeichert.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Adresse konnte nicht gespeichert werden.");
     } finally {
       setSaving(null);
     }
@@ -218,15 +262,23 @@ function SetupWizardPage() {
             </Button>
           )}
           <Button size="sm" variant="ghost" asChild>
-            <Link to="/">
+            <a
+              href={status?.installed && status.storefrontOrigin ? status.storefrontOrigin : "/"}
+              target="_blank"
+              rel="noreferrer"
+            >
               Storefront öffnen
               <ExternalLink className="ml-1 h-3 w-3" />
-            </Link>
+            </a>
           </Button>
         </div>
         {adoptError && <p className="pl-12 text-sm text-destructive">{adoptError}</p>}
       </section>
 
+      <p className="text-sm text-muted-foreground" aria-live="polite">
+        {STEPS.filter((s) => setupState[s.key] === "done").length} von {STEPS.length} Schritten
+        abgeschlossen.
+      </p>
       <div className="flex flex-col gap-3">
         {STEPS.map((step, index) => {
           const Icon = step.icon;
@@ -257,10 +309,11 @@ function SetupWizardPage() {
                 </div>
               </div>
 
-              {step.key === "storefront-domain" && (
-                <div className="flex gap-2 pl-12">
+              {step.key === "storefront" && (
+                <div className="flex flex-wrap gap-2 pl-12">
                   <Input
-                    value={origin}
+                    aria-label="Storefront-Adresse"
+                    value={currentOrigin}
                     onChange={(e) => setOrigin(e.target.value)}
                     placeholder="https://shop.example.com"
                     className="max-w-sm"
@@ -268,7 +321,7 @@ function SetupWizardPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    disabled={saving === "storefront-domain" || !origin.trim()}
+                    disabled={saving === "storefront" || !currentOrigin.trim()}
                     onClick={saveOrigin}
                   >
                     Speichern
@@ -276,7 +329,7 @@ function SetupWizardPage() {
                 </div>
               )}
 
-              <div className="flex gap-2 pl-12">
+              <div className="flex flex-wrap gap-2 pl-12">
                 {step.action && (
                   <Button size="sm" variant="ghost" asChild>
                     <Link to={step.action.to}>
@@ -285,16 +338,20 @@ function SetupWizardPage() {
                     </Link>
                   </Button>
                 )}
-                {step.key !== "organization" && (
+                {
                   <Button
                     size="sm"
                     variant="ghost"
-                    disabled={saving === step.key}
+                    disabled={Boolean(saving) || !activeOrg}
                     onClick={() => toggle(step.key, !done)}
                   >
-                    {done ? "Zurücksetzen" : "Als erledigt markieren"}
+                    {done
+                      ? "Zurücksetzen"
+                      : step.key === "systemcheck"
+                        ? "System jetzt prüfen"
+                        : "Als geprüft markieren"}
                   </Button>
-                )}
+                }
               </div>
             </div>
           );

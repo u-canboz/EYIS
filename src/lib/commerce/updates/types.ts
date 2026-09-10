@@ -95,6 +95,8 @@ export function canTransition(from: UpdateRunStatus, to: UpdateRunStatus): boole
 
 /** Signiertes Release-Manifest aus der zentralen Registry. */
 export type ReleaseManifest = {
+  manifestUrl?: string | undefined;
+  signatureUrl?: string | undefined;
   releaseId: string;
   version: string;
   channel: UpdateChannel;

@@ -7,13 +7,9 @@
  * deklariert. Ohne Nachweis lautet der Status SETUP_REQUIRED. Es gibt keinen
  * Fake-Schritt, der ein Update als vollständig meldet.
  */
-import {
-  getFileContent,
-  getRepo,
-  resolveGithubAuth,
-  type GithubAuth,
-} from "./github.server";
+import { getFileContent, getRepo, resolveGithubAuth, type GithubAuth } from "./github.server";
 import { activeTrustKeys, matchesActiveAnchorKey } from "./trust-anchor";
+import { parseVersion } from "./versions";
 import type { CapabilityProof } from "./types";
 
 export type HostingVariant = "git_auto_deploy" | "lovable_sync" | "unknown";
@@ -168,6 +164,44 @@ async function probeCode(
         },
       };
     }
+    if (!/^run-name:.*github\.event\.client_payload\.correlation_id/m.test(workflow)) {
+      return {
+        workflow,
+        proof: {
+          provider: "github_actions",
+          status: "SETUP_REQUIRED",
+          detail: "Workflow enthält keine eindeutige Update-Laufkennung.",
+          remediation: "Aktuelle EYIS-Workflow-Vorlage mit run-name übernehmen.",
+        },
+      };
+    }
+    const [verifier, identityRaw] = await Promise.all([
+      getFileContent(
+        config.customerRepo,
+        "src/lib/eyis/update-cli.ts",
+        repo.defaultBranch,
+        auth.token,
+      ),
+      getFileContent(
+        config.customerRepo,
+        "src/lib/eyis/installed-release.json",
+        repo.defaultBranch,
+        auth.token,
+      ),
+    ]);
+    const identity = identityRaw ? (JSON.parse(identityRaw) as { version?: string }) : null;
+    if (!verifier || !identity?.version || !parseVersion(identity.version)) {
+      return {
+        workflow,
+        proof: {
+          provider: "github_actions",
+          status: "SETUP_REQUIRED",
+          detail: "Update-Verifier oder installierte Build-Identität fehlt im Kundenprojekt.",
+          remediation:
+            "Die aktuelle EYIS-CLI und Release-Identität einmalig aus einem geprüften Paket installieren. Danach erneut prüfen.",
+        },
+      };
+    }
     const unpinned = [...workflow.matchAll(/uses:\s*([^\s]+)/g)]
       .map((m) => m[1] as string)
       .filter((u) => !u.startsWith("./") && !/@[0-9a-f]{40}$/.test(u));
@@ -175,7 +209,7 @@ async function probeCode(
       workflow,
       proof: {
         provider: "github_actions",
-        status: "SUPPORTED",
+        status: unpinned.length === 0 ? "SUPPORTED" : "SETUP_REQUIRED",
         detail: `Workflow auf ${repo.defaultBranch} vorhanden und hört auf "${config.eventType}".`,
         remediation:
           unpinned.length > 0
@@ -237,7 +271,7 @@ function probeDeployment(config: UpdateConfig, workflow: string | null): Capabil
       detail: "Workflow im Kunden-Repository nicht nachweisbar.",
     };
   }
-  if (!/deploy/i.test(workflow)) {
+  if (!/^  deploy:\s*$/m.test(workflow)) {
     return {
       provider: "git_auto_deploy",
       status: "SETUP_REQUIRED",
@@ -286,7 +320,8 @@ function probeMigration(config: UpdateConfig, workflow: string | null): Capabili
       detail: "Workflow nicht nachweisbar — Migrationsweg unbestätigt.",
     };
   }
-  const hasMigrationJob = /supabase\s+db\s+push/.test(workflow);
+  const hasMigrationJob =
+    /^  database:\s*$/m.test(workflow) && /supabase\s+db\s+push/.test(workflow);
   const hasCredentialsRef = /SUPABASE_DB_URL|SUPABASE_ACCESS_TOKEN/.test(workflow);
   if (!hasMigrationJob || !hasCredentialsRef) {
     return {
@@ -300,7 +335,8 @@ function probeMigration(config: UpdateConfig, workflow: string | null): Capabili
   return {
     provider: "github_actions_supabase_cli",
     status: "SUPPORTED",
-    detail: "Migrationen werden im Kunden-Workflow mit der Supabase CLI auf die eigene DB angewendet.",
+    detail:
+      "Migrationen werden im Kunden-Workflow mit der Supabase CLI auf die eigene DB angewendet.",
     evidence: ["workflow=supabase db push", "secrets=SUPABASE_DB_URL/SUPABASE_ACCESS_TOKEN"],
   };
 }
@@ -328,7 +364,7 @@ function probeRegistry(config: UpdateConfig): CapabilityProof {
       };
     }
     const environment = (process.env["APP_ENV"] ?? "").toLowerCase();
-    if (environment === "production") {
+    if (environment !== "development" && environment !== "staging") {
       return {
         provider: "github_releases",
         status: "SETUP_REQUIRED",
@@ -349,7 +385,8 @@ function probeRegistry(config: UpdateConfig): CapabilityProof {
     return {
       provider: "github_releases",
       status: "SETUP_REQUIRED",
-      detail: "Trust Anchor enthält keinen aktiven Schlüssel — unsignierte Releases werden abgelehnt.",
+      detail:
+        "Trust Anchor enthält keinen aktiven Schlüssel — unsignierte Releases werden abgelehnt.",
       remediation:
         "Installation reparieren: installer/distribution/eyis-trust-anchor.json muss einen aktiven Ed25519-Schlüssel enthalten (gehört zum signierten Release-Artefakt).",
     };
@@ -375,7 +412,11 @@ export async function probeCapabilities(config = loadUpdateConfig()): Promise<Ca
     code,
     deployment,
     migration,
-    fullyAutomatic: code.status === "SUPPORTED" && deployment.status === "SUPPORTED",
+    fullyAutomatic:
+      auth.status === "SUPPORTED" &&
+      registry.status === "SUPPORTED" &&
+      code.status === "SUPPORTED" &&
+      deployment.status === "SUPPORTED",
     schemaChangesAllowed: migration.status === "SUPPORTED",
   };
 }

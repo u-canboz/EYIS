@@ -8,7 +8,7 @@
  * eine historisch gewachsene Installation.
  */
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
@@ -16,6 +16,7 @@ import {
   SEED_MANIFEST_PATH,
   SEED_UNITS,
   buildSeedManifest,
+  databaseSeedEntries,
   renderSeedFile,
 } from "./system-seeds";
 
@@ -31,6 +32,13 @@ for (const unit of SEED_UNITS) {
 
 const manifest = buildSeedManifest(version, generatedAt);
 writeFileSync(SEED_MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+
+// Keep the execution index synchronized. Previously it contained only roles
+// and the installation singleton, silently omitting three signed seed units.
+const databaseManifestPath = join(SEEDS_DIR, "..", "eyis-database-installer.manifest.json");
+const databaseManifest = JSON.parse(readFileSync(databaseManifestPath, "utf8"));
+databaseManifest.system_seeds = databaseSeedEntries(manifest);
+writeFileSync(databaseManifestPath, `${JSON.stringify(databaseManifest, null, 2)}\n`, "utf8");
 
 console.log("");
 console.log(`System-Seed-Units: ${manifest.units.length}`);

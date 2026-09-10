@@ -18,7 +18,10 @@ export const Route = createFileRoute("/checkout/")({
       { title: "Kasse | Hauptshop" },
       { name: "description", content: "Bestellung abschließen: Adresse, Versand und Zahlung." },
       { property: "og:title", content: "Kasse | Hauptshop" },
-      { property: "og:description", content: "Bestellung abschließen: Adresse, Versand und Zahlung." },
+      {
+        property: "og:description",
+        content: "Bestellung abschließen: Adresse, Versand und Zahlung.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -40,7 +43,6 @@ const EMPTY_ADDRESS: StoreAddress = {
 const SESSION_KEY = "storefront_checkout_session";
 
 function CheckoutPage() {
-
   const client = useCommerce();
   const [session, setSession] = useState<StoreCheckout | null>(null);
   const [startError, setStartError] = useState<unknown>(null);
@@ -54,8 +56,7 @@ function CheckoutPage() {
     // sobald der Warenkorb bereits im Kassenstatus ist. start() prüft den
     // Warenkorb außerdem synchron und wirft ohne aktiven Warenkorb.
     void (async () => {
-      const stored =
-        typeof window === "undefined" ? null : sessionStorage.getItem(SESSION_KEY);
+      const stored = typeof window === "undefined" ? null : sessionStorage.getItem(SESSION_KEY);
       const apply = (next: StoreCheckout) => {
         if (!active) return;
         sessionStorage.setItem(SESSION_KEY, next.id);
@@ -66,7 +67,11 @@ function CheckoutPage() {
       if (stored) {
         try {
           const existing = await client.checkout.get(stored);
-          if (existing.status === "open" || existing.status === "validated" || existing.status === "awaiting_payment") {
+          if (
+            existing.status === "open" ||
+            existing.status === "validated" ||
+            existing.status === "awaiting_payment"
+          ) {
             apply(existing);
             return;
           }
@@ -85,8 +90,6 @@ function CheckoutPage() {
     };
   }, [client]);
 
-
-
   const shippingOptions = useQuery<StoreShippingOption[]>({
     queryKey: ["checkout", "shipping-options", session?.id],
     queryFn: () => client.checkout.shippingOptions(session!.id),
@@ -104,6 +107,7 @@ function CheckoutPage() {
       return payment;
     },
     onSuccess: (payment) => {
+      sessionStorage.setItem("commerce.paymentSessionId", payment.id);
       if (payment.redirectUrl) {
         window.location.href = payment.redirectUrl;
         return;
@@ -200,13 +204,42 @@ function CheckoutPage() {
           <section>
             <h2 className="text-lg">2. Lieferadresse</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <Field label="Vorname" value={address.firstName} onChange={(v) => setAddress({ ...address, firstName: v })} />
-              <Field label="Nachname" value={address.lastName} onChange={(v) => setAddress({ ...address, lastName: v })} />
-              <Field label="Straße und Nummer" value={address.street} onChange={(v) => setAddress({ ...address, street: v })} className="sm:col-span-2" />
-              <Field label="Postleitzahl" value={address.postalCode} onChange={(v) => setAddress({ ...address, postalCode: v })} />
-              <Field label="Ort" value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
-              <Field label="Land (Code)" value={address.countryCode} onChange={(v) => setAddress({ ...address, countryCode: v.toUpperCase() })} />
-              <Field label="Telefon (optional)" value={address.phone ?? ""} onChange={(v) => setAddress({ ...address, phone: v })} />
+              <Field
+                label="Vorname"
+                value={address.firstName}
+                onChange={(v) => setAddress({ ...address, firstName: v })}
+              />
+              <Field
+                label="Nachname"
+                value={address.lastName}
+                onChange={(v) => setAddress({ ...address, lastName: v })}
+              />
+              <Field
+                label="Straße und Nummer"
+                value={address.street}
+                onChange={(v) => setAddress({ ...address, street: v })}
+                className="sm:col-span-2"
+              />
+              <Field
+                label="Postleitzahl"
+                value={address.postalCode}
+                onChange={(v) => setAddress({ ...address, postalCode: v })}
+              />
+              <Field
+                label="Ort"
+                value={address.city}
+                onChange={(v) => setAddress({ ...address, city: v })}
+              />
+              <Field
+                label="Land (Code)"
+                value={address.countryCode}
+                onChange={(v) => setAddress({ ...address, countryCode: v.toUpperCase() })}
+              />
+              <Field
+                label="Telefon (optional)"
+                value={address.phone ?? ""}
+                onChange={(v) => setAddress({ ...address, phone: v })}
+              />
             </div>
             <Button variant="outline" className="mt-4" disabled={busy} onClick={saveAddress}>
               Adresse übernehmen
@@ -244,7 +277,9 @@ function CheckoutPage() {
                     <span>
                       <span className="block text-sm">{option.name}</span>
                       {option.description ? (
-                        <span className="block text-xs text-muted-foreground">{option.description}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {option.description}
+                        </span>
                       ) : null}
                     </span>
                     <span className="text-sm tabular-nums">
@@ -294,17 +329,23 @@ function CheckoutPage() {
           <dl className="mt-6 space-y-2 border-t border-border pt-4 text-sm">
             <div className="flex justify-between">
               <dt>Zwischensumme</dt>
-              <dd className="tabular-nums">{formatMoney(session.totals.subtotalMinor, currency)}</dd>
+              <dd className="tabular-nums">
+                {formatMoney(session.totals.subtotalMinor, currency)}
+              </dd>
             </div>
             {session.totals.discountMinor > 0 ? (
               <div className="flex justify-between">
                 <dt>Rabatt</dt>
-                <dd className="tabular-nums">− {formatMoney(session.totals.discountMinor, currency)}</dd>
+                <dd className="tabular-nums">
+                  − {formatMoney(session.totals.discountMinor, currency)}
+                </dd>
               </div>
             ) : null}
             <div className="flex justify-between">
               <dt>Versand</dt>
-              <dd className="tabular-nums">{formatMoney(session.totals.shippingMinor, currency)}</dd>
+              <dd className="tabular-nums">
+                {formatMoney(session.totals.shippingMinor, currency)}
+              </dd>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <dt>enthaltene Steuer</dt>

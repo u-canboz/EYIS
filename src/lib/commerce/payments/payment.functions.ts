@@ -84,6 +84,8 @@ export const cancelPaymentFn = createServerFn({ method: "POST" })
 export const mockConfirmPaymentFn = createServerFn({ method: "POST" })
   .inputValidator((data: { paymentSessionId: string; token: string }) => data)
   .handler(async ({ data }) => {
+    const { assertOperationAllowed } = await import("../environment");
+    assertOperationAllowed("test_payment_provider");
     const payments = await import("./payment.server");
     const cartApi = await import("../cart.server");
     const checkout = await import("../checkout.server");

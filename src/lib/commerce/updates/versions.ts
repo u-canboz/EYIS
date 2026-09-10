@@ -6,11 +6,14 @@ import type { AutoUpdatePolicy, ReleaseManifest, UpdateChannel } from "./types";
 
 export type ParsedVersion = { major: number; minor: number; patch: number; pre: string | null };
 
-const SEMVER = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
+const SEMVER =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 export function parseVersion(input: string): ParsedVersion | null {
   const m = SEMVER.exec(input.trim().replace(/^v/, ""));
   if (!m) return null;
+  if ([m[1], m[2], m[3]].some((part) => !Number.isSafeInteger(Number(part)))) return null;
+  if (m[4]?.split(".").some((part) => /^0\d+$/.test(part))) return null;
   return {
     major: Number(m[1]),
     minor: Number(m[2]),
@@ -31,7 +34,21 @@ export function compareVersions(a: string, b: string): number {
   // Ein Prerelease ist immer kleiner als das finale Release.
   if (pa.pre && !pb.pre) return -1;
   if (!pa.pre && pb.pre) return 1;
-  return (pa.pre as string) < (pb.pre as string) ? -1 : 1;
+  const aa = pa.pre!.split(".");
+  const bb = pb.pre!.split(".");
+  for (let i = 0; i < Math.max(aa.length, bb.length); i++) {
+    const aPart = aa[i];
+    const bPart = bb[i];
+    if (aPart === undefined) return -1;
+    if (bPart === undefined) return 1;
+    if (aPart === bPart) continue;
+    const aNumeric = /^\d+$/.test(aPart);
+    const bNumeric = /^\d+$/.test(bPart);
+    if (aNumeric && bNumeric) return BigInt(aPart) < BigInt(bPart) ? -1 : 1;
+    if (aNumeric !== bNumeric) return aNumeric ? -1 : 1;
+    return aPart < bPart ? -1 : 1;
+  }
+  return 0;
 }
 
 export function isNewer(candidate: string, installed: string): boolean {
@@ -89,6 +106,9 @@ export function isAutoUpdateAllowed(
   release: ReleaseManifest,
 ): boolean {
   if (policy === "manual") return false;
+  if (!["patch", "security_only"].includes(policy)) return false;
+  if (!isNewer(release.version, from) || compareVersions(from, release.minFromVersion) < 0)
+    return false;
   if (release.migrations.length > 0 || release.requiresManualStep) return false;
   const type = upgradeType(from, release.version);
   if (policy === "security_only") return Boolean(release.securityRelease) && type === "patch";
@@ -134,7 +154,7 @@ export function resolveInstallCandidate(
         reason: `Kein signiertes Release ${requested} in der Registry.`,
       };
     }
-    if (isReleaseCandidateRef(wanted) && isProduction) {
+    if (parseVersion(wanted)?.pre && isProduction) {
       return {
         status: "BLOCKED",
         release: null,

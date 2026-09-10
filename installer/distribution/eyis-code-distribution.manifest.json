@@ -86,7 +86,9 @@
     "scripts/installer/pack-sync.ts",
     "scripts/installer/tarball-consistency.ts",
     "scripts/manifest/generate.ts",
-    "scripts/manifest/modules.def.ts"
+    "scripts/manifest/modules.def.ts",
+    "scripts/installer/promotion.ts",
+    "scripts/verify-development.ts"
   ],
   "customer_owned": [
     "src/routes/store/**",

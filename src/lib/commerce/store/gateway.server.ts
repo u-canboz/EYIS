@@ -11,6 +11,7 @@
  *  6. zod validation + payload limits
  *  7. uniform errors, security headers, privacy-safe logging
  */
+import { isStoreMaintenance } from "../updates/maintenance.server";
 import type { ZodType } from "zod";
 import { getAdmin } from "../core.server";
 import { clientIp, hashIp, summarizeUserAgent } from "./privacy.server";
@@ -175,6 +176,7 @@ export async function handleStoreRequest(
         "Content-Type": "application/json",
         "X-Request-ID": requestId,
         ...SECURITY_HEADERS,
+        ...(status === 503 ? { "Retry-After": "30" } : {}),
         ...corsHeaders(allowOrigin),
       },
     });
@@ -198,6 +200,13 @@ export async function handleStoreRequest(
     if (!key) throw new StoreApiError("UNAUTHORIZED", "Ungültiger oder widerrufener API-Key.", 401);
     if (!originAllowed(key, origin))
       throw new StoreApiError("FORBIDDEN", "Origin ist für diesen Key nicht freigegeben.", 403);
+
+    if (await isStoreMaintenance(key.organizationId, key.shopId))
+      throw new StoreApiError(
+        "MAINTENANCE",
+        "Der Shop wird gerade aktualisiert. Bitte in Kürze erneut versuchen.",
+        503,
+      );
 
     const matched = matchRoute(routes, request.method, path);
     if (!matched) throw notFound("Endpunkt existiert nicht.");

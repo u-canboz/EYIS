@@ -1,3 +1,4 @@
+import { STORE_SDK_VERSION } from "../../store-sdk/config";
 /**
  * Dedicated Deployment (Phase 21): installationsweiter Zustand, System-Bootstrap,
  * First-Owner-Claim und Doctor-Prüfungen.
@@ -10,6 +11,15 @@
  *  - Der Bootstrap ist nach erfolgreicher Initialisierung dauerhaft gesperrt.
  */
 
+import resources from "../../../../installer/resources/eyis-resources.manifest.json";
+import {
+  SETUP_STEPS,
+  setupBlockers,
+  normalizeStorefrontOrigin,
+  type SetupStep,
+} from "./setup-contract";
+export type { SetupStep } from "./setup-contract";
+import installedRelease from "@/lib/eyis/installed-release.json";
 import { getAdmin, generateToken, hashToken, slugify } from "../core.server";
 import { resolveEnvironment, resolveDeploymentMode, findCentralDependencies } from "../environment";
 
@@ -61,7 +71,8 @@ export function maskEmail(email: string | null): string | null {
   return `${head}${"•".repeat(Math.max(1, local.length - 2))}@${domain}`;
 }
 
-export type ClaimState = "UNINITIALIZED" | "AWAITING_OWNER_REGISTRATION" | "RECOVERY_REQUIRED" | "CLAIMED";
+export type ClaimState =
+  "UNINITIALIZED" | "AWAITING_OWNER_REGISTRATION" | "RECOVERY_REQUIRED" | "CLAIMED";
 
 export function claimState(row: InstallationRow | null): ClaimState {
   if (!row) return "UNINITIALIZED";
@@ -95,7 +106,6 @@ export function redactInstallation(row: InstallationRow) {
   };
 }
 
-
 export async function getInstallation(): Promise<InstallationRow | null> {
   const admin = await getAdmin();
   const { data, error } = await admin
@@ -116,7 +126,7 @@ export async function isOwnerClaimed(): Promise<boolean> {
 // Bootstrap
 // ---------------------------------------------------------------------------
 
-const CORE_VERSION = "1.0.0";
+const CORE_VERSION = installedRelease.version;
 const CLAIM_TTL_HOURS = 72;
 
 /**
@@ -155,7 +165,6 @@ export async function checkCoreGrants(
   return { missing, checked: GRANT_PROBE_TABLES.length };
 }
 
-
 export type BootstrapResult = {
   ok: true;
   installationId: string;
@@ -190,8 +199,6 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
     throw new InstallationError("OWNER_EMAIL_INVALID", "Die Administrator-E-Mail ist ungültig.");
   }
   steps.push("preflight_owner_email=ok");
-
-
 
   // 2  Umgebung + Deployment Mode (unbekannt = STOP)
   const environment = resolveEnvironment(process.env as Record<string, string | undefined>);
@@ -246,7 +253,6 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
   }
   steps.push(`grants=ok(${grantCheck.checked})`);
 
-
   // 5  Bereits initialisiert? (dauerhafte Sperre)
   //    Ausnahme: das Database Install Pack legt den Singleton bereits über den
   //    System-Seed an (seeds/002_installation.sql). Eine solche Zeile ist noch
@@ -272,11 +278,15 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
     installation_id: installationId,
     mode,
     core_version: CORE_VERSION,
+    sdk_version: STORE_SDK_VERSION,
     api_version: "v1",
     health_status: { bootstrap_environment: environment },
   };
   const { error: insError } = seededSingleton
-    ? await admin.from("commerce_installation").update(registration as never).eq("singleton", true)
+    ? await admin
+        .from("commerce_installation")
+        .update(registration as never)
+        .eq("singleton", true)
     : await admin.from("commerce_installation").insert(registration as never);
   if (insError) {
     // Unique-Verletzung auf singleton = paralleler Bootstrap
@@ -285,7 +295,9 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
       `Installation konnte nicht registriert werden (${insError.message}).`,
     );
   }
-  steps.push(seededSingleton ? "installation_registered (seed singleton)" : "installation_registered");
+  steps.push(
+    seededSingleton ? "installation_registered (seed singleton)" : "installation_registered",
+  );
 
   /** Registrierung zurücknehmen, ohne den Seed-Singleton zu löschen. */
   const rollbackRegistration = async () => {
@@ -370,7 +382,6 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
   };
 }
 
-
 // ---------------------------------------------------------------------------
 // Claim-Session (Token-Validierung ohne Verbrauch)
 // ---------------------------------------------------------------------------
@@ -378,7 +389,8 @@ export async function runBootstrap(input: BootstrapInput = {}): Promise<Bootstra
 /** Prüft einen Claim-Code, ohne ihn zu verbrauchen. Wirft InstallationError. */
 export async function validateClaimToken(token: string): Promise<void> {
   const row = await getInstallation();
-  if (!row) throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
+  if (!row)
+    throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
   if (row.owner_claimed_at != null) {
     throw new InstallationError("OWNER_ALREADY_CLAIMED", "Die Instanz hat bereits einen Owner.");
   }
@@ -386,7 +398,10 @@ export async function validateClaimToken(token: string): Promise<void> {
     throw new InstallationError("CLAIM_INVALID", "Claim-Code ungültig oder bereits verwendet.");
   }
   if (row.claim_token_expires_at && new Date(row.claim_token_expires_at).getTime() < Date.now()) {
-    throw new InstallationError("CLAIM_EXPIRED", "Claim-Code abgelaufen. Bootstrap erneut ausführen.");
+    throw new InstallationError(
+      "CLAIM_EXPIRED",
+      "Claim-Code abgelaufen. Bootstrap erneut ausführen.",
+    );
   }
   const hash = await hashToken(token.trim());
   if (hash !== row.claim_token_hash) {
@@ -478,7 +493,8 @@ export type AutoClaimInput = {
  */
 export async function autoClaimOwner(input: AutoClaimInput) {
   const row = await getInstallation();
-  if (!row) throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
+  if (!row)
+    throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
   if (row.owner_claimed_at != null) {
     throw new InstallationError("OWNER_ALREADY_CLAIMED", "Die Instanz hat bereits einen Owner.");
   }
@@ -552,8 +568,6 @@ export async function autoClaimOwner(input: AutoClaimInput) {
   return { organizationId: orgId, shopId };
 }
 
-
-
 /** Produktionsfähige Defaults nach dem Owner-Claim. Keine Demo-Inhalte. */
 async function createOwnerDefaults(orgId: string, shopId: string) {
   const admin = await getAdmin();
@@ -566,7 +580,8 @@ async function createOwnerDefaults(orgId: string, shopId: string) {
     .eq("shop_id", shopId);
   const have = new Set((existingClasses ?? []).map((r: { code: string }) => r.code));
   const classIds: Record<string, string> = {};
-  for (const row of existingClasses ?? []) classIds[(row as { code: string }).code] = (row as { id: string }).id;
+  for (const row of existingClasses ?? [])
+    classIds[(row as { code: string }).code] = (row as { id: string }).id;
   for (const tc of [
     { code: "standard", name: "Standardsteuersatz" },
     { code: "reduced", name: "Ermäßigter Steuersatz" },
@@ -671,35 +686,22 @@ async function createOwnerDefaults(orgId: string, shopId: string) {
 
   // Kommunikations-Defaults des Shops (Branding, Regeln) aus der bestehenden
   // Engine — keine zweite Vorlagenquelle.
-  const { error: commError } = await admin.rpc("comm_ensure_shop_defaults" as never, {
-    _org: orgId,
-    _shop: shopId,
-  } as never);
+  const { error: commError } = await admin.rpc(
+    "comm_ensure_shop_defaults" as never,
+    {
+      _org: orgId,
+      _shop: shopId,
+    } as never,
+  );
   if (commError) throw new Error(commError.message);
 
   // Integration Center: Provider-Zustände werden lazy als not_connected
   // aus dem Katalog abgeleitet — kein Seed nötig (siehe integrations/registry).
 }
 
-
 // ---------------------------------------------------------------------------
 // Setup-Wizard-Fortschritt
 // ---------------------------------------------------------------------------
-
-const SETUP_STEPS = [
-  "company",
-  "shop",
-  "administrator",
-  "taxes",
-  "invoices",
-  "payments",
-  "email",
-  "shipping",
-  "storefront",
-  "systemcheck",
-] as const;
-
-export type SetupStep = (typeof SETUP_STEPS)[number];
 
 /**
  * Adoption (Phase 23): eine Instanz, die bereits Organisation und Shop
@@ -745,6 +747,7 @@ export async function adoptInstallation(userId: string, organizationId: string) 
       installation_id: installationId,
       mode,
       core_version: CORE_VERSION,
+      sdk_version: STORE_SDK_VERSION,
       api_version: "v1",
       schema_version: environment,
       owner_claimed_at: new Date().toISOString(),
@@ -776,9 +779,18 @@ export async function saveSetupProgress(step: string, done: boolean) {
   }
   const admin = await getAdmin();
   const row = await getInstallation();
-  if (!row) throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
+  if (!row)
+    throw new InstallationError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
   const progress = { ...(row.setup_progress ?? {}), [step]: done ? "done" : "open" };
   const allDone = SETUP_STEPS.every((s) => (progress as Record<string, string>)[s] === "done");
+  if (done && (step === "systemcheck" || allDone)) {
+    const blockers = setupBlockers(await runDoctor());
+    if (blockers.length)
+      throw new InstallationError(
+        "SETUP_CHECKS_OPEN",
+        `Einrichtung noch offen: ${blockers.map((c) => c.check).join(", ")}`,
+      );
+  }
   const { error } = await admin
     .from("commerce_installation")
     .update({
@@ -791,6 +803,7 @@ export async function saveSetupProgress(step: string, done: boolean) {
 }
 
 export async function setStorefrontOrigin(origin: string) {
+  origin = normalizeStorefrontOrigin(origin, resolveEnvironment(process.env));
   const admin = await getAdmin();
   const { error } = await admin
     .from("commerce_installation")
@@ -805,7 +818,11 @@ export async function setStorefrontOrigin(origin: string) {
 
 export type SetupProgress = Record<string, string>;
 
-export type DoctorRow = { check: string; status: "PASS" | "FAIL" | "SETUP REQUIRED" | "BLOCKED"; detail?: string };
+export type DoctorRow = {
+  check: string;
+  status: "PASS" | "FAIL" | "SETUP REQUIRED" | "BLOCKED";
+  detail?: string;
+};
 
 export async function runDoctor(): Promise<DoctorRow[]> {
   const rows: DoctorRow[] = [];
@@ -821,12 +838,20 @@ export async function runDoctor(): Promise<DoctorRow[]> {
       detail: environment,
     });
   } catch (e) {
-    rows.push({ check: "Environment", status: "FAIL", detail: e instanceof Error ? e.message : "invalid" });
+    rows.push({
+      check: "Environment",
+      status: "FAIL",
+      detail: e instanceof Error ? e.message : "invalid",
+    });
   }
   try {
     rows.push({ check: "Deployment Mode", status: "PASS", detail: resolveDeploymentMode() });
   } catch (e) {
-    rows.push({ check: "Deployment Mode", status: "FAIL", detail: e instanceof Error ? e.message : "invalid" });
+    rows.push({
+      check: "Deployment Mode",
+      status: "FAIL",
+      detail: e instanceof Error ? e.message : "invalid",
+    });
   }
 
   // Zentrale Abhängigkeiten — nur fremde EYIS-Hosts sind verboten; die eigene
@@ -837,13 +862,29 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     status: central.length ? "FAIL" : "PASS",
     detail: central.length ? central.join(", ") : "NONE",
   });
-  rows.push({ check: "Central Commerce DB dependency", status: central.length ? "FAIL" : "PASS", detail: central.length ? central.join(", ") : "NONE" });
-  rows.push({ check: "Central Commerce Auth dependency", status: central.length ? "FAIL" : "PASS", detail: central.length ? central.join(", ") : "NONE" });
-  rows.push({ check: "Central Commerce Storage dependency", status: central.length ? "FAIL" : "PASS", detail: central.length ? central.join(", ") : "NONE" });
+  rows.push({
+    check: "Central Commerce DB dependency",
+    status: central.length ? "FAIL" : "PASS",
+    detail: central.length ? central.join(", ") : "NONE",
+  });
+  rows.push({
+    check: "Central Commerce Auth dependency",
+    status: central.length ? "FAIL" : "PASS",
+    detail: central.length ? central.join(", ") : "NONE",
+  });
+  rows.push({
+    check: "Central Commerce Storage dependency",
+    status: central.length ? "FAIL" : "PASS",
+    detail: central.length ? central.join(", ") : "NONE",
+  });
 
   // Datenbank & Schema
   const { error: dbError } = await admin.from("organizations").select("id").limit(1);
-  rows.push({ check: "Database", status: dbError ? "FAIL" : "PASS", detail: dbError?.message ?? "erreichbar" });
+  rows.push({
+    check: "Database",
+    status: dbError ? "FAIL" : "PASS",
+    detail: dbError?.message ?? "erreichbar",
+  });
 
   // Tabellenrechte — eigener Prüfpunkt, damit ein unvollständig angewendetes
   // Installationspaket sofort sichtbar wird statt erst beim ersten Klick.
@@ -855,7 +896,6 @@ export async function runDoctor(): Promise<DoctorRow[]> {
       ? `fehlen: ${grantCheck.missing.join(", ")}`
       : `${grantCheck.checked} Kern-Tabellen erreichbar`,
   });
-
 
   // RLS-Nachweis: server-only Tabellen dürfen über den Publishable-Client
   // nicht lesbar sein (keine Policies → kein Zugriff für anon).
@@ -875,7 +915,11 @@ export async function runDoctor(): Promise<DoctorRow[]> {
       detail: leaked ? "anon kann commerce_installation lesen" : "anon-Zugriff verweigert",
     });
   } catch {
-    rows.push({ check: "RLS (installation server-only)", status: "PASS", detail: "anon-Zugriff verweigert" });
+    rows.push({
+      check: "RLS (installation server-only)",
+      status: "PASS",
+      detail: "anon-Zugriff verweigert",
+    });
   }
 
   // Installation
@@ -993,7 +1037,7 @@ export async function runDoctor(): Promise<DoctorRow[]> {
   // Job-Zeitpläne: erst wenn pg_cron die Jobs wirklich führt, laufen Ablauf,
   // Kommunikation und Automation ohne manuelles Zutun.
   try {
-    const expected = ["eyis_job_expiration", "eyis_job_communications", "eyis_job_automation"];
+    const expected = resources.jobs.map((job) => job.cron_job_name);
     const { data: jobs, error } = await admin.rpc("eyis_cron_status" as never);
     if (error) throw new Error(error.message);
     const found = new Map(
@@ -1021,15 +1065,20 @@ export async function runDoctor(): Promise<DoctorRow[]> {
 
   // Storage
 
-
-
-
   try {
     const { data: buckets, error: bError } = await admin.storage.listBuckets();
+    const missing = resources.storage_buckets.filter(
+      (expected) =>
+        !buckets?.some((bucket) => bucket.id === expected.id && bucket.public === expected.public),
+    );
     rows.push({
       check: "Storage",
-      status: bError ? "FAIL" : "PASS",
-      detail: bError ? bError.message : `buckets=${(buckets ?? []).length}`,
+      status: bError || missing.length ? "FAIL" : "PASS",
+      detail: bError
+        ? bError.message
+        : missing.length
+          ? `Buckets fehlen oder Sichtbarkeit falsch: ${missing.map((bucket) => bucket.id).join(", ")}`
+          : `${resources.storage_buckets.length} erforderliche Buckets mit korrekter Sichtbarkeit`,
     });
   } catch {
     rows.push({ check: "Storage", status: "FAIL", detail: "nicht erreichbar" });
@@ -1038,7 +1087,8 @@ export async function runDoctor(): Promise<DoctorRow[]> {
   // Dedicated Independence: Same-Origin-Runtime-Config, lokaler Publishable
   // Key, kein externer Commerce-Runtime-Host.
   try {
-    const { resolveStoreRuntimeConfig, STORE_API_BASE_PATH } = await import("./runtime-config.server");
+    const { resolveStoreRuntimeConfig, STORE_API_BASE_PATH } =
+      await import("./runtime-config.server");
     const runtime = await resolveStoreRuntimeConfig();
     rows.push({
       check: "Store API (same-origin)",
@@ -1074,8 +1124,16 @@ export async function runDoctor(): Promise<DoctorRow[]> {
   // Bestellung möglich ist. Fehlendes ist SETUP REQUIRED, kein FAIL — es ist
   // eine Aufgabe des Betreibers, kein Installationsfehler.
   const readiness: { check: string; table: string; hint: string }[] = [
-    { check: "Verkaufsbereitschaft (Versandarten)", table: "shipping_methods", hint: "Versandart anlegen" },
-    { check: "Verkaufsbereitschaft (Steuersätze)", table: "tax_rates", hint: "Steuersatz hinterlegen" },
+    {
+      check: "Verkaufsbereitschaft (Versandarten)",
+      table: "shipping_methods",
+      hint: "Versandart anlegen",
+    },
+    {
+      check: "Verkaufsbereitschaft (Steuersätze)",
+      table: "tax_rates",
+      hint: "Steuersatz hinterlegen",
+    },
     {
       check: "Verkaufsbereitschaft (Zahlungsart)",
       table: "payment_provider_configs",
@@ -1083,7 +1141,9 @@ export async function runDoctor(): Promise<DoctorRow[]> {
     },
   ];
   for (const r of readiness) {
-    const { count, error } = await admin.from(r.table as never).select("*", { count: "exact", head: true });
+    const { count, error } = await admin
+      .from(r.table as never)
+      .select("*", { count: "exact", head: true });
     const value = count ?? 0;
     rows.push({
       check: r.check,
@@ -1105,4 +1165,3 @@ export async function runDoctor(): Promise<DoctorRow[]> {
 
   return rows;
 }
-

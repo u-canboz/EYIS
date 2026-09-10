@@ -76,7 +76,9 @@
     "eyis:release:selftest": "bun run scripts/eyis-release-selftest.ts extracted",
     "eyis:release:selftest:simulate": "bun run scripts/eyis-release-selftest.ts simulate",
     "installer:dependencies": "bun run scripts/installer/dependencies.ts",
-    "qa:blackbox-preflight": "bun run qa/phase30-blackbox-preflight.ts"
+    "qa:blackbox-preflight": "bun run qa/phase30-blackbox-preflight.ts",
+    "verify:development": "bun run scripts/verify-development.ts",
+    "qa:local": "bun run qa/local-stack-smoke.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

@@ -35,7 +35,19 @@ import {
 } from "./emit";
 import { introspect } from "./introspect";
 import { buildSeeds } from "./seeds";
-import { historicalOwnership, migrationHead, migrationVersions, tablesFromMigrations } from "./migration-history";
+import {
+  SEED_UNITS,
+  SEED_MANIFEST_PATH,
+  buildSeedManifest,
+  databaseSeedEntries,
+  renderSeedFile,
+} from "./system-seeds";
+import {
+  historicalOwnership,
+  migrationHead,
+  migrationVersions,
+  tablesFromMigrations,
+} from "./migration-history";
 
 export const TARGET_UNIT_BYTES = 18 * 1024;
 /** Nachgewiesene Obergrenze eines einzelnen Tool-Payloads. */
@@ -65,7 +77,9 @@ function driftGate(liveTables: string[]) {
     console.error("BASELINE GENERATION FAIL — ungeklärter Schema-Drift.");
     if (unexpected.length) console.error(`  Nur in der Live-DB: ${unexpected.join(", ")}`);
     if (missing.length) console.error(`  Nur in der Migrationskette: ${missing.join(", ")}`);
-    console.error("  Drift klären (Migration nachziehen oder Objekt entfernen), dann erneut erzeugen.");
+    console.error(
+      "  Drift klären (Migration nachziehen oder Objekt entfernen), dann erneut erzeugen.",
+    );
     process.exit(1);
   }
   return { tableCount: live.length };
@@ -89,7 +103,10 @@ function buildSections(): { sections: Section[]; schema: ReturnType<typeof intro
     statements: [...emitExtensions(schema), ...emitEnums(schema)],
   });
 
-  const byDomain = <T extends { table?: string; object: string }>(items: T[], key: (i: T) => string) => {
+  const byDomain = <T extends { table?: string; object: string }>(
+    items: T[],
+    key: (i: T) => string,
+  ) => {
     const map = new Map<string, T[]>();
     for (const item of items) {
       const domain = domainOf(key(item));
@@ -103,16 +120,26 @@ function buildSections(): { sections: Section[]; schema: ReturnType<typeof intro
   const tablesByDomain = byDomain(tableStatements, (s) => s.object);
   for (const domain of DOMAIN_ORDER) {
     const items = tablesByDomain.get(domain);
-    if (items?.length) sections.push({ id: `${domain}-tables`, title: `Tabellen: ${domain}`, statements: items });
+    if (items?.length)
+      sections.push({ id: `${domain}-tables`, title: `Tabellen: ${domain}`, statements: items });
   }
 
-  sections.push({ id: "relations-foreign-keys", title: "Fremdschlüssel", statements: emitForeignKeys(schema) });
+  sections.push({
+    id: "relations-foreign-keys",
+    title: "Fremdschlüssel",
+    statements: emitForeignKeys(schema),
+  });
 
   const fnStatements = emitFunctions(schema);
   const fnByDomain = byDomain(fnStatements, (s) => s.object);
   for (const domain of DOMAIN_ORDER) {
     const items = fnByDomain.get(domain);
-    if (items?.length) sections.push({ id: `${domain}-functions`, title: `Funktionen: ${domain}`, statements: items });
+    if (items?.length)
+      sections.push({
+        id: `${domain}-functions`,
+        title: `Funktionen: ${domain}`,
+        statements: items,
+      });
   }
 
   sections.push({ id: "relations-triggers", title: "Trigger", statements: emitTriggers(schema) });
@@ -203,7 +230,9 @@ function fingerprint(schema: ReturnType<typeof introspect>) {
     indexes: schema.indexes.map((i) => `${i.table}:${i.name}`).sort(),
     functions: schema.functions.map((f) => f.identity).sort(),
     triggers: schema.triggers.map((t) => `${t.table}.${t.name}`).sort(),
-    policies: schema.policies.map((p) => `${p.table}.${p.name}:${p.cmd}:${p.roles.join("+")}`).sort(),
+    policies: schema.policies
+      .map((p) => `${p.table}.${p.name}:${p.cmd}:${p.roles.join("+")}`)
+      .sort(),
     grants: schema.grants.map((g) => `${g.table}:${g.grantee}:${g.privilege}`).sort(),
     functionGrants: schema.functionGrants.map((g) => `${g.identity}:${g.grantee}`).sort(),
   };
@@ -256,16 +285,16 @@ export function generate() {
   });
 
   mkdirSync(join(OUT_DIR, "seeds"), { recursive: true });
-  const seeds = buildSeeds().map((seed) => {
-    writeFileSync(join(OUT_DIR, seed.file), seed.sql);
-    return {
-      id: seed.file.replace(/^seeds\/|\.sql$/g, ""),
-      file: seed.file,
-      version: seed.version,
-      checksum: sha256(seed.sql),
-      idempotent: true,
-    };
-  });
+  for (const seed of buildSeeds()) writeFileSync(join(OUT_DIR, seed.file), seed.sql);
+  for (const unit of SEED_UNITS) {
+    if (unit.sources.length) writeFileSync(join(OUT_DIR, "seeds", unit.file), renderSeedFile(unit));
+  }
+  const seedManifest = buildSeedManifest(
+    process.env["EYIS_SEED_VERSION"] ?? "1.1.0",
+    new Date().toISOString().slice(0, 10),
+  );
+  writeFileSync(SEED_MANIFEST_PATH, `${JSON.stringify(seedManifest, null, 2)}\n`);
+  const seeds = databaseSeedEntries(seedManifest);
 
   // Reconciliation: alle im Baseline enthaltenen Strukturversionen werden als
   // "applied" registriert, damit `supabase db push` sie nicht erneut anwendet.
@@ -347,14 +376,22 @@ ON CONFLICT (version) DO NOTHING;
     join(VERIFY_DIR, "fingerprint.json"),
     `${JSON.stringify({ schema_fingerprint: fp.hash, baseline_version: BASELINE_VERSION, migration_head: head.id }, null, 2)}\n`,
   );
-  writeFileSync(join(VERIFY_DIR, "expected-objects.json"), `${JSON.stringify(fp.normalized, null, 2)}\n`);
+  writeFileSync(
+    join(VERIFY_DIR, "expected-objects.json"),
+    `${JSON.stringify(fp.normalized, null, 2)}\n`,
+  );
   writeFileSync(join(VERIFY_DIR, "ownership.json"), `${JSON.stringify(ownership, null, 2)}\n`);
-  writeFileSync(join(OUT_DIR, "eyis-database-installer.manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  writeFileSync(
+    join(OUT_DIR, "eyis-database-installer.manifest.json"),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+  );
 
   console.log(`EYIS Database Install Pack ${BASELINE_VERSION}`);
   console.log(`  Units:                    ${manifestUnits.length}`);
   console.log(`  Größte Unit:              ${manifest.payload_budget.largest_unit_bytes} Bytes`);
-  console.log(`  Größtes atomares Stmt:    ${largestStatement.bytes} Bytes (${largestStatement.object})`);
+  console.log(
+    `  Größtes atomares Stmt:    ${largestStatement.bytes} Bytes (${largestStatement.object})`,
+  );
   console.log(`  Migration Head:           ${head.id} (${versions.length} Versionen)`);
   console.log(`  Schema Fingerprint:       ${fp.hash}`);
 }

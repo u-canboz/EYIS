@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-10T08:36:23.518Z",
-  "source_commit": "149fd06885558150128e6c0e3ec4665b6df8bd94",
+  "generated_at": "2026-09-10T10:34:58.807Z",
+  "source_commit": "d7bddb64684bb4686872f0e1e68f1c95848901a6",
   "latest_migration": "20260910083239_a051540b-3a62-4ed8-a4ad-f1fd4cf47244.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
   "api_version": "v1",
   "base_path": "/api/public/store/v1",
-  "endpoint_count": 40,
-  "router_endpoint_count": 40,
+  "endpoint_count": 41,
+  "router_endpoint_count": 41,
   "headers": [
     {
       "name": "X-Commerce-Key",
@@ -531,6 +531,21 @@
             "PAYMENT_FAILED"
           ],
           "sdk": "await client.payments.status(paymentSessionId)"
+        },
+        {
+          "method": "POST",
+          "path": "/payments/:paymentSessionId/mock-confirm",
+          "auth": "cart",
+          "profile": "payment_session",
+          "summary": "Mock-Testzahlung bestätigen. Nur Development/Staging, Test-Key und eigene Zahlungssitzung.",
+          "output": "{ status: paid }",
+          "errors": [
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "UNAUTHORIZED",
+            "MAINTENANCE"
+          ],
+          "sdk": "await client.payments.confirmTest(paymentSessionId)"
         }
       ]
     },
@@ -1143,6 +1158,23 @@
         "PAYMENT_FAILED"
       ],
       "sdk": "await client.payments.status(paymentSessionId)",
+      "group": "checkout",
+      "groupTitle": "Checkout & Zahlung"
+    },
+    {
+      "method": "POST",
+      "path": "/payments/:paymentSessionId/mock-confirm",
+      "auth": "cart",
+      "profile": "payment_session",
+      "summary": "Mock-Testzahlung bestätigen. Nur Development/Staging, Test-Key und eigene Zahlungssitzung.",
+      "output": "{ status: paid }",
+      "errors": [
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "UNAUTHORIZED",
+        "MAINTENANCE"
+      ],
+      "sdk": "await client.payments.confirmTest(paymentSessionId)",
       "group": "checkout",
       "groupTitle": "Checkout & Zahlung"
     },

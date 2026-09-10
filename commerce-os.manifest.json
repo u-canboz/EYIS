@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-10T08:36:23.599Z",
-  "source_commit": "149fd06885558150128e6c0e3ec4665b6df8bd94",
+  "generated_at": "2026-09-10T10:34:58.835Z",
+  "source_commit": "d7bddb64684bb4686872f0e1e68f1c95848901a6",
   "latest_migration": "20260910083239_a051540b-3a62-4ed8-a4ad-f1fd4cf47244.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
@@ -8,7 +8,7 @@
   "name": "commerce-os",
   "product": "EYIS",
   "description": "Mandantenfähige Commerce-Engine (Backoffice, Store API v1, Store SDK, Referenz-Storefront).",
-  "version": "1.0.0-rc1",
+  "version": "1.0.0-rc.10",
   "status": "V1 frozen — production hardening",
   "stack": {
     "framework": "TanStack Start v1 (React 19, Vite 7)",
@@ -18,7 +18,7 @@
     "package_manager": "bun"
   },
   "public_api_version": "v1",
-  "sdk_version": "1.0.0",
+  "sdk_version": "1.1.0",
   "sdk_distribution": "repository-source",
   "compatible_api_versions": [
     "v1"
@@ -47,8 +47,8 @@
   ],
   "counts": {
     "modules": 19,
-    "routes": 99,
-    "store_api_endpoints": 40,
+    "routes": 100,
+    "store_api_endpoints": 41,
     "migrations": 61,
     "public_tables": 112
   },
@@ -138,7 +138,9 @@
     "eyis:release:selftest": "bun run scripts/eyis-release-selftest.ts extracted",
     "eyis:release:selftest:simulate": "bun run scripts/eyis-release-selftest.ts simulate",
     "installer:dependencies": "bun run scripts/installer/dependencies.ts",
-    "qa:blackbox-preflight": "bun run qa/phase30-blackbox-preflight.ts"
+    "qa:blackbox-preflight": "bun run qa/phase30-blackbox-preflight.ts",
+    "verify:development": "bun run scripts/verify-development.ts",
+    "qa:local": "bun run qa/local-stack-smoke.ts"
   },
   "installed_commands": {
     "dev": "vite dev",
@@ -215,7 +217,9 @@
     "eyis:release:selftest": "bun run scripts/eyis-release-selftest.ts extracted",
     "eyis:release:selftest:simulate": "bun run scripts/eyis-release-selftest.ts simulate",
     "installer:dependencies": "bun run scripts/installer/dependencies.ts",
-    "qa:blackbox-preflight": "bun run qa/phase30-blackbox-preflight.ts"
+    "qa:blackbox-preflight": "bun run qa/phase30-blackbox-preflight.ts",
+    "verify:development": "bun run scripts/verify-development.ts",
+    "qa:local": "bun run qa/local-stack-smoke.ts"
   },
   "blocked_integrations": [
     "stripe-live",

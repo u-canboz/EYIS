@@ -60,9 +60,8 @@ export const claimInstallationOwner = createServerFn({ method: "POST" })
 export const getOwnerSetupState = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { getInstallation, claimState, maskEmail, normalizeOwnerEmail } = await import(
-      "./installation.server"
-    );
+    const { getInstallation, claimState, maskEmail, normalizeOwnerEmail } =
+      await import("./installation.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const row = await getInstallation();
     const { data: userData } = await supabaseAdmin.auth.admin.getUserById(context.userId);
@@ -110,8 +109,6 @@ export const autoClaimInstallationOwner = createServerFn({ method: "POST" })
     });
   });
 
-
-
 export const saveSetupStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
@@ -125,7 +122,14 @@ export const saveSetupStep = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "settings.manage",
+    );
+    const { assertInstallationOrganization } = await import("../updates/update-center.server");
+    await assertInstallationOrganization(data.organizationId);
     const { saveSetupProgress } = await import("./installation.server");
     return saveSetupProgress(data.step, data.done);
   });
@@ -142,7 +146,14 @@ export const setStorefrontOriginFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "settings.manage",
+    );
+    const { assertInstallationOrganization } = await import("../updates/update-center.server");
+    await assertInstallationOrganization(data.organizationId);
     const { setStorefrontOrigin } = await import("./installation.server");
     await setStorefrontOrigin(data.origin);
     return { ok: true as const };
@@ -158,7 +169,12 @@ export const adoptInstallationFn = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ organizationId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "settings.manage");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "settings.manage",
+    );
     const { adoptInstallation } = await import("./installation.server");
     return adoptInstallation(context.userId, data.organizationId);
   });

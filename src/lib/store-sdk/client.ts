@@ -202,6 +202,11 @@ export function createCommerceClient(input: CommerceClientConfig) {
   };
 
   const payments = {
+    /** Explicit mock confirmation, rejected outside Development/Staging. */
+    confirmTest: (paymentSessionId: string) =>
+      withCartToken<{ status: "paid" }>(`/payments/${paymentSessionId}/mock-confirm`, {
+        method: "POST",
+      }),
     status: (paymentSessionId: string) =>
       withCartToken<StorePaymentStatus>(`/payments/${paymentSessionId}/status`, {}),
   };
@@ -353,7 +358,6 @@ export function createCommerceClient(input: CommerceClientConfig) {
     page: (handle: string) =>
       request<StoreContentPage>({ path: `/content/pages/${encodeURIComponent(handle)}` }),
   };
-
 
   return {
     config: () => request<StoreConfig>({ path: "/config" }),

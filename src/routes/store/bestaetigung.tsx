@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCommerce } from "@/lib/store-sdk/react/provider";
-import type { StoreOrder } from "@/lib/store-sdk";
+import { usePaymentConfirmation } from "@/lib/store-sdk/react/use-payment-confirmation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -34,60 +32,10 @@ export const Route = createFileRoute("/store/bestaetigung")({
 });
 
 function StoreConfirmationPage() {
-  const client = useCommerce();
   const search = Route.useSearch();
-  const [order, setOrder] = useState<StoreOrder | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-
-    const sessionId =
-      search.session ??
-      (typeof window === "undefined"
-        ? null
-        : window.sessionStorage.getItem("commerce.paymentSessionId"));
-    if (!sessionId) {
-      setError("Keine Zahlungssitzung gefunden.");
-      return;
-    }
-
-    let cancelled = false;
-    let attempts = 0;
-
-    const poll = async () => {
-      try {
-        const status = await client.payments.status(sessionId);
-        if (cancelled) return;
-        if (status.confirmationToken) {
-          // Single use, short lived, scoped: redeemed immediately, never stored.
-          const result = await client.orders.redeemConfirmation(status.confirmationToken);
-          if (cancelled) return;
-          window.sessionStorage.removeItem("commerce.paymentSessionId");
-          setOrder(result);
-          return;
-        }
-        if (status.status === "failed" || status.status === "cancelled") {
-          setError("Die Zahlung wurde nicht abgeschlossen.");
-          return;
-        }
-        if (++attempts > 20) {
-          setError("Zahlung wird noch verarbeitet. Bitte später erneut prüfen.");
-          return;
-        }
-        setTimeout(poll, 1500);
-      } catch (e) {
-        if (!cancelled) setError((e as Error).message);
-      }
-    };
-
-    void poll();
-    return () => {
-      cancelled = true;
-    };
-  }, [client, search.session]);
+  const { order, error, testAvailable, confirming, confirmTest } = usePaymentConfirmation(
+    search.session,
+  );
 
   if (error)
     return (
@@ -112,10 +60,28 @@ function StoreConfirmationPage() {
     return (
       <StoreContainer className="py-8 sm:py-12">
         <StoreHeading title="Bestellung" />
-        <div className="mt-7 space-y-4">
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-40 w-full rounded-2xl" />
-        </div>
+        {testAvailable ? (
+          <div className="mt-7">
+            <StoreNotice
+              title="Testzahlung"
+              description="Dies ist eine Testbestellung. Es wird kein Geld abgebucht."
+              action={
+                <Button
+                  onClick={() => void confirmTest()}
+                  disabled={confirming}
+                  className="mt-3 h-11"
+                >
+                  {confirming ? "Wird bestätigt …" : "Testzahlung bestätigen"}
+                </Button>
+              }
+            />
+          </div>
+        ) : (
+          <div className="mt-7 space-y-4" role="status" aria-label="Zahlung wird geprüft">
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-40 w-full rounded-2xl" />
+          </div>
+        )}
       </StoreContainer>
     );
 
