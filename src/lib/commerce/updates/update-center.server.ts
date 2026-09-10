@@ -181,12 +181,29 @@ async function loadRuns(limit = 10): Promise<UpdateRunView[]> {
   return rows.map((r) => mapRun(r, stepRows));
 }
 
+/** Cached release info is refreshed automatically when older than this. */
+const OVERVIEW_CHECK_MAX_AGE_MS = 15 * 60 * 1000;
+
 export async function getUpdateOverview(): Promise<UpdateOverview> {
-  const installation = await requireInstallation();
+  let installation = await requireInstallation();
+
+  const lastCheck = str(installation["last_update_check_at"]);
+  const stale =
+    !lastCheck || Date.now() - new Date(lastCheck).getTime() > OVERVIEW_CHECK_MAX_AGE_MS;
+  if (stale) {
+    try {
+      await checkForUpdates();
+      installation = await requireInstallation();
+    } catch {
+      // Offline oder Registry nicht erreichbar: zwischengespeicherten Stand zeigen.
+    }
+  }
+
   const capabilities = await probeCapabilities();
   const history = await loadRuns(10);
   const activeRun = history.find((r) => ACTIVE_RUN_STATUSES.includes(r.status)) ?? null;
   const availableRaw = installation["available_release"] as ReleaseManifest | null;
+
 
   let environment = "unknown";
   try {
