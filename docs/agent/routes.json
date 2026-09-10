@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-09T10:30:34.818Z",
-  "source_commit": "06e3897db48ceec196fb95d9af97edf5321b6965",
-  "latest_migration": "20260909101522_2f41f09a-4da0-49af-b83a-82677ddef90b.sql",
+  "generated_at": "2026-09-10T08:36:23.498Z",
+  "source_commit": "149fd06885558150128e6c0e3ec4665b6df8bd94",
+  "latest_migration": "20260910083239_a051540b-3a62-4ed8-a4ad-f1fd4cf47244.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 98,
+  "total": 99,
   "by_kind": {
-    "backoffice": 66,
+    "backoffice": 67,
     "public-api": 6,
     "job-endpoint": 4,
     "public-store-api": 2,
@@ -340,6 +340,16 @@
     {
       "url": "/app/lager/wareneingang",
       "source": "src/routes/_authenticated/app/lager/wareneingang.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
+      "url": "/app/marketing/branding",
+      "source": "src/routes/_authenticated/app/marketing/branding.tsx",
       "kind": "backoffice",
       "methods": [
         "GET"

@@ -200,6 +200,31 @@
         }
       }
     },
+    "/api/public/store/v1/content/branding": {
+      "get": {
+        "tags": [
+          "Inhalte"
+        ],
+        "summary": "Shopname, Claim, Logo, Farben und Schriften der Storefront.",
+        "description": "Auth: key · Rate-Profil: catalog_read · SDK: `await client.content.branding()`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreBranding"
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
     "/api/public/store/v1/content/blocks": {
       "get": {
         "tags": [

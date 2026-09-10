@@ -102,3 +102,47 @@ export async function listContentPages(input: {
     excerpt: str(row["excerpt"]),
   }));
 }
+
+export type StoreBranding = {
+  shopName: string | null;
+  claim: string | null;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  colors: Record<string, string>;
+  fonts: { display: string | null; body: string | null };
+};
+
+/** Öffentlich lesbares Branding des Shops (Name, Logo, Farben, Schriften). */
+export async function getStoreBranding(input: {
+  organizationId: string;
+  shopId: string;
+}): Promise<StoreBranding> {
+  const admin = await getAdmin();
+  const { data } = await admin
+    .from("storefront_branding")
+    .select("*")
+    .eq("organization_id", input.organizationId)
+    .eq("shop_id", input.shopId)
+    .maybeSingle();
+  const row = (data ?? {}) as Row;
+  const colors: Record<string, string> = {};
+  const put = (key: string, column: string) => {
+    const value = str(row[column]);
+    if (value) colors[key] = value;
+  };
+  put("background", "color_background");
+  put("foreground", "color_foreground");
+  put("surface", "color_surface");
+  put("border", "color_border");
+  put("accent", "color_accent");
+  put("accentForeground", "color_accent_foreground");
+  put("deep", "color_deep");
+  return {
+    shopName: str(row["shop_name"]),
+    claim: str(row["claim"]),
+    logoUrl: str(row["logo_url"]),
+    faviconUrl: str(row["favicon_url"]),
+    colors,
+    fonts: { display: str(row["font_display"]), body: str(row["font_body"]) },
+  };
+}

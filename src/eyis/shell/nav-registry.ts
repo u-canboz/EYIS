@@ -85,6 +85,12 @@ export const NAV_GROUPS: NavGroup[] = [
       },
       { to: "/app/marketing/promotions", label: "Promotions", icon: Megaphone, keywords: "rabatte" },
       {
+        to: "/app/marketing/branding",
+        label: "Storefront-Branding",
+        icon: FileText,
+        keywords: "logo farben shopname schriften design",
+      },
+      {
         to: "/app/marketing/inhalte",
         label: "Storefront-Inhalte",
         icon: FileText,

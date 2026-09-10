@@ -59,6 +59,7 @@ import { Route as AuthenticatedAppLagerLagerorteRouteImport } from './routes/_au
 import { Route as AuthenticatedAppLagerReservierungenRouteImport } from './routes/_authenticated/app/lager/reservierungen'
 import { Route as AuthenticatedAppLagerTransfersRouteImport } from './routes/_authenticated/app/lager/transfers'
 import { Route as AuthenticatedAppLagerWareneingangRouteImport } from './routes/_authenticated/app/lager/wareneingang'
+import { Route as AuthenticatedAppMarketingBrandingRouteImport } from './routes/_authenticated/app/marketing/branding'
 import { Route as AuthenticatedAppMarketingGoogleShoppingRouteImport } from './routes/_authenticated/app/marketing/google-shopping'
 import { Route as AuthenticatedAppMarketingInhalteRouteImport } from './routes/_authenticated/app/marketing/inhalte'
 import { Route as AuthenticatedAppMarketingPromotionsRouteImport } from './routes/_authenticated/app/marketing/promotions'
@@ -386,6 +387,12 @@ const AuthenticatedAppLagerWareneingangRoute =
     path: '/app/lager/wareneingang',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppMarketingBrandingRoute =
+  AuthenticatedAppMarketingBrandingRouteImport.update({
+    id: '/app/marketing/branding',
+    path: '/app/marketing/branding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppMarketingGoogleShoppingRoute =
   AuthenticatedAppMarketingGoogleShoppingRouteImport.update({
     id: '/app/marketing/google-shopping',
@@ -710,6 +717,7 @@ export interface FileRoutesByFullPath {
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
+  '/app/marketing/branding': typeof AuthenticatedAppMarketingBrandingRoute
   '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
   '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
@@ -808,6 +816,7 @@ export interface FileRoutesByTo {
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
+  '/app/marketing/branding': typeof AuthenticatedAppMarketingBrandingRoute
   '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
   '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
@@ -909,6 +918,7 @@ export interface FileRoutesById {
   '/_authenticated/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/_authenticated/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/_authenticated/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
+  '/_authenticated/app/marketing/branding': typeof AuthenticatedAppMarketingBrandingRoute
   '/_authenticated/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
   '/_authenticated/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/_authenticated/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
@@ -1010,6 +1020,7 @@ export interface FileRouteTypes {
     | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
+    | '/app/marketing/branding'
     | '/app/marketing/google-shopping'
     | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
@@ -1108,6 +1119,7 @@ export interface FileRouteTypes {
     | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
+    | '/app/marketing/branding'
     | '/app/marketing/google-shopping'
     | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
@@ -1208,6 +1220,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/lager/reservierungen'
     | '/_authenticated/app/lager/transfers'
     | '/_authenticated/app/lager/wareneingang'
+    | '/_authenticated/app/marketing/branding'
     | '/_authenticated/app/marketing/google-shopping'
     | '/_authenticated/app/marketing/inhalte'
     | '/_authenticated/app/marketing/promotions'
@@ -1647,6 +1660,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppLagerWareneingangRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/marketing/branding': {
+      id: '/_authenticated/app/marketing/branding'
+      path: '/app/marketing/branding'
+      fullPath: '/app/marketing/branding'
+      preLoaderRoute: typeof AuthenticatedAppMarketingBrandingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/marketing/google-shopping': {
       id: '/_authenticated/app/marketing/google-shopping'
       path: '/app/marketing/google-shopping'
@@ -2014,6 +2034,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppLagerReservierungenRoute: typeof AuthenticatedAppLagerReservierungenRoute
   AuthenticatedAppLagerTransfersRoute: typeof AuthenticatedAppLagerTransfersRoute
   AuthenticatedAppLagerWareneingangRoute: typeof AuthenticatedAppLagerWareneingangRoute
+  AuthenticatedAppMarketingBrandingRoute: typeof AuthenticatedAppMarketingBrandingRoute
   AuthenticatedAppMarketingGoogleShoppingRoute: typeof AuthenticatedAppMarketingGoogleShoppingRoute
   AuthenticatedAppMarketingInhalteRoute: typeof AuthenticatedAppMarketingInhalteRoute
   AuthenticatedAppMarketingPromotionsRoute: typeof AuthenticatedAppMarketingPromotionsRoute
@@ -2094,6 +2115,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppLagerTransfersRoute: AuthenticatedAppLagerTransfersRoute,
   AuthenticatedAppLagerWareneingangRoute:
     AuthenticatedAppLagerWareneingangRoute,
+  AuthenticatedAppMarketingBrandingRoute:
+    AuthenticatedAppMarketingBrandingRoute,
   AuthenticatedAppMarketingGoogleShoppingRoute:
     AuthenticatedAppMarketingGoogleShoppingRoute,
   AuthenticatedAppMarketingInhalteRoute: AuthenticatedAppMarketingInhalteRoute,

@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-09T10:30:34.834Z",
-  "source_commit": "06e3897db48ceec196fb95d9af97edf5321b6965",
-  "latest_migration": "20260909101522_2f41f09a-4da0-49af-b83a-82677ddef90b.sql",
+  "generated_at": "2026-09-10T08:36:23.518Z",
+  "source_commit": "149fd06885558150128e6c0e3ec4665b6df8bd94",
+  "latest_migration": "20260910083239_a051540b-3a62-4ed8-a4ad-f1fd4cf47244.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
   "api_version": "v1",
   "base_path": "/api/public/store/v1",
-  "endpoint_count": 39,
-  "router_endpoint_count": 39,
+  "endpoint_count": 40,
+  "router_endpoint_count": 40,
   "headers": [
     {
       "name": "X-Commerce-Key",
@@ -249,6 +249,19 @@
       "title": "Inhalte",
       "description": "Pflegbare Storefront-Inhalte und Rechtstexte. Nur veröffentlichte Datensätze werden ausgeliefert.",
       "endpoints": [
+        {
+          "method": "GET",
+          "path": "/content/branding",
+          "auth": "key",
+          "profile": "catalog_read",
+          "summary": "Shopname, Claim, Logo, Farben und Schriften der Storefront.",
+          "output": "StoreBranding",
+          "errors": [
+            "UNAUTHORIZED",
+            "RATE_LIMITED"
+          ],
+          "sdk": "await client.content.branding()"
+        },
         {
           "method": "GET",
           "path": "/content/blocks",
@@ -823,6 +836,21 @@
       "sdk": "await client.catalog.collections()",
       "group": "catalog",
       "groupTitle": "Katalog"
+    },
+    {
+      "method": "GET",
+      "path": "/content/branding",
+      "auth": "key",
+      "profile": "catalog_read",
+      "summary": "Shopname, Claim, Logo, Farben und Schriften der Storefront.",
+      "output": "StoreBranding",
+      "errors": [
+        "UNAUTHORIZED",
+        "RATE_LIMITED"
+      ],
+      "sdk": "await client.content.branding()",
+      "group": "content",
+      "groupTitle": "Inhalte"
     },
     {
       "method": "GET",

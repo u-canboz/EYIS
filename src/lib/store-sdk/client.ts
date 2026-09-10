@@ -16,6 +16,7 @@ import type {
   StoreCheckout,
   StoreCollection,
   StoreConfig,
+  StoreBranding,
   StoreContentBlock,
   StoreContentPage,
   StoreContentPageSummary,
@@ -342,6 +343,7 @@ export function createCommerceClient(input: CommerceClientConfig) {
   };
 
   const content = {
+    branding: () => request<StoreBranding>({ path: "/content/branding" }),
     blocks: (section?: string) =>
       request<StoreContentBlock[]>({
         path: "/content/blocks",

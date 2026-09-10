@@ -92,6 +92,15 @@ export type StoreCollection = {
   description: string | null;
 };
 
+export type StoreBranding = {
+  shopName: string | null;
+  claim: string | null;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  colors: Record<string, string>;
+  fonts: { display: string | null; body: string | null };
+};
+
 export type StoreContentBlock = {
   id: string;
   section: string;

@@ -208,6 +208,16 @@ export const STORE_API_GROUPS: StoreEndpointGroup[] = [
     endpoints: [
       {
         method: "GET",
+        path: "/content/branding",
+        auth: "key",
+        profile: "catalog_read",
+        summary: "Shopname, Claim, Logo, Farben und Schriften der Storefront.",
+        output: "StoreBranding",
+        errors: ["UNAUTHORIZED", "RATE_LIMITED"],
+        sdk: "await client.content.branding()",
+      },
+      {
+        method: "GET",
         path: "/content/blocks",
         auth: "key",
         profile: "catalog_read",
