@@ -16,7 +16,7 @@
  * geschrieben und von `eyis:seeds:verify` gegen die Seed-Units geprüft.
  */
 
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { MIGRATIONS_DIR, SEED_UNITS, SEEDS_DIR, sha256 } from "./system-seeds";
@@ -78,9 +78,10 @@ for (const f of findings) {
 
 const uncovered = findings.filter((f) => f.category === "system_seed" && !f.covered_by);
 
+// Der Bericht ist Teil des Release-Payloads und muss deshalb allein aus der
+// Migrationskette folgen — kein Zeitstempel, keine Umgebungsabhängigkeit.
 const report = {
   manifest: "eyis-dml-audit",
-  generated_at: new Date().toISOString().slice(0, 10),
   migrations_scanned: readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith(".sql")).length,
   totals: {
     all: findings.length,
@@ -94,7 +95,19 @@ const report = {
 };
 
 const out = `${JSON.stringify(report, null, 2)}\n`;
-writeFileSync(join(SEEDS_DIR, "eyis-dml-audit.json"), out, "utf8");
+const reportPath = join(SEEDS_DIR, "eyis-dml-audit.json");
+// `--check` darf den Arbeitsbaum nicht verändern: im Release-Lauf würde eine
+// Neuschreibung den geprüften Payload nachträglich verfälschen.
+const checkOnly = process.argv.includes("--check");
+if (checkOnly) {
+  const current = existsSync(reportPath) ? readFileSync(reportPath, "utf8") : "";
+  if (current !== out) {
+    console.log("DML-Audit: FAIL — eyis-dml-audit.json ist nicht aktuell (bun run eyis:seeds:audit).");
+    process.exit(1);
+  }
+} else {
+  writeFileSync(reportPath, out, "utf8");
+}
 
 console.log(`Migrationen geprüft: ${report.migrations_scanned}`);
 console.log(`DML gesamt: ${report.totals.all}`);
