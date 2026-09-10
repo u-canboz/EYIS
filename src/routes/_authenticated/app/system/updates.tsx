@@ -60,6 +60,9 @@ export const Route = createFileRoute("/_authenticated/app/system/updates")({
   component: UpdateCenterPage,
 });
 
+/** Automatische Nachprüfung auf neue Releases. */
+const AUTO_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+
 const STATUS: Record<string, string> = {
   completed: "Abgeschlossen",
   failed: "Fehlgeschlagen",
