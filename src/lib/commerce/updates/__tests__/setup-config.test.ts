@@ -16,6 +16,7 @@ afterEach(() => {
 
 describe("Update-Konfiguration: DB → Umgebung → Defaults", () => {
   it("nimmt gespeicherte Werte, wenn keine Umgebungsvariable gesetzt ist", () => {
+    for (const key of KEYS) delete process.env[key];
     const config = loadUpdateConfig({
       customerRepo: "kunde/shop",
       hosting: "git_auto_deploy",
@@ -37,6 +38,7 @@ describe("Update-Konfiguration: DB → Umgebung → Defaults", () => {
   });
 
   it("fällt ohne beides auf die Auslieferungs-Defaults zurück", () => {
+    for (const key of KEYS) delete process.env[key];
     const config = loadUpdateConfig(null);
     expect(config.releaseRepo).toBe("u-canboz/EYIS");
     expect(config.eventType).toBe("eyis-update");
