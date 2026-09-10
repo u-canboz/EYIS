@@ -1,3 +1,5 @@
+import { STORE_SDK_VERSION } from "../../src/lib/store-sdk/config";
+import installedRelease from "../../src/lib/eyis/installed-release.json";
 /**
  * Erzeugt die maschinenlesbaren Manifeste unter docs/agent/ und im Repo-Root.
  *
@@ -149,9 +151,10 @@ function buildRoutes() {
       if (url === null) return null;
       const body = readFileSync(join(ROOT, source), "utf8");
       const kind = classify(url, source);
-      const methods = kind.includes("api") || kind === "webhook" || kind === "job-endpoint"
-        ? [...new Set([...body.matchAll(/\b(GET|POST|PATCH|PUT|DELETE):\s/g)].map((m) => m[1]))]
-        : ["GET"];
+      const methods =
+        kind.includes("api") || kind === "webhook" || kind === "job-endpoint"
+          ? [...new Set([...body.matchAll(/\b(GET|POST|PATCH|PUT|DELETE):\s/g)].map((m) => m[1]))]
+          : ["GET"];
       return {
         url,
         source,
@@ -187,8 +190,10 @@ function buildStoreApi() {
   const key = (e: { method: string; path: string }) => `${e.method} ${e.path}`;
   const catalogKeys = new Set(catalog.map(key));
   const routerKeys = new Set(router.map(key));
-  for (const k of routerKeys) if (!catalogKeys.has(k)) fail(`Store API: ${k} fehlt in api-catalog.ts`);
-  for (const k of catalogKeys) if (!routerKeys.has(k)) fail(`Store API: ${k} fehlt in routes.server.ts`);
+  for (const k of routerKeys)
+    if (!catalogKeys.has(k)) fail(`Store API: ${k} fehlt in api-catalog.ts`);
+  for (const k of catalogKeys)
+    if (!routerKeys.has(k)) fail(`Store API: ${k} fehlt in routes.server.ts`);
 
   return {
     ...provenance(),
@@ -229,12 +234,14 @@ function buildOpenApi(store: ReturnType<typeof buildStoreApi>) {
     openapi: "3.1.0",
     info: {
       title: "EYIS — Public Store API",
-      version: "1.0.0",
+      version: STORE_SDK_VERSION,
       description:
         "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts " +
         "durch scripts/manifest/generate.ts. Provenienz: docs/agent/store-api-v1.json.",
     },
-    servers: [{ url: "https://{host}", variables: { host: { default: "your-commerce-os.lovable.app" } } }],
+    servers: [
+      { url: "https://{host}", variables: { host: { default: "your-commerce-os.lovable.app" } } },
+    ],
     components: {
       securitySchemes: {
         PublishableKey: { type: "apiKey", in: "header", name: "X-Commerce-Key" },
@@ -275,7 +282,7 @@ function buildRootManifest(
     product: "EYIS",
     description:
       "Mandantenfähige Commerce-Engine (Backoffice, Store API v1, Store SDK, Referenz-Storefront).",
-    version: "1.0.0-rc1",
+    version: installedRelease.version,
     status: "V1 frozen — production hardening",
     stack: {
       framework: "TanStack Start v1 (React 19, Vite 7)",
@@ -285,7 +292,7 @@ function buildRootManifest(
       package_manager: "bun",
     },
     public_api_version: "v1",
-    sdk_version: "1.0.0",
+    sdk_version: STORE_SDK_VERSION,
     sdk_distribution: "repository-source",
     compatible_api_versions: ["v1"],
     sdk_path: "src/lib/store-sdk",
@@ -356,9 +363,12 @@ function emit(path: string, data: unknown) {
   mkdirSync(join(abs, ".."), { recursive: true });
   const next = JSON.stringify(data, null, 2) + "\n";
   if (CHECK) {
-    if (!existsSync(abs)) return fail(`Manifest fehlt: ${path} — 'bun run generate:manifests' ausführen`);
+    if (!existsSync(abs))
+      return fail(`Manifest fehlt: ${path} — 'bun run generate:manifests' ausführen`);
     const strip = (s: string) =>
-      s.replace(/"generated_at":\s*"[^"]*",?\n/g, "").replace(/"source_commit":\s*"[^"]*",?\n/g, "");
+      s
+        .replace(/"generated_at":\s*"[^"]*",?\n/g, "")
+        .replace(/"source_commit":\s*"[^"]*",?\n/g, "");
     if (strip(readFileSync(abs, "utf8")) !== strip(next))
       fail(`Manifest veraltet: ${path} — 'bun run generate:manifests' ausführen`);
     return;

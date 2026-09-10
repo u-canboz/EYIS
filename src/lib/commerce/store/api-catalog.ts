@@ -432,6 +432,17 @@ export const STORE_API_GROUPS: StoreEndpointGroup[] = [
         errors: ["NOT_FOUND", "PAYMENT_FAILED"],
         sdk: "await client.payments.status(paymentSessionId)",
       },
+      {
+        method: "POST",
+        path: "/payments/:paymentSessionId/mock-confirm",
+        auth: "cart",
+        profile: "payment_session",
+        summary:
+          "Mock-Testzahlung bestätigen. Nur Development/Staging, Test-Key und eigene Zahlungssitzung.",
+        output: "{ status: paid }",
+        errors: ["FORBIDDEN", "NOT_FOUND", "UNAUTHORIZED", "MAINTENANCE"],
+        sdk: "await client.payments.confirmTest(paymentSessionId)",
+      },
     ],
   },
   {

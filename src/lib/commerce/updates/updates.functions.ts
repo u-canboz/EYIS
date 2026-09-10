@@ -17,7 +17,14 @@ export const getUpdateOverviewFn = createServerFn({ method: "GET" })
   .inputValidator((data) => orgInput.parse(data))
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "system_updates.read");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.read",
+    );
     const { getUpdateOverview } = await import("./update-center.server");
     return getUpdateOverview();
   });
@@ -27,19 +34,31 @@ export const checkForUpdatesFn = createServerFn({ method: "POST" })
   .inputValidator((data) => orgInput.parse(data))
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "system_updates.manage");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.manage",
+    );
     const { checkForUpdates } = await import("./update-center.server");
     return checkForUpdates();
   });
 
 export const startUpdateFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    orgInput.extend({ releaseId: z.string().min(1).max(120) }).parse(data),
-  )
+  .inputValidator((data) => orgInput.extend({ releaseId: z.string().min(1).max(120) }).parse(data))
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "system_updates.install");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.install",
+    );
     const { startUpdate } = await import("./update-center.server");
     const email = (context.claims as { email?: string } | null)?.email ?? null;
     return startUpdate({
@@ -55,7 +74,14 @@ export const pollUpdateRunFn = createServerFn({ method: "POST" })
   .inputValidator((data) => orgInput.extend({ runId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "system_updates.read");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.read",
+    );
     const { pollUpdate } = await import("./update-center.server");
     return pollUpdate(data.runId);
   });
@@ -67,7 +93,14 @@ export const abandonUpdateRunFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "system_updates.install");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.install",
+    );
     const { abandonRun } = await import("./update-center.server");
     return abandonRun(data.runId, data.reason);
   });
@@ -84,8 +117,33 @@ export const setUpdateChannelFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { assertPermission } = await import("../core.server");
-    await assertPermission(context.supabase, context.userId, data.organizationId, "system_updates.channel");
+    const { assertInstallationOrganization } = await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.channel",
+    );
     const { setUpdateChannel } = await import("./update-center.server");
     await setUpdateChannel(data.channel, data.policy);
     return { ok: true as const };
+  });
+
+export const getUpdatePreflightFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => orgInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertPermission } = await import("../core.server");
+    await assertPermission(
+      context.supabase,
+      context.userId,
+      data.organizationId,
+      "system_updates.read",
+    );
+    const { assertInstallationOrganization, getUpdateOverview, runPreflight } =
+      await import("./update-center.server");
+    await assertInstallationOrganization(data.organizationId);
+    const overview = await getUpdateOverview();
+    return overview.available ? runPreflight(overview.available) : null;
   });

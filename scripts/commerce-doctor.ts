@@ -32,10 +32,12 @@ console.log("EYIS — Doctor");
 console.log("=".repeat(72));
 let failed = 0;
 for (const c of body.checks) {
-  if (c.status === "FAIL") failed += 1;
+  if (c.status !== "PASS") failed += 1;
   const status = c.status.padEnd(15);
   console.log(`  ${status} ${c.check}${c.detail ? ` — ${c.detail}` : ""}`);
 }
 console.log("=".repeat(72));
-console.log(failed === 0 ? "Ergebnis: PASS" : `Ergebnis: FAIL (${failed} Prüfung(en))`);
+console.log(
+  failed === 0 ? "Ergebnis: PASS" : `Ergebnis: OFFEN (${failed} Prüfung(en) nicht bestanden)`,
+);
 process.exit(failed === 0 ? 0 : 1);

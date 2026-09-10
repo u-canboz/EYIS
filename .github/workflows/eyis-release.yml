@@ -9,7 +9,7 @@ name: EYIS Release (signiertes Install Pack)
 # keine Ersatzsignatur erzeugt.
 #
 # Tags mit "-rc." werden als Pre-Release veröffentlicht. Ein Stable-Tag wird
-# nur signiert, wenn sein Artefakt-Digest exakt dem geprüften Release
+# nur signiert, wenn sein Nutzdatei-Digest exakt dem geprüften Release
 # Candidate aus installer/distribution/eyis-release-promotion.json entspricht.
 
 on:
@@ -31,11 +31,13 @@ jobs:
     env:
       RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          bun-version: 1.3.3
+          ref: ${{ env.RELEASE_TAG }}
+
+      - uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5
+        with:
+          bun-version: 1.3.10
 
       - run: bun install --frozen-lockfile
 
@@ -56,9 +58,18 @@ jobs:
           VERSION="${RELEASE_TAG#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           case "$VERSION" in
-            *-rc.*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
             *)      echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
           esac
+
+      # Changed source must be signed before verify checks the current digest.
+      - name: Pack signieren
+        env:
+          EYIS_PACK_SIGNING_KEY: ${{ secrets.EYIS_PACK_SIGNING_KEY }}
+        run: bun run eyis:pack:sign
+
+      - name: Pack-Signatur gegen Trust Anchor prüfen
+        run: bun run eyis:pack:verify
 
       - name: Verify (docs, sync, routes, distribution, artifact, typecheck, tests, build)
         run: bun run verify
@@ -75,11 +86,10 @@ jobs:
           bun run eyis:seeds:audit
           bun run eyis:seeds:verify
 
-
       - name: Secret-Scan des Artefakts
         run: |
           set -euo pipefail
-          if grep -rInE 'sb_secret_[A-Za-z0-9]{8}|SUPABASE_SERVICE_ROLE_KEY *= *["'"'"'`][A-Za-z0-9]|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' \
+          if grep -rIlE 'sb_secret_[A-Za-z0-9]{8}|SUPABASE_SERVICE_ROLE_KEY *= *["'"'"'`][A-Za-z0-9]|^[[:space:]]*-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----' \
               src installer scripts supabase; then
             echo "FAIL — moeglicher Secret-Fund im Release-Umfang."
             exit 1
@@ -87,22 +97,18 @@ jobs:
           echo "Secret-Scan: PASS"
 
       - name: Stable-Promotion prüfen
-        run: bun run eyis:release:promote check "${{ steps.version.outputs.version }}"
+        env:
+          EYIS_RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: bun run eyis:release:promote check "$EYIS_RELEASE_VERSION"
 
       # Reihenfolge ist sicherheitsrelevant (RC.5-Befund): Erst wird der finale
       # Pack-Zustand signiert und geprüft, danach das Tarball gebaut. Wird das
       # Tarball vorher gebaut, enthält es eine veraltete Signaturdatei.
-      - name: Pack signieren
-        env:
-          EYIS_PACK_SIGNING_KEY: ${{ secrets.EYIS_PACK_SIGNING_KEY }}
-        run: bun run eyis:pack:sign
-
-      - name: Pack-Signatur gegen Trust Anchor prüfen
-        run: bun run eyis:pack:verify
-
       - name: Artefakt bauen (enthält die soeben erzeugte Signatur)
         env:
           EYIS_RELEASE_VERSION: ${{ steps.version.outputs.version }}
+          EYIS_UPDATE_MIN_FROM_VERSION: ${{ vars.EYIS_UPDATE_MIN_FROM_VERSION }}
+          EYIS_UPDATE_MANUAL_STEP: ${{ vars.EYIS_UPDATE_MANUAL_STEP }}
         run: bun run eyis:release:artifact
 
       - name: Pack-Gate aus dem entpackten Tarball
@@ -120,7 +126,6 @@ jobs:
           set -euo pipefail
           bun run eyis:pack:verify
           bun run eyis:release:verify installer/artifact/eyis-release.json
-
 
       - name: Release veröffentlichen
         uses: softprops/action-gh-release@v2

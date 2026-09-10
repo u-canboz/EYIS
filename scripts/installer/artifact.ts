@@ -20,6 +20,7 @@ import { join, relative } from "node:path";
 import { gzipSync } from "node:zlib";
 
 import { anchorPath } from "./signature";
+import { parseVersion, compareVersions } from "../../src/lib/commerce/updates/versions";
 
 export const ROOT = process.cwd();
 export const ARTIFACT_DIR = join(ROOT, "installer", "artifact");
@@ -42,7 +43,6 @@ function distributionManifest(): DistManifest {
 export function installToolingFiles(): string[] {
   return distributionManifest().install_tooling ?? [];
 }
-
 
 /** Pfade, die niemals in ein Artefakt gelangen dürfen. */
 const FORBIDDEN = [
@@ -142,10 +142,18 @@ function tarHeader(path: string, size: number): Buffer {
   return header;
 }
 
-function buildTar(files: string[]): Buffer {
+function artifactContent(path: string, version: string): Buffer {
+  // Fresh installations must report the release that was actually extracted.
+  // This JSON is covered by the outer signed manifest, not the SQL/runtime digest.
+  if (path === "src/lib/eyis/installed-release.json")
+    return Buffer.from(JSON.stringify({ version, artifactSha256: null }, null, 2) + "\n");
+  return readFileSync(join(ROOT, path));
+}
+
+function buildTar(files: string[], version: string): Buffer {
   const chunks: Buffer[] = [];
   for (const file of files) {
-    const data = readFileSync(join(ROOT, file));
+    const data = artifactContent(file, version);
     chunks.push(tarHeader(file, data.length), data);
     const pad = (512 - (data.length % 512)) % 512;
     if (pad) chunks.push(Buffer.alloc(pad));
@@ -167,22 +175,39 @@ export type ArtifactResult = {
   bytes: number;
 };
 
-export function buildArtifact(version: string, opts: { write: boolean } = { write: true }): ArtifactResult {
+export function buildArtifact(
+  version: string,
+  opts: { write: boolean } = { write: true },
+): ArtifactResult {
+  const parsedVersion = parseVersion(version);
+  if (!parsedVersion) throw new Error("Ungültige Release-Version.");
+  const minFromVersion = process.env["EYIS_UPDATE_MIN_FROM_VERSION"];
+  if (
+    minFromVersion &&
+    (!parseVersion(minFromVersion) || compareVersions(minFromVersion, version) >= 0)
+  )
+    throw new Error("Die Mindestversion muss eine gültige ältere Version sein.");
   const files = artifactFiles();
   const entries = files.map((path) => {
-    const data = readFileSync(join(ROOT, path));
+    const data = artifactContent(path, version);
     return { path, bytes: data.length, sha256: sha256(data) };
   });
-  const tar = buildTar(files);
+  const tar = buildTar(files, version);
   // mtime: 0 hält das Gzip-Ergebnis deterministisch; die Option ist zur Laufzeit
   // gültig, fehlt aber in den ZlibOptions-Typen.
   const gz = gzipSync(tar, { level: 9, mtime: 0 } as unknown as { level: number });
 
   const installer = JSON.parse(
-    readFileSync(join(ROOT, "installer", "database", "eyis-database-installer.manifest.json"), "utf8"),
+    readFileSync(
+      join(ROOT, "installer", "database", "eyis-database-installer.manifest.json"),
+      "utf8",
+    ),
   ) as { version: string; schema_version: string; fresh_install: { units: unknown[] } };
   const seeds = JSON.parse(
-    readFileSync(join(ROOT, "installer", "database", "seeds", "eyis-system-seeds.manifest.json"), "utf8"),
+    readFileSync(
+      join(ROOT, "installer", "database", "seeds", "eyis-system-seeds.manifest.json"),
+      "utf8",
+    ),
   ) as { system_seed_fingerprint: string };
   const fingerprint = JSON.parse(
     readFileSync(join(ROOT, "installer", "database", "verification", "fingerprint.json"), "utf8"),
@@ -197,7 +222,13 @@ export function buildArtifact(version: string, opts: { write: boolean } = { writ
   const manifest = {
     manifest: "eyis-release",
     version,
-    channel: version.includes("-rc.") ? "prerelease" : "stable",
+    channel: parsedVersion.pre ? "prerelease" : "stable",
+    releaseId: `v${version}`,
+    minFromVersion: minFromVersion ?? "0.0.0",
+    // An automatic upgrade is opt-in after compatibility has been tested.
+    requiresManualStep: !minFromVersion || process.env["EYIS_UPDATE_MANUAL_STEP"] === "true",
+    migrations: entries.filter((f) => f.path.startsWith("supabase/migrations/")).map((f) => f.path),
+    seedVersion: 1,
     commit: process.env["GITHUB_SHA"] ?? "local",
     generated_at: process.env["EYIS_RELEASE_TIMESTAMP"] ?? "deterministic",
     pack_version: installer.version,

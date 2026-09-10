@@ -78,7 +78,8 @@ export const SEED_UNITS: SeedUnit[] = [
     sources: [
       {
         migration: "20260825080717",
-        anchor: "INSERT INTO public.product_blueprints (key, name, description, icon, version, is_system, schema, variant_schema) VALUES",
+        anchor:
+          "INSERT INTO public.product_blueprints (key, name, description, icon, version, is_system, schema, variant_schema) VALUES",
       },
     ],
     expect: [{ table: "product_blueprints", where: "is_system", min: 9 }],
@@ -109,7 +110,8 @@ export const SEED_UNITS: SeedUnit[] = [
     sources: [
       {
         migration: "20260825182452",
-        anchor: "WITH seed(key, category, name, description, subject, heading, intro, block, cta, cta_url, active) AS (VALUES",
+        anchor:
+          "WITH seed(key, category, name, description, subject, heading, intro, block, cta, cta_url, active) AS (VALUES",
       },
     ],
     expect: [
@@ -146,11 +148,13 @@ export const SEED_UNITS: SeedUnit[] = [
     sources: [
       {
         migration: "20260825143734",
-        anchor: "INSERT INTO public.tax_classes (organization_id, name, code, description, is_system) VALUES",
+        anchor:
+          "INSERT INTO public.tax_classes (organization_id, name, code, description, is_system) VALUES",
       },
       {
         migration: "20260825143734",
-        anchor: "INSERT INTO public.tax_rates (organization_id, tax_class_id, country_code, rate_basis_points, customer_type, source, metadata)",
+        anchor:
+          "INSERT INTO public.tax_rates (organization_id, tax_class_id, country_code, rate_basis_points, customer_type, source, metadata)",
       },
     ],
     expect: [
@@ -278,4 +282,15 @@ export function buildSeedManifest(version: string, generatedAt: string): SeedMan
 
 export function loadSeedManifest(): SeedManifest {
   return JSON.parse(readFileSync(SEED_MANIFEST_PATH, "utf8"));
+}
+
+/** Shared projection: both installation transports must execute every canonical seed. */
+export function databaseSeedEntries(manifest: SeedManifest) {
+  return manifest.units.map((unit) => ({
+    id: unit.id,
+    file: `seeds/${unit.file}`,
+    version: manifest.version,
+    checksum: unit.checksum,
+    idempotent: true,
+  }));
 }

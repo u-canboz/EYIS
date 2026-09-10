@@ -131,10 +131,20 @@ function StoreCheckoutPage() {
     }
   };
 
-  const pay = async (shippingMethodId: string) => {
+  const selectShipping = async (shippingMethodId: string) => {
     setBusy(true);
     try {
-      await client.checkout.setShippingOption(session.id, shippingMethodId);
+      setSession(await client.checkout.setShippingOption(session.id, shippingMethodId));
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const pay = async () => {
+    setBusy(true);
+    try {
       const validated = await client.checkout.validate(session.id);
       setSession(validated);
       const method = paymentMethods.find((m) => m.id === paymentMethodId);
@@ -203,14 +213,18 @@ function StoreCheckoutPage() {
               </div>
             ))}
           </div>
-          <Button className="h-12 w-full text-base" onClick={submitAddress} disabled={busy || !email}>
+          <Button
+            className="h-12 w-full text-base"
+            onClick={submitAddress}
+            disabled={busy || !email}
+          >
             Weiter zum Versand
           </Button>
         </section>
 
         {options.length > 0 ? (
           <section className="min-w-0 space-y-4 rounded-2xl border border-border p-5">
-            <StepHeading step={2} title="Versandart, Prüfung & Zahlung" />
+            <StepHeading step={2} title="Versand & Zahlungsart" />
             {paymentMethods.length > 0 ? (
               <fieldset className="min-w-0">
                 <legend className="text-sm font-medium">Zahlungsart</legend>
@@ -256,10 +270,12 @@ function StoreCheckoutPage() {
                   </div>
                   <Button
                     className="h-11 shrink-0"
-                    disabled={busy || paymentMethods.length === 0 || !paymentMethodId}
-                    onClick={() => pay(option.id)}
+                    variant={session.shippingOption?.id === option.id ? "default" : "outline"}
+                    aria-pressed={session.shippingOption?.id === option.id}
+                    disabled={busy}
+                    onClick={() => void selectShipping(option.id)}
                   >
-                    Auswählen & bezahlen
+                    {session.shippingOption?.id === option.id ? "Ausgewählt" : "Auswählen"}
                   </Button>
                 </li>
               ))}
@@ -267,7 +283,15 @@ function StoreCheckoutPage() {
           </section>
         ) : null}
 
-        <dl className="rounded-2xl border border-border p-5 text-sm">
+        <dl className="space-y-3 rounded-2xl border border-border p-5 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt>Versand</dt>
+            <dd>
+              {session.shippingOption
+                ? formatPrice(session.shippingOption.amountMinor, session.currencyCode)
+                : "Bitte auswählen"}
+            </dd>
+          </div>
           <div className="flex justify-between gap-4">
             <dt className="font-medium">Gesamt</dt>
             <dd className="text-base font-semibold tabular-nums">
@@ -275,6 +299,24 @@ function StoreCheckoutPage() {
             </dd>
           </div>
         </dl>
+        {options.length > 0 && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Bitte prüfe Lieferadresse, Versandart und Gesamtbetrag vor dem Abschluss.
+            </p>
+            <Button
+              className="h-12 w-full text-base"
+              onClick={() => void pay()}
+              disabled={busy || !session.shippingOption || !paymentMethodId}
+            >
+              {busy
+                ? "Wird verarbeitet …"
+                : paymentMethods.find((m) => m.id === paymentMethodId)?.environment === "test"
+                  ? "Testbestellung starten"
+                  : "Zahlungspflichtig bestellen"}
+            </Button>
+          </div>
+        )}
       </div>
     </StoreContainer>
   );

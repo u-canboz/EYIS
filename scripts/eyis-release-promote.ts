@@ -1,32 +1,18 @@
-/**
- * eyis:release:promote — Stable-Promotion nur bei identischem Digest.
- *
- * Ein Stable-Release ist keine Neuentwicklung, sondern die Freigabe eines
- * bereits geprüften Release Candidate. Deshalb wird ein Stable-Tag nur dann
- * signiert, wenn das frisch gebaute Artefakt byte-identisch zu dem im
- * Promotion-Record festgehaltenen RC ist.
- *
- * Aufrufe:
- *   promote record <version>   — RC-Digest festhalten (nach bestandenem Blackbox-Test)
- *   promote check  <version>   — Stable-Tag gegen den Record prüfen
- */
-
+/** Stable promotion compares all installed payload bytes, excluding only release envelopes. */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { promotionPayloadDigest, isSameReleaseLine } from "./installer/promotion";
+import { parseVersion } from "../src/lib/commerce/updates/versions";
 import { buildArtifact } from "./installer/artifact";
 
-const RECORD_PATH = join(
-  process.cwd(),
-  "installer",
-  "distribution",
-  "eyis-release-promotion.json",
-);
+const RECORD_PATH = join(process.cwd(), "installer", "distribution", "eyis-release-promotion.json");
 
 type Record_ = {
   manifest: "eyis-release-promotion";
   candidate: string | null;
   digest: string | null;
+  payload_digest?: string;
   blackbox: "PASS" | "OFFEN" | "FAIL";
   recorded_at: string | null;
   note: string;
@@ -58,14 +44,17 @@ if (!version) {
 }
 
 if (mode === "record") {
+  if (!parseVersion(version)?.pre?.startsWith("rc."))
+    throw new Error("Nur ein Release Candidate kann als Promotion-Kandidat erfasst werden.");
   const built = buildArtifact(version, { write: false });
   const record: Record_ = {
     manifest: "eyis-release-promotion",
     candidate: version,
     digest: built.tarballSha256,
+    payload_digest: promotionPayloadDigest(built.files),
     blackbox: (process.env["EYIS_BLACKBOX_RESULT"] as Record_["blackbox"]) ?? "OFFEN",
     recorded_at: new Date().toISOString(),
-    note: "Ein Stable-Release wird nur signiert, wenn sein Artefakt-Digest exakt diesem RC entspricht.",
+    note: "Code, Datenbank, Seeds und Trust Anchor müssen byte-identisch sein. Nur Versionsidentität, Signaturumschlag und dieser Record dürfen abweichen.",
   };
   writeFileSync(RECORD_PATH, `${JSON.stringify(record, null, 2)}\n`, "utf8");
   console.log(`Kandidat festgehalten: ${version} (${built.tarballSha256.slice(0, 16)}…)`);
@@ -74,23 +63,27 @@ if (mode === "record") {
 }
 
 const record = readRecord();
-if (version.includes("-rc.")) {
+if (parseVersion(version)?.pre) {
   console.log(`Release Candidate ${version} — keine Promotion nötig.`);
   console.log("Gesamt: PASS");
   process.exit(0);
 }
-if (!record.digest) {
+if (!record.digest || !record.payload_digest) {
   console.log("Gesamt: FAIL — kein geprüfter Release Candidate hinterlegt.");
   process.exit(1);
 }
 if (record.blackbox !== "PASS") {
-  console.log(`Gesamt: FAIL — Blackbox-Test des Kandidaten ${record.candidate} steht auf ${record.blackbox}.`);
+  console.log(
+    `Gesamt: FAIL — Blackbox-Test des Kandidaten ${record.candidate} steht auf ${record.blackbox}.`,
+  );
   process.exit(1);
 }
 const built = buildArtifact(version, { write: false });
-const identical = built.tarballSha256 === record.digest;
+const identical =
+  isSameReleaseLine(record.candidate ?? "", version) &&
+  promotionPayloadDigest(built.files) === record.payload_digest;
 console.log(`Kandidat: ${record.candidate}`);
-console.log(`Erwarteter Digest: ${record.digest}`);
-console.log(`Gebauter Digest:   ${built.tarballSha256}`);
+console.log(`Erwarteter Payload-Digest: ${record.payload_digest}`);
+console.log(`Gebauter Payload-Digest:   ${promotionPayloadDigest(built.files)}`);
 console.log(`Gesamt: ${identical ? "PASS" : "FAIL — Stable weicht vom geprüften RC ab."}`);
 process.exit(identical ? 0 : 1);

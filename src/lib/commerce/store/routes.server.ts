@@ -567,12 +567,44 @@ export const storeRoutes: RouteDef[] = [
     },
   },
   {
+    method: "POST",
+    path: "/payments/:paymentSessionId/mock-confirm",
+    profile: "payment_session",
+    handler: async (ctx) => {
+      const { resolveEnvironment, isOperationAllowed } = await import("../environment");
+      if (!isOperationAllowed(resolveEnvironment(process.env)) || ctx.key.environment !== "test")
+        throw forbidden("Testzahlungen sind in dieser Umgebung gesperrt.");
+      const { loadPaymentSession } = await import("../payments/payment.server");
+      const paymentSessionId = ctx.params["paymentSessionId"] ?? "";
+      const ps = await loadPaymentSession(paymentSessionId);
+      if (ps.organization_id !== ctx.key.organizationId || ps.shop_id !== ctx.key.shopId)
+        throw notFound();
+      await assertCheckoutOwnership(ctx, ps.checkout_session_id);
+      if (ps.provider !== "mock" || ps.environment !== "test")
+        throw forbidden("Nur für Mock-Testzahlungen verfügbar.");
+      const { mockConfirmPaymentFn } = await import("../payments/payment.functions");
+      await mockConfirmPaymentFn({ data: { paymentSessionId, token: ctx.requireCartToken() } });
+      return { status: "paid" };
+    },
+  },
+  {
     method: "GET",
     path: "/payments/:paymentSessionId/status",
     profile: "checkout",
     handler: async (ctx) => {
       const token = ctx.requireCartToken();
       const paymentSessionId = ctx.params["paymentSessionId"] ?? "";
+      const { loadPaymentSession } = await import("../payments/payment.server");
+      const ps = await loadPaymentSession(paymentSessionId);
+      if (ps.organization_id !== ctx.key.organizationId || ps.shop_id !== ctx.key.shopId)
+        throw notFound();
+      await assertCheckoutOwnership(ctx, ps.checkout_session_id);
+      const { resolveEnvironment, isOperationAllowed } = await import("../environment");
+      const testConfirmationAvailable =
+        ps.provider === "mock" &&
+        ps.environment === "test" &&
+        ctx.key.environment === "test" &&
+        isOperationAllowed(resolveEnvironment(process.env));
       const { getPaymentStatusFn } = await import("../payments/payment.functions");
       const status = (await getPaymentStatusFn({ data: { paymentSessionId, token } }).catch(() => {
         throw forbidden("Zahlungsstatus nicht zugänglich.");
@@ -587,7 +619,12 @@ export const storeRoutes: RouteDef[] = [
         confirmationToken = minted.token;
         confirmationExpiresAt = minted.expiresAt;
       }
-      return { status: status.status, confirmationToken, confirmationExpiresAt };
+      return {
+        status: status.status,
+        confirmationToken,
+        confirmationExpiresAt,
+        testConfirmationAvailable,
+      };
     },
   },
   {

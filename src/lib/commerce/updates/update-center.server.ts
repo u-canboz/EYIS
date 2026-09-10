@@ -1,3 +1,4 @@
+import { STORE_SDK_VERSION } from "../../store-sdk/config";
 /**
  * Update Center — Orchestrierung (server-only).
  *
@@ -10,9 +11,10 @@
  * Es gibt keinen Schritt, der ohne echten Nachweis auf "passed" geht.
  */
 import { getAdmin } from "../core.server";
-import { getInstallation, runDoctor } from "../system/installation.server";
+import { runDoctor } from "../system/installation.server";
 import { resolveDeploymentMode, resolveEnvironment } from "../environment";
 import {
+  cancelWorkflowRun,
   dispatchRepositoryEvent,
   findWorkflowRun,
   getWorkflowJobs,
@@ -34,7 +36,15 @@ import {
   type UpdateStep,
   type UpdateStepStatus,
 } from "./types";
-import { isAutoUpdateAllowed, selectCandidate, upgradeType } from "./versions";
+import {
+  compareVersions,
+  isAutoUpdateAllowed,
+  isNewer,
+  selectCandidate,
+  upgradeType,
+} from "./versions";
+
+import { missingWorkflowEvidence } from "./workflow-evidence";
 
 type Row = Record<string, unknown>;
 
@@ -44,8 +54,45 @@ const str = (v: unknown) => (v == null ? null : String(v));
 // Installation / Zustand
 // ---------------------------------------------------------------------------
 
+/** Permissions in a tenant never grant control over another installation. */
+export async function assertInstallationOrganization(organizationId: string) {
+  if (resolveDeploymentMode() !== "dedicated")
+    throw new UpdateError(
+      "DEDICATED_REQUIRED",
+      "Updates werden vom Betreiber der Dedicated-Installation verwaltet.",
+    );
+  const admin = await getAdmin();
+  const { data, error } = await admin
+    .from("commerce_installation")
+    .select("installation_id")
+    .eq("singleton", true)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (error || !data)
+    throw new UpdateError(
+      "INSTALLATION_ACCESS_DENIED",
+      "Diese Organisation verwaltet die Installation nicht.",
+    );
+}
+
 async function requireInstallation() {
-  const row = (await getInstallation()) as Row | null;
+  // The general installation reader deliberately projects bootstrap columns only.
+  // Update state must be loaded explicitly; otherwise available_release and the
+  // selected channel disappear on every request.
+  const admin = await getAdmin();
+  const { data, error } = await admin
+    .from("commerce_installation")
+    .select(
+      "installation_id, core_version, update_channel, auto_update_policy, maintenance_state, last_update_check_at, last_successful_update_at, available_release, update_config",
+    )
+    .eq("singleton", true)
+    .maybeSingle();
+  if (error)
+    throw new UpdateError(
+      "INSTALLATION_READ_FAILED",
+      "Installationsstatus konnte nicht geladen werden.",
+    );
+  const row = data as Row | null;
   if (!row) {
     throw new UpdateError("INSTALLATION_NOT_FOUND", "Keine Installation registriert.");
   }
@@ -67,6 +114,7 @@ export type UpdateOverview = {
   activeRun: UpdateRunView | null;
   history: UpdateRunView[];
   ownership: { eyis: string[]; customer: string[] };
+  rejectedReleases: Array<{ tag: string; reason: string }>;
 };
 
 function mapRun(run: Row, steps: Row[]): UpdateRunView {
@@ -113,10 +161,18 @@ async function loadRuns(limit = 10): Promise<UpdateRunView[]> {
   if (error) throw new Error(error.message);
   const rows = (runs ?? []) as unknown as Row[];
   if (rows.length === 0) return [];
-  const { data: steps } = await admin
+  const { data: steps, error: stepsError } = await admin
     .from("update_run_steps")
     .select("*")
-    .in("update_run_id", rows.map((r) => String(r["id"])));
+    .in(
+      "update_run_id",
+      rows.map((r) => String(r["id"])),
+    );
+  if (stepsError)
+    throw new UpdateError(
+      "UPDATE_STEPS_READ_FAILED",
+      "Update-Schritte konnten nicht geladen werden.",
+    );
   const stepRows = (steps ?? []) as unknown as Row[];
   return rows.map((r) => mapRun(r, stepRows));
 }
@@ -149,6 +205,11 @@ export async function getUpdateOverview(): Promise<UpdateOverview> {
     blockedByChain: str((installation["update_config"] as Row | null)?.["blocked_by_chain"]),
     activeRun,
     history: history.filter((r) => !activeRun || r.id !== activeRun.id),
+    rejectedReleases:
+      ((installation["update_config"] as Row | null)?.["rejected_releases"] as Array<{
+        tag: string;
+        reason: string;
+      }>) ?? [],
     ownership: { eyis: EYIS_OWNED_PATHS, customer: CUSTOMER_OWNED_PATHS },
   };
 }
@@ -171,15 +232,24 @@ export async function checkForUpdates(): Promise<{
 
   const admin = await getAdmin();
   const config = (installation["update_config"] as Row | null) ?? {};
-  await admin
+  const { error: saveError } = await admin
     .from("commerce_installation")
     .update({
       last_update_check_at: new Date().toISOString(),
       available_release: candidate ?? null,
-      update_config: { ...config, blocked_by_chain: blockedBy?.version ?? null },
+      update_config: {
+        ...config,
+        blocked_by_chain: blockedBy?.version ?? null,
+        rejected_releases: rejected,
+      },
     } as never)
     .eq("singleton", true);
 
+  if (saveError)
+    throw new UpdateError(
+      "UPDATE_CHECK_SAVE_FAILED",
+      "Release-Prüfung konnte nicht gespeichert werden.",
+    );
   return {
     available: candidate,
     blockedByChain: blockedBy?.version ?? null,
@@ -222,8 +292,20 @@ export async function runPreflight(release: ReleaseManifest): Promise<{
 
   checks.push({
     check: "Versionskette",
-    status: release.minFromVersion && upgradeTypeSafe(installedVersion, release.version) ? "PASS" : "FAIL",
+    status:
+      isNewer(release.version, installedVersion) &&
+      compareVersions(installedVersion, release.minFromVersion) >= 0
+        ? "PASS"
+        : "FAIL",
     detail: `${installedVersion} → ${release.version} (${upgradeTypeSafe(installedVersion, release.version) ?? "ungültig"})`,
+  });
+
+  checks.push({
+    check: "Manuelle Release-Schritte",
+    status: release.requiresManualStep ? "BLOCKED" : "PASS",
+    detail: release.requiresManualStep
+      ? "Dieses Release erfordert einen betreuten Update-Ablauf."
+      : "Keine manuellen Schritte erforderlich.",
   });
 
   checks.push({
@@ -251,6 +333,13 @@ export async function runPreflight(release: ReleaseManifest): Promise<{
     check: "Release-Signatur",
     status: capabilities.registry.status === "SUPPORTED" ? "PASS" : "BLOCKED",
     detail: capabilities.registry.detail,
+  });
+
+  const backup = await verifyBackup();
+  checks.push({
+    check: "Backup-Nachweis",
+    status: backup.ok ? "PASS" : "BLOCKED",
+    detail: backup.detail,
   });
 
   // Aktive Läufe
@@ -312,14 +401,24 @@ async function setStep(
   if (status === "passed" || status === "failed" || status === "blocked") {
     patch["completed_at"] = new Date().toISOString();
   }
-  await admin
+  const { error } = await admin
     .from("update_run_steps")
     .update(patch as never)
     .eq("update_run_id", runId)
     .eq("step", step);
+  if (error)
+    throw new UpdateError(
+      "UPDATE_STEP_SAVE_FAILED",
+      "Update-Schritt konnte nicht gespeichert werden.",
+    );
 }
 
-async function setRunStatus(runId: string, from: UpdateRunStatus, to: UpdateRunStatus, patch: Row = {}) {
+async function setRunStatus(
+  runId: string,
+  from: UpdateRunStatus,
+  to: UpdateRunStatus,
+  patch: Row = {},
+) {
   if (!canTransition(from, to)) {
     throw new UpdateError("INVALID_TRANSITION", `Übergang ${from} → ${to} ist nicht erlaubt.`);
   }
@@ -333,10 +432,15 @@ async function setRunStatus(runId: string, from: UpdateRunStatus, to: UpdateRunS
 
 async function setMaintenance(state: "off" | "updating" | "manual") {
   const admin = await getAdmin();
-  await admin
+  const { error } = await admin
     .from("commerce_installation")
     .update({ maintenance_state: state } as never)
     .eq("singleton", true);
+  if (error)
+    throw new UpdateError(
+      "MAINTENANCE_SAVE_FAILED",
+      "Wartungsstatus konnte nicht gespeichert werden.",
+    );
 }
 
 export async function startUpdate(input: {
@@ -347,7 +451,7 @@ export async function startUpdate(input: {
 }): Promise<UpdateRunView> {
   const installation = await requireInstallation();
   const installedVersion = String(installation["core_version"] ?? "0.0.0");
-  const available = installation["available_release"] as ReleaseManifest | null;
+  let available = installation["available_release"] as ReleaseManifest | null;
   if (!available || available.releaseId !== input.releaseId) {
     throw new UpdateError(
       "RELEASE_NOT_AVAILABLE",
@@ -355,6 +459,27 @@ export async function startUpdate(input: {
     );
   }
 
+  // Recheck the registry at install time: cached availability must not bypass
+  // a withdrawn release, changed channel or a revoked signing key.
+  const { releases } = await fetchSignedReleases();
+  const selected = selectCandidate(
+    releases,
+    installedVersion,
+    String(installation["update_channel"] ?? "stable") as UpdateChannel,
+  ).candidate;
+  if (!selected || selected.releaseId !== available.releaseId)
+    throw new UpdateError(
+      "RELEASE_NOT_AVAILABLE",
+      "Release ist nicht mehr installierbar. Bitte erneut prüfen.",
+    );
+  available = selected;
+  if (!available.manifestUrl || !available.signatureUrl)
+    throw new UpdateError("RELEASE_ASSETS_MISSING", "Manifest- oder Signatur-Download fehlt.");
+  if (installation["maintenance_state"] !== "off")
+    throw new UpdateError(
+      "MAINTENANCE_ACTIVE",
+      "Die Installation befindet sich bereits im Wartungsmodus.",
+    );
   const preflight = await runPreflight(available);
   const config = loadUpdateConfig();
   const admin = await getAdmin();
@@ -433,8 +558,8 @@ export async function startUpdate(input: {
 
   // Code + Deployment: echter repository_dispatch ins Kunden-Repository
   await setStep(runId, "code", "running");
-  const auth = await resolveGithubAuth();
   try {
+    const auth = await resolveGithubAuth();
     await dispatchRepositoryEvent(
       config.customerRepo,
       config.eventType,
@@ -443,6 +568,8 @@ export async function startUpdate(input: {
         release_id: available.releaseId,
         version: available.version,
         artifact_url: available.artifact.url,
+        manifest_url: available.manifestUrl,
+        signature_url: available.signatureUrl,
         artifact_sha256: available.artifact.sha256,
         apply_migrations: schemaChanging,
         eyis_owned_paths: EYIS_OWNED_PATHS,
@@ -450,11 +577,20 @@ export async function startUpdate(input: {
       auth.token,
     );
   } catch (e) {
-    await setStep(runId, "code", "failed", e instanceof Error ? e.message : "Dispatch fehlgeschlagen.", "DISPATCH_FAILED");
-    await setMaintenance("off");
+    await setStep(
+      runId,
+      "code",
+      "failed",
+      e instanceof Error ? e.message : "Dispatch fehlgeschlagen.",
+      "DISPATCH_FAILED",
+    );
+    // A network timeout can happen after GitHub accepted the dispatch.
+    // Keep writes paused until an operator has reconciled the actual run.
+    await setMaintenance("manual");
     await setRunStatus(runId, "maintenance", "failed", {
       error_code: "DISPATCH_FAILED",
-      safe_error_message: "Update-Workflow konnte im Repository nicht gestartet werden.",
+      safe_error_message:
+        "Workflow-Start konnte nicht bestätigt werden. GitHub-Läufe vor Freigabe der Wartung prüfen.",
       completed_at: new Date().toISOString(),
     });
     return (await getRun(runId))!;
@@ -490,7 +626,10 @@ export async function getRun(runId: string): Promise<UpdateRunView | null> {
   const admin = await getAdmin();
   const { data: run } = await admin.from("update_runs").select("*").eq("id", runId).maybeSingle();
   if (!run) return null;
-  const { data: steps } = await admin.from("update_run_steps").select("*").eq("update_run_id", runId);
+  const { data: steps } = await admin
+    .from("update_run_steps")
+    .select("*")
+    .eq("update_run_id", runId);
   return mapRun(run as unknown as Row, (steps ?? []) as unknown as Row[]);
 }
 
@@ -514,7 +653,7 @@ export async function pollUpdate(runId: string): Promise<UpdateRunView | null> {
     const admin = await getAdmin();
     await admin
       .from("update_runs")
-      .update({ deployment_reference: String(found.id), metadata: { workflow_url: found.htmlUrl } } as never)
+      .update({ deployment_reference: String(found.id) } as never)
       .eq("id", runId);
   }
 
@@ -522,38 +661,46 @@ export async function pollUpdate(runId: string): Promise<UpdateRunView | null> {
   if (!wf) return current;
   const jobs = await getWorkflowJobs(config.customerRepo, workflowRunId, auth.token);
 
-  const jobState = (needle: string) =>
-    jobs.find((j) => j.name.toLowerCase().includes(needle))?.conclusion ?? null;
+  const jobState = (needle: string) => jobs.find((j) => j.name === needle)?.conclusion ?? null;
 
   // Schritte anhand echter Job-Ergebnisse fortschreiben
   const codeConclusion = jobState("code");
-  if (codeConclusion === "success") await setStep(runId, "code", "passed", "EYIS-Dateien ersetzt, Tests grün.");
-  if (codeConclusion === "failure") await setStep(runId, "code", "failed", "Code-Job fehlgeschlagen.", "CODE_FAILED");
+  if (codeConclusion === "success")
+    await setStep(runId, "code", "passed", "EYIS-Dateien ersetzt, Tests grün.");
+  if (codeConclusion === "failure")
+    await setStep(runId, "code", "failed", "Code-Job fehlgeschlagen.", "CODE_FAILED");
 
   const dbConclusion = jobState("database");
-  if (dbConclusion === "success") await setStep(runId, "database", "passed", "Migrationen angewendet.");
-  if (dbConclusion === "failure") await setStep(runId, "database", "failed", "Migrationsjob fehlgeschlagen.", "MIGRATION_FAILED");
+  if (dbConclusion === "success")
+    await setStep(runId, "database", "passed", "Migrationen angewendet.");
+  if (dbConclusion === "failure")
+    await setStep(runId, "database", "failed", "Migrationsjob fehlgeschlagen.", "MIGRATION_FAILED");
 
   const deployConclusion = jobState("deploy");
-  if (deployConclusion === "success") await setStep(runId, "deployment", "passed", "Production-Build veröffentlicht.");
-  if (deployConclusion === "failure") await setStep(runId, "deployment", "failed", "Deployment fehlgeschlagen.", "DEPLOY_FAILED");
+  if (deployConclusion === "success")
+    await setStep(runId, "deployment", "passed", "Production-Build veröffentlicht.");
+  if (deployConclusion === "failure")
+    await setStep(runId, "deployment", "failed", "Deployment fehlgeschlagen.", "DEPLOY_FAILED");
 
   if (wf.status !== "completed") {
     const step: UpdateStep = dbConclusion ? "deployment" : codeConclusion ? "database" : "code";
     const admin = await getAdmin();
-    await admin.from("update_runs").update({ current_step: step } as never).eq("id", runId);
+    await admin
+      .from("update_runs")
+      .update({ current_step: step } as never)
+      .eq("id", runId);
     return await getRun(runId);
   }
 
   if (wf.conclusion !== "success") {
-    await setMaintenance("off");
+    await setMaintenance("manual");
     const admin = await getAdmin();
     await admin
       .from("update_runs")
       .update({
         status: "failed",
         error_code: "WORKFLOW_FAILED",
-        safe_error_message: `Update-Workflow endete mit "${wf.conclusion}". Der bisherige Stand bleibt aktiv.`,
+        safe_error_message: `Update-Workflow endete mit "${wf.conclusion}". Code-, Datenbank- und Deployment-Stand vor Freigabe prüfen.`,
         completed_at: new Date().toISOString(),
         rollback_status: "not_supported",
       } as never)
@@ -562,14 +709,39 @@ export async function pollUpdate(runId: string): Promise<UpdateRunView | null> {
     return await getRun(runId);
   }
 
+  const missing = missingWorkflowEvidence(
+    jobs,
+    current.steps.find((s) => s.step === "database")?.status !== "skipped",
+  );
+  if (missing.length) {
+    const admin = await getAdmin();
+    await admin
+      .from("update_runs")
+      .update({
+        status: "manual_attention",
+        error_code: "WORKFLOW_EVIDENCE_MISSING",
+        safe_error_message: `Nachweise fehlen: ${missing.join(", ")}`,
+        completed_at: new Date().toISOString(),
+      } as never)
+      .eq("id", runId);
+    await setMaintenance("manual");
+    return getRun(runId);
+  }
+
   // Doctor: echter Systemcheck nach dem Update
   await setStep(runId, "doctor", "running");
   const doctor = await runDoctor();
-  const failing = doctor.filter((d) => d.status === "FAIL");
+  const failing = doctor.filter((d) => d.status !== "PASS");
   const admin = await getAdmin();
 
   if (failing.length > 0) {
-    await setStep(runId, "doctor", "failed", failing.map((f) => f.check).join(", "), "DOCTOR_FAILED");
+    await setStep(
+      runId,
+      "doctor",
+      "failed",
+      failing.map((f) => f.check).join(", "),
+      "DOCTOR_FAILED",
+    );
     await admin
       .from("update_runs")
       .update({
@@ -584,7 +756,22 @@ export async function pollUpdate(runId: string): Promise<UpdateRunView | null> {
   }
 
   await setStep(runId, "doctor", "passed", `${doctor.length} Systemprüfungen bestanden.`);
-  await admin
+  const { error: installationError } = await admin
+    .from("commerce_installation")
+    .update({
+      core_version: current.toVersion,
+      sdk_version: STORE_SDK_VERSION,
+      installed_release_id: current.releaseId,
+      last_successful_update_at: new Date().toISOString(),
+      available_release: null,
+    } as never)
+    .eq("singleton", true);
+  if (installationError)
+    throw new UpdateError(
+      "UPDATE_FINALIZE_FAILED",
+      "Release-Identität konnte nicht gespeichert werden. Wartung bleibt aktiv.",
+    );
+  const { error: completionError } = await admin
     .from("update_runs")
     .update({
       status: "completed",
@@ -592,39 +779,61 @@ export async function pollUpdate(runId: string): Promise<UpdateRunView | null> {
       completed_at: new Date().toISOString(),
     } as never)
     .eq("id", runId);
-  await admin
-    .from("commerce_installation")
-    .update({
-      core_version: current.toVersion,
-      installed_release_id: current.releaseId,
-      last_successful_update_at: new Date().toISOString(),
-      maintenance_state: "off",
-      available_release: null,
-    } as never)
-    .eq("singleton", true);
+  if (completionError)
+    throw new UpdateError(
+      "UPDATE_FINALIZE_FAILED",
+      "Update-Ergebnis konnte nicht gespeichert werden. Wartung bleibt aktiv.",
+    );
+  await setMaintenance("off");
   return await getRun(runId);
 }
 
 /** Manuelles Beenden eines hängenden Laufs (nur Owner/Administrator). */
 export async function abandonRun(runId: string, reason: string): Promise<UpdateRunView | null> {
-  const admin = await getAdmin();
-  await admin
-    .from("update_runs")
-    .update({
-      status: "manual_attention",
-      error_code: "MANUAL_ABANDON",
-      safe_error_message: reason.slice(0, 200),
-      completed_at: new Date().toISOString(),
-    } as never)
-    .eq("id", runId);
-  await setMaintenance("off");
-  return getRun(runId);
+  const current = await getRun(runId);
+  if (!current || !ACTIVE_RUN_STATUSES.includes(current.status)) return current;
+  const config = loadUpdateConfig();
+  const auth = await resolveGithubAuth();
+  const workflow = current.deploymentReference
+    ? await getWorkflowRun(config.customerRepo, Number(current.deploymentReference), auth.token)
+    : await findWorkflowRun(config.customerRepo, runId, auth.token, current.startedAt);
+  if (workflow && workflow.status !== "completed") {
+    await cancelWorkflowRun(config.customerRepo, workflow.id, auth.token);
+    // Keep the installation locked until GitHub confirms cancellation.
+    return getRun(runId);
+  }
+  if (workflow) return pollUpdate(runId);
+  throw new UpdateError(
+    "CANCELLATION_UNCONFIRMED",
+    "Der Workflow ist noch nicht nachweisbar. Der Update-Lauf bleibt gesperrt; bitte erneut prüfen.",
+  );
 }
 
 export async function setUpdateChannel(channel: UpdateChannel, policy?: string) {
   const admin = await getAdmin();
-  const patch: Row = { update_channel: channel };
+  const installation = await requireInstallation();
+  const runs = await loadRuns(5);
+  if (runs.some((r) => ACTIVE_RUN_STATUSES.includes(r.status)))
+    throw new UpdateError(
+      "UPDATE_ALREADY_RUNNING",
+      "Kanal kann während eines Updates nicht gewechselt werden.",
+    );
+  const patch: Row = {
+    update_channel: channel,
+    last_update_check_at: null,
+    update_config: {
+      ...((installation["update_config"] as Row) ?? {}),
+      blocked_by_chain: null,
+      rejected_releases: [],
+    },
+  };
+  if (policy && policy !== "manual")
+    throw new UpdateError(
+      "AUTO_UPDATE_UNAVAILABLE",
+      "Zeitgesteuerte Updates sind noch nicht eingerichtet. Bitte manuell aktualisieren.",
+    );
   if (policy) patch["auto_update_policy"] = policy;
+  patch["available_release"] = null;
   const { error } = await admin
     .from("commerce_installation")
     .update(patch as never)

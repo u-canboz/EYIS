@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "EYIS — Public Store API",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts durch scripts/manifest/generate.ts. Provenienz: docs/agent/store-api-v1.json."
   },
   "servers": [
@@ -685,6 +685,37 @@
           },
           "402": {
             "description": "PAYMENT_FAILED — Zahlung wurde abgelehnt."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/payments/:paymentSessionId/mock-confirm": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Mock-Testzahlung bestätigen. Nur Development/Staging, Test-Key und eigene Zahlungssitzung.",
+        "description": "Auth: cart · Rate-Profil: payment_session · SDK: `await client.payments.confirmTest(paymentSessionId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ status: paid }"
+          },
+          "400": {
+            "description": "MAINTENANCE — "
+          },
+          "401": {
+            "description": "UNAUTHORIZED — Key fehlt/ungültig oder Zugriffsnachweis fehlt."
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
           },
           "404": {
             "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."

@@ -32,7 +32,10 @@ type ResourceManifest = {
 };
 
 const manifest = JSON.parse(
-  readFileSync(join(process.cwd(), "installer", "resources", "eyis-resources.manifest.json"), "utf8"),
+  readFileSync(
+    join(process.cwd(), "installer", "resources", "eyis-resources.manifest.json"),
+    "utf8",
+  ),
 ) as ResourceManifest;
 
 const provision = process.argv[2] === "provision";
@@ -52,6 +55,46 @@ function sanitize(e: unknown): string {
 
 type Row = { check: string; status: "PASS" | "FAIL" | "FIXED" | "BLOCKED"; detail: string };
 const rows: Row[] = [];
+
+// --- Cron-Zeitpläne --------------------------------------------------------
+/**
+ * Vollständige, idempotente Registrierung der Job-Zeitpläne über pg_cron + pg_net.
+ * Das Secret steht nie im Klartext in der SQL: es wird zur Laufzeit aus
+ * `app.settings.cron_secret` gelesen, das beim Setup gesetzt wird.
+ */
+function cronSql(base: string): string {
+  const lines = manifest.jobs.map(
+    (job) => `select cron.schedule(
+  '${job.cron_job_name}',
+  '${job.schedule}',
+  $job$
+    select net.http_post(
+      url := '${(base + job.endpoint).replaceAll("'", "''")}',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        '${job.secret_header.split(":")[0]!.trim()}', '${job.secret_header.includes(":") ? job.secret_header.split(":").slice(1).join(":").trim() + " " : ""}' || current_setting('app.settings.cron_secret', true)
+      ),
+      body := '{}'::jsonb,
+      timeout_milliseconds := ${job.timeout_seconds * 1000}
+    );
+  $job$
+);`,
+  );
+  return [
+    "create extension if not exists pg_cron;",
+    "create extension if not exists pg_net;",
+    ...manifest.jobs.map(
+      (j) =>
+        `select cron.unschedule('${j.cron_job_name}') where exists (select 1 from cron.job where jobname = '${j.cron_job_name}');`,
+    ),
+    ...lines,
+  ].join("\n\n");
+}
+
+if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
+  console.log(cronSql(baseUrl));
+  process.exit(0);
+}
 
 // --- Storage ---------------------------------------------------------------
 const url = process.env["VITE_SUPABASE_URL"];
@@ -122,46 +165,11 @@ for (const job of manifest.jobs) {
   }
 }
 
-// --- Cron-Zeitpläne --------------------------------------------------------
-/**
- * Vollständige, idempotente Registrierung der Job-Zeitpläne über pg_cron + pg_net.
- * Das Secret steht nie im Klartext in der SQL: es wird zur Laufzeit aus
- * `app.settings.cron_secret` gelesen, das beim Setup gesetzt wird.
- */
-function cronSql(base: string): string {
-  const lines = manifest.jobs.map(
-    (job) => `select cron.schedule(
-  '${job.cron_job_name}',
-  '${job.schedule}',
-  $job$
-    select net.http_post(
-      url := '${base}${job.endpoint}',
-      headers := jsonb_build_object(
-        'Content-Type', 'application/json',
-        '${job.secret_header}', current_setting('app.settings.cron_secret', true)
-      ),
-      body := '{}'::jsonb,
-      timeout_milliseconds := ${job.timeout_seconds * 1000}
-    );
-  $job$
-);`,
-  );
-  return [
-    "create extension if not exists pg_cron;",
-    "create extension if not exists pg_net;",
-    ...manifest.jobs.map((j) => `select cron.unschedule('${j.cron_job_name}') where exists (select 1 from cron.job where jobname = '${j.cron_job_name}');`),
-    ...lines,
-  ].join("\n\n");
-}
-
-if (process.argv.includes("--print-cron") || process.argv[2] === "cron") {
-  console.log(cronSql(baseUrl));
-  process.exit(0);
-}
-
 {
   const dbUrl =
-      process.env["SUPABASE_DB_URL"] ?? process.env["DATABASE_URL"] ?? (process.env["PGHOST"] ? "" : undefined);
+    process.env["SUPABASE_DB_URL"] ??
+    process.env["DATABASE_URL"] ??
+    (process.env["PGHOST"] ? "" : undefined);
   if (dbUrl === undefined) {
     rows.push({
       check: "Cron-Zeitpläne",
@@ -224,5 +232,9 @@ for (const r of rows) console.log(`  ${r.status.padEnd(8)} ${r.check} — ${r.de
 console.log("=".repeat(72));
 const failed = rows.filter((r) => r.status === "FAIL").length;
 const blocked = rows.filter((r) => r.status === "BLOCKED").length;
-console.log(failed === 0 ? `Ergebnis: PASS${blocked ? ` (${blocked} BLOCKED)` : ""}` : `Ergebnis: FAIL (${failed})`);
+console.log(
+  failed === 0
+    ? `Ergebnis: PASS${blocked ? ` (${blocked} BLOCKED)` : ""}`
+    : `Ergebnis: FAIL (${failed})`,
+);
 process.exit(failed === 0 ? 0 : 1);

@@ -96,3 +96,20 @@ Absicherung der Umgebungsauflösung:
 | Getrennte Instanzen für Staging und Production | manuelle Betreiberaufgabe | BLOCKED |
 
 Bericht: `qa/PHASE19-STAGING-SETUP-REPORT.md`. Einrichtung: `docs/production/STAGING_SETUP_RUNBOOK.md`.
+
+
+## Zusätzlicher lokaler Nachweis — 2026-09-10
+
+Für die Finalisierung wurde eine separate lokale Supabase-Instanz in einer Docker-VM eingerichtet:
+App ausschließlich `127.0.0.1:8080`, Supabase API `127.0.0.1:54321`, `APP_ENV=development` und
+Dedicated-Modus. Frischer offizieller Installationsplan: 55 Schritte erfolgreich angewendet.
+GoTrue-Owner-Anmeldung, Owner-Claim, Storage-Buckets laut aktuellem Resource-Manifest und
+synthetische Käufe über die HTTP Store API wurden lokal geprüft. `qa:local` dokumentiert den Ablauf.
+Die historischen Cloud-Angaben oben wurden dabei nicht erneut verifiziert. Getrenntes Cloud-Staging,
+Production, HTTPS und echte Provider bleiben eigene Abnahmen.
+
+Beim abschließenden Doctor wurden drei fehlende Seed-Ausführungsschritte identifiziert und
+idempotent nachgeholt (9 Blueprints, 23 globale Mailvorlagen, 7 globale Steuerklassen).
+Der korrigierte Plan umfasst 58 Schritte. Vier lokale pg_cron/pg_net-Jobs wurden tatsächlich
+mit HTTP 200 ausgeführt und danach auf die Manifest-Zeitpläne zurückgestellt. Während des
+parallelen Builds gab es je einen Job-Start-Timeout; spätere Läufe aller vier Jobs waren erfolgreich.

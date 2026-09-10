@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCommerce } from "@/lib/store-sdk/react/provider";
-import type { StoreOrder } from "@/lib/store-sdk";
+import { usePaymentConfirmation } from "@/lib/store-sdk/react/use-payment-confirmation";
 import { ErrorState, Skeleton } from "@/components/store/StateBlocks";
 import { formatDate, formatMoney } from "@/lib/storefront/money";
 
@@ -19,31 +17,7 @@ export const Route = createFileRoute("/checkout/bestaetigung")({
 });
 
 function ConfirmationPage() {
-  const client = useCommerce();
-  const [order, setOrder] = useState<StoreOrder | null>(null);
-  const [error, setError] = useState<unknown>(null);
-  const redeemed = useRef(false);
-
-  useEffect(() => {
-    if (redeemed.current) return;
-    redeemed.current = true;
-
-    const url = new URL(window.location.href);
-    const token = url.searchParams.get("token");
-    // Der Token wird genau einmal eingelöst und danach aus der Adresse entfernt.
-    url.searchParams.delete("token");
-    window.history.replaceState({}, "", url.pathname + (url.search || ""));
-
-    if (!token) {
-      setError(new Error("Für diese Seite fehlt der Bestätigungslink."));
-      return;
-    }
-
-    client.orders
-      .redeemConfirmation(token)
-      .then(setOrder)
-      .catch(setError);
-  }, [client]);
+  const { order, error, testAvailable, confirming, confirmTest } = usePaymentConfirmation();
 
   if (error) {
     return (
@@ -61,8 +35,24 @@ function ConfirmationPage() {
   if (!order) {
     return (
       <div className="mx-auto max-w-2xl space-y-4 px-5 py-24">
-        <Skeleton className="h-8 w-56" />
-        <Skeleton className="h-40 w-full" />
+        {testAvailable ? (
+          <div className="rounded-xl border border-border p-6">
+            <h1 className="text-2xl">Testzahlung</h1>
+            <p className="mt-3 text-muted-foreground">Es wird kein Geld abgebucht.</p>
+            <button
+              onClick={() => void confirmTest()}
+              disabled={confirming}
+              className="mt-6 bg-primary px-6 py-3 text-primary-foreground disabled:opacity-50"
+            >
+              {confirming ? "Wird bestätigt …" : "Testzahlung bestätigen"}
+            </button>
+          </div>
+        ) : (
+          <div role="status" aria-label="Zahlung wird geprüft" className="space-y-4">
+            <Skeleton className="h-8 w-56" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        )}
       </div>
     );
   }
@@ -72,7 +62,7 @@ function ConfirmationPage() {
       <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Vielen Dank</p>
       <h1 className="mt-4 text-3xl sm:text-4xl">Bestellung {order.orderNumber} ist eingegangen</h1>
       <p className="mt-4 text-muted-foreground">
-        Wir haben dir eine Bestätigung per E-Mail geschickt. Bestelldatum: {formatDate(order.placedAt)}.
+        Deine Bestellung wurde gespeichert. Bestelldatum: {formatDate(order.placedAt)}.
       </p>
 
       <ul className="mt-10 divide-y divide-border border-y border-border text-sm">
@@ -84,7 +74,9 @@ function ConfirmationPage() {
                 <span className="block text-xs text-muted-foreground">{item.variantTitle}</span>
               ) : null}
             </span>
-            <span className="tabular-nums">{formatMoney(item.lineTotalMinor, order.currencyCode)}</span>
+            <span className="tabular-nums">
+              {formatMoney(item.lineTotalMinor, order.currencyCode)}
+            </span>
           </li>
         ))}
       </ul>

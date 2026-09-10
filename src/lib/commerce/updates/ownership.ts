@@ -49,8 +49,6 @@ export const EYIS_OWNED_PATHS: string[] = [
 
   "docs/agent/**",
   "commerce-os.manifest.json",
-  "package.json",
-  "bun.lockb",
   ".github/workflows/eyis-update.yml",
 ];
 
@@ -59,10 +57,7 @@ export const EYIS_OWNED_PATHS: string[] = [
  * Ein Update darf sie NICHT ersetzen — es prüft nur, ob der Eingriff noch
  * vorhanden ist, und meldet ihn andernfalls als offenen Schritt.
  */
-export const INTEGRATION_PATCH_PATHS: string[] = [
-  "src/routes/__root.tsx",
-  "src/styles.css",
-];
+export const INTEGRATION_PATCH_PATHS: string[] = ["src/routes/__root.tsx", "src/styles.css"];
 
 /**
  * Plattformgenerierte Dateien. EYIS liefert sie NICHT aus und überschreibt sie
@@ -110,6 +105,9 @@ export const REFERENCE_ONLY_PATHS: string[] = [
 
 /** Pfade, die dem Kunden gehören und niemals überschrieben werden. */
 export const CUSTOMER_OWNED_PATHS: string[] = [
+  "package.json",
+  "bun.lock",
+  "bun.lockb",
   "src/routes/store/**",
   "src/theme/**",
   "src/content/**",
@@ -197,4 +195,3 @@ export function partitionPaths(paths: string[]) {
     unmanaged,
   };
 }
-

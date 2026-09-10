@@ -8,8 +8,9 @@
 import { listReleases, downloadAssetText, resolveGithubAuth } from "./github.server";
 import { verifyManifestSignature, verifyReleaseManifest } from "./signature";
 import { activeTrustKeys, matchesActiveAnchorKey } from "./trust-anchor";
-import { UpdateError, type ReleaseManifest, type UpdateChannel } from "./types";
+import { UpdateError, type ReleaseManifest } from "./types";
 import { loadUpdateConfig, type UpdateConfig } from "./providers.server";
+import { parseSignedManifest } from "./release-manifest";
 import { resolveInstallCandidate, type ReleaseResolution } from "./versions";
 
 const MANIFEST_ASSET = "eyis-release.json";
@@ -35,12 +36,14 @@ function manifestKeyId(manifestRaw: string): string | null {
  * (Dev/Test) gesetzt ist. Ein unbekannter Override in Production ist ein
  * harter Fehler — niemals stiller Fallback.
  */
-function keyStrategy(config: UpdateConfig): { mode: "anchor" } | { mode: "override"; rawKey: string } {
+function keyStrategy(
+  config: UpdateConfig,
+): { mode: "anchor" } | { mode: "override"; rawKey: string } {
   const override = config.releasePublicKey;
   if (override) {
     if (matchesActiveAnchorKey(override)) return { mode: "override", rawKey: override };
     const environment = (process.env["APP_ENV"] ?? "").toLowerCase();
-    if (environment === "production") {
+    if (environment !== "development" && environment !== "staging") {
       throw new UpdateError(
         "REGISTRY_KEY_UNTRUSTED",
         "EYIS_RELEASE_PUBLIC_KEY entspricht keinem aktiven Schlüssel des EYIS Trust Anchor — Override in Production abgelehnt.",
@@ -56,45 +59,6 @@ function keyStrategy(config: UpdateConfig): { mode: "anchor" } | { mode: "overri
     );
   }
   return { mode: "anchor" };
-}
-
-function parseManifest(raw: string): ReleaseManifest {
-  const data = JSON.parse(raw) as Partial<ReleaseManifest>;
-  const required: Array<keyof ReleaseManifest> = [
-    "releaseId",
-    "version",
-    "channel",
-    "publishedAt",
-    "minFromVersion",
-    "seedVersion",
-    "artifact",
-  ];
-  for (const key of required) {
-    if (data[key] == null) {
-      throw new UpdateError("MANIFEST_INVALID", `Release-Manifest unvollständig: ${String(key)} fehlt.`);
-    }
-  }
-  const channel = data.channel as UpdateChannel;
-  if (!["stable", "beta", "development"].includes(channel)) {
-    throw new UpdateError("MANIFEST_INVALID", `Unbekannter Release-Kanal "${channel}".`);
-  }
-  return {
-    releaseId: String(data.releaseId),
-    version: String(data.version),
-    channel,
-    publishedAt: String(data.publishedAt),
-    minFromVersion: String(data.minFromVersion),
-    migrations: Array.isArray(data.migrations) ? data.migrations.map(String) : [],
-    seedVersion: Number(data.seedVersion),
-    requiresManualStep: Boolean(data.requiresManualStep),
-    securityRelease: Boolean(data.securityRelease),
-    notes: data.notes ? String(data.notes) : undefined,
-    artifact: {
-      url: String(data.artifact?.url ?? ""),
-      sha256: String(data.artifact?.sha256 ?? ""),
-      bytes: data.artifact?.bytes ? Number(data.artifact.bytes) : undefined,
-    },
-  };
 }
 
 export type RegistryResult = {
@@ -128,7 +92,7 @@ export async function fetchSignedReleases(
       } else {
         await verifyReleaseManifest(manifestRaw, signature, manifestKeyId(manifestRaw));
       }
-      releases.push(parseManifest(manifestRaw));
+      releases.push(parseSignedManifest(manifestRaw, release));
     } catch (e) {
       rejected.push({
         tag: release.tag,

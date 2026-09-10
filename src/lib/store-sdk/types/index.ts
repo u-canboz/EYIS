@@ -223,6 +223,7 @@ export type StorePaymentSession = {
 };
 
 export type StorePaymentStatus = {
+  testConfirmationAvailable?: boolean;
   status: StorePaymentSession["status"];
   /** Present exactly once the payment is settled: short-lived, single-use. */
   confirmationToken: string | null;
@@ -308,6 +309,7 @@ export type StoreReturn = {
 export type StoreGuestAccess = { requested: true };
 
 export type StoreErrorCode =
+  | "MAINTENANCE"
   | "NOT_FOUND"
   | "VALIDATION_ERROR"
   | "UNAUTHORIZED"

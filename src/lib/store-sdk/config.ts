@@ -29,4 +29,4 @@ export type ResolvedConfig = Required<Omit<CommerceClientConfig, "storage" | "ca
   cartStorage: CartStorage;
 };
 
-export const STORE_SDK_VERSION = "1.0.0";
+export const STORE_SDK_VERSION = "1.1.0";

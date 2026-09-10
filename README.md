@@ -10,6 +10,15 @@ Ein Repository, eine Datenbank, viele Organisationen und Shops. Die Trennung lä
 > **Für KI-Agenten:** zuerst [AGENTS.md](AGENTS.md) und [docs/agent/START_HERE.md](docs/agent/START_HERE.md)
 > lesen. Vor jeder Arbeit die Betriebsart klären: [docs/agent/OPERATING_MODES.md](docs/agent/OPERATING_MODES.md).
 
+## Aktueller Entwicklungsstand
+
+Update Center mit signierter Release-Prüfung, Kanalwahl, Preflight, nachvollziehbarem Fortschritt
+und sicherer Workflow-Korrelation. Kunden-Updates prüfen echte Artefakte vor der Übernahme;
+Checkout und explizite Mock-Zahlung sind über Store API und SDK verbunden. Der Entwicklungsstand
+ist `0.0.0-dev`, SDK `1.1.0`, API `v1`. Das ist noch kein signierter neuer Stable-Release.
+
+Release-Setup und verbleibende Betreiberaufgaben: [Update Center](docs/production/UPDATE_CENTER.md).
+
 ## Betriebsarten in einem Satz
 
 | | Fall | Eigene Datenbank? |
@@ -22,7 +31,7 @@ Ein Repository, eine Datenbank, viele Organisationen und Shops. Die Trennung lä
 
 | | |
 | --- | --- |
-| Framework | TanStack Start v1, React 19, Vite 7 |
+| Framework | TanStack Start v1, React 19, Vite 8 |
 | Laufzeit | Cloudflare Worker (Edge) |
 | Styling | Tailwind CSS v4 |
 | Backend | Lovable Cloud (Postgres, Auth, Storage) |
@@ -32,13 +41,14 @@ Ein Repository, eine Datenbank, viele Organisationen und Shops. Die Trennung lä
 ## Lokal starten
 
 ```bash
-bun install
+bun install --frozen-lockfile
 bun run dev        # http://localhost:8080
 ```
 
 `dev`, `typecheck`, `test`, `build` und `docs:validate` laufen ohne Datenbank. Für ein bedienbares
-Backoffice und für die `qa:*`-Läufe wird eine Lovable-Cloud-Umgebung mit Auth und Datenbank
-benötigt; Testdaten erzeugt `bun run qa:demo`.
+Backoffice und die `qa:*`-Läufe werden Supabase Auth, Postgres und Storage benötigt.
+Eine isolierte lokale Installation ist möglich: [Lokale Entwicklung](docs/agent/LOCAL_DEVELOPMENT.md).
+Synthetische Käufe über die echte HTTP-API prüft `bun run qa:local` mit lokalen Umgebungsvariablen.
 
 ## Befehle
 
@@ -51,7 +61,8 @@ benötigt; Testdaten erzeugt `bun run qa:demo`.
 | `bun run generate:manifests` | Manifeste aus dem Code erzeugen |
 | `bun run docs:validate` | Dokumentation und Manifest-Aktualität prüfen |
 | `bun run build` | Produktionsbuild |
-| **`bun run verify`** | **docs:validate → typecheck → test → build** |
+| **`bun run verify`** | **Dokumentation, Installer, Distribution, Signatur, TypeScript, Tests und Build** |
+| `bun run verify:development` | Vollständige Prüfkette in isolierter Kopie mit Testschlüssel, ohne Release-Freigabe |
 | `bun run qa:*` | QA-Harnesses gegen Dev (`qa:e2e`, `qa:store-api`, `qa:security`, `qa:rls`, `qa:health`, `qa:jobs`, `qa:migrations`, `qa:demo`) |
 
 ## Struktur
