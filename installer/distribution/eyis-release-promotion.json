@@ -1,8 +1,9 @@
 {
   "manifest": "eyis-release-promotion",
-  "candidate": null,
-  "digest": null,
-  "blackbox": "OFFEN",
-  "recorded_at": null,
-  "note": "Ein Stable-Release wird nur signiert, wenn sein Artefakt-Digest exakt dem geprüften Release Candidate entspricht. Kandidat wird mit 'bun run eyis:release:promote record <version>' festgehalten."
+  "candidate": "1.0.0-rc.10",
+  "digest": "e096c61295a8a79e121f6278a9f0c044cc35fd59b2dcd06c5e54fb69a63c733e",
+  "payload_digest": "c14e78e324e20d82977cd36203804009eafde3179ed6b2137b12cd6e3e87385a",
+  "blackbox": "PASS",
+  "recorded_at": "2026-09-10T14:00:01.508Z",
+  "note": "Code, Datenbank, Seeds und Trust Anchor müssen byte-identisch sein. Nur Versionsidentität, Signaturumschlag und dieser Record dürfen abweichen."
 }
