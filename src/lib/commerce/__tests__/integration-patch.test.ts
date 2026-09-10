@@ -327,5 +327,7 @@ describe("Root Guard — Render-Nachweis (kein Marker im DOM)", () => {
     expect(html).toContain("Seiteninhalt");
     expect(html).not.toContain("EYIS:ROUTE_GUARD");
     expect(html).not.toContain("/*");
-  });
+    // Lädt TypeScript, React und react-dom/server zur Laufzeit — unter voller
+    // Suite-Last reicht die 5-Sekunden-Vorgabe nicht zuverlässig aus.
+  }, 30_000);
 });
