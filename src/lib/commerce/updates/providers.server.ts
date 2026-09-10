@@ -97,6 +97,17 @@ async function probeAuth(): Promise<{ proof: CapabilityProof; auth: GithubAuth }
       },
     };
   }
+  if (auth.mode === "connector_gateway") {
+    return {
+      auth,
+      proof: {
+        provider: "github_connector",
+        status: "SUPPORTED",
+        detail: "GitHub-Zugang der Installation über den mitgelieferten Connector.",
+        evidence: [auth.detail, "transport=connector_gateway"],
+      },
+    };
+  }
   if (auth.mode === "pat") {
     return {
       auth,
