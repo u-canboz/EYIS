@@ -304,7 +304,7 @@ function StorefrontBrandingPage() {
               <div className="space-y-2">
                 <Label htmlFor="fontPair">Schriftpaar</Label>
                 <Select
-                  value={activeFontId === "" ? undefined : activeFontId}
+                  value={activeFontId}
                   onValueChange={(value) => {
                     if (value === CUSTOM_FONT) return;
                     const pair = fontPairs.find((f) => f.id === value);
