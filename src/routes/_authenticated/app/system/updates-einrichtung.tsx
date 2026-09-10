@@ -117,10 +117,10 @@ function UpdateSetupPage() {
 
   if (workspaceLoading || setup.isLoading) return <ListSkeleton />;
   if (!organizationId) return <PermissionState />;
-  if (setup.error) return <ErrorState onRetry={() => void setup.refetch()} />;
+  if (setup.error) return <ErrorState />;
 
   const state = setup.data;
-  if (!state) return <ErrorState onRetry={() => void setup.refetch()} />;
+  if (!state) return <ErrorState />;
 
   return (
     <div className="space-y-6">
