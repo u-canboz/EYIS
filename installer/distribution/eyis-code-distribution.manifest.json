@@ -34,7 +34,9 @@
     "commerce-os.manifest.json",
     "src/integrations/supabase/cron-auth.ts",
     "installer/eyis.ts",
-    "templates/storefront-standard/**"
+    "templates/storefront-standard/**",
+    "templates/customer-repo/**",
+    ".github/workflows/eyis-update.yml"
   ],
   "install_tooling": [
     "scripts/installer/runner.ts",
