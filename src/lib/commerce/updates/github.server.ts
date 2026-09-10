@@ -110,12 +110,12 @@ async function createAppJwt(appId: string, privateKeyPem: string): Promise<strin
 }
 
 /** Ermittelt einen nutzbaren Token für Schreibzugriffe auf das Kunden-Repo. */
-export async function resolveGithubAuth(): Promise<GithubAuth> {
+export async function resolveGithubAuth(repoOverride?: string): Promise<GithubAuth> {
   const appId = env("EYIS_GITHUB_APP_ID");
   const installationId = env("EYIS_GITHUB_APP_INSTALLATION_ID");
   const privateKey = env("EYIS_GITHUB_APP_PRIVATE_KEY");
   if (appId && installationId && privateKey) {
-    const repository = env("EYIS_UPDATE_REPO");
+    const repository = env("EYIS_UPDATE_REPO") || (repoOverride ?? "").trim();
     if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository))
       return {
         mode: "none",
@@ -428,4 +428,105 @@ export async function cancelWorkflowRun(
   });
   if (response.status !== 202 && response.status !== 409)
     throw new UpdateError("CANCEL_FAILED", "Workflow-Abbruch konnte nicht angefordert werden.");
+}
+
+// ---------------------------------------------------------------------------
+// Einrichtung: Repositories, Dateien schreiben, Repo-Secrets
+// ---------------------------------------------------------------------------
+
+/** Repositories, auf die der aktuelle Zugang schreiben darf. */
+export async function listWritableRepos(token: string | null): Promise<RepoInfo[]> {
+  const res = await ghFetch(`/user/repos?per_page=100&sort=updated&affiliation=owner,organization_member,collaborator`, token);
+  if (!res.ok) return [];
+  const body = (await res.json()) as Array<{
+    full_name: string;
+    default_branch: string;
+    private: boolean;
+    permissions?: { push?: boolean; admin?: boolean };
+  }>;
+  return body
+    .filter((r) => r.permissions?.push || r.permissions?.admin)
+    .map((r) => ({ fullName: r.full_name, defaultBranch: r.default_branch, private: r.private }));
+}
+
+/** Legt eine Datei an oder aktualisiert sie auf dem angegebenen Branch. */
+export async function putFileContent(
+  repo: string,
+  path: string,
+  branch: string,
+  content: string,
+  message: string,
+  token: string | null,
+): Promise<"created" | "updated"> {
+  const existing = await ghFetch(
+    `/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`,
+    token,
+  );
+  let sha: string | undefined;
+  if (existing.ok) {
+    const body = (await existing.json()) as { sha?: string };
+    sha = body.sha;
+  }
+  const bytes = new TextEncoder().encode(content);
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  const res = await ghFetch(`/repos/${repo}/contents/${encodeURI(path)}`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, content: btoa(binary), branch, ...(sha ? { sha } : {}) }),
+  });
+  if (!res.ok) {
+    throw new UpdateError(
+      "GITHUB_WRITE_FAILED",
+      `Datei ${path} konnte nicht geschrieben werden (HTTP ${res.status}).`,
+    );
+  }
+  return sha ? "updated" : "created";
+}
+
+/** Öffentlicher Schlüssel für Actions-Secrets des Repositories. */
+export async function getRepoPublicKey(
+  repo: string,
+  token: string | null,
+): Promise<{ keyId: string; key: string }> {
+  const res = await ghFetch(`/repos/${repo}/actions/secrets/public-key`, token);
+  if (!res.ok) {
+    throw new UpdateError(
+      "GITHUB_SECRET_KEY_UNREACHABLE",
+      `Öffentlicher Schlüssel für Repository-Secrets nicht lesbar (HTTP ${res.status}).`,
+    );
+  }
+  const body = (await res.json()) as { key_id: string; key: string };
+  return { keyId: body.key_id, key: body.key };
+}
+
+/** Namen der vorhandenen Actions-Secrets (ohne Werte). */
+export async function listRepoSecretNames(repo: string, token: string | null): Promise<string[]> {
+  const res = await ghFetch(`/repos/${repo}/actions/secrets?per_page=100`, token);
+  if (!res.ok) return [];
+  const body = (await res.json()) as { secrets?: Array<{ name: string }> };
+  return (body.secrets ?? []).map((s) => s.name);
+}
+
+/** Legt ein Actions-Secret an. Der Klartext verlässt diese Funktion nie. */
+export async function putRepoSecret(
+  repo: string,
+  name: string,
+  value: string,
+  token: string | null,
+): Promise<void> {
+  const { sealSecret } = await import("./secret-box.server");
+  const publicKey = await getRepoPublicKey(repo, token);
+  const encrypted = sealSecret(value, publicKey.key);
+  const res = await ghFetch(`/repos/${repo}/actions/secrets/${encodeURIComponent(name)}`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ encrypted_value: encrypted, key_id: publicKey.keyId }),
+  });
+  if (res.status !== 201 && res.status !== 204) {
+    throw new UpdateError(
+      "GITHUB_SECRET_WRITE_FAILED",
+      `Repository-Secret ${name} konnte nicht gesetzt werden (HTTP ${res.status}).`,
+    );
+  }
 }
