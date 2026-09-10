@@ -3,7 +3,7 @@
     "area": "Installation",
     "name": "Database Install Pack angewendet",
     "status": "PASS",
-    "detail": "51/51 Units"
+    "detail": "52/52 Units"
   },
   {
     "area": "Installation",
@@ -57,7 +57,7 @@
     "area": "Owner",
     "name": "Auto-Claim des vorbereiteten Owners",
     "status": "PASS",
-    "detail": "org=e6a717d3-868e-4cbd-9df6-8de44cc12766"
+    "detail": "org=570deffb-25cb-4fe6-8ad7-9db86cb26c30"
   },
   {
     "area": "Owner",
@@ -140,8 +140,8 @@
   {
     "area": "RLS/Grants",
     "name": "Keine erreichbare Tabelle ohne Policy",
-    "status": "FAIL",
-    "detail": "provider_credentials, update_runs, update_run_steps, commerce_installation"
+    "status": "PASS",
+    "detail": "0 Lücken"
   },
   {
     "area": "RLS/Grants",
@@ -177,13 +177,13 @@
     "area": "Katalog",
     "name": "Produkt angelegt",
     "status": "PASS",
-    "detail": "21dfbfb2-baf1-47c0-84c5-9089dc62ab23"
+    "detail": "1cd3b3e4-bdef-476d-8f14-b767e037cb9f"
   },
   {
     "area": "Katalog",
     "name": "Standardvariante angelegt",
     "status": "PASS",
-    "detail": "variant=1f93b5ea-f619-404f-9eba-3b48d7a2e477"
+    "detail": "variant=20982af5-a9ec-408b-87f3-4843ae488315"
   },
   {
     "area": "Katalog",
@@ -243,13 +243,13 @@
     "area": "Order",
     "name": "Order aus bezahlter Sitzung erzeugt",
     "status": "PASS",
-    "detail": "16b785ba-ca08-4b65-9817-3fa8699c6b4e"
+    "detail": "eacbf073-6aae-4a0c-bed7-0d2bc48a684b"
   },
   {
     "area": "Order",
     "name": "Wiederholte Finalisierung erzeugt keine zweite Order",
     "status": "PASS",
-    "detail": "16b785ba-ca08-4b65-9817-3fa8699c6b4e"
+    "detail": "eacbf073-6aae-4a0c-bed7-0d2bc48a684b"
   },
   {
     "area": "Order",
