@@ -95,7 +95,19 @@ const report = {
 };
 
 const out = `${JSON.stringify(report, null, 2)}\n`;
-writeFileSync(join(SEEDS_DIR, "eyis-dml-audit.json"), out, "utf8");
+const reportPath = join(SEEDS_DIR, "eyis-dml-audit.json");
+// `--check` darf den Arbeitsbaum nicht verändern: im Release-Lauf würde eine
+// Neuschreibung den geprüften Payload nachträglich verfälschen.
+const checkOnly = process.argv.includes("--check");
+if (checkOnly) {
+  const current = existsSync(reportPath) ? readFileSync(reportPath, "utf8") : "";
+  if (current !== out) {
+    console.log("DML-Audit: FAIL — eyis-dml-audit.json ist nicht aktuell (bun run eyis:seeds:audit).");
+    process.exit(1);
+  }
+} else {
+  writeFileSync(reportPath, out, "utf8");
+}
 
 console.log(`Migrationen geprüft: ${report.migrations_scanned}`);
 console.log(`DML gesamt: ${report.totals.all}`);
