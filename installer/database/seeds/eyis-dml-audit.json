@@ -1,7 +1,7 @@
 {
   "manifest": "eyis-dml-audit",
   "generated_at": "2026-09-10",
-  "migrations_scanned": 61,
+  "migrations_scanned": 62,
   "totals": {
     "all": 178,
     "system_seed": 19,
