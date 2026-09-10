@@ -9,7 +9,11 @@ const schema = z.object({
   channel: z.enum(["stable", "beta", "development", "prerelease"]),
   releaseId: z.string().min(1).optional(),
   publishedAt: z.string().datetime().optional(),
-  minFromVersion: version.optional(),
+  // Ein leerer Wert bedeutet "nicht angegeben" (ältere Release-Workflows).
+  minFromVersion: z
+    .union([version, z.literal("")])
+    .optional()
+    .transform((value) => (value === "" ? undefined : value)),
   seedVersion: z.number().int().nonnegative().optional(),
   migrations: z.array(z.string().min(1)).optional(),
   requiresManualStep: z.boolean().optional(),
