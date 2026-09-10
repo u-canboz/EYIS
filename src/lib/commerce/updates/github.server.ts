@@ -11,8 +11,17 @@
 import { UpdateError } from "./types";
 
 const API = "https://api.github.com";
+const GATEWAY = "https://connector-gateway.lovable.dev/github";
 
-export type GithubAuthMode = "github_app" | "pat" | "none";
+/**
+ * Sentinel statt echtem Token: Der GitHub-Zugang der Installation stammt aus
+ * dem mitgelieferten Lovable-GitHub-Connector. Die Anmeldedaten liegen im
+ * Gateway, nie in dieser Anwendung. `ghFetch` erkennt den Sentinel und routet
+ * denselben REST-Pfad über das Gateway.
+ */
+export const CONNECTOR_GATEWAY_TOKEN = "__eyis_connector_gateway__";
+
+export type GithubAuthMode = "github_app" | "connector_gateway" | "pat" | "none";
 
 export type GithubAuth = {
   mode: GithubAuthMode;
