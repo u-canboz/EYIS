@@ -182,7 +182,7 @@ async function loadRuns(limit = 10): Promise<UpdateRunView[]> {
 }
 
 /** Cached release info is refreshed automatically when older than this. */
-const OVERVIEW_CHECK_MAX_AGE_MS = 15 * 60 * 1000;
+const OVERVIEW_CHECK_MAX_AGE_MS = 5 * 60 * 1000;
 
 export async function getUpdateOverview(): Promise<UpdateOverview> {
   let installation = await requireInstallation();
