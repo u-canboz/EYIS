@@ -46,6 +46,8 @@ export const EYIS_OWNED_PATHS: string[] = [
   // ersetzt; die daraus im Kundenprojekt entstandenen Dateien (src/routes/**,
   // src/content/**, public/storefront/**) bleiben kundeneigen.
   "templates/storefront-standard/**",
+  // Update-Transport: Workflow-Vorlage des Kundenrepositories.
+  "templates/customer-repo/**",
 
   "docs/agent/**",
   "commerce-os.manifest.json",
