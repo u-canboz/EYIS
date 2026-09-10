@@ -105,6 +105,41 @@
       "expected": "Projektlokales Secret für die Job-Endpunkte.",
       "secret": true,
       "value_in_manifest": false
+    },
+    {
+      "key": "EYIS_RELEASE_REPO",
+      "required": true,
+      "expected": "u-canboz/EYIS",
+      "secret": false,
+      "set_during_install": true
+    },
+    {
+      "key": "EYIS_UPDATE_REPO",
+      "required": true,
+      "expected": "owner/repo des Kundenprojekts (aus der GitHub-Verbindung der Installation)",
+      "secret": false,
+      "set_during_install": true
+    },
+    {
+      "key": "EYIS_UPDATE_HOSTING",
+      "required": true,
+      "expected": "lovable_sync | git_auto_deploy",
+      "secret": false,
+      "set_during_install": true
+    },
+    {
+      "key": "EYIS_UPDATE_MIGRATIONS",
+      "required": true,
+      "expected": "enabled",
+      "secret": false,
+      "set_during_install": true
+    },
+    {
+      "key": "APP_BASE_URL",
+      "required": true,
+      "expected": "Öffentliche Basis-URL der Installation; daraus wird die Update-Health-URL abgeleitet.",
+      "secret": false,
+      "set_during_install": true
     }
   ],
   "verification": [
