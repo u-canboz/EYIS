@@ -1,0 +1,28 @@
+{
+  "manifest": "eyis-update-defaults",
+  "version": "1.0.0",
+  "description": "Vorbelegte Update-Verbindungen jeder EYIS Installation. Enthält ausschließlich nicht-geheime Vorgaben. Jede Vorgabe kann durch eine gleichnamige Umgebungsvariable überschrieben werden.",
+  "release_repo": "u-canboz/EYIS",
+  "event_type": "eyis-update",
+  "workflow_path": ".github/workflows/eyis-update.yml",
+  "hosting": "lovable_sync",
+  "migrations": "enabled",
+  "health_path": "/api/public/install/version",
+  "auth": {
+    "preferred_order": ["github_app", "connector_gateway", "pat"],
+    "connector_gateway": {
+      "connector_id": "github",
+      "api_key_env": "GITHUB_API_KEY",
+      "platform_key_env": "LOVABLE_API_KEY",
+      "note": "Der GitHub-Zugang kommt aus dem Lovable-GitHub-Connector der Installation. Kein manuell hinterlegter Schlüssel nötig."
+    }
+  },
+  "overridable_env": [
+    "EYIS_UPDATE_REPO",
+    "EYIS_RELEASE_REPO",
+    "EYIS_UPDATE_EVENT_TYPE",
+    "EYIS_UPDATE_HOSTING",
+    "EYIS_UPDATE_MIGRATIONS",
+    "EYIS_UPDATE_DEPLOY_HEALTH_URL"
+  ]
+}
