@@ -8142,6 +8142,84 @@ export type Database = {
           },
         ]
       }
+      storefront_branding: {
+        Row: {
+          claim: string | null
+          color_accent: string | null
+          color_accent_foreground: string | null
+          color_background: string | null
+          color_border: string | null
+          color_deep: string | null
+          color_foreground: string | null
+          color_surface: string | null
+          created_at: string
+          favicon_url: string | null
+          font_body: string | null
+          font_display: string | null
+          id: string
+          logo_url: string | null
+          organization_id: string
+          shop_id: string
+          shop_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          claim?: string | null
+          color_accent?: string | null
+          color_accent_foreground?: string | null
+          color_background?: string | null
+          color_border?: string | null
+          color_deep?: string | null
+          color_foreground?: string | null
+          color_surface?: string | null
+          created_at?: string
+          favicon_url?: string | null
+          font_body?: string | null
+          font_display?: string | null
+          id?: string
+          logo_url?: string | null
+          organization_id: string
+          shop_id: string
+          shop_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          claim?: string | null
+          color_accent?: string | null
+          color_accent_foreground?: string | null
+          color_background?: string | null
+          color_border?: string | null
+          color_deep?: string | null
+          color_foreground?: string | null
+          color_surface?: string | null
+          created_at?: string
+          favicon_url?: string | null
+          font_body?: string | null
+          font_display?: string | null
+          id?: string
+          logo_url?: string | null
+          organization_id?: string
+          shop_id?: string
+          shop_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storefront_branding_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storefront_branding_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       storefront_pages: {
         Row: {
           body: string

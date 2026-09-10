@@ -23,6 +23,7 @@ import {
 } from "./catalog-public.server";
 import {
   getContentPage,
+  getStoreBranding,
   listContentBlocks,
   listContentPages,
 } from "./content-public.server";
@@ -203,6 +204,16 @@ export const storeRoutes: RouteDef[] = [
         productType: ctx.query.get("productType"),
       });
     },
+  },
+  {
+    method: "GET",
+    path: "/content/branding",
+    profile: "catalog_read",
+    handler: (ctx) =>
+      getStoreBranding({
+        organizationId: ctx.key.organizationId,
+        shopId: ctx.key.shopId,
+      }),
   },
   {
     method: "GET",
