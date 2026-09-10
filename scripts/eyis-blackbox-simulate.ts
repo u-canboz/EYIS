@@ -221,7 +221,7 @@ for (const file of sources) {
   const specs = [
     ...code.matchAll(/(?:import|export)[^'"]*?from\s*['"]([^'"]+)['"]/g),
     ...code.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g),
-  ].map((m) => m[1]!);
+  ].map((m) => (m[1]! as string).split("?")[0]!);
   for (const spec of specs) {
     if (spec.startsWith(".")) {
       if (!exists(normalize(join(dirname(file), spec)))) unresolved.push(`${file} → ${spec}`);
