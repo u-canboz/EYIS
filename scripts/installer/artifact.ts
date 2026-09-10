@@ -226,8 +226,9 @@ export function buildArtifact(
     channel: parsedVersion.pre ? "prerelease" : "stable",
     releaseId: `v${version}`,
     minFromVersion: minFromVersion ?? "0.0.0",
-    // An automatic upgrade is opt-in after compatibility has been tested.
-    requiresManualStep: !minFromVersion || process.env["EYIS_UPDATE_MANUAL_STEP"] === "true",
+    // Standard ist das Ein-Klick-Update. Ein betreuter Ablauf wird nur dann
+    // verlangt, wenn er für ein Release ausdrücklich angefordert wurde.
+    requiresManualStep: process.env["EYIS_UPDATE_MANUAL_STEP"] === "true",
     migrations: entries.filter((f) => f.path.startsWith("supabase/migrations/")).map((f) => f.path),
     seedVersion: 1,
     commit: process.env["GITHUB_SHA"] ?? "local",
