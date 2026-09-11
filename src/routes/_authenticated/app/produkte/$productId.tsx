@@ -306,11 +306,16 @@ function ProductEditor() {
         </ScrollTabs>
 
 
-        <TabsContent value="details" className="space-y-6 pt-4">
-          <div className="grid gap-5 rounded-xl border border-border bg-card p-4 sm:p-6 sm:grid-cols-2">
-            <div>
-              <Label>Produktname</Label>
+        <TabsContent value="details" className="space-y-4 pt-4">
+          <Panel
+            title="Produktangaben"
+            description="Name, Adresse im Shop und Beschreibung."
+            bodyClassName="grid gap-5 p-4 sm:grid-cols-2 sm:p-6"
+          >
+            <div className="sm:col-span-2">
+              <Label htmlFor="product-name">Produktname</Label>
               <Input
+                id="product-name"
                 className="mt-2"
                 value={form.name}
                 disabled={!canEdit}
@@ -318,33 +323,49 @@ function ProductEditor() {
               />
             </div>
             <div>
-              <Label>Handle</Label>
+              <Label htmlFor="product-handle">Adresse im Shop</Label>
               <Input
+                id="product-handle"
                 className="mt-2"
                 value={form.handle}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, handle: e.target.value })}
               />
+              <p className="mt-1.5 truncate text-xs text-muted-foreground">
+                /produkt/{form.handle || "…"}
+              </p>
             </div>
-            <div className="sm:col-span-2">
-              <Label>Untertitel</Label>
+            <div>
+              <Label htmlFor="product-subtitle">Untertitel</Label>
               <Input
+                id="product-subtitle"
                 className="mt-2"
                 value={form.subtitle}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
               />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Kurze Zeile unter dem Namen im Shop.
+              </p>
             </div>
             <div className="sm:col-span-2">
-              <Label>Beschreibung</Label>
+              <Label htmlFor="product-description">Beschreibung</Label>
               <Textarea
+                id="product-description"
                 className="mt-2"
-                rows={5}
+                rows={6}
                 value={form.description}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
             </div>
+          </Panel>
+
+          <Panel
+            title="Einordnung"
+            description="Steuer und Marke wirken auf Preisausweis und Filter."
+            bodyClassName="grid gap-5 p-4 sm:grid-cols-2 sm:p-6"
+          >
             <div>
               <Label>Steuerklasse</Label>
               <Select
@@ -366,26 +387,28 @@ function ProductEditor() {
               </Select>
             </div>
             <div>
-              <Label>Hersteller / Marke</Label>
+              <Label htmlFor="product-vendor">Hersteller / Marke</Label>
               <Input
+                id="product-vendor"
                 className="mt-2"
                 value={form.vendor}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, vendor: e.target.value })}
               />
             </div>
-          </div>
+          </Panel>
 
           {blueprintQuery.data && (
-            <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+            <Panel title="Vorlagenfelder" bodyClassName="p-4 sm:p-6">
               <BlueprintForm
                 schema={blueprintQuery.data.schema}
                 value={blueprintData}
                 onChange={setBlueprintData}
               />
-            </div>
+            </Panel>
           )}
         </TabsContent>
+
 
         <TabsContent value="varianten" className="pt-4">
           <VariantsTab
