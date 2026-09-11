@@ -53,7 +53,7 @@ export function Panel({
   return (
     <section
       className={cn(
-        "-mx-4 min-w-0 border-y border-border bg-card sm:mx-0 sm:rounded-xl sm:border",
+        "-mx-4 min-w-0 border-y border-border bg-card sm:mx-0 sm:rounded-xl sm:border sm:shadow-[var(--elevation-1)]",
         className,
       )}
     >

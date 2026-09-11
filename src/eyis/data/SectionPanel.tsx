@@ -30,7 +30,7 @@ export function SectionPanel({
   return (
     <section
       className={cn(
-        "min-w-0 border-border bg-card sm:rounded-xl sm:border",
+        "min-w-0 border-border bg-card sm:rounded-xl sm:border sm:shadow-[var(--elevation-1)]",
         "-mx-4 border-y sm:mx-0",
         className,
       )}

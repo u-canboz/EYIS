@@ -57,7 +57,7 @@ export function FilterBar({ search, filters, activeCount = 0, onReset, className
       </div>
 
       {/* Einheitliche Werkzeugleiste: alle Bedienelemente auf einer Höhe. */}
-      <div className="hidden min-w-0 flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2 md:flex [&_button[role=combobox]]:h-10 [&_input]:h-10 [&_button[data-slot=select-trigger]]:h-10">
+      <div className="hidden min-w-0 flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2 shadow-[var(--elevation-1)] md:flex [&_button[role=combobox]]:h-10 [&_input]:h-10 [&_button[data-slot=select-trigger]]:h-10">
         {search ? <div className="min-w-56 flex-1">{search}</div> : null}
         {filters}
         {onReset && activeCount > 0 ? (
