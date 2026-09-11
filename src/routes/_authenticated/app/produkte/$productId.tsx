@@ -226,13 +226,24 @@ function ProductEditor() {
 
   const canEdit = can("products.update");
 
+  const STATUS_LABEL: Record<ProductForm["status"], string> = {
+    draft: "Entwurf",
+    active: "Aktiv",
+    archived: "Archiviert",
+  };
+  const STATUS_TONE: Record<ProductForm["status"], StatusTone> = {
+    draft: "warning",
+    active: "success",
+    archived: "neutral",
+  };
+
   const statusSelect = (
     <Select
       value={form.status}
       onValueChange={(v) => setForm({ ...form, status: v as typeof form.status })}
       disabled={!canEdit}
     >
-      <SelectTrigger className="h-11 w-full sm:w-40" aria-label="Produktstatus">
+      <SelectTrigger className="h-11 w-full sm:w-44" aria-label="Produktstatus">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -247,31 +258,25 @@ function ProductEditor() {
     <div className="min-w-0 space-y-5">
       <PageHeader
         eyebrow={
-          <Link
-            to="/app/produkte"
-            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
-          >
-            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
-            Alle Produkte
-          </Link>
+          <>
+            <Link
+              to="/app/produkte"
+              className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+            >
+              <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+              Alle Produkte
+            </Link>
+            <StatusBadge tone={STATUS_TONE[form.status]}>{STATUS_LABEL[form.status]}</StatusBadge>
+            {isDirty ? <StatusBadge tone="accent">Ungesichert</StatusBadge> : null}
+          </>
         }
         title={form.name || "Produkt"}
         description={`Vorlage: ${product.blueprint_key} (v${product.blueprint_version})`}
-        actions={
-          <div className="hidden items-center gap-2 sm:flex">
-            {statusSelect}
-            <Button
-              className="min-h-11"
-              disabled={!canEdit || saveMutation.isPending}
-              onClick={() => saveMutation.mutate()}
-            >
-              {saveMutation.isPending ? "Speichert…" : "Speichern"}
-            </Button>
-          </div>
-        }
+        actions={<div className="hidden items-center gap-2 sm:flex">{statusSelect}</div>}
       />
 
       <div className="sm:hidden">{statusSelect}</div>
+
 
       <Tabs defaultValue="details">
         <ScrollTabs>
