@@ -29,9 +29,13 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
-import { ScrollTabs } from "@/eyis/shell/DetailLayout";
-import { ArrowLeft } from "lucide-react";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { ScrollTabs, Panel } from "@/eyis/shell/DetailLayout";
+import { SaveBar } from "@/eyis/shell/SaveBar";
+import { StatusBadge, type StatusTone } from "@/eyis/data/StatusBadge";
+import { ArrowLeft, ImageOff, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 import { PricingTab } from "@/eyis/commerce/PricingTab";
 import { InventoryTab } from "@/eyis/commerce/InventoryTab";
 import {
@@ -110,39 +114,80 @@ function ProductEditor() {
     queryFn: () => loadTaxConfig({ data: { organizationId, shopId } }),
   });
 
-  const [form, setForm] = useState({
+  type ProductForm = {
+    name: string;
+    handle: string;
+    subtitle: string;
+    description: string;
+    vendor: string;
+    status: "draft" | "active" | "archived";
+    seoTitle: string;
+    seoDescription: string;
+    taxClassId: string;
+  };
+  type Snapshot = {
+    form: ProductForm;
+    blueprintData: BlueprintData;
+    categoryIds: string[];
+    collectionIds: string[];
+  };
+
+  const [form, setForm] = useState<ProductForm>({
     name: "",
     handle: "",
     subtitle: "",
     description: "",
     vendor: "",
-    status: "draft" as "draft" | "active" | "archived",
+    status: "draft",
     seoTitle: "",
     seoDescription: "",
-    taxClassId: "" as string,
+    taxClassId: "",
   });
   const [blueprintData, setBlueprintData] = useState<BlueprintData>({});
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [collectionIds, setCollectionIds] = useState<string[]>([]);
+  const [baseline, setBaseline] = useState<Snapshot | null>(null);
+
+  const applySnapshot = (snapshot: Snapshot) => {
+    setForm(snapshot.form);
+    setBlueprintData(snapshot.blueprintData);
+    setCategoryIds(snapshot.categoryIds);
+    setCollectionIds(snapshot.collectionIds);
+  };
 
   useEffect(() => {
     if (!productQuery.data) return;
     const p = productQuery.data.product;
-    setForm({
-      name: p.name,
-      handle: p.handle,
-      subtitle: p.subtitle ?? "",
-      description: p.description ?? "",
-      vendor: p.vendor ?? "",
-      status: p.status,
-      seoTitle: p.seo_title ?? "",
-      seoDescription: p.seo_description ?? "",
-      taxClassId: ((p as { tax_class_id?: string | null }).tax_class_id ?? "") as string,
-    });
-    setBlueprintData((p.blueprint_data ?? {}) as BlueprintData);
-    setCategoryIds(productQuery.data.categoryIds);
-    setCollectionIds(productQuery.data.collectionIds);
+    const snapshot: Snapshot = {
+      form: {
+        name: p.name,
+        handle: p.handle,
+        subtitle: p.subtitle ?? "",
+        description: p.description ?? "",
+        vendor: p.vendor ?? "",
+        status: p.status,
+        seoTitle: p.seo_title ?? "",
+        seoDescription: p.seo_description ?? "",
+        taxClassId: ((p as { tax_class_id?: string | null }).tax_class_id ?? "") as string,
+      },
+      blueprintData: (p.blueprint_data ?? {}) as BlueprintData,
+      categoryIds: productQuery.data.categoryIds,
+      collectionIds: productQuery.data.collectionIds,
+    };
+    applySnapshot(snapshot);
+    setBaseline(snapshot);
   }, [productQuery.data]);
+
+  const serialize = (snapshot: Snapshot) =>
+    JSON.stringify({
+      form: snapshot.form,
+      blueprintData: snapshot.blueprintData,
+      categoryIds: [...snapshot.categoryIds].sort(),
+      collectionIds: [...snapshot.collectionIds].sort(),
+    });
+
+  const currentSnapshot: Snapshot = { form, blueprintData, categoryIds, collectionIds };
+  const isDirty = baseline !== null && serialize(currentSnapshot) !== serialize(baseline);
 
   const saveMutation = useMutation({
     mutationFn: () =>
@@ -165,7 +210,8 @@ function ProductEditor() {
         },
       }),
     onSuccess: () => {
-      toast.success("Produkt gespeichert.");
+      toast.success("Produkt gesichert.");
+      setBaseline(currentSnapshot);
       queryClient.invalidateQueries({ queryKey: ["product", productId] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
@@ -182,13 +228,24 @@ function ProductEditor() {
 
   const canEdit = can("products.update");
 
+  const STATUS_LABEL: Record<ProductForm["status"], string> = {
+    draft: "Entwurf",
+    active: "Aktiv",
+    archived: "Archiviert",
+  };
+  const STATUS_TONE: Record<ProductForm["status"], StatusTone> = {
+    draft: "warning",
+    active: "success",
+    archived: "neutral",
+  };
+
   const statusSelect = (
     <Select
       value={form.status}
       onValueChange={(v) => setForm({ ...form, status: v as typeof form.status })}
       disabled={!canEdit}
     >
-      <SelectTrigger className="h-11 w-full sm:w-40" aria-label="Produktstatus">
+      <SelectTrigger className="h-11 w-full sm:w-44" aria-label="Produktstatus">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -203,31 +260,25 @@ function ProductEditor() {
     <div className="min-w-0 space-y-5">
       <PageHeader
         eyebrow={
-          <Link
-            to="/app/produkte"
-            className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
-          >
-            <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
-            Alle Produkte
-          </Link>
+          <>
+            <Link
+              to="/app/produkte"
+              className="inline-flex min-h-11 items-center gap-1.5 hover:text-foreground"
+            >
+              <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+              Alle Produkte
+            </Link>
+            <StatusBadge tone={STATUS_TONE[form.status]}>{STATUS_LABEL[form.status]}</StatusBadge>
+            {isDirty ? <StatusBadge tone="accent">Ungesichert</StatusBadge> : null}
+          </>
         }
         title={form.name || "Produkt"}
         description={`Vorlage: ${product.blueprint_key} (v${product.blueprint_version})`}
-        actions={
-          <div className="hidden items-center gap-2 sm:flex">
-            {statusSelect}
-            <Button
-              className="min-h-11"
-              disabled={!canEdit || saveMutation.isPending}
-              onClick={() => saveMutation.mutate()}
-            >
-              {saveMutation.isPending ? "Speichert…" : "Speichern"}
-            </Button>
-          </div>
-        }
+        actions={<div className="hidden items-center gap-2 sm:flex">{statusSelect}</div>}
       />
 
       <div className="sm:hidden">{statusSelect}</div>
+
 
       <Tabs defaultValue="details">
         <ScrollTabs>
@@ -257,11 +308,16 @@ function ProductEditor() {
         </ScrollTabs>
 
 
-        <TabsContent value="details" className="space-y-6 pt-4">
-          <div className="grid gap-5 rounded-xl border border-border bg-card p-4 sm:p-6 sm:grid-cols-2">
-            <div>
-              <Label>Produktname</Label>
+        <TabsContent value="details" className="space-y-4 pt-4">
+          <Panel
+            title="Produktangaben"
+            description="Name, Adresse im Shop und Beschreibung."
+            bodyClassName="grid gap-5 p-4 sm:grid-cols-2 sm:p-6"
+          >
+            <div className="sm:col-span-2">
+              <Label htmlFor="product-name">Produktname</Label>
               <Input
+                id="product-name"
                 className="mt-2"
                 value={form.name}
                 disabled={!canEdit}
@@ -269,33 +325,49 @@ function ProductEditor() {
               />
             </div>
             <div>
-              <Label>Handle</Label>
+              <Label htmlFor="product-handle">Adresse im Shop</Label>
               <Input
+                id="product-handle"
                 className="mt-2"
                 value={form.handle}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, handle: e.target.value })}
               />
+              <p className="mt-1.5 truncate text-xs text-muted-foreground">
+                /produkt/{form.handle || "…"}
+              </p>
             </div>
-            <div className="sm:col-span-2">
-              <Label>Untertitel</Label>
+            <div>
+              <Label htmlFor="product-subtitle">Untertitel</Label>
               <Input
+                id="product-subtitle"
                 className="mt-2"
                 value={form.subtitle}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
               />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Kurze Zeile unter dem Namen im Shop.
+              </p>
             </div>
             <div className="sm:col-span-2">
-              <Label>Beschreibung</Label>
+              <Label htmlFor="product-description">Beschreibung</Label>
               <Textarea
+                id="product-description"
                 className="mt-2"
-                rows={5}
+                rows={6}
                 value={form.description}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
             </div>
+          </Panel>
+
+          <Panel
+            title="Einordnung"
+            description="Steuer und Marke wirken auf Preisausweis und Filter."
+            bodyClassName="grid gap-5 p-4 sm:grid-cols-2 sm:p-6"
+          >
             <div>
               <Label>Steuerklasse</Label>
               <Select
@@ -317,26 +389,28 @@ function ProductEditor() {
               </Select>
             </div>
             <div>
-              <Label>Hersteller / Marke</Label>
+              <Label htmlFor="product-vendor">Hersteller / Marke</Label>
               <Input
+                id="product-vendor"
                 className="mt-2"
                 value={form.vendor}
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, vendor: e.target.value })}
               />
             </div>
-          </div>
+          </Panel>
 
           {blueprintQuery.data && (
-            <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+            <Panel title="Vorlagenfelder" bodyClassName="p-4 sm:p-6">
               <BlueprintForm
                 schema={blueprintQuery.data.schema}
                 value={blueprintData}
                 onChange={setBlueprintData}
               />
-            </div>
+            </Panel>
           )}
         </TabsContent>
+
 
         <TabsContent value="varianten" className="pt-4">
           <VariantsTab
@@ -378,69 +452,130 @@ function ProductEditor() {
           />
         </TabsContent>
 
-        <TabsContent value="organisation" className="space-y-6 pt-4">
-          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-            <p className="font-medium">Kategorien</p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {(taxonomyQuery.data?.flatCategories ?? []).map((cat) => (
-                <label key={cat.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    checked={categoryIds.includes(cat.id)}
-                    disabled={!canEdit}
-                    onCheckedChange={(checked) =>
-                      setCategoryIds(
-                        checked
-                          ? [...categoryIds, cat.id]
-                          : categoryIds.filter((i) => i !== cat.id),
-                      )
-                    }
-                  />
-                  {cat.name}
-                </label>
-              ))}
+        <TabsContent value="organisation" className="space-y-4 pt-4">
+          <Panel
+            title="Kategorien"
+            description={`${categoryIds.length} ausgewählt`}
+            bodyClassName="p-4 sm:p-6"
+          >
+            <div className="flex flex-wrap gap-2">
+              {(taxonomyQuery.data?.flatCategories ?? []).map((cat) => {
+                const checked = categoryIds.includes(cat.id);
+                return (
+                  <label
+                    key={cat.id}
+                    className={cn(
+                      "flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm transition-colors",
+                      checked
+                        ? "border-primary/40 bg-primary/10 text-foreground"
+                        : "border-border hover:bg-muted",
+                    )}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      disabled={!canEdit}
+                      onCheckedChange={(next) =>
+                        setCategoryIds(
+                          next ? [...categoryIds, cat.id] : categoryIds.filter((i) => i !== cat.id),
+                        )
+                      }
+                    />
+                    <span className="min-w-0 truncate">{cat.name}</span>
+                  </label>
+                );
+              })}
+              {(taxonomyQuery.data?.flatCategories ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Noch keine Kategorien angelegt.</p>
+              ) : null}
             </div>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-            <p className="font-medium">Kollektionen</p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {(taxonomyQuery.data?.collections ?? []).map((col) => (
-                <label key={col.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    checked={collectionIds.includes(col.id)}
-                    disabled={!canEdit}
-                    onCheckedChange={(checked) =>
-                      setCollectionIds(
-                        checked
-                          ? [...collectionIds, col.id]
-                          : collectionIds.filter((i) => i !== col.id),
-                      )
-                    }
-                  />
-                  {col.name}
-                </label>
-              ))}
+          </Panel>
+          <Panel
+            title="Kollektionen"
+            description={`${collectionIds.length} ausgewählt`}
+            bodyClassName="p-4 sm:p-6"
+          >
+            <div className="flex flex-wrap gap-2">
+              {(taxonomyQuery.data?.collections ?? []).map((col) => {
+                const checked = collectionIds.includes(col.id);
+                return (
+                  <label
+                    key={col.id}
+                    className={cn(
+                      "flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm transition-colors",
+                      checked
+                        ? "border-primary/40 bg-primary/10 text-foreground"
+                        : "border-border hover:bg-muted",
+                    )}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      disabled={!canEdit}
+                      onCheckedChange={(next) =>
+                        setCollectionIds(
+                          next
+                            ? [...collectionIds, col.id]
+                            : collectionIds.filter((i) => i !== col.id),
+                        )
+                      }
+                    />
+                    <span className="min-w-0 truncate">{col.name}</span>
+                  </label>
+                );
+              })}
+              {(taxonomyQuery.data?.collections ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Noch keine Kollektionen angelegt.</p>
+              ) : null}
             </div>
-          </div>
+          </Panel>
         </TabsContent>
 
-        <TabsContent value="seo" className="pt-4">
-          <div className="space-y-5 rounded-xl border border-border bg-card p-4 sm:p-6">
+        <TabsContent value="seo" className="space-y-4 pt-4">
+          <Panel
+            title="Auftritt bei Google"
+            description="So sieht der Eintrag ungefähr in der Suche aus."
+            bodyClassName="p-4 sm:p-6"
+          >
+            <div className="min-w-0 rounded-lg border border-border bg-muted/40 p-4">
+              <p className="truncate text-xs text-muted-foreground">
+                {typeof window === "undefined" ? "" : window.location.host}/produkt/
+                {form.handle || "…"}
+              </p>
+              <p className="mt-1 truncate font-display text-base font-medium text-info">
+                {form.seoTitle || form.name || "Produkttitel"}
+              </p>
+              <p className="mt-1 line-clamp-2 text-sm text-pretty text-muted-foreground">
+                {form.seoDescription ||
+                  form.subtitle ||
+                  form.description ||
+                  "Noch keine Beschreibung hinterlegt."}
+              </p>
+            </div>
+          </Panel>
+
+          <Panel title="Suchmaschinen-Angaben" bodyClassName="space-y-5 p-4 sm:p-6">
             <div>
-              <Label>SEO-Titel</Label>
+              <Label htmlFor="seo-title">SEO-Titel</Label>
               <Input
+                id="seo-title"
                 className="mt-2"
                 value={form.seoTitle}
                 disabled={!canEdit}
                 maxLength={60}
                 onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
               />
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p
+                className={cn(
+                  "mt-1 text-xs tabular-nums",
+                  form.seoTitle.length > 55 ? "text-warning" : "text-muted-foreground",
+                )}
+              >
                 {form.seoTitle.length}/60 Zeichen
               </p>
             </div>
             <div>
-              <Label>SEO-Beschreibung</Label>
+              <Label htmlFor="seo-description">SEO-Beschreibung</Label>
               <Textarea
+                id="seo-description"
                 className="mt-2"
                 rows={3}
                 maxLength={160}
@@ -448,23 +583,30 @@ function ProductEditor() {
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
               />
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p
+                className={cn(
+                  "mt-1 text-xs tabular-nums",
+                  form.seoDescription.length > 150 ? "text-warning" : "text-muted-foreground",
+                )}
+              >
                 {form.seoDescription.length}/160 Zeichen
               </p>
             </div>
-          </div>
+          </Panel>
         </TabsContent>
       </Tabs>
 
-      <StickyActionBar className="sm:hidden">
-        <Button
-          className="min-h-11 w-full"
-          disabled={!canEdit || saveMutation.isPending}
-          onClick={() => saveMutation.mutate()}
-        >
-          {saveMutation.isPending ? "Speichert…" : "Speichern"}
-        </Button>
-      </StickyActionBar>
+      <SaveBar
+        dirty={isDirty}
+        saving={saveMutation.isPending}
+        disabled={!canEdit}
+        hint="⌘S sichert, Verwerfen stellt den letzten gesicherten Stand her."
+        onSave={() => saveMutation.mutate()}
+        onDiscard={() => {
+          if (baseline) applySnapshot(baseline);
+        }}
+      />
+
     </div>
   );
 }
@@ -735,81 +877,127 @@ function MediaTab({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-        <p className="font-medium">Produktgalerie</p>
-        <p className="text-sm text-muted-foreground">Das erste Bild ist das Titelbild.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="space-y-4">
+      <Panel
+        title="Produktgalerie"
+        description="Das erste Bild ist das Titelbild im Shop."
+        bodyClassName="p-4 sm:p-6"
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {media.map((item, index) => (
-            <div key={item.id} className="rounded-md border p-2">
-              {item.url ? (
-                <img
-                  src={item.url}
-                  alt={item.alt_text ?? item.filename}
-                  className="aspect-square w-full rounded object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="aspect-square w-full rounded bg-muted" />
-              )}
-              <p className="mt-2 truncate text-xs">{item.filename}</p>
+            <figure
+              key={item.id}
+              className="group min-w-0 overflow-hidden rounded-xl border border-border bg-card"
+            >
+              <div className="relative">
+                {item.url ? (
+                  <img
+                    src={item.url}
+                    alt={item.alt_text ?? item.filename}
+                    className="aspect-square w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="grid aspect-square w-full place-items-center bg-muted">
+                    <ImageOff className="size-5 text-muted-foreground" aria-hidden />
+                  </div>
+                )}
+                {index === 0 ? (
+                  <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground">
+                    <Star className="size-3 shrink-0" aria-hidden />
+                    Titelbild
+                  </span>
+                ) : null}
+              </div>
+              <figcaption className="min-w-0 px-3 pt-2">
+                <p className="truncate text-xs text-muted-foreground">{item.filename}</p>
+              </figcaption>
               {canEdit && (
-                <div className="mt-2 flex items-center gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => move(index, -1)}>
-                    ←
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => move(index, 1)}>
-                    →
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => detachMutation.mutate(item.id)}>
-                    Lösen
+                <div className="flex items-center gap-1 px-2 pt-1 pb-2">
+                  {index > 0 ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-9"
+                      onClick={() => move(index, -1)}
+                      aria-label="Bild nach vorn"
+                    >
+                      ←
+                    </Button>
+                  ) : null}
+                  {index < media.length - 1 ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-9"
+                      onClick={() => move(index, 1)}
+                      aria-label="Bild nach hinten"
+                    >
+                      →
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto min-h-9 text-muted-foreground"
+                    onClick={() => detachMutation.mutate(item.id)}
+                  >
+                    Entfernen
                   </Button>
                 </div>
               )}
-            </div>
+            </figure>
           ))}
           {media.length === 0 && (
-            <p className="text-sm text-muted-foreground">Noch keine Bilder zugeordnet.</p>
+            <p className="col-span-full text-sm text-muted-foreground">
+              Noch keine Bilder zugeordnet. Wähle unten ein Bild aus der Bibliothek.
+            </p>
           )}
         </div>
-      </div>
+      </Panel>
 
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <p className="font-medium">Medienbibliothek</p>
+      <Panel
+        title="Medienbibliothek"
+        description="Antippen fügt das Bild der Galerie hinzu."
+        actions={
           <Link to="/app/medien" className="text-sm text-muted-foreground hover:underline">
             Dateien hochladen
           </Link>
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        }
+        bodyClassName="p-4 sm:p-6"
+      >
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {(libraryQuery.data ?? []).map((asset) => (
             <button
               key={asset.id}
               type="button"
               disabled={!canEdit}
               onClick={() => attachMutation.mutate([asset.id])}
-              className="rounded-md border p-1 text-left hover:border-primary"
+              className="overflow-hidden rounded-lg border border-border text-left transition-colors hover:border-primary"
               title={`${asset.filename} zu diesem Produkt hinzufügen`}
             >
               {asset.url ? (
                 <img
                   src={asset.url}
                   alt={asset.alt_text ?? asset.filename}
-                  className="aspect-square w-full rounded object-cover"
+                  className="aspect-square w-full object-cover"
                   loading="lazy"
                 />
               ) : (
-                <div className="aspect-square w-full rounded bg-muted" />
+                <div className="grid aspect-square w-full place-items-center bg-muted">
+                  <ImageOff className="size-4 text-muted-foreground" aria-hidden />
+                </div>
               )}
             </button>
           ))}
           {(libraryQuery.data ?? []).length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Die Bibliothek ist leer. {shopId ? "" : ""}
+            <p className="col-span-full text-sm text-muted-foreground">
+              Die Bibliothek ist leer.
             </p>
           )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
+
 }
