@@ -34,6 +34,8 @@ import { ScrollTabs, Panel } from "@/eyis/shell/DetailLayout";
 import { SaveBar } from "@/eyis/shell/SaveBar";
 import { StatusBadge, type StatusTone } from "@/eyis/data/StatusBadge";
 import { ArrowLeft, ImageOff, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 import { PricingTab } from "@/eyis/commerce/PricingTab";
 import { InventoryTab } from "@/eyis/commerce/InventoryTab";
 import {
