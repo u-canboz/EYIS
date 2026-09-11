@@ -236,7 +236,45 @@
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
+
+/* Einheitliche Formfelder im Backoffice: gleiche Höhe, gleiche Kante,
+   gleicher Fokus — unabhängig davon, welche Seite sie rendert. */
+.eyis-admin label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: color-mix(in oklab, var(--foreground) 78%, transparent);
+}
+
+.eyis-admin input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.eyis-admin textarea,
+.eyis-admin [data-slot="select-trigger"],
+.eyis-admin button[role="combobox"] {
+  background-color: var(--card);
+  border-color: var(--input);
+}
+
+.eyis-admin input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.eyis-admin [data-slot="select-trigger"],
+.eyis-admin button[role="combobox"] {
+  min-height: 2.5rem;
+}
+
+.eyis-admin input:focus-visible,
+.eyis-admin textarea:focus-visible,
+.eyis-admin [data-slot="select-trigger"]:focus-visible {
+  border-color: var(--ring);
+}
+
+/* Tabellenköpfe als ruhige Mikro-Labels statt fetter Zeilen. */
+.eyis-admin thead th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
 /* EYIS:ADMIN_SCOPE:END */
+
 
 @layer base {
   * {
