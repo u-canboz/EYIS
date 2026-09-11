@@ -450,69 +450,130 @@ function ProductEditor() {
           />
         </TabsContent>
 
-        <TabsContent value="organisation" className="space-y-6 pt-4">
-          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-            <p className="font-medium">Kategorien</p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {(taxonomyQuery.data?.flatCategories ?? []).map((cat) => (
-                <label key={cat.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    checked={categoryIds.includes(cat.id)}
-                    disabled={!canEdit}
-                    onCheckedChange={(checked) =>
-                      setCategoryIds(
-                        checked
-                          ? [...categoryIds, cat.id]
-                          : categoryIds.filter((i) => i !== cat.id),
-                      )
-                    }
-                  />
-                  {cat.name}
-                </label>
-              ))}
+        <TabsContent value="organisation" className="space-y-4 pt-4">
+          <Panel
+            title="Kategorien"
+            description={`${categoryIds.length} ausgewählt`}
+            bodyClassName="p-4 sm:p-6"
+          >
+            <div className="flex flex-wrap gap-2">
+              {(taxonomyQuery.data?.flatCategories ?? []).map((cat) => {
+                const checked = categoryIds.includes(cat.id);
+                return (
+                  <label
+                    key={cat.id}
+                    className={cn(
+                      "flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm transition-colors",
+                      checked
+                        ? "border-primary/40 bg-primary/10 text-foreground"
+                        : "border-border hover:bg-muted",
+                    )}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      disabled={!canEdit}
+                      onCheckedChange={(next) =>
+                        setCategoryIds(
+                          next ? [...categoryIds, cat.id] : categoryIds.filter((i) => i !== cat.id),
+                        )
+                      }
+                    />
+                    <span className="min-w-0 truncate">{cat.name}</span>
+                  </label>
+                );
+              })}
+              {(taxonomyQuery.data?.flatCategories ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Noch keine Kategorien angelegt.</p>
+              ) : null}
             </div>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-            <p className="font-medium">Kollektionen</p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {(taxonomyQuery.data?.collections ?? []).map((col) => (
-                <label key={col.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox
-                    checked={collectionIds.includes(col.id)}
-                    disabled={!canEdit}
-                    onCheckedChange={(checked) =>
-                      setCollectionIds(
-                        checked
-                          ? [...collectionIds, col.id]
-                          : collectionIds.filter((i) => i !== col.id),
-                      )
-                    }
-                  />
-                  {col.name}
-                </label>
-              ))}
+          </Panel>
+          <Panel
+            title="Kollektionen"
+            description={`${collectionIds.length} ausgewählt`}
+            bodyClassName="p-4 sm:p-6"
+          >
+            <div className="flex flex-wrap gap-2">
+              {(taxonomyQuery.data?.collections ?? []).map((col) => {
+                const checked = collectionIds.includes(col.id);
+                return (
+                  <label
+                    key={col.id}
+                    className={cn(
+                      "flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm transition-colors",
+                      checked
+                        ? "border-primary/40 bg-primary/10 text-foreground"
+                        : "border-border hover:bg-muted",
+                    )}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      disabled={!canEdit}
+                      onCheckedChange={(next) =>
+                        setCollectionIds(
+                          next
+                            ? [...collectionIds, col.id]
+                            : collectionIds.filter((i) => i !== col.id),
+                        )
+                      }
+                    />
+                    <span className="min-w-0 truncate">{col.name}</span>
+                  </label>
+                );
+              })}
+              {(taxonomyQuery.data?.collections ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Noch keine Kollektionen angelegt.</p>
+              ) : null}
             </div>
-          </div>
+          </Panel>
         </TabsContent>
 
-        <TabsContent value="seo" className="pt-4">
-          <div className="space-y-5 rounded-xl border border-border bg-card p-4 sm:p-6">
+        <TabsContent value="seo" className="space-y-4 pt-4">
+          <Panel
+            title="Auftritt bei Google"
+            description="So sieht der Eintrag ungefähr in der Suche aus."
+            bodyClassName="p-4 sm:p-6"
+          >
+            <div className="min-w-0 rounded-lg border border-border bg-muted/40 p-4">
+              <p className="truncate text-xs text-muted-foreground">
+                {typeof window === "undefined" ? "" : window.location.host}/produkt/
+                {form.handle || "…"}
+              </p>
+              <p className="mt-1 truncate font-display text-base font-medium text-info">
+                {form.seoTitle || form.name || "Produkttitel"}
+              </p>
+              <p className="mt-1 line-clamp-2 text-sm text-pretty text-muted-foreground">
+                {form.seoDescription ||
+                  form.subtitle ||
+                  form.description ||
+                  "Noch keine Beschreibung hinterlegt."}
+              </p>
+            </div>
+          </Panel>
+
+          <Panel title="Suchmaschinen-Angaben" bodyClassName="space-y-5 p-4 sm:p-6">
             <div>
-              <Label>SEO-Titel</Label>
+              <Label htmlFor="seo-title">SEO-Titel</Label>
               <Input
+                id="seo-title"
                 className="mt-2"
                 value={form.seoTitle}
                 disabled={!canEdit}
                 maxLength={60}
                 onChange={(e) => setForm({ ...form, seoTitle: e.target.value })}
               />
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p
+                className={cn(
+                  "mt-1 text-xs tabular-nums",
+                  form.seoTitle.length > 55 ? "text-warning" : "text-muted-foreground",
+                )}
+              >
                 {form.seoTitle.length}/60 Zeichen
               </p>
             </div>
             <div>
-              <Label>SEO-Beschreibung</Label>
+              <Label htmlFor="seo-description">SEO-Beschreibung</Label>
               <Textarea
+                id="seo-description"
                 className="mt-2"
                 rows={3}
                 maxLength={160}
@@ -520,23 +581,30 @@ function ProductEditor() {
                 disabled={!canEdit}
                 onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
               />
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p
+                className={cn(
+                  "mt-1 text-xs tabular-nums",
+                  form.seoDescription.length > 150 ? "text-warning" : "text-muted-foreground",
+                )}
+              >
                 {form.seoDescription.length}/160 Zeichen
               </p>
             </div>
-          </div>
+          </Panel>
         </TabsContent>
       </Tabs>
 
-      <StickyActionBar className="sm:hidden">
-        <Button
-          className="min-h-11 w-full"
-          disabled={!canEdit || saveMutation.isPending}
-          onClick={() => saveMutation.mutate()}
-        >
-          {saveMutation.isPending ? "Speichert…" : "Speichern"}
-        </Button>
-      </StickyActionBar>
+      <SaveBar
+        dirty={isDirty}
+        saving={saveMutation.isPending}
+        disabled={!canEdit}
+        hint="⌘S sichert, Verwerfen stellt den letzten gesicherten Stand her."
+        onSave={() => saveMutation.mutate()}
+        onDiscard={() => {
+          if (baseline) applySnapshot(baseline);
+        }}
+      />
+
     </div>
   );
 }
