@@ -1,6 +1,11 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+/* EYIS:ADMIN_FONTS:START — lokal gebündelt, keine externen Requests. */
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/space-grotesk";
+/* EYIS:ADMIN_FONTS:END */
+
 
 /*
  * Design system definition.
@@ -152,24 +157,26 @@
  * und EYIS-Tokens greifen umgekehrt niemals in die Kundenseite.
  */
 .eyis-admin {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --content-max: 84rem;
   --tap: 2.75rem;
-  --elevation-1: 0 1px 2px oklch(0.2 0.005 60 / 4%);
+  --elevation-1: 0 1px 1px oklch(0.2 0.005 60 / 4%), 0 4px 12px -8px oklch(0.2 0.005 60 / 16%);
   --elevation-2: 0 16px 40px -20px oklch(0.2 0.005 60 / 28%);
+
 
   /* Typografie lokal deklariert: ein Kunden-:root darf die Backoffice-Schrift
      nicht verändern. */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+  --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  --font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-display: "Space Grotesk Variable", "DM Sans Variable", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --background: oklch(0.972 0.003 85);
-  --foreground: oklch(0.205 0 0);
+  --background: oklch(0.964 0.003 85);
+  --foreground: oklch(0.19 0 0);
 
-  --surface: oklch(0.988 0.002 85);
-  --surface-foreground: oklch(0.205 0 0);
+  --surface: oklch(0.99 0.002 85);
+  --surface-foreground: oklch(0.19 0 0);
+
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.205 0 0);
@@ -230,11 +237,50 @@
 .eyis-admin h1,
 .eyis-admin h2,
 .eyis-admin h3,
-.eyis-admin h4 {
+.eyis-admin h4,
+.eyis-admin .font-display {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
+
+/* Einheitliche Formfelder im Backoffice: gleiche Höhe, gleiche Kante,
+   gleicher Fokus — unabhängig davon, welche Seite sie rendert. */
+.eyis-admin label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: color-mix(in oklab, var(--foreground) 78%, transparent);
+}
+
+.eyis-admin input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.eyis-admin textarea,
+.eyis-admin [data-slot="select-trigger"],
+.eyis-admin button[role="combobox"] {
+  background-color: var(--card);
+  border-color: var(--input);
+}
+
+.eyis-admin input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.eyis-admin [data-slot="select-trigger"],
+.eyis-admin button[role="combobox"] {
+  min-height: 2.5rem;
+}
+
+.eyis-admin input:focus-visible,
+.eyis-admin textarea:focus-visible,
+.eyis-admin [data-slot="select-trigger"]:focus-visible {
+  border-color: var(--ring);
+}
+
+/* Tabellenköpfe als ruhige Mikro-Labels statt fetter Zeilen. */
+.eyis-admin thead th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
 /* EYIS:ADMIN_SCOPE:END */
+
 
 @layer base {
   * {
