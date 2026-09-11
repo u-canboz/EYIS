@@ -29,9 +29,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
-import { ScrollTabs } from "@/eyis/shell/DetailLayout";
-import { ArrowLeft } from "lucide-react";
+import { PageHeader } from "@/eyis/shell/PageHeader";
+import { ScrollTabs, Panel } from "@/eyis/shell/DetailLayout";
+import { SaveBar } from "@/eyis/shell/SaveBar";
+import { StatusBadge, type StatusTone } from "@/eyis/data/StatusBadge";
+import { ArrowLeft, ImageOff, Star } from "lucide-react";
 import { PricingTab } from "@/eyis/commerce/PricingTab";
 import { InventoryTab } from "@/eyis/commerce/InventoryTab";
 import {
@@ -110,39 +112,80 @@ function ProductEditor() {
     queryFn: () => loadTaxConfig({ data: { organizationId, shopId } }),
   });
 
-  const [form, setForm] = useState({
+  type ProductForm = {
+    name: string;
+    handle: string;
+    subtitle: string;
+    description: string;
+    vendor: string;
+    status: "draft" | "active" | "archived";
+    seoTitle: string;
+    seoDescription: string;
+    taxClassId: string;
+  };
+  type Snapshot = {
+    form: ProductForm;
+    blueprintData: BlueprintData;
+    categoryIds: string[];
+    collectionIds: string[];
+  };
+
+  const [form, setForm] = useState<ProductForm>({
     name: "",
     handle: "",
     subtitle: "",
     description: "",
     vendor: "",
-    status: "draft" as "draft" | "active" | "archived",
+    status: "draft",
     seoTitle: "",
     seoDescription: "",
-    taxClassId: "" as string,
+    taxClassId: "",
   });
   const [blueprintData, setBlueprintData] = useState<BlueprintData>({});
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [collectionIds, setCollectionIds] = useState<string[]>([]);
+  const [baseline, setBaseline] = useState<Snapshot | null>(null);
+
+  const applySnapshot = (snapshot: Snapshot) => {
+    setForm(snapshot.form);
+    setBlueprintData(snapshot.blueprintData);
+    setCategoryIds(snapshot.categoryIds);
+    setCollectionIds(snapshot.collectionIds);
+  };
 
   useEffect(() => {
     if (!productQuery.data) return;
     const p = productQuery.data.product;
-    setForm({
-      name: p.name,
-      handle: p.handle,
-      subtitle: p.subtitle ?? "",
-      description: p.description ?? "",
-      vendor: p.vendor ?? "",
-      status: p.status,
-      seoTitle: p.seo_title ?? "",
-      seoDescription: p.seo_description ?? "",
-      taxClassId: ((p as { tax_class_id?: string | null }).tax_class_id ?? "") as string,
-    });
-    setBlueprintData((p.blueprint_data ?? {}) as BlueprintData);
-    setCategoryIds(productQuery.data.categoryIds);
-    setCollectionIds(productQuery.data.collectionIds);
+    const snapshot: Snapshot = {
+      form: {
+        name: p.name,
+        handle: p.handle,
+        subtitle: p.subtitle ?? "",
+        description: p.description ?? "",
+        vendor: p.vendor ?? "",
+        status: p.status,
+        seoTitle: p.seo_title ?? "",
+        seoDescription: p.seo_description ?? "",
+        taxClassId: ((p as { tax_class_id?: string | null }).tax_class_id ?? "") as string,
+      },
+      blueprintData: (p.blueprint_data ?? {}) as BlueprintData,
+      categoryIds: productQuery.data.categoryIds,
+      collectionIds: productQuery.data.collectionIds,
+    };
+    applySnapshot(snapshot);
+    setBaseline(snapshot);
   }, [productQuery.data]);
+
+  const serialize = (snapshot: Snapshot) =>
+    JSON.stringify({
+      form: snapshot.form,
+      blueprintData: snapshot.blueprintData,
+      categoryIds: [...snapshot.categoryIds].sort(),
+      collectionIds: [...snapshot.collectionIds].sort(),
+    });
+
+  const currentSnapshot: Snapshot = { form, blueprintData, categoryIds, collectionIds };
+  const isDirty = baseline !== null && serialize(currentSnapshot) !== serialize(baseline);
 
   const saveMutation = useMutation({
     mutationFn: () =>
@@ -165,7 +208,8 @@ function ProductEditor() {
         },
       }),
     onSuccess: () => {
-      toast.success("Produkt gespeichert.");
+      toast.success("Produkt gesichert.");
+      setBaseline(currentSnapshot);
       queryClient.invalidateQueries({ queryKey: ["product", productId] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
