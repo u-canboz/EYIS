@@ -152,11 +152,12 @@
  * und EYIS-Tokens greifen umgekehrt niemals in die Kundenseite.
  */
 .eyis-admin {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --content-max: 84rem;
   --tap: 2.75rem;
-  --elevation-1: 0 1px 2px oklch(0.2 0.005 60 / 4%);
+  --elevation-1: 0 1px 1px oklch(0.2 0.005 60 / 4%), 0 4px 12px -8px oklch(0.2 0.005 60 / 16%);
   --elevation-2: 0 16px 40px -20px oklch(0.2 0.005 60 / 28%);
+
 
   /* Typografie lokal deklariert: ein Kunden-:root darf die Backoffice-Schrift
      nicht verändern. */
