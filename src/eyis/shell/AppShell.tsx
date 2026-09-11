@@ -70,7 +70,15 @@ function OrgPicker({
   );
 }
 
+function initials(email?: string | undefined) {
+  const name = (email ?? "").split("@")[0] ?? "";
+  const parts = name.split(/[._-]+/).filter(Boolean);
+  const raw = (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "");
+  return raw ? raw.toUpperCase() : "EY";
+}
+
 function Wordmark({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+
   return (
     <Link
       to="/app"
@@ -109,19 +117,29 @@ function SidebarBody(
       <div className="min-w-0 px-2 py-3">
         <AppNav pathname={props.pathname} onNavigate={props.onNavigate} dense />
       </div>
-      <div className="mt-auto min-w-0 space-y-1 border-t border-sidebar-border px-3 py-3">
-        {props.email ? (
-          <p className="truncate px-2 text-xs text-sidebar-foreground/55">{props.email}</p>
-        ) : null}
-        <Button
-          variant="ghost"
-          className="min-h-11 w-full justify-start gap-2 text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          onClick={props.onSignOut}
-        >
-          <LogOut className="size-4 shrink-0" aria-hidden />
-          Abmelden
-        </Button>
+      <div className="mt-auto min-w-0 border-t border-sidebar-border px-3 py-3">
+        <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+          <span
+            aria-hidden
+            className="grid size-8 shrink-0 place-items-center rounded-full bg-sidebar-accent text-[11px] font-semibold text-sidebar-accent-foreground uppercase"
+          >
+            {initials(props.email)}
+          </span>
+          <span className="min-w-0 truncate text-xs text-sidebar-foreground/70">
+            {props.email ?? "Angemeldet"}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Abmelden"
+            className="size-9 shrink-0 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            onClick={props.onSignOut}
+          >
+            <LogOut className="size-4" aria-hidden />
+          </Button>
+        </div>
       </div>
+
     </div>
   );
 }
@@ -259,7 +277,7 @@ export function AppShell(props: Props) {
               </>
             ) : null}
           </div>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               onClick={() => palette.setOpen(true)}
@@ -269,7 +287,24 @@ export function AppShell(props: Props) {
               <span>Suchen</span>
               <kbd className="rounded border border-border px-1.5 py-0.5 text-[10px]">⌘K</kbd>
             </button>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={props.onSignOut}
+                    aria-label="Abmelden"
+                    className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-[11px] font-semibold text-foreground/80 uppercase transition-colors hover:bg-accent xl:hidden"
+                  >
+                    {initials(props.email)}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{props.email ?? "Abmelden"}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
           </div>
+
         </header>
 
         <main className="min-w-0 flex-1 px-4 py-5 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] sm:px-6 md:pb-10 xl:px-8 xl:py-7">

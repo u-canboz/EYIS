@@ -56,10 +56,17 @@ export function FilterBar({ search, filters, activeCount = 0, onReset, className
         </Sheet>
       </div>
 
-      <div className="hidden min-w-0 flex-wrap items-center gap-2 md:flex">
+      {/* Einheitliche Werkzeugleiste: alle Bedienelemente auf einer Höhe. */}
+      <div className="hidden min-w-0 flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2 md:flex [&_button[role=combobox]]:h-10 [&_input]:h-10 [&_button[data-slot=select-trigger]]:h-10">
         {search ? <div className="min-w-56 flex-1">{search}</div> : null}
         {filters}
+        {onReset && activeCount > 0 ? (
+          <Button variant="ghost" className="h-10 shrink-0" onClick={onReset}>
+            Zurücksetzen
+          </Button>
+        ) : null}
       </div>
+
     </div>
   );
 }

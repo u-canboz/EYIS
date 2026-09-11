@@ -58,9 +58,11 @@ export function Panel({
       )}
     >
       {title ? (
-        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3">
+        <header className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3.5 sm:px-5">
           <div className="min-w-0">
-            <h2 className="truncate font-display text-sm font-semibold tracking-tight">{title}</h2>
+            <h2 className="min-w-0 truncate font-display text-[0.95rem] font-semibold tracking-tight">
+              {title}
+            </h2>
             {description ? (
               <p className="mt-0.5 text-xs text-pretty text-muted-foreground">{description}</p>
             ) : null}
@@ -68,7 +70,8 @@ export function Panel({
           {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
         </header>
       ) : null}
-      <div className={cn("min-w-0 p-4", bodyClassName)}>{children}</div>
+      <div className={cn("min-w-0 px-4 py-4 sm:px-5", bodyClassName)}>{children}</div>
+
     </section>
   );
 }
