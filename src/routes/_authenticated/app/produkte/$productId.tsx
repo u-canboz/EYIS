@@ -875,81 +875,127 @@ function MediaTab({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-        <p className="font-medium">Produktgalerie</p>
-        <p className="text-sm text-muted-foreground">Das erste Bild ist das Titelbild.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="space-y-4">
+      <Panel
+        title="Produktgalerie"
+        description="Das erste Bild ist das Titelbild im Shop."
+        bodyClassName="p-4 sm:p-6"
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {media.map((item, index) => (
-            <div key={item.id} className="rounded-md border p-2">
-              {item.url ? (
-                <img
-                  src={item.url}
-                  alt={item.alt_text ?? item.filename}
-                  className="aspect-square w-full rounded object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="aspect-square w-full rounded bg-muted" />
-              )}
-              <p className="mt-2 truncate text-xs">{item.filename}</p>
+            <figure
+              key={item.id}
+              className="group min-w-0 overflow-hidden rounded-xl border border-border bg-card"
+            >
+              <div className="relative">
+                {item.url ? (
+                  <img
+                    src={item.url}
+                    alt={item.alt_text ?? item.filename}
+                    className="aspect-square w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="grid aspect-square w-full place-items-center bg-muted">
+                    <ImageOff className="size-5 text-muted-foreground" aria-hidden />
+                  </div>
+                )}
+                {index === 0 ? (
+                  <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground">
+                    <Star className="size-3 shrink-0" aria-hidden />
+                    Titelbild
+                  </span>
+                ) : null}
+              </div>
+              <figcaption className="min-w-0 px-3 pt-2">
+                <p className="truncate text-xs text-muted-foreground">{item.filename}</p>
+              </figcaption>
               {canEdit && (
-                <div className="mt-2 flex items-center gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => move(index, -1)}>
-                    ←
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => move(index, 1)}>
-                    →
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => detachMutation.mutate(item.id)}>
-                    Lösen
+                <div className="flex items-center gap-1 px-2 pt-1 pb-2">
+                  {index > 0 ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-9"
+                      onClick={() => move(index, -1)}
+                      aria-label="Bild nach vorn"
+                    >
+                      ←
+                    </Button>
+                  ) : null}
+                  {index < media.length - 1 ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-9"
+                      onClick={() => move(index, 1)}
+                      aria-label="Bild nach hinten"
+                    >
+                      →
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto min-h-9 text-muted-foreground"
+                    onClick={() => detachMutation.mutate(item.id)}
+                  >
+                    Entfernen
                   </Button>
                 </div>
               )}
-            </div>
+            </figure>
           ))}
           {media.length === 0 && (
-            <p className="text-sm text-muted-foreground">Noch keine Bilder zugeordnet.</p>
+            <p className="col-span-full text-sm text-muted-foreground">
+              Noch keine Bilder zugeordnet. Wähle unten ein Bild aus der Bibliothek.
+            </p>
           )}
         </div>
-      </div>
+      </Panel>
 
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <p className="font-medium">Medienbibliothek</p>
+      <Panel
+        title="Medienbibliothek"
+        description="Antippen fügt das Bild der Galerie hinzu."
+        actions={
           <Link to="/app/medien" className="text-sm text-muted-foreground hover:underline">
             Dateien hochladen
           </Link>
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        }
+        bodyClassName="p-4 sm:p-6"
+      >
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {(libraryQuery.data ?? []).map((asset) => (
             <button
               key={asset.id}
               type="button"
               disabled={!canEdit}
               onClick={() => attachMutation.mutate([asset.id])}
-              className="rounded-md border p-1 text-left hover:border-primary"
+              className="overflow-hidden rounded-lg border border-border text-left transition-colors hover:border-primary"
               title={`${asset.filename} zu diesem Produkt hinzufügen`}
             >
               {asset.url ? (
                 <img
                   src={asset.url}
                   alt={asset.alt_text ?? asset.filename}
-                  className="aspect-square w-full rounded object-cover"
+                  className="aspect-square w-full object-cover"
                   loading="lazy"
                 />
               ) : (
-                <div className="aspect-square w-full rounded bg-muted" />
+                <div className="grid aspect-square w-full place-items-center bg-muted">
+                  <ImageOff className="size-4 text-muted-foreground" aria-hidden />
+                </div>
               )}
             </button>
           ))}
           {(libraryQuery.data ?? []).length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Die Bibliothek ist leer. {shopId ? "" : ""}
+            <p className="col-span-full text-sm text-muted-foreground">
+              Die Bibliothek ist leer.
             </p>
           )}
         </div>
-      </div>
+      </Panel>
     </div>
   );
+
 }
