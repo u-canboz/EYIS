@@ -1,6 +1,11 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+/* EYIS:ADMIN_FONTS:START — lokal gebündelt, keine externen Requests. */
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/space-grotesk";
+/* EYIS:ADMIN_FONTS:END */
+
 
 /*
  * Design system definition.
