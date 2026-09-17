@@ -333,6 +333,10 @@ function FulfillmentDetail() {
                   <td className="p-3">
                     {showPicking && can("fulfillment.pick") ? (
                       <Input
+                        aria-label={`Gepickte Menge ${i.title}`}
+                        type="number"
+                        min={0}
+                        max={i.quantity}
                         className="min-h-11 w-20"
                         value={picked[i.id] ?? String(i.pickedQuantity || i.quantity)}
                         onChange={(e) => setPicked({ ...picked, [i.id]: e.target.value })}
@@ -368,6 +372,7 @@ function FulfillmentDetail() {
             <div className="grid gap-2">
               <Label>Gewicht (g)</Label>
               <Input
+                aria-label="Gewicht (g)"
                 className="h-11 w-40"
                 value={packWeight}
                 onChange={(e) => setPackWeight(e.target.value)}
@@ -394,7 +399,11 @@ function FulfillmentDetail() {
                 </Select>
               </div>
             ) : null}
-            <Button className="h-11" onClick={() => packMutation.mutate()} disabled={packMutation.isPending}>
+            <Button
+              className="h-11"
+              onClick={() => packMutation.mutate()}
+              disabled={packMutation.isPending}
+            >
               Alle gepickten Positionen verpacken
             </Button>
           </div>
@@ -523,7 +532,10 @@ function FulfillmentDetail() {
                     ) : (
                       <ul className="space-y-2 text-xs">
                         {events.data.map((e) => (
-                          <li key={e.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                          <li
+                            key={e.id}
+                            className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3"
+                          >
                             <span className="min-w-0 break-words">
                               <strong>{TRACKING_STATUS_LABELS[e.normalizedStatus]}</strong>
                               {e.description ? ` — ${e.description}` : ""}

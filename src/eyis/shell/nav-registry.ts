@@ -76,25 +76,23 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: ClipboardList,
     items: [
       { to: "/app/bestellungen", label: "Bestellungen", icon: ClipboardList, keywords: "orders" },
-      { to: "/app/zahlungen", label: "Zahlungen", icon: CreditCard, keywords: "payments refunds" },
+      {
+        to: "/app/zahlungen",
+        label: "Zahlungsanbieter",
+        icon: CreditCard,
+        keywords: "payments refunds",
+      },
       {
         to: "/app/warenkoerbe",
         label: "Warenkörbe & Checkouts",
         icon: ShoppingCart,
         keywords: "carts sessions",
       },
-      { to: "/app/marketing/promotions", label: "Promotions", icon: Megaphone, keywords: "rabatte" },
       {
-        to: "/app/marketing/branding",
-        label: "Storefront-Branding",
-        icon: FileText,
-        keywords: "logo farben shopname schriften design",
-      },
-      {
-        to: "/app/marketing/inhalte",
-        label: "Storefront-Inhalte",
-        icon: FileText,
-        keywords: "impressum agb datenschutz texte suchbegriffe",
+        to: "/app/marketing/promotions",
+        label: "Promotions",
+        icon: Megaphone,
+        keywords: "rabatte",
       },
       {
         to: "/app/marketing/google-shopping",
@@ -129,7 +127,12 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: "/app/lager/reservierungen", label: "Reservierungen", icon: Layers },
       { to: "/app/versand", label: "Fulfillment & Versand", icon: Truck, keywords: "shipping" },
       { to: "/app/versand/versandarten", label: "Versandarten", icon: Truck },
-      { to: "/app/versand/dienstleister", label: "Carrier", icon: Truck, keywords: "dienstleister" },
+      {
+        to: "/app/versand/dienstleister",
+        label: "Carrier",
+        icon: Truck,
+        keywords: "dienstleister",
+      },
     ],
   },
   {
@@ -153,7 +156,11 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: FileText,
         keywords: "belege invoices",
       },
-      { to: "/app/dokumente/einstellungen", label: "Dokument-Einstellungen", icon: SlidersHorizontal },
+      {
+        to: "/app/dokumente/einstellungen",
+        label: "Dokument-Einstellungen",
+        icon: SlidersHorizontal,
+      },
       { to: "/app/steuern", label: "Steuern", icon: Receipt, keywords: "tax ust vat" },
     ],
   },
@@ -163,8 +170,14 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: Mail,
     items: [
       { to: "/app/kommunikation", label: "Übersicht", icon: Mail },
-      { to: "/app/kommunikation/vorlagen", label: "Vorlagen", icon: FileText, keywords: "templates" },
+      {
+        to: "/app/kommunikation/vorlagen",
+        label: "Vorlagen",
+        icon: FileText,
+        keywords: "templates",
+      },
       { to: "/app/kommunikation/verlauf", label: "Versandprotokoll", icon: History },
+      { to: "/app/kommunikation/newsletter", label: "Newsletter Studio", icon: Megaphone },
       { to: "/app/kommunikation/branding", label: "Branding Studio", icon: Palette },
       { to: "/app/kommunikation/regeln", label: "Sende-Regeln", icon: SlidersHorizontal },
       { to: "/app/automationen", label: "Automationen", icon: Workflow },
@@ -282,4 +295,11 @@ export function navTrail(pathname: string): { group?: string; item?: string } {
     }
   }
   return best ? { group: best.group, item: best.item } : {};
+}
+
+/** Most specific menu destination; a parent and its settings must not both be current. */
+export function activeNavItem(pathname: string): NavItem | undefined {
+  return NAV_GROUPS.flatMap((g) => g.items)
+    .filter((item) => isActive(pathname, item))
+    .sort((a, b) => b.to.length - a.to.length)[0];
 }

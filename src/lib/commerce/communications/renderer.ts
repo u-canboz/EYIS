@@ -11,6 +11,8 @@ import {
   type ContextLineItem,
 } from "./communication.types";
 
+import { normalizeBranding } from "./mail-design";
+
 const ESCAPES: Record<string, string> = {
   "&": "&amp;",
   "<": "&lt;",
@@ -81,22 +83,52 @@ function renderBlock(
   const b = branding;
   switch (block.type) {
     case "logo": {
-      if (!b.logoUrl || !isSafeUrl(b.logoUrl)) {
+      if (!b.logoUrl || !(isSafeUrl(b.logoUrl) || /^cid:[a-zA-Z0-9-]+$/.test(b.logoUrl))) {
         return {
           html: `<div style="font-size:18px;font-weight:700;color:${b.primaryColor};padding-bottom:8px">${escapeHtml(ctx.shop.name)}</div>`,
           text: [ctx.shop.name],
         };
       }
       return {
-        html: `<div style="padding-bottom:8px"><img src="${escapeHtml(b.logoUrl)}" alt="${escapeHtml(ctx.shop.name)}" height="40" style="max-height:40px;border:0"/></div>`,
+        html: `<div style="padding-bottom:8px"><img src="${escapeHtml(b.logoUrl)}" alt="${escapeHtml(ctx.shop.name)}" height="48" style="display:block;max-height:48px;max-width:220px;width:auto;object-fit:contain;border:0"/></div>`,
         text: [ctx.shop.name],
+      };
+    }
+    case "attachment":
+      return null;
+    case "legal":
+      return b.legalText
+        ? {
+            html: `<div style="font-size:12px;line-height:1.6;color:${b.mutedTextColor};margin:24px 0">${escapeHtml(b.legalText).replace(/\n/g, "<br/>")}</div>`,
+            text: [b.legalText],
+          }
+        : null;
+    case "image": {
+      const asset = ctx.media?.[block.mediaId ?? ""];
+      if (!asset || !isSafeUrl(asset.url)) return null;
+      return {
+        html: `<img src="${escapeHtml(asset.url)}" alt="${escapeHtml(block.text || asset.filename)}" width="536" style="display:block;width:100%;max-width:536px;height:auto;border-radius:${b.borderRadius}px;margin:20px 0"/>`,
+        text: [block.text || asset.filename],
+      };
+    }
+    case "products": {
+      const products = (ctx.products ?? []).filter((p) => block.productIds?.includes(p.id));
+      if (!products.length) return null;
+      return {
+        html: products
+          .map(
+            (p) =>
+              `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:16px 0;border:1px solid #e4e4e7;border-radius:${b.borderRadius}px"><tr><td style="padding:20px">${p.imageUrl && isSafeUrl(p.imageUrl) ? `<img src="${escapeHtml(p.imageUrl)}" alt="" width="120" style="display:block;width:120px;height:auto;margin-bottom:16px"/>` : ""}<h2 style="font-size:18px;line-height:1.4;margin:0 0 8px">${escapeHtml(p.name)}</h2><p style="margin:0 0 16px;font-weight:600">${escapeHtml(p.price)}</p>${isSafeUrl(p.url) ? `<a href="${escapeHtml(p.url)}" style="color:${b.primaryColor};font-weight:600">Produkt ansehen →</a>` : ""}</td></tr></table>`,
+          )
+          .join(""),
+        text: products.map((p) => `${p.name} · ${p.price}\n${p.url}`),
       };
     }
     case "heading": {
       const value = interpolate(block.text ?? "", ctx).trim();
       if (!value) return null;
       return {
-        html: `<h1 style="margin:16px 0 8px;font-size:20px;line-height:1.3;color:${b.textColor}">${escapeHtml(value)}</h1>`,
+        html: `<h1 style="margin:16px 0 8px;font-size:28px;line-height:1.25;letter-spacing:-0.5px;color:${b.textColor}">${escapeHtml(value)}</h1>`,
         text: [value, "".padEnd(Math.min(value.length, 40), "=")],
       };
     }
@@ -117,7 +149,7 @@ function renderBlock(
         ? `background:${b.primaryColor};color:#ffffff;border:1px solid ${b.primaryColor}`
         : `background:transparent;color:${b.primaryColor};border:1px solid ${b.primaryColor}`;
       return {
-        html: `<div style="margin:16px 0"><a href="${escapeHtml(url)}" style="${style};border-radius:${b.borderRadius}px;display:inline-block;padding:10px 18px;font-weight:600;text-decoration:none">${escapeHtml(label)}</a></div>`,
+        html: `<div style="margin:16px 0"><a href="${escapeHtml(url)}" style="${style};border-radius:${b.borderRadius}px;display:inline-block;padding:14px 24px;font-weight:600;text-decoration:none">${escapeHtml(label)}</a></div>`,
         text: [`${label}: ${url}`],
       };
     }
@@ -257,11 +289,15 @@ function renderBlock(
         .join("");
       return {
         html: `<div style="margin-top:24px;padding-top:12px;border-top:1px solid #e4e4e7;color:${b.mutedTextColor};font-size:12px;line-height:1.5">${
-          footer ? `<div>${escapeHtml(footer)}</div>` : ""
+          footer ? `<div>${escapeHtml(footer).replace(/\n/g, "<br/>")}</div>` : ""
         }${contact.length ? `<div>${escapeHtml(contact.join(" · "))}</div>` : ""}${
           social ? `<div style="margin-top:6px">${social}</div>` : ""
-        }</div>`,
-        text: [footer, contact.join(" · ")].filter(Boolean),
+        }${ctx.links.unsubscribe && isSafeUrl(ctx.links.unsubscribe) ? `<div style="margin-top:16px"><a href="${escapeHtml(ctx.links.unsubscribe)}" style="color:${b.mutedTextColor}">Newsletter abmelden</a></div>` : ""}</div>`,
+        text: [
+          footer,
+          contact.join(" · "),
+          ctx.links.unsubscribe ? `Newsletter abmelden: ${ctx.links.unsubscribe}` : "",
+        ].filter(Boolean),
       };
     }
     default:
@@ -278,21 +314,28 @@ export function renderEmail(input: {
   context: CommunicationContext;
   branding?: Partial<CommunicationBranding> | null;
 }): RenderResult {
-  const branding: CommunicationBranding = { ...DEFAULT_BRANDING, ...(input.branding ?? {}) };
-  const rendered = input.blocks
+  const branding = normalizeBranding(input.branding ?? {});
+  const blocks: Block[] = [
+    { type: "logo" },
+    ...input.blocks.filter((b) => b.type !== "logo" && b.type !== "footer"),
+    { type: "footer" },
+  ];
+  const rendered = blocks
     .map((block) => renderBlock(block, input.context, branding))
     .filter((r): r is Rendered => r !== null);
 
-  const subject = interpolate(input.subject, input.context).trim();
+  const subject = interpolate(input.subject, input.context)
+    .replace(/[\r\n]/g, " ")
+    .trim();
   const preheader = interpolate(input.preheader ?? "", input.context).trim();
 
   const body = rendered.map((r) => r.html).join("\n");
-  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${escapeHtml(subject)}</title></head><body style="margin:0;padding:0;background:${branding.backgroundColor};font-family:${branding.fontFamily}">${
+  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${escapeHtml(subject)}</title></head><body style="margin:0;padding:0;background:${branding.backgroundColor};font-family:${branding.fontFamily};font-size:16px;color:${branding.textColor};-webkit-text-size-adjust:100%">${
     preheader
       ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(preheader)}</div>`
       : ""
-  }<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${branding.backgroundColor};padding:24px 12px"><tr><td align="center"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:${branding.contentBackgroundColor};border-radius:${branding.borderRadius}px;padding:24px;text-align:left">${
-    body ? `<tr><td>${body}</td></tr>` : ""
+  }<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${branding.backgroundColor};padding:24px 12px"><tr><td align="center"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:${branding.contentBackgroundColor};border-radius:${branding.borderRadius}px;text-align:left;border-top:4px solid ${branding.primaryColor}">${
+    body ? `<tr><td style="padding:32px;word-break:break-word">${body}</td></tr>` : ""
   }</table></td></tr></table></body></html>`;
 
   const text = rendered

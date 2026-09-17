@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "EYIS — Public Store API",
-    "version": "1.1.0",
+    "version": "1.3.0",
     "description": "Öffentliche Storefront-Schnittstelle. Generiert aus src/lib/commerce/store/api-catalog.ts durch scripts/manifest/generate.ts. Provenienz: docs/agent/store-api-v1.json."
   },
   "servers": [
@@ -25,6 +25,81 @@
     }
   },
   "paths": {
+    "/api/public/store/v1/newsletter/confirm": {
+      "post": {
+        "tags": [
+          "Newsletter"
+        ],
+        "summary": "Newsletter-Anmeldung mit Token bestätigen",
+        "description": "Auth: key · Rate-Profil: guest_lookup · SDK: `newsletter.confirm`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ok:true,discountCode:null}"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/newsletter/unsubscribe": {
+      "post": {
+        "tags": [
+          "Newsletter"
+        ],
+        "summary": "Newsletter mit Token abmelden",
+        "description": "Auth: key · Rate-Profil: guest_lookup · SDK: `newsletter.unsubscribe`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ok:true}"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/newsletter/subscribe": {
+      "post": {
+        "tags": [
+          "Newsletter"
+        ],
+        "summary": "Newsletter-Anmeldung anfordern",
+        "description": "Auth: key · Rate-Profil: guest_lookup · SDK: `newsletter.subscribe`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{accepted:true}"
+          },
+          "400": {
+            "description": "VALIDATION_ERROR — Eingabe ungültig; Details in fieldErrors."
+          },
+          "429": {
+            "description": "RATE_LIMITED — Zu viele Anfragen im Zeitfenster."
+          }
+        }
+      }
+    },
     "/api/public/store/v1/config": {
       "get": {
         "tags": [
@@ -516,6 +591,31 @@
         "responses": {
           "200": {
             "description": "StoreCheckout"
+          },
+          "403": {
+            "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."
+          },
+          "404": {
+            "description": "NOT_FOUND — Endpunkt oder Ressource existiert nicht."
+          }
+        }
+      }
+    },
+    "/api/public/store/v1/checkout/:sessionId/cancel": {
+      "post": {
+        "tags": [
+          "Checkout & Zahlung"
+        ],
+        "summary": "Checkout abbrechen, Reservierungen freigeben und Warenkorb entsperren.",
+        "description": "Auth: cart · Rate-Profil: checkout · SDK: `await client.checkout.cancel(sessionId)`",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "StoreCart"
           },
           "403": {
             "description": "FORBIDDEN — Origin gesperrt oder Ressource gehört zu einem anderen Shop."

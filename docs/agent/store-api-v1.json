@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-10T16:20:30.422Z",
-  "source_commit": "4a7292cef36c103ff6a293940ec5e9e71f9c0897",
-  "latest_migration": "20260910135845_64d7c7a3-27fe-42f0-80e7-2472854ae56a.sql",
+  "generated_at": "2026-09-17T13:31:06.314Z",
+  "source_commit": "0d628e8362d32ddb564280716eafacf1be6eb46a",
+  "latest_migration": "20260917132407_media_storage_policies.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
   "api_version": "v1",
   "base_path": "/api/public/store/v1",
-  "endpoint_count": 41,
-  "router_endpoint_count": 41,
+  "endpoint_count": 45,
+  "router_endpoint_count": 45,
   "headers": [
     {
       "name": "X-Commerce-Key",
@@ -137,6 +137,55 @@
     }
   ],
   "groups": [
+    {
+      "key": "newsletter",
+      "title": "Newsletter",
+      "description": "Anmeldung mit Double-Opt-in. Bestätigung und Abmeldung erfolgen über die Links in der E-Mail.",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/newsletter/confirm",
+          "auth": "key",
+          "profile": "guest_lookup",
+          "summary": "Newsletter-Anmeldung mit Token bestätigen",
+          "input": "{token}",
+          "output": "{ok:true,discountCode:null}",
+          "errors": [
+            "VALIDATION_ERROR",
+            "RATE_LIMITED"
+          ],
+          "sdk": "newsletter.confirm"
+        },
+        {
+          "method": "POST",
+          "path": "/newsletter/unsubscribe",
+          "auth": "key",
+          "profile": "guest_lookup",
+          "summary": "Newsletter mit Token abmelden",
+          "input": "{token}",
+          "output": "{ok:true}",
+          "errors": [
+            "VALIDATION_ERROR",
+            "RATE_LIMITED"
+          ],
+          "sdk": "newsletter.unsubscribe"
+        },
+        {
+          "method": "POST",
+          "path": "/newsletter/subscribe",
+          "auth": "key",
+          "profile": "guest_lookup",
+          "summary": "Newsletter-Anmeldung anfordern",
+          "input": "{email, firstName?, consent:true, consentText}",
+          "output": "{accepted:true}",
+          "errors": [
+            "VALIDATION_ERROR",
+            "RATE_LIMITED"
+          ],
+          "sdk": "newsletter.subscribe"
+        }
+      ]
+    },
     {
       "key": "config",
       "title": "Konfiguration",
@@ -439,6 +488,19 @@
             "FORBIDDEN"
           ],
           "sdk": "await client.checkout.get(sessionId)"
+        },
+        {
+          "method": "POST",
+          "path": "/checkout/:sessionId/cancel",
+          "auth": "cart",
+          "profile": "checkout",
+          "summary": "Checkout abbrechen, Reservierungen freigeben und Warenkorb entsperren.",
+          "output": "StoreCart",
+          "errors": [
+            "NOT_FOUND",
+            "FORBIDDEN"
+          ],
+          "sdk": "await client.checkout.cancel(sessionId)"
         },
         {
           "method": "POST",
@@ -746,6 +808,54 @@
   ],
   "endpoints": [
     {
+      "method": "POST",
+      "path": "/newsletter/confirm",
+      "auth": "key",
+      "profile": "guest_lookup",
+      "summary": "Newsletter-Anmeldung mit Token bestätigen",
+      "input": "{token}",
+      "output": "{ok:true,discountCode:null}",
+      "errors": [
+        "VALIDATION_ERROR",
+        "RATE_LIMITED"
+      ],
+      "sdk": "newsletter.confirm",
+      "group": "newsletter",
+      "groupTitle": "Newsletter"
+    },
+    {
+      "method": "POST",
+      "path": "/newsletter/unsubscribe",
+      "auth": "key",
+      "profile": "guest_lookup",
+      "summary": "Newsletter mit Token abmelden",
+      "input": "{token}",
+      "output": "{ok:true}",
+      "errors": [
+        "VALIDATION_ERROR",
+        "RATE_LIMITED"
+      ],
+      "sdk": "newsletter.unsubscribe",
+      "group": "newsletter",
+      "groupTitle": "Newsletter"
+    },
+    {
+      "method": "POST",
+      "path": "/newsletter/subscribe",
+      "auth": "key",
+      "profile": "guest_lookup",
+      "summary": "Newsletter-Anmeldung anfordern",
+      "input": "{email, firstName?, consent:true, consentText}",
+      "output": "{accepted:true}",
+      "errors": [
+        "VALIDATION_ERROR",
+        "RATE_LIMITED"
+      ],
+      "sdk": "newsletter.subscribe",
+      "group": "newsletter",
+      "groupTitle": "Newsletter"
+    },
+    {
       "method": "GET",
       "path": "/config",
       "auth": "key",
@@ -1052,6 +1162,21 @@
         "FORBIDDEN"
       ],
       "sdk": "await client.checkout.get(sessionId)",
+      "group": "checkout",
+      "groupTitle": "Checkout & Zahlung"
+    },
+    {
+      "method": "POST",
+      "path": "/checkout/:sessionId/cancel",
+      "auth": "cart",
+      "profile": "checkout",
+      "summary": "Checkout abbrechen, Reservierungen freigeben und Warenkorb entsperren.",
+      "output": "StoreCart",
+      "errors": [
+        "NOT_FOUND",
+        "FORBIDDEN"
+      ],
+      "sdk": "await client.checkout.cancel(sessionId)",
       "group": "checkout",
       "groupTitle": "Checkout & Zahlung"
     },

@@ -84,7 +84,10 @@ function TemplatesPage() {
       {templates.isLoading ? (
         <ListSkeleton rows={3} />
       ) : !visible.length ? (
-        <EmptyState title="Keine Vorlagen" description="Für diese Kategorie gibt es keine Vorlagen." />
+        <EmptyState
+          title="Keine Vorlagen"
+          description="Für diese Kategorie gibt es keine Vorlagen."
+        />
       ) : (
         <>
           <RecordCardList>

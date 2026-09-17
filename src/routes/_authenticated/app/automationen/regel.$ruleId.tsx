@@ -123,7 +123,7 @@ function RuleEditor() {
   const [triggerType, setTriggerType] = useState<"domain_event" | "schedule" | "manual">(
     "domain_event",
   );
-  const [eventType, setEventType] = useState("order.paid");
+  const [eventType, setEventType] = useState("payment.succeeded");
   const [scheduleKind, setScheduleKind] = useState("unfulfilled_orders");
   const [everyMinutes, setEveryMinutes] = useState(60);
   const [olderThanHours, setOlderThanHours] = useState(24);
@@ -363,7 +363,7 @@ function RuleEditor() {
                     value={triggerType}
                     onValueChange={(v) => setTriggerType(v as typeof triggerType)}
                   >
-                    <SelectTrigger className="h-11 w-full">
+                    <SelectTrigger aria-label="Art" className="h-11 w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -377,7 +377,7 @@ function RuleEditor() {
                   <div className="space-y-2">
                     <Label>Ereignis</Label>
                     <Select value={eventType} onValueChange={setEventType}>
-                      <SelectTrigger className="h-11 w-full">
+                      <SelectTrigger aria-label="Ereignis" className="h-11 w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -395,7 +395,7 @@ function RuleEditor() {
                     <div className="space-y-2">
                       <Label>Was wird geprüft</Label>
                       <Select value={scheduleKind} onValueChange={setScheduleKind}>
-                        <SelectTrigger className="h-11 w-full">
+                        <SelectTrigger aria-label="Was wird geprüft" className="h-11 w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -439,7 +439,7 @@ function RuleEditor() {
               title="2. Bedingungen"
               actions={
                 <Select value={mode} onValueChange={(v) => setMode(v as "all" | "any")}>
-                  <SelectTrigger className="min-h-11 w-44">
+                  <SelectTrigger aria-label="Verknüpfung der Bedingungen" className="min-h-11 w-44">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -559,10 +559,22 @@ function RuleEditor() {
                         </p>
                       </div>
                       <div className="flex shrink-0 gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => moveAction(i, -1)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={`Aktion ${i + 1} nach oben verschieben`}
+                          disabled={i === 0}
+                          onClick={() => moveAction(i, -1)}
+                        >
                           ↑
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => moveAction(i, 1)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={`Aktion ${i + 1} nach unten verschieben`}
+                          disabled={i === actions.length - 1}
+                          onClick={() => moveAction(i, 1)}
+                        >
                           ↓
                         </Button>
                         <Button
@@ -580,6 +592,7 @@ function RuleEditor() {
                           <Label className="text-xs">{p.label}</Label>
                           {p.type === "textarea" ? (
                             <Textarea
+                              aria-label={`Aktion ${i + 1}: ${p.label}`}
                               rows={2}
                               value={String(action.config[p.key] ?? "")}
                               onChange={(e) =>
@@ -631,7 +644,10 @@ function RuleEditor() {
                                 updateAction(i, { config: { ...action.config, [p.key]: v } })
                               }
                             >
-                              <SelectTrigger className="h-11 w-full">
+                              <SelectTrigger
+                                aria-label={`Aktion ${i + 1}: ${p.label}`}
+                                className="h-11 w-full"
+                              >
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -643,6 +659,7 @@ function RuleEditor() {
                             </Select>
                           ) : (
                             <Input
+                              aria-label={`Aktion ${i + 1}: ${p.label}`}
                               className="h-11"
                               type={p.type === "number" ? "number" : "text"}
                               placeholder={p.placeholder}
@@ -664,6 +681,7 @@ function RuleEditor() {
                       <div className="space-y-1">
                         <Label className="text-xs">Verzögerung (Sekunden)</Label>
                         <Input
+                          aria-label="Verzögerung (Sekunden)"
                           className="h-11"
                           type="number"
                           min={0}
@@ -754,6 +772,7 @@ function RuleEditor() {
                   Prüft Bedingungen und geplante Aktionen — ohne etwas auszuführen.
                 </p>
                 <Textarea
+                  aria-label="Testdaten (JSON)"
                   rows={8}
                   className="font-mono text-xs"
                   value={payloadText}
@@ -797,7 +816,7 @@ function RuleEditor() {
                     <ul className="space-y-1 text-xs">
                       {dryResult.actions.map((a) => (
                         <li key={a.position} className="min-w-0 break-words">
-                          {a.position}. {findAction(a.actionType)?.label ?? a.actionType}{" "}
+                          {a.position + 1}. {findAction(a.actionType)?.label ?? a.actionType}{" "}
                           {a.wouldRun ? "→ würde ausgeführt" : "→ übersprungen"}
                         </li>
                       ))}

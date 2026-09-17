@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { commerceKeys } from "@/lib/store-sdk/react/hooks";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { useCommerce } from "@/lib/store-sdk/react/provider";
@@ -55,6 +57,7 @@ function StepHeading({ step, title }: { step: number; title: string }) {
 function StoreCheckoutPage() {
   const client = useCommerce();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [session, setSession] = useState<StoreCheckout | null>(null);
   const [options, setOptions] = useState<StoreShippingOption[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<StorePaymentMethod[]>([]);
@@ -70,14 +73,19 @@ function StoreCheckoutPage() {
     client.checkout
       .start(null)
       .then((s) => {
-        if (!cancelled) setSession(s);
+        if (!cancelled) {
+          setSession(s);
+          queryClient.setQueryData(commerceKeys.cart, s.cart);
+          setEmail(s.email ?? "");
+          if (s.shippingAddress) setAddress({ ...EMPTY_ADDRESS, ...s.shippingAddress });
+        }
       })
       .catch((e: Error) => !cancelled && setError(e.message))
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
-  }, [client]);
+  }, [client, queryClient]);
 
   if (error)
     return (
@@ -108,6 +116,19 @@ function StoreCheckoutPage() {
         </div>
       </StoreContainer>
     );
+
+  const returnToCart = async () => {
+    setBusy(true);
+    try {
+      const cart = await client.checkout.cancel(session.id);
+      queryClient.setQueryData(commerceKeys.cart, cart);
+      await navigate({ to: "/store/warenkorb" });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const submitAddress = async () => {
     setBusy(true);
@@ -168,18 +189,26 @@ function StoreCheckoutPage() {
 
   return (
     <StoreContainer className="py-6 sm:py-10">
-      <Link
-        to="/store/warenkorb"
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => void returnToCart()}
         className="-ml-2 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-4 shrink-0" aria-hidden />
-        Warenkorb
-      </Link>
+        Warenkorb bearbeiten
+      </button>
 
       <StoreHeading className="mt-4" title="Kasse" />
 
       <div className="mt-7 space-y-5">
-        <section className="min-w-0 space-y-4 rounded-2xl border border-border p-5">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submitAddress();
+          }}
+          className="min-w-0 space-y-4 rounded-2xl border border-border p-5"
+        >
           <StepHeading step={1} title="E-Mail & Adresse" />
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="min-w-0 sm:col-span-2">
@@ -187,6 +216,8 @@ function StoreCheckoutPage() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
+                required
                 className="mt-1.5 h-11"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -206,6 +237,19 @@ function StoreCheckoutPage() {
                 <Label htmlFor={field}>{label}</Label>
                 <Input
                   id={field}
+                  required
+                  autoComplete={
+                    {
+                      firstName: "given-name",
+                      lastName: "family-name",
+                      street: "street-address",
+                      postalCode: "postal-code",
+                      city: "address-level2",
+                      countryCode: "country",
+                    }[field]
+                  }
+                  minLength={field === "countryCode" ? 2 : undefined}
+                  maxLength={field === "countryCode" ? 2 : undefined}
                   className="mt-1.5 h-11"
                   value={address[field]}
                   onChange={(e) => setAddress((a) => ({ ...a, [field]: e.target.value }))}
@@ -213,14 +257,10 @@ function StoreCheckoutPage() {
               </div>
             ))}
           </div>
-          <Button
-            className="h-12 w-full text-base"
-            onClick={submitAddress}
-            disabled={busy || !email}
-          >
+          <Button className="h-12 w-full text-base" type="submit" disabled={busy || !email}>
             Weiter zum Versand
           </Button>
-        </section>
+        </form>
 
         {options.length > 0 ? (
           <section className="min-w-0 space-y-4 rounded-2xl border border-border p-5">

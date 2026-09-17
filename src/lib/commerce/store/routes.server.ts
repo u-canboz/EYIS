@@ -71,6 +71,64 @@ async function assertCheckoutOwnership(ctx: StoreCtx, sessionId: string) {
 
 export const storeRoutes: RouteDef[] = [
   {
+    method: "POST",
+    path: "/newsletter/confirm",
+    profile: "guest_lookup",
+    schema: z.object({ token: z.string().regex(/^[a-f0-9]{64}$/) }),
+    handler: async (ctx) => {
+      const { confirmNewsletter } = await import("../communications/newsletter.server");
+      try {
+        return {
+          ...(await confirmNewsletter((ctx.body as { token: string }).token, {
+            organizationId: ctx.key.organizationId,
+            shopId: ctx.key.shopId,
+          })),
+          discountCode: null,
+        };
+      } catch {
+        throw badRequest("Dieser Bestätigungslink ist ungültig oder abgelaufen.");
+      }
+    },
+  },
+  {
+    method: "POST",
+    path: "/newsletter/unsubscribe",
+    profile: "guest_lookup",
+    schema: z.object({ token: z.string().uuid() }),
+    handler: async (ctx) => {
+      const { unsubscribeNewsletter } = await import("../communications/newsletter.server");
+      try {
+        return await unsubscribeNewsletter((ctx.body as { token: string }).token, {
+          organizationId: ctx.key.organizationId,
+          shopId: ctx.key.shopId,
+        });
+      } catch {
+        throw badRequest("Dieser Abmeldelink ist ungültig.");
+      }
+    },
+  },
+
+  {
+    method: "POST",
+    path: "/newsletter/subscribe",
+    profile: "guest_lookup",
+    schema: z.object({
+      email: z.string().email().max(254),
+      firstName: z.string().max(100).optional(),
+      consent: z.literal(true),
+      consentText: z.string().min(10).max(2000),
+    }),
+    handler: async (ctx) => {
+      const input = ctx.body as { email: string; firstName?: string; consentText: string };
+      await ctx.limit("guest_lookup", await hashToken(input.email.trim().toLowerCase()));
+      const { subscribeNewsletter } = await import("../communications/newsletter.server");
+      return subscribeNewsletter(
+        { organizationId: ctx.key.organizationId, shopId: ctx.key.shopId },
+        input,
+      );
+    },
+  },
+  {
     method: "GET",
     path: "/config",
     profile: "catalog_read",
@@ -426,6 +484,18 @@ export const storeRoutes: RouteDef[] = [
       const token = ctx.requireCartToken();
       void session;
       return mapCheckout((await getCheckoutFn({ data: { sessionId, token } })) as never);
+    },
+  },
+  {
+    method: "POST",
+    path: "/checkout/:sessionId/cancel",
+    profile: "checkout",
+    handler: async (ctx) => {
+      const sessionId = ctx.params["sessionId"] ?? "";
+      await assertCheckoutOwnership(ctx, sessionId);
+      const { cancelCheckoutFn } = await import("../checkout.functions");
+      const result = await cancelCheckoutFn({ data: { sessionId, token: ctx.requireCartToken() } });
+      return mapCart(result.cart);
     },
   },
   {

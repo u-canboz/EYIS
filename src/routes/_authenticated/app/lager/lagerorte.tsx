@@ -1,3 +1,4 @@
+import { PageHeader } from "@/eyis/shell/PageHeader";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -95,12 +96,12 @@ function LocationsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Lagerorte</h1>
-        <p className="text-muted-foreground text-sm">
-          Die Priorität bestimmt später, welches Lager bevorzugt beliefert oder entnommen wird.
-        </p>
-      </header>
+      <PageHeader
+        title="Lagerorte"
+        description={
+          <>Die Priorität bestimmt später, welches Lager bevorzugt beliefert oder entnommen wird.</>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="overflow-x-auto rounded-lg border">
@@ -160,11 +161,16 @@ function LocationsPage() {
           </h2>
           <div className="space-y-2">
             <Label>Name</Label>
-            <Input value={name} onChange={(event) => setName(event.target.value)} />
+            <Input
+              aria-label="Name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <Label>Code</Label>
             <Input
+              aria-label="Code"
               value={code}
               onChange={(event) => setCode(event.target.value)}
               placeholder="BER"
@@ -173,7 +179,7 @@ function LocationsPage() {
           <div className="space-y-2">
             <Label>Typ</Label>
             <Select value={type} onValueChange={(value) => setType(value as LocationType)}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Typ">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -188,6 +194,7 @@ function LocationsPage() {
           <div className="space-y-2">
             <Label>Priorität</Label>
             <Input
+              aria-label="Priorität"
               inputMode="numeric"
               value={priority}
               onChange={(event) => setPriority(event.target.value)}
@@ -197,7 +204,7 @@ function LocationsPage() {
             <div className="space-y-2">
               <Label>Status</Label>
               <Select value={status} onValueChange={(value) => setStatus(value as typeof status)}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Status">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

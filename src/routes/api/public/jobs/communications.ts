@@ -13,8 +13,11 @@ export const Route = createFileRoute("/api/public/jobs/communications")({
         const denied = await authenticateCronRequest(request);
         if (denied) return denied;
         const { processQueue } = await import("@/lib/commerce/communications/communication.server");
+        const { processNewsletters } =
+          await import("@/lib/commerce/communications/newsletter.server");
+        const newsletters = await processNewsletters();
         const result = await processQueue(50);
-        return Response.json({ ok: true, ...result });
+        return Response.json({ ok: true, newsletters, ...result });
       },
     },
   },

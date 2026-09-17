@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useProducts, useSearch } from "@/lib/store-sdk/react/hooks";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -44,9 +45,9 @@ function StoreCatalog() {
   return (
     <StoreContainer wide className="py-8 sm:py-12">
       <StoreHeading
-        eyebrow="Kollektion"
-        title="Ausgewählte Stücke"
-        description="Sorgfältig kuratiert, in kleinen Auflagen gefertigt und direkt versandbereit."
+        eyebrow="Unser Sortiment"
+        title="Entdecke unsere Produkte"
+        description="Finde dein nächstes Lieblingsstück. Details, verfügbare Varianten und Preise siehst du direkt am Produkt."
       />
 
       <div className="relative mt-7 mb-9 max-w-md">
@@ -78,11 +79,23 @@ function StoreCatalog() {
           tone="error"
           title="Der Katalog konnte nicht geladen werden"
           description={(active.error as Error).message}
+          action={
+            <Button variant="outline" onClick={() => void active.refetch()}>
+              Erneut laden
+            </Button>
+          }
         />
       ) : products.length === 0 ? (
         <StoreNotice
           title="Keine Produkte gefunden"
-          description="Versuche einen anderen Suchbegriff oder sieh dir die gesamte Kollektion an."
+          description="Versuche einen anderen Suchbegriff oder sieh dir das gesamte Sortiment an."
+          action={
+            term ? (
+              <Button variant="outline" onClick={() => setTerm("")}>
+                Alle Produkte anzeigen
+              </Button>
+            ) : undefined
+          }
         />
       ) : (
         <ProductGrid>
@@ -98,10 +111,9 @@ function StoreCatalog() {
                 {product.title}
               </h2>
               <p className="mt-1 text-sm wrap-anywhere text-muted-foreground tabular-nums">
-                {formatPrice(
-                  product.price?.unitAmountMinor ?? 0,
-                  product.price?.currencyCode ?? "EUR",
-                )}
+                {product.price
+                  ? formatPrice(product.price.unitAmountMinor, product.price.currencyCode)
+                  : "Preis nicht verfügbar"}
               </p>
             </Link>
           ))}

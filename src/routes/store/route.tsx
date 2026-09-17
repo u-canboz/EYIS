@@ -12,7 +12,8 @@ import { ShoppingBag, User } from "lucide-react";
 import { CommerceProvider } from "@/lib/store-sdk/react/provider";
 import type { CommerceClientConfig, ResolvedRuntime } from "@/lib/store-sdk";
 import { resolveRuntime } from "@/lib/store-sdk";
-import { useCart } from "@/lib/store-sdk/react/hooks";
+import { useCart, useStoreConfig } from "@/lib/store-sdk/react/hooks";
+import { NewsletterSignup } from "./-NewsletterSignup";
 import { StoreContainer } from "@/components/storefront/StoreChrome";
 
 export const Route = createFileRoute("/store")({
@@ -89,6 +90,7 @@ function StoreLayout() {
         </main>
         <footer className="border-t border-border py-8">
           <StoreContainer wide>
+            <NewsletterSignup />
             <p className="text-xs text-muted-foreground">
               Referenz-Storefront · Preise inkl. gesetzlicher Umsatzsteuer, zzgl. Versand.
             </p>
@@ -112,18 +114,19 @@ function StoreLayout() {
 
 function StoreHeader() {
   const cart = useCart();
+  const config = useStoreConfig();
   const count = cart.data?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
       <StoreContainer wide className="flex min-h-16 items-center gap-4">
         <Link
           to="/store"
-          className="flex min-h-11 min-w-0 shrink-0 items-center rounded-md font-display text-base font-semibold tracking-tight focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:text-lg"
+          className="flex min-h-11 min-w-0 flex-1 items-center rounded-md font-display text-base font-semibold tracking-tight focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:text-lg"
         >
-          Atelier
+          <span className="truncate">{config.data?.shop.name ?? "Shop"}</span>
         </Link>
-        <nav className="ml-auto flex items-center gap-1">
+        <nav aria-label="Shop-Navigation" className="ml-auto flex shrink-0 items-center gap-1">
           <Link
             to="/store"
             className="hidden min-h-11 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground sm:inline-flex"

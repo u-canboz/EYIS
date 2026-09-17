@@ -17,7 +17,12 @@ export function NewsletterSignup({ source = "storefront" }: { source?: string })
     event.preventDefault();
     const value = email.trim();
     if (!value.includes("@")) return;
-    subscribe.mutate({ email: value, source });
+    subscribe.mutate({
+      email: value,
+      consent: true,
+      consentText:
+        "Ich möchte Neuigkeiten und Angebote per E-Mail erhalten. Abmeldung jederzeit möglich.",
+    });
   }
 
   return (
@@ -37,10 +42,7 @@ export function NewsletterSignup({ source = "storefront" }: { source?: string })
               {newsletter.success}
             </p>
           ) : (
-            <form
-              onSubmit={onSubmit}
-              className="mt-8 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
-            >
+            <form onSubmit={onSubmit} className="mt-8 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
               <label className="sr-only" htmlFor="newsletter-email">
                 E-Mail-Adresse
               </label>
@@ -62,6 +64,11 @@ export function NewsletterSignup({ source = "storefront" }: { source?: string })
               >
                 {subscribe.isPending ? "Wird gesendet …" : newsletter.cta}
               </Button>
+              <label className="flex items-start gap-3 text-left text-xs sm:col-span-full">
+                <input type="checkbox" required className="mt-1 shrink-0" />
+                Ich möchte Neuigkeiten und Angebote per E-Mail erhalten. Abmeldung jederzeit
+                möglich.
+              </label>
             </form>
           )}
 

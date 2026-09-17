@@ -175,6 +175,7 @@ function TaxonomyPage() {
             <div>
               <Label>Neue Kategorie</Label>
               <Input
+                aria-label="Neue Kategorie"
                 className="mt-2 h-11"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
@@ -183,7 +184,7 @@ function TaxonomyPage() {
             <div>
               <Label>Übergeordnet</Label>
               <Select value={parentId} onValueChange={setParentId}>
-                <SelectTrigger className="mt-2 h-11">
+                <SelectTrigger aria-label="Übergeordnet" className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -246,6 +247,7 @@ function TaxonomyPage() {
             <div className="w-full flex-1">
               <Label>Neue Kollektion</Label>
               <Input
+                aria-label="Neue Kollektion"
                 className="mt-2 h-11"
                 value={collectionName}
                 onChange={(e) => setCollectionName(e.target.value)}

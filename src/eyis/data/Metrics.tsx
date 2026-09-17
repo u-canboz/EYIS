@@ -27,7 +27,7 @@ export function LeadMetric({
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <p className="min-w-0 truncate text-xs font-medium text-muted-foreground">{label}</p>
-          <p className="mt-1 font-display text-3xl leading-none font-semibold tracking-tight tabular-nums">
+          <p className="mt-1 font-display text-4xl leading-none font-semibold tracking-tight tabular-nums">
             {value}
           </p>
           {caption ? (
@@ -37,7 +37,7 @@ export function LeadMetric({
         {typeof trendPercent === "number" ? <Trend value={trendPercent} /> : null}
       </div>
       {series && series.length > 1 ? (
-        <Sparkline values={series} className="mt-3 h-12 w-full" />
+        <Sparkline values={series} className="mt-6 h-32 w-full sm:h-44" />
       ) : null}
     </div>
   );
@@ -59,7 +59,7 @@ export function SubMetric({
 }) {
   const body = (
     <>
-      <p className="min-w-0 truncate text-xs text-muted-foreground">{label}</p>
+      <p className="min-w-0 truncate text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 font-display text-xl leading-none font-semibold tabular-nums">{value}</p>
       {caption ? (
         <p className="mt-1 min-w-0 truncate text-xs text-muted-foreground">{caption}</p>
@@ -142,50 +142,52 @@ export function AttentionList({
 }) {
   return (
     <ul className="min-w-0 divide-y divide-border">
-      {items.map((item) => {
-        const alert = item.count > 0;
-        return (
-          <li key={item.key} className="min-w-0">
-            <Link
-              to={item.to}
-              className="grid min-h-12 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-2 hover:bg-muted/50"
-            >
-              <span
-                aria-hidden
-                className={cn(
-                  "size-2 shrink-0 rounded-full",
-                  !alert
-                    ? "bg-border-strong"
-                    : item.tone === "critical"
-                      ? "bg-destructive"
-                      : item.tone === "warn"
-                        ? "bg-warning"
-                        : "bg-primary",
-                )}
-              />
-              <span className="min-w-0">
-                <span className="block min-w-0 truncate text-sm">{item.label}</span>
-                {item.hint ? (
-                  <span className="block min-w-0 truncate text-xs text-muted-foreground">
-                    {item.hint}
-                  </span>
-                ) : null}
-              </span>
-              <span className="flex shrink-0 items-center gap-1.5">
+      {[...items]
+        .sort((a, b) => b.count - a.count)
+        .map((item) => {
+          const alert = item.count > 0;
+          return (
+            <li key={item.key} className="min-w-0">
+              <Link
+                to={item.to}
+                className="grid min-h-12 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-2 hover:bg-muted/50"
+              >
                 <span
+                  aria-hidden
                   className={cn(
-                    "text-sm font-semibold tabular-nums",
-                    !alert && "text-muted-foreground",
+                    "size-2 shrink-0 rounded-full",
+                    !alert
+                      ? "bg-border-strong"
+                      : item.tone === "critical"
+                        ? "bg-destructive"
+                        : item.tone === "warn"
+                          ? "bg-warning"
+                          : "bg-primary",
                   )}
-                >
-                  {item.count}
+                />
+                <span className="min-w-0">
+                  <span className="block min-w-0 truncate text-sm">{item.label}</span>
+                  {item.hint ? (
+                    <span className="block min-w-0 truncate text-xs text-muted-foreground">
+                      {item.hint}
+                    </span>
+                  ) : null}
                 </span>
-                <ChevronRight className="size-4 text-muted-foreground/60" aria-hidden />
-              </span>
-            </Link>
-          </li>
-        );
-      })}
+                <span className="flex shrink-0 items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "text-sm font-semibold tabular-nums",
+                      !alert && "text-muted-foreground",
+                    )}
+                  >
+                    {item.count}
+                  </span>
+                  <ChevronRight className="size-4 text-muted-foreground/60" aria-hidden />
+                </span>
+              </Link>
+            </li>
+          );
+        })}
     </ul>
   );
 }
@@ -214,7 +216,10 @@ export function DistributionBar({
       </div>
       <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-4">
         {segments.map((s) => (
-          <li key={s.key} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+          <li
+            key={s.key}
+            className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"
+          >
             <span aria-hidden className={cn("size-2 shrink-0 rounded-full", s.className)} />
             <span className="min-w-0 truncate text-xs text-muted-foreground">{s.label}</span>
             <span className="shrink-0 text-xs font-medium tabular-nums">{s.value}</span>

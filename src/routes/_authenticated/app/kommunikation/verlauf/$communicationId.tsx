@@ -118,7 +118,10 @@ function CommunicationDetailPage() {
               ) : (
                 <ul className="min-w-0 space-y-1.5 text-sm">
                   {c.attempts.map((a) => (
-                    <li key={a.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                    <li
+                      key={a.id}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3"
+                    >
                       <span className="min-w-0 break-words">
                         Versuch {a.attemptNumber} · {a.provider} ·{" "}
                         {new Date(a.startedAt).toLocaleString("de-DE")}
@@ -130,7 +133,9 @@ function CommunicationDetailPage() {
                             : "shrink-0 text-right text-muted-foreground"
                         }
                       >
-                        {a.errorCode ? `${a.errorCode}: ${a.errorMessage}` : DELIVERY_LABELS[a.status]}
+                        {a.errorCode
+                          ? `${a.errorCode}: ${a.errorMessage}`
+                          : DELIVERY_LABELS[a.status]}
                       </span>
                     </li>
                   ))}
@@ -144,7 +149,10 @@ function CommunicationDetailPage() {
               ) : (
                 <ul className="min-w-0 space-y-1.5 text-sm">
                   {c.providerEvents.map((e) => (
-                    <li key={e.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                    <li
+                      key={e.id}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3"
+                    >
                       <span className="min-w-0 break-words">
                         {e.eventType} · {new Date(e.receivedAt).toLocaleString("de-DE")}
                       </span>

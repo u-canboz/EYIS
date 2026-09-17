@@ -1,37 +1,19 @@
 import type { ReactNode } from "react";
-import { useRouterState } from "@tanstack/react-router";
-import { navTrail } from "./nav-registry";
 import { cn } from "@/lib/utils";
 
 type Props = {
   title: string;
   description?: ReactNode | undefined;
-  /** Secondary context line (breadcrumb, id, status chips). */
   eyebrow?: ReactNode | undefined;
   actions?: ReactNode | undefined;
   className?: string | undefined;
 };
 
-/**
- * Standard page header. Uses a two-column grid on narrow viewports so a long
- * title truncates instead of pushing actions out of the viewport.
- *
- * When the mobile topbar already shows the same label, the visible heading is
- * suppressed on small screens (the h1 stays in the accessibility tree) so a
- * page never opens with the same words twice.
- */
+/** Shared page hierarchy: readable title, context and wrapping primary actions. */
 export function PageHeader({ title, description, eyebrow, actions, className }: Props) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const duplicate = navTrail(pathname).item === title && !eyebrow;
-
   return (
-    <header
-      className={cn(
-        "mb-4 flex flex-col gap-2.5 sm:mb-5 sm:border-b sm:border-border sm:pb-4",
-        className,
-      )}
-    >
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+    <header className={cn("mb-6 flex flex-col gap-3", className)}>
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div className="min-w-0">
           {eyebrow ? (
             <div className="mb-1.5 flex min-w-0 flex-wrap items-center gap-2 text-xs tracking-wide text-muted-foreground">
@@ -40,26 +22,24 @@ export function PageHeader({ title, description, eyebrow, actions, className }: 
           ) : null}
           <h1
             className={cn(
-              "truncate font-display text-xl leading-tight font-semibold tracking-tight sm:text-[1.6rem]",
-              duplicate && "sr-only sm:not-sr-only",
+              "break-words font-display text-2xl leading-tight font-semibold tracking-tight sm:text-3xl",
             )}
           >
             {title}
           </h1>
           {description ? (
-            <p className="mt-1.5 hidden max-w-prose text-sm text-pretty text-muted-foreground sm:block">
+            <p className="mt-2 max-w-prose text-sm leading-relaxed text-pretty text-muted-foreground">
               {description}
             </p>
           ) : null}
         </div>
         {actions ? (
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">{actions}</div>
+          <div className="flex max-w-full shrink-0 flex-wrap items-center gap-2">{actions}</div>
         ) : null}
       </div>
     </header>
   );
 }
-
 
 /**
  * Sticky action bar for mobile primary actions. Respects the safe area and the
@@ -75,7 +55,7 @@ export function StickyActionBar({
   return (
     <div
       className={cn(
-        "sticky bottom-0 z-30 -mx-4 mt-6 flex items-center gap-2 border-t border-border bg-background/95 px-4 py-3 backdrop-blur pb-safe sm:mx-0 sm:rounded-xl sm:border",
+        "sticky bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] md:bottom-4 z-30 -mx-4 mt-6 flex items-center gap-2 border-t border-border bg-card px-4 py-3 pb-safe sm:mx-0 sm:rounded-xl sm:border",
         className,
       )}
     >

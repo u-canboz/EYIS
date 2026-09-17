@@ -152,6 +152,8 @@ export type StoreTotals = {
 
 export type StoreCart = {
   id: string;
+  /** Available from SDK 1.2; older API installations may omit this field. */
+  status?: "active" | "checkout" | "completed" | "abandoned" | "expired";
   currencyCode: string;
   email: string | null;
   items: StoreCartItem[];

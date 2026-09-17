@@ -116,6 +116,7 @@ function Control({
     case "richtext":
       return (
         <Textarea
+          aria-label={field.label}
           rows={field.type === "richtext" ? 6 : 3}
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}
@@ -125,7 +126,7 @@ function Control({
     case "boolean":
       return (
         <div className="flex h-9 items-center">
-          <Switch checked={Boolean(value)} onCheckedChange={onChange} />
+          <Switch aria-label={field.label} checked={Boolean(value)} onCheckedChange={onChange} />
         </div>
       );
 
@@ -134,6 +135,7 @@ function Control({
       return (
         <div className="flex items-center gap-2">
           <Input
+            aria-label={field.label}
             type="number"
             inputMode="decimal"
             value={value === undefined || value === null ? "" : String(value)}
@@ -148,7 +150,7 @@ function Control({
     case "select":
       return (
         <Select value={String(value ?? "")} onValueChange={onChange}>
-          <SelectTrigger aria-label="Bitte wählen">
+          <SelectTrigger aria-label={field.label}>
             <SelectValue placeholder="Bitte wählen" />
           </SelectTrigger>
           <SelectContent>
@@ -184,6 +186,7 @@ function Control({
       const tags = Array.isArray(value) ? (value as string[]) : [];
       return (
         <Input
+          aria-label={field.label}
           value={tags.join(", ")}
           placeholder="Mit Komma trennen"
           onChange={(e) =>
@@ -202,12 +205,17 @@ function Control({
       return (
         <div className="flex items-center gap-2">
           <Input
+            aria-label={field.label}
             type="color"
             className="h-9 w-14 p-1"
             value={String(value ?? "#000000")}
             onChange={(e) => onChange(e.target.value)}
           />
-          <Input value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} />
+          <Input
+            aria-label={field.label}
+            value={String(value ?? "")}
+            onChange={(e) => onChange(e.target.value)}
+          />
         </div>
       );
 
@@ -218,6 +226,7 @@ function Control({
           {rows.map((row, index) => (
             <div key={index} className="flex gap-2">
               <Input
+                aria-label={`${field.label}: Bezeichnung ${index + 1}`}
                 placeholder="Bezeichnung"
                 value={row.key}
                 onChange={(e) =>
@@ -225,6 +234,7 @@ function Control({
                 }
               />
               <Input
+                aria-label={`${field.label}: Wert ${index + 1}`}
                 placeholder="Wert"
                 value={row.value}
                 onChange={(e) =>
@@ -291,6 +301,12 @@ function Control({
     }
 
     default:
-      return <Input value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} />;
+      return (
+        <Input
+          aria-label={field.label}
+          value={String(value ?? "")}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
   }
 }

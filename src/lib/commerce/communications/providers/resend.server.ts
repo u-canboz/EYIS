@@ -54,10 +54,11 @@ async function call(
 
   if (!response.ok) {
     // Nur Status und Resend-Fehlername protokollieren, niemals den Schlüssel.
-    console.error(`Resend request failed [${response.status}] ${path} ${String(parsed["name"] ?? "")}`);
+    console.error(
+      `Resend request failed [${response.status}] ${path} ${String(parsed["name"] ?? "")}`,
+    );
     const message = String(parsed["message"] ?? text.slice(0, 300) ?? "Unbekannter Fehler");
-    if (response.status === 429)
-      throw new CommunicationError("rate_limited", `Resend: ${message}`);
+    if (response.status === 429) throw new CommunicationError("rate_limited", `Resend: ${message}`);
     if (response.status === 401 || response.status === 403)
       throw new CommunicationError("not_configured", `Resend: ${message}`, false);
     throw new CommunicationError(
@@ -206,7 +207,7 @@ export function createResendProvider(apiKey: string | null): CommunicationProvid
     label: "Resend",
     isSandbox: false,
     capabilities: {
-      supportsAttachments: false,
+      supportsAttachments: true,
       supportsTags: true,
       supportsTemplates: false,
       supportsDeliveryWebhooks: true,
@@ -222,11 +223,7 @@ export function createResendProvider(apiKey: string | null): CommunicationProvid
           false,
         );
       if (!message.senderAddress)
-        throw new CommunicationError(
-          "invalid_sender",
-          "Keine Absenderadresse hinterlegt.",
-          false,
-        );
+        throw new CommunicationError("invalid_sender", "Keine Absenderadresse hinterlegt.", false);
 
       const raw = await call(apiKey, "/emails", {
         method: "POST",
@@ -240,9 +237,23 @@ export function createResendProvider(apiKey: string | null): CommunicationProvid
           subject: message.subject,
           html: message.html,
           text: message.text,
+          attachments: message.attachments?.map((a) => ({
+            filename: a.filename,
+            content: a.content,
+            content_type: a.contentType,
+            content_id: a.contentId,
+          })),
+          headers: message.unsubscribeUrl
+            ? {
+                "List-Unsubscribe": `<${message.unsubscribeUrl}>`,
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+              }
+            : undefined,
           tags: Object.entries(message.tags ?? {}).map(([name, value]) => ({
             name: name.slice(0, 60).replace(/[^A-Za-z0-9_-]/g, "_"),
-            value: String(value).slice(0, 60).replace(/[^A-Za-z0-9_-]/g, "_"),
+            value: String(value)
+              .slice(0, 60)
+              .replace(/[^A-Za-z0-9_-]/g, "_"),
           })),
         },
       });

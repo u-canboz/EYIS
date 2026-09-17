@@ -332,6 +332,7 @@ function CustomerDetailPage() {
           {can("customers.manage") && (
             <div className="space-y-2">
               <Textarea
+                aria-label="Interne Notiz"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Notiz hinzufügen"
@@ -365,6 +366,7 @@ function CustomerDetailPage() {
             <div>
               <Label>Vorname</Label>
               <Input
+                aria-label="Vorname"
                 value={address.firstName}
                 onChange={(e) => setAddress({ ...address, firstName: e.target.value })}
               />
@@ -372,6 +374,7 @@ function CustomerDetailPage() {
             <div>
               <Label>Nachname</Label>
               <Input
+                aria-label="Nachname"
                 value={address.lastName}
                 onChange={(e) => setAddress({ ...address, lastName: e.target.value })}
               />
@@ -379,6 +382,7 @@ function CustomerDetailPage() {
             <div className="col-span-2">
               <Label>Straße und Hausnummer</Label>
               <Input
+                aria-label="Straße und Hausnummer"
                 value={address.street}
                 onChange={(e) => setAddress({ ...address, street: e.target.value })}
               />
@@ -386,6 +390,7 @@ function CustomerDetailPage() {
             <div>
               <Label>PLZ</Label>
               <Input
+                aria-label="PLZ"
                 value={address.postalCode}
                 onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
               />
@@ -393,6 +398,7 @@ function CustomerDetailPage() {
             <div>
               <Label>Ort</Label>
               <Input
+                aria-label="Ort"
                 value={address.city}
                 onChange={(e) => setAddress({ ...address, city: e.target.value })}
               />
@@ -400,6 +406,7 @@ function CustomerDetailPage() {
             <div>
               <Label>Land (ISO)</Label>
               <Input
+                aria-label="Land (ISO)"
                 value={address.countryCode}
                 onChange={(e) => setAddress({ ...address, countryCode: e.target.value })}
               />
@@ -407,6 +414,7 @@ function CustomerDetailPage() {
             <div>
               <Label>Telefon</Label>
               <Input
+                aria-label="Telefon"
                 value={address.phone}
                 onChange={(e) => setAddress({ ...address, phone: e.target.value })}
               />

@@ -1,13 +1,13 @@
 {
-  "ranAt": "2026-08-27T14:34:08.914Z",
-  "migrationFiles": 48,
-  "tablesInDb": 118,
-  "functionsInDb": 105,
+  "ranAt": "2026-09-17T13:28:31.654Z",
+  "migrationFiles": 68,
+  "tablesInDb": 136,
+  "functionsInDb": 112,
   "results": [
     {
       "name": "Migrationsdateien: eindeutige Versionen",
       "ok": true,
-      "detail": "48 Dateien"
+      "detail": "68 Dateien"
     },
     {
       "name": "Migrationsdateien: lexikalische Reihenfolge == chronologische Reihenfolge",
@@ -25,12 +25,12 @@
       "detail": ""
     },
     {
-      "name": "Drift Tabellen: Migrationen ↔ Live-DB identisch (118 Tabellen)",
+      "name": "Drift Tabellen: Migrationen ↔ Live-DB identisch (136 Tabellen)",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "Drift Funktionen: Migrationen ↔ Live-DB identisch (105 Funktionen)",
+      "name": "Drift Funktionen: Migrationen ↔ Live-DB identisch (112 Funktionen)",
       "ok": true,
       "detail": ""
     },
@@ -48,11 +48,6 @@
       "name": "Service-Tabellen: keine Grants für anon/authenticated",
       "ok": true,
       "detail": ""
-    },
-    {
-      "name": "Vollständiger Schema-Replay auf frischem Projekt",
-      "ok": true,
-      "detail": "BLOCKED — kein zweites Projekt auf der verwalteten Plattform; Drift-Checks 3+4 belegen aktuelle Übereinstimmung"
     }
   ]
 }

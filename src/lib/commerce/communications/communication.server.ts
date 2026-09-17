@@ -4,7 +4,9 @@
  * the configured provider and records every attempt.
  */
 import { getAdmin, writeAudit } from "../core.server";
-import { buildContext, type ContextRequest } from "./context.server";
+import { buildContext, baseUrl, type ContextRequest } from "./context.server";
+import { resolveMailContent, snapshotMailAssets } from "./assets.server";
+import type { MailAttachment } from "./provider";
 import { renderEmail } from "./renderer";
 import { resolveProvider, resolveSenderIdentity } from "./registry.server";
 import { CommunicationError } from "./provider";
@@ -45,6 +47,7 @@ export async function loadBranding(
       .from("media_assets")
       .select("storage_path")
       .eq("id", row["logo_media_id"] as string)
+      .eq("organization_id", organizationId)
       .maybeSingle();
     const path = (media as Row | null)?.["storage_path"] as string | undefined;
     if (path) {
@@ -56,6 +59,7 @@ export async function loadBranding(
   }
 
   return {
+    legalText: (row["legal_text"] as string) ?? "",
     logoUrl,
     primaryColor: (row["primary_color"] as string) ?? DEFAULT_BRANDING.primaryColor,
     backgroundColor: (row["background_color"] as string) ?? DEFAULT_BRANDING.backgroundColor,
@@ -193,6 +197,9 @@ export async function queueCommunication(input: QueueInput): Promise<QueueResult
   built.context.shop.support_email = branding.supportEmail ?? built.context.shop.support_email;
   built.context.shop.website_url = branding.websiteUrl ?? built.context.shop.website_url;
 
+  await resolveMailContent(input, template.blocks, built.context);
+  const attachments = await snapshotMailAssets(input, template.blocks);
+  if (attachments.some((a) => a.contentId)) branding.logoUrl = "cid:eyis-shop-logo";
   const rendered = renderEmail({
     subject: template.subject,
     preheader: template.preheader,
@@ -238,7 +245,7 @@ export async function queueCommunication(input: QueueInput): Promise<QueueResult
       scheduled_at: scheduledAt,
       next_attempt_at: suppression ? null : scheduledAt,
       last_error: suppression ? `suppressed:${suppression.reason}` : null,
-      metadata: { context_keys: Object.keys(built.context) } as never,
+      metadata: { context_keys: Object.keys(built.context), attachments } as never,
     } as never)
     .select("id")
     .single();
@@ -261,24 +268,86 @@ export async function dispatchCommunication(communicationId: string) {
     .maybeSingle();
   const comm = data as Row | null;
   if (!comm) throw new Error("Kommunikation nicht gefunden.");
-  if (!["queued", "sending", "failed"].includes(String(comm["status"])))
+  if (!["queued", "failed"].includes(String(comm["status"])))
     return { skipped: true as const, status: String(comm["status"]) };
 
   const organizationId = comm["organization_id"] as string;
   const shopId = comm["shop_id"] as string;
+  const metadata = (comm["metadata"] ?? {}) as Row;
+  if (metadata["newsletter_subscriber_id"]) {
+    const { data: subscriber } = await admin
+      .from("newsletter_subscribers")
+      .select("status")
+      .eq("organization_id", organizationId)
+      .eq("shop_id", shopId)
+      .eq("id", String(metadata["newsletter_subscriber_id"]))
+      .maybeSingle();
+    const suppression = await isSuppressed(
+      organizationId,
+      shopId,
+      String(comm["recipient_address"]),
+    );
+    if (subscriber?.status !== "subscribed" || suppression) {
+      await admin
+        .from("communications")
+        .update({
+          status: "suppressed",
+          next_attempt_at: null,
+          last_error: "Newsletter-Einwilligung fehlt oder Adresse gesperrt",
+        } as never)
+        .eq("id", communicationId)
+        .eq("organization_id", organizationId)
+        .eq("shop_id", shopId);
+      return { skipped: true as const, status: "suppressed" };
+    }
+    const { data: campaign } = await admin
+      .from("newsletter_campaigns")
+      .select("status")
+      .eq("organization_id", organizationId)
+      .eq("shop_id", shopId)
+      .eq("id", String(metadata["newsletter_campaign_id"]))
+      .maybeSingle();
+    if (!campaign || campaign.status === "paused") {
+      await admin
+        .from("communications")
+        .update({ next_attempt_at: null })
+        .eq("id", communicationId)
+        .eq("organization_id", organizationId)
+        .eq("shop_id", shopId)
+        .eq("status", "queued");
+      return { skipped: true as const, status: "paused" };
+    }
+  }
   const attemptNumber = Number(comm["attempts"] ?? 0) + 1;
 
   const { provider, testMode } = await resolveProvider(organizationId, shopId);
   const sender = await resolveSenderIdentity(organizationId, shopId);
 
-  await admin
+  const { data: claimed, error: claimError } = await admin
     .from("communications")
     .update({ status: "sending", provider: provider.key, test_mode: testMode } as never)
-    .eq("id", communicationId);
+    .eq("id", communicationId)
+    .eq("organization_id", organizationId)
+    .eq("shop_id", shopId)
+    .eq("status", comm["status"] as never)
+    .select("id")
+    .maybeSingle();
+  if (claimError) throw new Error(claimError.message);
+  if (!claimed) return { skipped: true as const, status: "already_claimed" };
 
   const started = new Date().toISOString();
   try {
+    const metadata = (comm["metadata"] ?? {}) as Row;
+    const attachments = (metadata["attachments"] ?? []) as MailAttachment[];
+    if (attachments.length && !provider.capabilities.supportsAttachments)
+      throw new CommunicationError(
+        "not_configured",
+        "Der gewählte Anbieter unterstützt keine Anhänge. Bitte SMTP oder Resend verwenden.",
+        false,
+      );
     const result = await provider.send({
+      attachments,
+      unsubscribeUrl: metadata["unsubscribe_url"] as string | undefined,
       to: comm["recipient_address"] as string,
       senderName: (comm["sender_name"] as string) ?? sender?.senderName ?? null,
       senderAddress: (comm["sender_address"] as string) ?? sender?.senderAddress ?? null,
@@ -293,12 +362,14 @@ export async function dispatchCommunication(communicationId: string) {
       idempotencyKey: communicationId,
     });
 
+    if (result.status === "rejected")
+      throw new CommunicationError("rejected", "Der Anbieter hat die E-Mail abgelehnt.", false);
     await admin.from("communication_attempts").insert({
       organization_id: organizationId,
       communication_id: communicationId,
       attempt_number: attemptNumber,
       provider: provider.key,
-      status: result.status === "rejected" ? "rejected" : "accepted",
+      status: "accepted",
       provider_message_id: result.providerMessageId,
       started_at: started,
       completed_at: new Date().toISOString(),
@@ -356,16 +427,22 @@ export async function dispatchCommunication(communicationId: string) {
 }
 
 /** Sends due messages. Called by the scheduler route and after queueing. */
-export async function processQueue(limit = 25) {
+export async function processQueue(
+  limit = 25,
+  scope?: { organizationId: string; shopId?: string },
+) {
   const admin = await getAdmin();
   const now = new Date().toISOString();
-  const { data } = await admin
+  let query = admin
     .from("communications")
     .select("id")
     .eq("status", "queued")
     .lte("next_attempt_at", now)
     .order("next_attempt_at", { ascending: true })
     .limit(limit);
+  if (scope) query = query.eq("organization_id", scope.organizationId);
+  if (scope?.shopId) query = query.eq("shop_id", scope.shopId);
+  const { data } = await query;
 
   const ids = ((data ?? []) as Row[]).map((r) => r["id"] as string);
   let sent = 0;
@@ -543,6 +620,7 @@ export async function previewTemplate(input: {
   preheader?: string | null;
   blocks?: Block[];
   orderId?: string | null;
+  newsletter?: boolean;
 }) {
   const branding = await loadBranding(input.organizationId, input.shopId);
   let subject = input.subject ?? "";
@@ -562,6 +640,11 @@ export async function previewTemplate(input: {
     recipientEmail: "vorschau@example.com",
   });
   if (!input.orderId) applySampleData(built.context);
+  built.context.shop.website_url = branding.websiteUrl || built.context.shop.website_url;
+  built.context.shop.support_email = branding.supportEmail || built.context.shop.support_email;
+  if (input.newsletter)
+    built.context.links.unsubscribe = `${baseUrl()}/api/public/store/newsletter/unsubscribe`;
+  await resolveMailContent(input, blocks, built.context);
   return renderEmail({ subject, preheader, blocks, context: built.context, branding });
 }
 

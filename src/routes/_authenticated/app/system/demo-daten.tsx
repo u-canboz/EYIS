@@ -147,7 +147,10 @@ function DemoDaten() {
 
   const status = statusQuery.data;
   const busy =
-    seedMutation.isPending || resetMutation.isPending || createMutation.isPending || destroyMutation.isPending;
+    seedMutation.isPending ||
+    resetMutation.isPending ||
+    createMutation.isPending ||
+    destroyMutation.isPending;
 
   return (
     <div>
@@ -161,15 +164,23 @@ function DemoDaten() {
         title="Demo-Organisation"
         description={
           <>
-            Dauerhafte Welt „EYIS Demo" mit Katalog, Medien, Kunden, Promotions und 40
-            Bestellungen in realistischen Zuständen.
+            Dauerhafte Welt „EYIS Demo" mit Katalog, Medien, Kunden, Promotions und 40 Bestellungen
+            in realistischen Zuständen.
           </>
         }
         className="mt-6"
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <Button className="h-11 w-full sm:w-auto" onClick={() => seedMutation.mutate()} disabled={busy}>
-            {seedMutation.isPending ? "Seed läuft …" : status?.environment ? "Seed fortsetzen / ergänzen" : "Demo seeden"}
+          <Button
+            className="h-11 w-full sm:w-auto"
+            onClick={() => seedMutation.mutate()}
+            disabled={busy}
+          >
+            {seedMutation.isPending
+              ? "Seed läuft …"
+              : status?.environment
+                ? "Seed fortsetzen / ergänzen"
+                : "Demo seeden"}
           </Button>
           {status?.environment && (
             <Button
@@ -238,7 +249,10 @@ function DemoDaten() {
       >
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap">
           <Select value={scenario} onValueChange={(v) => setScenario(v as QaScenario)}>
-            <SelectTrigger className="h-11 w-full min-w-0 sm:w-80 sm:max-w-full">
+            <SelectTrigger
+              aria-label="Demo-Datensatz"
+              className="h-11 w-full min-w-0 sm:w-80 sm:max-w-full"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -249,7 +263,11 @@ function DemoDaten() {
               ))}
             </SelectContent>
           </Select>
-          <Button className="h-11 w-full sm:w-auto" onClick={() => createMutation.mutate(scenario)} disabled={busy}>
+          <Button
+            className="h-11 w-full sm:w-auto"
+            onClick={() => createMutation.mutate(scenario)}
+            disabled={busy}
+          >
             {createMutation.isPending ? "Erzeuge …" : "Fixture erzeugen"}
           </Button>
         </div>
@@ -268,7 +286,9 @@ function DemoDaten() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium">{QA_SCENARIO_LABELS[f.scenario]}</span>
-                    <Badge variant={f.status === "active" ? "default" : "secondary"}>{f.status}</Badge>
+                    <Badge variant={f.status === "active" ? "default" : "secondary"}>
+                      {f.status}
+                    </Badge>
                   </div>
                   <p className="mt-1 break-words text-xs text-muted-foreground">
                     {f.organizationName} · Run {f.runRef} · erstellt{" "}

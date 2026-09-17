@@ -20,7 +20,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
     description:
       "Erstellt und schreibt die Rechnung fest, sobald eine Bestellung bezahlt ist. Wird übersprungen, wenn der Shop Rechnungen ohnehin automatisch erzeugt.",
     triggerType: "domain_event",
-    triggerConfig: { eventType: "order.paid" },
+    triggerConfig: { eventType: "payment.succeeded" },
     conditions: { mode: "all", conditions: [] },
     requiresManualInvoicing: true,
     actions: [
@@ -33,7 +33,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
     name: "Bestellung bezahlt → Versandauftrag",
     description: "Legt direkt nach dem Zahlungseingang einen Versandauftrag für das Lager an.",
     triggerType: "domain_event",
-    triggerConfig: { eventType: "order.paid" },
+    triggerConfig: { eventType: "payment.succeeded" },
     conditions: { mode: "all", conditions: [] },
     actions: [{ actionType: "fulfillment.create", config: {} }],
   },

@@ -16,6 +16,9 @@ import {
   PRICE_TYPE_LABELS,
 } from "@/lib/commerce/money";
 import type { PricingResult, PriceType } from "@/lib/commerce/pricing-types";
+import { RecordCard, RecordCardList } from "@/eyis/data/RecordCard";
+import { TableScroll } from "@/eyis/data/TableScroll";
+import { ErrorState } from "@/eyis/data/States";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,6 +154,17 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
   });
 
   const prices = pricingQuery.data?.prices ?? [];
+  const editPrice = (price: (typeof prices)[number]) => {
+    setEditingId(price.id);
+    setType(price.type as PriceType);
+    setVariantId(price.variant_id ?? "product");
+    setAmount(minorToInput(price.amount_minor, price.currency_code));
+    setMinQuantity(price.min_quantity ? String(price.min_quantity) : "");
+    setMaxQuantity(price.max_quantity ? String(price.max_quantity) : "");
+    setGroupId(price.customer_group_id ?? "none");
+    setStartsAt(price.starts_at ? price.starts_at.slice(0, 16) : "");
+    setEndsAt(price.ends_at ? price.ends_at.slice(0, 16) : "");
+  };
 
   return (
     <div className="space-y-6">
@@ -158,93 +172,144 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
         <p className="font-medium">Preiszeilen</p>
         {pricingQuery.isLoading ? (
           <Skeleton className="mt-4 h-28 w-full" />
+        ) : pricingQuery.isError ? (
+          <ErrorState
+            description="Preise konnten nicht geladen werden."
+            action={
+              <Button variant="outline" onClick={() => void pricingQuery.refetch()}>
+                Erneut laden
+              </Button>
+            }
+          />
         ) : prices.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
             Noch kein Preis hinterlegt. Lege zuerst einen Normalpreis an.
           </p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase text-muted-foreground">
-                <tr className="border-b">
-                  <th className="py-2">Art</th>
-                  <th className="py-2">Gilt für</th>
-                  <th className="py-2">Menge</th>
-                  <th className="py-2">Gruppe</th>
-                  <th className="py-2">Zeitraum</th>
-                  <th className="py-2 text-right">Betrag</th>
-                  <th className="py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {prices.map((price) => (
-                  <tr key={price.id} className="border-b">
-                    <td className="py-2">
-                      <Badge variant="secondary">
-                        {PRICE_TYPE_LABELS[price.type] ?? price.type}
-                      </Badge>
-                    </td>
-                    <td className="py-2 text-muted-foreground">
-                      {price.variant_id
-                        ? (variants.find((v) => v.id === price.variant_id)?.title ?? "Variante")
-                        : "Ganzes Produkt"}
-                    </td>
-                    <td className="py-2 text-xs text-muted-foreground">
-                      {price.min_quantity ? `ab ${price.min_quantity}` : "—"}
-                      {price.max_quantity ? ` bis ${price.max_quantity}` : ""}
-                    </td>
-                    <td className="py-2 text-xs text-muted-foreground">
-                      {price.customer_group_id
+          <>
+            <RecordCardList className="mt-4">
+              {prices.map((price) => (
+                <RecordCard
+                  key={price.id}
+                  title={PRICE_TYPE_LABELS[price.type] ?? price.type}
+                  subtitle={
+                    price.variant_id
+                      ? (variants.find((v) => v.id === price.variant_id)?.title ?? "Variante")
+                      : "Ganzes Produkt"
+                  }
+                  fields={[
+                    {
+                      label: "Betrag",
+                      value: formatMoney(price.amount_minor, price.currency_code),
+                    },
+                    {
+                      label: "Menge",
+                      value: price.min_quantity
+                        ? `ab ${price.min_quantity}${price.max_quantity ? ` bis ${price.max_quantity}` : ""}`
+                        : "Alle Mengen",
+                    },
+                    {
+                      label: "Gruppe",
+                      value: price.customer_group_id
                         ? (groupNames.get(price.customer_group_id) ?? "Gruppe")
-                        : "—"}
-                    </td>
-                    <td className="py-2 text-xs text-muted-foreground">
-                      {price.starts_at || price.ends_at
-                        ? `${price.starts_at ? new Date(price.starts_at).toLocaleDateString("de-DE") : "…"} – ${
-                            price.ends_at
-                              ? new Date(price.ends_at).toLocaleDateString("de-DE")
-                              : "…"
-                          }`
-                        : "dauerhaft"}
-                    </td>
-                    <td className="py-2 text-right font-medium">
-                      {formatMoney(price.amount_minor, price.currency_code)}
-                    </td>
-                    <td className="py-2 text-right">
-                      {canEdit && (
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingId(price.id);
-                              setType(price.type as PriceType);
-                              setVariantId(price.variant_id ?? "product");
-                              setAmount(minorToInput(price.amount_minor, price.currency_code));
-                              setMinQuantity(price.min_quantity ? String(price.min_quantity) : "");
-                              setMaxQuantity(price.max_quantity ? String(price.max_quantity) : "");
-                              setGroupId(price.customer_group_id ?? "none");
-                              setStartsAt(price.starts_at ? price.starts_at.slice(0, 16) : "");
-                              setEndsAt(price.ends_at ? price.ends_at.slice(0, 16) : "");
-                            }}
-                          >
-                            Bearbeiten
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteMutation.mutate(price.id)}
-                          >
-                            Löschen
-                          </Button>
-                        </div>
-                      )}
-                    </td>
+                        : "Alle Kunden",
+                    },
+                    {
+                      label: "Zeitraum",
+                      value:
+                        price.starts_at || price.ends_at
+                          ? `${price.starts_at ? new Date(price.starts_at).toLocaleDateString("de-DE") : "…"} – ${price.ends_at ? new Date(price.ends_at).toLocaleDateString("de-DE") : "…"}`
+                          : "Dauerhaft",
+                    },
+                  ]}
+                  actions={
+                    canEdit ? (
+                      <>
+                        <Button variant="outline" onClick={() => editPrice(price)}>
+                          Bearbeiten
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          disabled={deleteMutation.isPending}
+                          onClick={() => deleteMutation.mutate(price.id)}
+                        >
+                          Löschen
+                        </Button>
+                      </>
+                    ) : undefined
+                  }
+                />
+              ))}
+            </RecordCardList>
+            <TableScroll desktopOnly className="mt-4">
+              <table className="w-full text-sm">
+                <thead className="text-left text-xs uppercase text-muted-foreground">
+                  <tr className="border-b">
+                    <th className="py-2">Art</th>
+                    <th className="py-2">Gilt für</th>
+                    <th className="py-2">Menge</th>
+                    <th className="py-2">Gruppe</th>
+                    <th className="py-2">Zeitraum</th>
+                    <th className="py-2 text-right">Betrag</th>
+                    <th className="py-2" />
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {prices.map((price) => (
+                    <tr key={price.id} className="border-b">
+                      <td className="py-2">
+                        <Badge variant="secondary">
+                          {PRICE_TYPE_LABELS[price.type] ?? price.type}
+                        </Badge>
+                      </td>
+                      <td className="py-2 text-muted-foreground">
+                        {price.variant_id
+                          ? (variants.find((v) => v.id === price.variant_id)?.title ?? "Variante")
+                          : "Ganzes Produkt"}
+                      </td>
+                      <td className="py-2 text-xs text-muted-foreground">
+                        {price.min_quantity ? `ab ${price.min_quantity}` : "—"}
+                        {price.max_quantity ? ` bis ${price.max_quantity}` : ""}
+                      </td>
+                      <td className="py-2 text-xs text-muted-foreground">
+                        {price.customer_group_id
+                          ? (groupNames.get(price.customer_group_id) ?? "Gruppe")
+                          : "—"}
+                      </td>
+                      <td className="py-2 text-xs text-muted-foreground">
+                        {price.starts_at || price.ends_at
+                          ? `${price.starts_at ? new Date(price.starts_at).toLocaleDateString("de-DE") : "…"} – ${
+                              price.ends_at
+                                ? new Date(price.ends_at).toLocaleDateString("de-DE")
+                                : "…"
+                            }`
+                          : "dauerhaft"}
+                      </td>
+                      <td className="py-2 text-right font-medium">
+                        {formatMoney(price.amount_minor, price.currency_code)}
+                      </td>
+                      <td className="py-2 text-right">
+                        {canEdit && (
+                          <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => editPrice(price)}>
+                              Bearbeiten
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteMutation.mutate(price.id)}
+                            >
+                              Löschen
+                            </Button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TableScroll>
+          </>
         )}
       </section>
 
@@ -255,7 +320,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
             <div>
               <Label>Art</Label>
               <Select value={type} onValueChange={(v) => setType(v as PriceType)}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger aria-label="Art" className="mt-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -270,7 +335,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
             <div>
               <Label>Gilt für</Label>
               <Select value={variantId} onValueChange={setVariantId} disabled={Boolean(editingId)}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger aria-label="Gilt für" className="mt-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -286,6 +351,8 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
             <div>
               <Label>Betrag ({currency})</Label>
               <Input
+                aria-label={`Betrag (${currency})`}
+                inputMode="decimal"
                 className="mt-2"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
@@ -296,7 +363,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
               <div>
                 <Label>Kundengruppe</Label>
                 <Select value={groupId} onValueChange={setGroupId}>
-                  <SelectTrigger className="mt-2">
+                  <SelectTrigger aria-label="Kundengruppe" className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -315,6 +382,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
                 <div>
                   <Label>Ab Menge</Label>
                   <Input
+                    aria-label="Ab Menge"
                     className="mt-2"
                     value={minQuantity}
                     onChange={(e) => setMinQuantity(e.target.value)}
@@ -323,6 +391,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
                 <div>
                   <Label>Bis Menge (optional)</Label>
                   <Input
+                    aria-label="Bis Menge (optional)"
                     className="mt-2"
                     value={maxQuantity}
                     onChange={(e) => setMaxQuantity(e.target.value)}
@@ -335,6 +404,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
                 <div>
                   <Label>Start</Label>
                   <Input
+                    aria-label="Start"
                     className="mt-2"
                     type="datetime-local"
                     value={startsAt}
@@ -344,6 +414,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
                 <div>
                   <Label>Ende</Label>
                   <Input
+                    aria-label="Ende"
                     className="mt-2"
                     type="datetime-local"
                     value={endsAt}
@@ -377,6 +448,7 @@ export function PricingTab({ productId, organizationId, shopId, currency, canEdi
           <div className="ml-auto w-[120px]">
             <Label>Menge</Label>
             <Input
+              aria-label="Menge"
               className="mt-2"
               type="number"
               min={1}

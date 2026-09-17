@@ -1,4 +1,15 @@
 import { useEffect, type ReactNode } from "react";
+import { useBlocker } from "@tanstack/react-router";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +44,7 @@ export function SaveBar({
 }) {
   // Tastaturkürzel: ⌘S / Strg+S sichert, ohne den Browserdialog zu öffnen.
   useEffect(() => {
-    if (!dirty || disabled) return;
+    if (!dirty || disabled || saving) return;
     const onKey = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
         event.preventDefault();
@@ -42,50 +53,71 @@ export function SaveBar({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [dirty, disabled, onSave]);
+  }, [dirty, disabled, saving, onSave]);
 
-  // Warnung beim Schließen des Tabs, solange Änderungen offen sind.
-  useEffect(() => {
-    if (!dirty) return;
-    const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [dirty]);
+  const blocker = useBlocker({
+    shouldBlockFn: () => dirty,
+    enableBeforeUnload: dirty,
+    withResolver: true,
+  });
 
   if (!dirty) return null;
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className={cn(
-        "sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] z-30 -mx-4 mt-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-y border-border bg-surface/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-xl sm:border md:bottom-4",
-        className,
-      )}
-    >
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium">Nicht gesicherte Änderungen</p>
-        {hint ? <p className="truncate text-xs text-muted-foreground">{hint}</p> : null}
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        {onDiscard ? (
-          <Button
-            type="button"
-            variant="ghost"
-            className="min-h-11"
-            disabled={saving}
-            onClick={onDiscard}
-          >
-            Verwerfen
+    <>
+      <AlertDialog
+        open={blocker.status === "blocked"}
+        onOpenChange={(open) => {
+          if (!open) blocker.reset?.();
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Änderungen verwerfen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deine Änderungen sind noch nicht gespeichert. Bleibe auf dieser Seite, um sie zu
+              sichern.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => blocker.reset?.()}>
+              Weiter bearbeiten
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => blocker.proceed?.()}>
+              Verwerfen und verlassen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <div
+        role="status"
+        aria-live="polite"
+        className={cn(
+          "sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] z-30 -mx-4 mt-6 grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-y border-border bg-card px-4 py-3 sm:mx-0 sm:rounded-xl sm:border md:bottom-4",
+          className,
+        )}
+      >
+        <div className="min-w-0">
+          <p className="text-sm font-medium">Nicht gesicherte Änderungen</p>
+          {hint ? <p className="truncate text-xs text-muted-foreground">{hint}</p> : null}
+        </div>
+        <div className="flex shrink-0 items-center justify-end gap-2">
+          {onDiscard ? (
+            <Button
+              type="button"
+              variant="ghost"
+              className="min-h-11"
+              disabled={saving}
+              onClick={onDiscard}
+            >
+              Verwerfen
+            </Button>
+          ) : null}
+          <Button type="button" className="min-h-11" disabled={disabled || saving} onClick={onSave}>
+            {saving ? "Sichert…" : saveLabel}
           </Button>
-        ) : null}
-        <Button type="button" className="min-h-11" disabled={disabled || saving} onClick={onSave}>
-          {saving ? "Sichert…" : saveLabel}
-        </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

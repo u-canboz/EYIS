@@ -2,14 +2,23 @@
    Prüft: Datei-Integrität, statische Lint-Regeln (GRANT-Pflicht, verbotene Statements),
    Drift zwischen Migrationen und Live-DB (Tabellen, Funktionen), RLS-Abdeckung,
    Policy-Losigkeit ausschließlich bei freigegebenen Service-Tabellen. */
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { assertOperationAllowed } from "../src/lib/commerce/environment";
 import { check, results, summary } from "./lib";
+
+assertOperationAllowed("qa_harness");
 
 const MIGRATIONS_DIR = "supabase/migrations";
 
 /** Tabellen, die bewusst KEINE Policy haben (service_role-only, keine Data-API-Grants). Stand: A4. */
 const NO_POLICY_ALLOWLIST = new Set([
+  "commerce_installation",
+  "eyis_installation_state",
+  "eyis_installation_units",
+  "provider_credentials",
+  "update_runs",
+  "update_run_steps",
   "automation_rule_counters",
   "idempotency_keys",
   "oauth_states",
@@ -20,7 +29,7 @@ const NO_POLICY_ALLOWLIST = new Set([
 ]);
 
 function psql(sql: string): string {
-  return execSync(`psql -At -c ${JSON.stringify(sql)}`, { encoding: "utf8" }).trim();
+  return execFileSync("psql", ["-At", "-c", sql], { encoding: "utf8" }).trim();
 }
 
 function main() {
@@ -60,9 +69,7 @@ function main() {
     for (const m of sql.matchAll(/drop\s+table\s+(?:if\s+exists\s+)?public\.(\w+)/gi)) {
       droppedTables.add(m[1]!);
     }
-    for (const m of sql.matchAll(
-      /create\s+(?:or\s+replace\s+)?function\s+public\.(\w+)/gi,
-    )) {
+    for (const m of sql.matchAll(/create\s+(?:or\s+replace\s+)?function\s+public\.(\w+)/gi)) {
       createdFunctions.add(m[1]!.toLowerCase());
     }
 
@@ -88,13 +95,23 @@ function main() {
       .split("\n")
       .filter(Boolean),
   );
-  const expectedTables = new Set([...createdTables].filter((t) => !droppedTables.has(t)));
+  // The dedicated installer journal intentionally precedes the historical migration chain.
+  const journal = readFileSync("installer/database/baseline/000_installer_journal.sql", "utf8");
+  const journalTables = [
+    ...journal.matchAll(/create\s+table\s+(?:if\s+not\s+exists\s+)?public\.(\w+)/gi),
+  ].map((m) => m[1]!);
+  const expectedTables = new Set(
+    [...createdTables, ...journalTables].filter((t) => !droppedTables.has(t)),
+  );
   const missingInDb = [...expectedTables].filter((t) => !dbTables.has(t));
   const missingInMigrations = [...dbTables].filter((t) => !expectedTables.has(t));
   check(
     `Drift Tabellen: Migrationen ↔ Live-DB identisch (${dbTables.size} Tabellen)`,
     missingInDb.length === 0 && missingInMigrations.length === 0,
-    [...missingInDb.map((t) => `nur-migration:${t}`), ...missingInMigrations.map((t) => `nur-db:${t}`)]
+    [
+      ...missingInDb.map((t) => `nur-migration:${t}`),
+      ...missingInMigrations.map((t) => `nur-db:${t}`),
+    ]
       .join(",")
       .slice(0, 300),
   );
@@ -137,14 +154,15 @@ function main() {
   check(
     "Policy-Losigkeit: ausschließlich freigegebene Service-Tabellen ohne Policy",
     unexpected.length === 0 && allowlistGone.length === 0,
-    [...unexpected.map((t) => `unerwartet:${t}`), ...allowlistGone.map((t) => `hat-policy:${t}`)].join(
-      ",",
-    ),
+    [
+      ...unexpected.map((t) => `unerwartet:${t}`),
+      ...allowlistGone.map((t) => `hat-policy:${t}`),
+    ].join(","),
   );
 
   // ------------------------------------------------ 7) Grants der Service-Tabellen
   const grants = psql(
-    `select table_name || ':' || privilege_type || ':' || grantee from information_schema.role_table_grants where table_schema='public' and table_name in ('automation_rule_counters','idempotency_keys','outbox_events','store_api_rate_counters','store_confirmation_tokens','store_privacy_salts') and grantee in ('anon','authenticated')`,
+    `select table_name || ':' || privilege_type || ':' || grantee from information_schema.role_table_grants where table_schema='public' and table_name in (${[...NO_POLICY_ALLOWLIST].map((name) => `'${name}'`).join(",")}) and grantee in ('anon','authenticated')`,
   );
   check(
     "Service-Tabellen: keine Grants für anon/authenticated",
@@ -152,12 +170,8 @@ function main() {
     grants.slice(0, 200),
   );
 
-  // ------------------------------------------------ 8) Reproduzierbarkeit (Replay)
-  check(
-    "Vollständiger Schema-Replay auf frischem Projekt",
-    true,
-    "BLOCKED — kein zweites Projekt auf der verwalteten Plattform; Drift-Checks 3+4 belegen aktuelle Übereinstimmung",
-  );
+  // Fresh installation is a separate executable scenario, never a simulated PASS.
+  console.log("INFO  Fresh-Install-Reproduktion wird separat mit qa:database-installer geprüft.");
 
   summary();
   writeFileSync(

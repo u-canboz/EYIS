@@ -179,7 +179,10 @@ function FulfillmentWorkspace() {
       {queue.isLoading ? (
         <ListSkeleton />
       ) : !queue.data?.length ? (
-        <EmptyState title="Keine Vorgänge" description="Für diese Ansicht gibt es keine Vorgänge." />
+        <EmptyState
+          title="Keine Vorgänge"
+          description="Für diese Ansicht gibt es keine Vorgänge."
+        />
       ) : (
         <>
           <RecordCardList>
@@ -196,7 +199,15 @@ function FulfillmentWorkspace() {
                   subtitle={f.locationName ?? "ohne Lagerort"}
                   badges={
                     <>
-                      <Badge variant={f.hasException ? "destructive" : f.status === "delivered" ? "secondary" : "default"}>
+                      <Badge
+                        variant={
+                          f.hasException
+                            ? "destructive"
+                            : f.status === "delivered"
+                              ? "secondary"
+                              : "default"
+                        }
+                      >
                         {FULFILLMENT_STATE_LABELS[f.status]}
                       </Badge>
                       {f.carrierProvider ? (
@@ -355,7 +366,7 @@ function FulfillmentWorkspace() {
               <div className="grid gap-2">
                 <Label>Lagerort</Label>
                 <Select value={locationId} onValueChange={setLocationId}>
-                  <SelectTrigger aria-label="Vorschlag übernehmen" className="h-11">
+                  <SelectTrigger aria-label="Lagerort" className="h-11">
                     <SelectValue placeholder="Vorschlag übernehmen" />
                   </SelectTrigger>
                   <SelectContent>
@@ -373,7 +384,11 @@ function FulfillmentWorkspace() {
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="outline" className="h-11" onClick={() => setAllocationOrderId(null)}>
+                <Button
+                  variant="outline"
+                  className="h-11"
+                  onClick={() => setAllocationOrderId(null)}
+                >
                   Zurück
                 </Button>
                 <Button

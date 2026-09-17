@@ -42,6 +42,10 @@ export const DELIVERY_LABELS: Record<DeliveryStatus, string> = {
 /* ------------------------------ blocks ---------------------------------- */
 
 export type BlockType =
+  | "products"
+  | "image"
+  | "attachment"
+  | "legal"
   | "logo"
   | "heading"
   | "text"
@@ -59,12 +63,18 @@ export type BlockType =
 
 export type Block = {
   type: BlockType;
+  mediaId?: string;
+  productIds?: string[];
   text?: string;
   label?: string;
   url?: string;
 };
 
 export const BLOCK_LABELS: Record<BlockType, string> = {
+  products: "Produkte",
+  image: "Bild",
+  attachment: "PDF-Anhang",
+  legal: "Rechtstext",
   logo: "Logo",
   heading: "Überschrift",
   text: "Text",
@@ -83,6 +93,10 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
 
 /** Blocks an editor may add manually. Data blocks come from the template. */
 export const EDITABLE_BLOCKS: BlockType[] = [
+  "products",
+  "image",
+  "attachment",
+  "legal",
   "logo",
   "heading",
   "text",
@@ -108,6 +122,8 @@ export type ContextLineItem = {
 };
 
 export type CommunicationContext = {
+  products?: { id: string; name: string; price: string; url: string; imageUrl?: string | null }[];
+  media?: Record<string, { url: string; filename: string }>;
   shop: { name: string; support_email: string; website_url: string };
   customer: { first_name: string; last_name: string; full_name: string; email: string };
   order?: {
@@ -135,6 +151,8 @@ export type CommunicationContext = {
   refund?: { amount: string; reason: string };
   payment?: { method: string; amount: string; status: string };
   links: {
+    unsubscribe?: string;
+    confirmation?: string;
     order: string;
     tracking: string;
     document: string;
@@ -198,6 +216,8 @@ export const VARIABLE_CATALOGUE: { group: string; items: { path: string; label: 
   {
     group: "Links",
     items: [
+      { path: "links.unsubscribe", label: "Newsletter abmelden" },
+      { path: "links.confirmation", label: "Newsletter bestätigen" },
       { path: "links.order", label: "Bestellung im Portal" },
       { path: "links.tracking", label: "Tracking-Link" },
       { path: "links.document", label: "Dokument-Link" },
@@ -213,6 +233,7 @@ export const ALLOWED_VARIABLES = VARIABLE_CATALOGUE.flatMap((g) => g.items.map((
 /* ------------------------------ branding -------------------------------- */
 
 export type CommunicationBranding = {
+  legalText?: string;
   logoUrl: string | null;
   primaryColor: string;
   backgroundColor: string;

@@ -75,6 +75,11 @@ function StoreProductPage() {
 
   const addToCart = () => {
     if (!selected) return;
+    if (cart.data?.status === "checkout") {
+      toast.info("Bearbeite zuerst deinen Warenkorb oder schließe die laufende Kasse ab.");
+      void navigate({ to: "/store/warenkorb" });
+      return;
+    }
     cart.addItem.mutate(
       { variantId: selected.id, quantity: 1 },
       {
@@ -151,9 +156,7 @@ function StoreProductPage() {
           <p className="mt-4 text-2xl font-semibold tabular-nums">
             {price ? formatPrice(price.unitAmountMinor, price.currencyCode) : "Preis auf Anfrage"}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            inkl. MwSt., zzgl. Versand
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">inkl. MwSt., zzgl. Versand</p>
 
           <div className="mt-3">
             <Badge variant={soldOut ? "destructive" : "secondary"}>

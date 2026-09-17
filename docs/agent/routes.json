@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-09-10T16:20:30.401Z",
-  "source_commit": "4a7292cef36c103ff6a293940ec5e9e71f9c0897",
-  "latest_migration": "20260910135845_64d7c7a3-27fe-42f0-80e7-2472854ae56a.sql",
+  "generated_at": "2026-09-17T13:31:06.290Z",
+  "source_commit": "0d628e8362d32ddb564280716eafacf1be6eb46a",
+  "latest_migration": "20260917132407_media_storage_policies.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
-  "total": 101,
+  "total": 103,
   "by_kind": {
-    "backoffice": 68,
-    "public-api": 7,
+    "backoffice": 67,
+    "public-api": 9,
     "job-endpoint": 4,
     "public-store-api": 2,
     "webhook": 5,
     "public-page": 5,
     "customer-portal": 3,
-    "storefront": 7
+    "storefront": 8
   },
   "routes": [
     {
@@ -218,6 +218,16 @@
       "ssr": true
     },
     {
+      "url": "/app/kommunikation/newsletter",
+      "source": "src/routes/_authenticated/app/kommunikation/newsletter.tsx",
+      "kind": "backoffice",
+      "methods": [
+        "GET"
+      ],
+      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
+      "ssr": true
+    },
+    {
       "url": "/app/kommunikation/regeln",
       "source": "src/routes/_authenticated/app/kommunikation/regeln.tsx",
       "kind": "backoffice",
@@ -348,28 +358,8 @@
       "ssr": true
     },
     {
-      "url": "/app/marketing/branding",
-      "source": "src/routes/_authenticated/app/marketing/branding.tsx",
-      "kind": "backoffice",
-      "methods": [
-        "GET"
-      ],
-      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
-      "ssr": true
-    },
-    {
       "url": "/app/marketing/google-shopping",
       "source": "src/routes/_authenticated/app/marketing/google-shopping.tsx",
-      "kind": "backoffice",
-      "methods": [
-        "GET"
-      ],
-      "auth": "supabase-session (Gate: src/routes/_authenticated/route.tsx)",
-      "ssr": true
-    },
-    {
-      "url": "/app/marketing/inhalte",
-      "source": "src/routes/_authenticated/app/marketing/inhalte.tsx",
       "kind": "backoffice",
       "methods": [
         "GET"
@@ -808,6 +798,28 @@
       "ssr": true
     },
     {
+      "url": "/api/public/store/newsletter/confirm",
+      "source": "src/routes/api/public/store/newsletter/confirm.ts",
+      "kind": "public-api",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "auth": "server-side check in handler",
+      "ssr": true
+    },
+    {
+      "url": "/api/public/store/newsletter/unsubscribe",
+      "source": "src/routes/api/public/store/newsletter/unsubscribe.ts",
+      "kind": "public-api",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "auth": "server-side check in handler",
+      "ssr": true
+    },
+    {
       "url": "/api/public/store/v1/*",
       "source": "src/routes/api/public/store/v1/$.ts",
       "kind": "public-store-api",
@@ -959,6 +971,16 @@
       ],
       "auth": "customer session / guest token",
       "ssr": false
+    },
+    {
+      "url": "/store/-NewsletterSignup",
+      "source": "src/routes/store/-NewsletterSignup.tsx",
+      "kind": "storefront",
+      "methods": [
+        "GET"
+      ],
+      "auth": "public",
+      "ssr": true
     },
     {
       "url": "/store/bestaetigung",

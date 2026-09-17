@@ -38,7 +38,7 @@ CREATE POLICY "<name>_member_access" ON public.<name>
 CREATE INDEX ON public.<name> (organization_id);
 CREATE INDEX ON public.<name> (shop_id);
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.<name>
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 ```
 
 ## Checkliste vor dem Anwenden

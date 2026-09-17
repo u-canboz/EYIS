@@ -120,8 +120,8 @@ function ProductWizard() {
 
       if (activeAxes.length) {
         await runSaveOptions({ data: { productId: created.id, organizationId, axes: activeAxes } });
-        await runGenerate({ data: { productId: created.id, organizationId } });
       }
+      await runGenerate({ data: { productId: created.id, organizationId } });
       return created;
     },
     onSuccess: (created) => {
@@ -151,7 +151,7 @@ function ProductWizard() {
 
       <ol className="grid grid-cols-5 gap-1.5" aria-label="Fortschritt">
         {STEPS.map((label, index) => (
-          <li key={label} className="min-w-0">
+          <li key={label} aria-current={index === step ? "step" : undefined} className="min-w-0">
             <div
               className={`h-1.5 rounded-full ${index <= step ? "bg-primary" : "bg-muted"}`}
               aria-hidden
@@ -184,6 +184,7 @@ function ProductWizard() {
                     {group.items.map((bp) => (
                       <button
                         key={bp.id}
+                        aria-pressed={blueprint?.id === bp.id}
                         type="button"
                         onClick={() => {
                           setBlueprint(bp);
@@ -211,11 +212,17 @@ function ProductWizard() {
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label>Produktname *</Label>
-              <Input className="mt-2 h-11" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                aria-label="Produktname"
+                className="mt-2 h-11"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
             <div className="sm:col-span-2">
               <Label>Untertitel</Label>
               <Input
+                aria-label="Untertitel"
                 className="mt-2"
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
@@ -224,6 +231,7 @@ function ProductWizard() {
             <div className="sm:col-span-2">
               <Label>Beschreibung</Label>
               <Textarea
+                aria-label="Beschreibung"
                 className="mt-2"
                 rows={5}
                 value={description}
@@ -232,7 +240,12 @@ function ProductWizard() {
             </div>
             <div>
               <Label>Hersteller / Marke</Label>
-              <Input className="mt-2" value={vendor} onChange={(e) => setVendor(e.target.value)} />
+              <Input
+                aria-label="Hersteller / Marke"
+                className="mt-2"
+                value={vendor}
+                onChange={(e) => setVendor(e.target.value)}
+              />
             </div>
             <div className="sm:col-span-2">
               <Label>Kategorien</Label>
@@ -274,7 +287,7 @@ function ProductWizard() {
           <div className="space-y-5">
             {axes.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Diese Produktart sieht keine Varianten vor.
+                Dieses Produkt erhält eine Standardvariante für Preis und Bestand.
               </p>
             ) : (
               axes.map((axis) => {
@@ -344,7 +357,7 @@ function ProductWizard() {
             </p>
             <p>
               <span className="text-muted-foreground">Varianten:</span>{" "}
-              {axes.length ? variantCount : 0}
+              {axes.length ? variantCount : 1}
             </p>
             <p className="text-muted-foreground">
               Das Produkt wird als Entwurf gespeichert und kann danach vollständig bearbeitet
@@ -381,7 +394,6 @@ function ProductWizard() {
           </Button>
         )}
       </StickyActionBar>
-
     </div>
   );
 }

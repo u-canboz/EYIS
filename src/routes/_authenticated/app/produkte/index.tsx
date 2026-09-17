@@ -9,7 +9,9 @@ import { listTaxonomy } from "@/lib/commerce/taxonomy.functions";
 import { useActiveWorkspace } from "@/lib/commerce/useActiveWorkspace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/eyis/data/StatusBadge";
+import { TableScroll } from "@/eyis/data/TableScroll";
+import { Search, Plus, Package } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -127,7 +129,9 @@ function ProductsPage() {
         actions={
           canCreate ? (
             <Button asChild className="h-11">
-              <Link to="/app/produkte/neu">Neues Produkt</Link>
+              <Link to="/app/produkte/neu">
+                <Plus className="size-4" aria-hidden /> Neues Produkt
+              </Link>
             </Button>
           ) : null
         }
@@ -142,16 +146,22 @@ function ProductsPage() {
           setPage(1);
         }}
         search={
-          <Input
-            className="h-11 w-full"
-            placeholder="Name oder Handle suchen"
-            aria-label="Produkte suchen"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-3 top-3.5 size-4 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              className="h-11 w-full pl-10"
+              placeholder="Name oder Handle suchen"
+              aria-label="Produkte suchen"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
         }
         filters={
           <>
@@ -217,13 +227,38 @@ function ProductsPage() {
       {workspaceLoading || productsQuery.isLoading ? (
         <ListSkeleton />
       ) : productsQuery.error ? (
-        <ErrorState description={(productsQuery.error as Error).message} />
+        <ErrorState
+          description={(productsQuery.error as Error).message}
+          action={
+            <Button variant="outline" onClick={() => void productsQuery.refetch()}>
+              Erneut laden
+            </Button>
+          }
+        />
       ) : items.length === 0 ? (
         <EmptyState
-          title="Noch keine Produkte"
-          description="Lege dein erstes Produkt an – der Assistent führt dich durch Vorlage, Details und Varianten."
+          icon={Package}
+          title={search || activeFilters ? "Keine passenden Produkte" : "Dein Katalog beginnt hier"}
+          description={
+            search || activeFilters
+              ? "Ändere den Suchbegriff oder setze die Filter zurück."
+              : "Lege dein erstes Produkt an. Der Assistent hilft dir bei Produktart, Details und Varianten."
+          }
           action={
-            canCreate ? (
+            search || activeFilters ? (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearch("");
+                  setStatus("all");
+                  setBlueprintKey("all");
+                  setCategoryId("all");
+                  setPage(1);
+                }}
+              >
+                Suche und Filter zurücksetzen
+              </Button>
+            ) : canCreate ? (
               <Button asChild className="min-h-11">
                 <Link to="/app/produkte/neu">Produkt anlegen</Link>
               </Button>
@@ -231,56 +266,149 @@ function ProductsPage() {
           }
         />
       ) : (
-        <SectionPanel flush>
-          <RecordList>
-            {items.map((item) => (
-              <RecordRow
-                key={item.id}
-                to="/app/produkte/$productId"
-                params={{ productId: item.id }}
-                leading={<RecordThumb src={item.cover_url} alt={item.name} />}
-                title={item.name}
-                subtitle={`/${item.handle} · ${item.variant_count} ${
-                  item.variant_count === 1 ? "Variante" : "Varianten"
-                }${item.categories.length ? ` · ${item.categories.join(", ")}` : ""}`}
-                badges={
-                  item.status === "active" ? null : (
-                    <Badge variant="secondary">{STATUS_LABEL[item.status]}</Badge>
-                  )
-                }
-                actions={
-                  <ActionMenu
-                    label={`Aktionen für ${item.name}`}
-                    items={[
-                      ...(canCreate
-                        ? [
-                            {
-                              label: "Duplizieren",
-                              onSelect: () => duplicateMutation.mutate(item.id),
-                              disabled: duplicateMutation.isPending,
-                            },
-                          ]
-                        : []),
-                      ...(can("products.archive") && item.status !== "archived"
-                        ? [
-                            {
-                              label: "Archivieren",
-                              onSelect: () => archiveMutation.mutate(item.id),
-                              disabled: archiveMutation.isPending,
-                              destructive: true,
-                              separatorBefore: true,
-                            },
-                          ]
-                        : []),
-                    ]}
-                  />
-                }
-              />
-            ))}
-          </RecordList>
-        </SectionPanel>
+        <>
+          <TableScroll desktopOnly>
+            <table className="w-full text-left text-sm">
+              <caption className="sr-only">Produkte im aktiven Shop</caption>
+              <thead>
+                <tr>
+                  <th scope="col" className="px-5">
+                    Produkt
+                  </th>
+                  <th scope="col" className="px-4">
+                    Status
+                  </th>
+                  <th scope="col" className="px-4">
+                    Kategorien
+                  </th>
+                  <th scope="col" className="px-4 text-right">
+                    Varianten
+                  </th>
+                  <th scope="col" className="px-4">
+                    <span className="sr-only">Aktionen</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-5">
+                      <Link
+                        to="/app/produkte/$productId"
+                        params={{ productId: item.id }}
+                        className="flex min-h-11 items-center gap-3 rounded-lg"
+                      >
+                        <RecordThumb src={item.cover_url} alt={item.name} />
+                        <span>
+                          <span className="block font-medium">{item.name}</span>
+                          <span className="mt-1 block text-xs text-muted-foreground">
+                            /{item.handle}
+                          </span>
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="px-4">
+                      <StatusBadge tone={item.status === "active" ? "success" : "neutral"}>
+                        {STATUS_LABEL[item.status]}
+                      </StatusBadge>
+                    </td>
+                    <td className="max-w-56 px-4 text-muted-foreground">
+                      {item.categories.join(", ") || "Nicht zugeordnet"}
+                    </td>
+                    <td className="px-4 text-right tabular-nums">{item.variant_count}</td>
+                    <td className="px-4">
+                      <ActionMenu
+                        label={`Aktionen für ${item.name}`}
+                        items={[
+                          {
+                            label: "Bearbeiten",
+                            onSelect: () =>
+                              void navigate({
+                                to: "/app/produkte/$productId",
+                                params: { productId: item.id },
+                              }),
+                          },
+                          ...(canCreate
+                            ? [
+                                {
+                                  label: "Duplizieren",
+                                  onSelect: () => duplicateMutation.mutate(item.id),
+                                  disabled: duplicateMutation.isPending,
+                                },
+                              ]
+                            : []),
+                          ...(can("products.archive") && item.status !== "archived"
+                            ? [
+                                {
+                                  label: "Archivieren",
+                                  onSelect: () => archiveMutation.mutate(item.id),
+                                  disabled: archiveMutation.isPending,
+                                  destructive: true,
+                                  separatorBefore: true,
+                                },
+                              ]
+                            : []),
+                        ]}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TableScroll>
+          <SectionPanel flush className="lg:hidden">
+            <RecordList>
+              {items.map((item) => (
+                <RecordRow
+                  key={item.id}
+                  to="/app/produkte/$productId"
+                  params={{ productId: item.id }}
+                  leading={<RecordThumb src={item.cover_url} alt={item.name} />}
+                  title={item.name}
+                  subtitle={`/${item.handle} · ${item.variant_count} ${
+                    item.variant_count === 1 ? "Variante" : "Varianten"
+                  }${item.categories.length ? ` · ${item.categories.join(", ")}` : ""}`}
+                  badges={
+                    <StatusBadge tone={item.status === "active" ? "success" : "neutral"}>
+                      {STATUS_LABEL[item.status]}
+                    </StatusBadge>
+                  }
+                  actions={
+                    <ActionMenu
+                      label={`Aktionen für ${item.name}`}
+                      items={[
+                        ...(canCreate
+                          ? [
+                              {
+                                label: "Duplizieren",
+                                onSelect: () => duplicateMutation.mutate(item.id),
+                                disabled: duplicateMutation.isPending,
+                              },
+                            ]
+                          : []),
+                        ...(can("products.archive") && item.status !== "archived"
+                          ? [
+                              {
+                                label: "Archivieren",
+                                onSelect: () => archiveMutation.mutate(item.id),
+                                disabled: archiveMutation.isPending,
+                                destructive: true,
+                                separatorBefore: true,
+                              },
+                            ]
+                          : []),
+                      ]}
+                    />
+                  }
+                />
+              ))}
+            </RecordList>
+          </SectionPanel>
+          <p className="text-xs text-muted-foreground" role="status">
+            {total} {total === 1 ? "Produkt" : "Produkte"} gefunden
+          </p>
+        </>
       )}
-
 
       {total > pageSize && (
         <div className="flex items-center justify-between gap-3">

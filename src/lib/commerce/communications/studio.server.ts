@@ -15,6 +15,9 @@ import type {
   TemplateVersionRow,
 } from "./communication.types";
 
+import { assertCommunicationShop, getMailAsset } from "./assets.server";
+import { validateMailBlocks } from "./mail-design";
+
 type Row = Record<string, unknown>;
 
 /* -------------------------------- templates ------------------------------- */
@@ -100,6 +103,7 @@ export async function loadTemplate(
     .from("communication_templates")
     .select("*")
     .eq("id", templateId)
+    .or(`organization_id.eq.${organizationId},organization_id.is.null`)
     .maybeSingle();
   const t = data as Row | null;
   if (!t) throw new Error("Vorlage nicht gefunden.");
@@ -205,6 +209,7 @@ export async function saveDraftVersion(input: {
   if (!template.organizationId)
     throw new Error("Systemvorlagen können nicht direkt bearbeitet werden.");
 
+  validateMailBlocks(input.blocks);
   const draft = template.versions.find((v) => v.locale === input.locale && !v.publishedAt);
   if (draft) {
     const { error } = await admin
@@ -245,11 +250,16 @@ export async function publishVersion(input: {
   actorId: string | null;
 }) {
   const admin = await getAdmin();
-  await loadTemplate(input.organizationId, input.templateId);
+  const template = await loadTemplate(input.organizationId, input.templateId);
+  if (!template.organizationId)
+    throw new Error("Systemvorlagen können nicht veröffentlicht werden.");
+  if (!template.versions.some((v) => v.id === input.versionId))
+    throw new Error("Version gehört nicht zu dieser Vorlage.");
   const { error } = await admin
     .from("communication_template_versions")
     .update({ published_at: new Date().toISOString() } as never)
     .eq("id", input.versionId)
+    .eq("template_id", input.templateId)
     .is("published_at", null);
   if (error) throw new Error(error.message);
   await writeAudit({
@@ -303,7 +313,12 @@ export async function listRules(organizationId: string, shopId: string): Promise
   const rows = (data ?? []) as Row[];
   const keys = [...new Set(rows.map((r) => r["template_key"] as string))];
   const { data: templates } = keys.length
-    ? await admin.from("communication_templates").select("key, name").in("key", keys)
+    ? await admin
+        .from("communication_templates")
+        .select("key, name")
+        .in("key", keys)
+        .or(`organization_id.eq.${organizationId},organization_id.is.null`)
+        .or(`shop_id.eq.${shopId},shop_id.is.null`)
     : { data: [] };
   const names = new Map(
     ((templates ?? []) as Row[]).map((t) => [t["key"] as string, t["name"] as string]),
@@ -350,6 +365,7 @@ export async function updateRule(input: {
 
 /** Creates the default branding, provider and rule set for a shop. */
 export async function ensureShopDefaults(organizationId: string, shopId: string) {
+  await assertCommunicationShop({ organizationId, shopId });
   const admin = await getAdmin();
   const { error } = await admin.rpc(
     "comm_ensure_shop_defaults" as never,
@@ -365,6 +381,9 @@ export async function ensureShopDefaults(organizationId: string, shopId: string)
 /* -------------------------------- branding -------------------------------- */
 
 export type BrandingSettings = {
+  productUrlTemplate: string;
+  attachmentMediaIds: string[];
+  legalText: string;
   logoMediaId: string | null;
   primaryColor: string;
   backgroundColor: string;
@@ -384,6 +403,7 @@ export async function loadBrandingSettings(
   organizationId: string,
   shopId: string,
 ): Promise<BrandingSettings> {
+  await assertCommunicationShop({ organizationId, shopId });
   const admin = await getAdmin();
   const { data } = await admin
     .from("communication_branding")
@@ -393,6 +413,9 @@ export async function loadBrandingSettings(
     .maybeSingle();
   const r = (data ?? {}) as Row;
   return {
+    productUrlTemplate: (r["product_url_template"] as string) ?? "/produkt/{handle}",
+    attachmentMediaIds: (r["attachment_media_ids"] as string[]) ?? [],
+    legalText: (r["legal_text"] as string) ?? "",
     logoMediaId: (r["logo_media_id"] as string) ?? null,
     primaryColor: (r["primary_color"] as string) ?? "#1f2937",
     backgroundColor: (r["background_color"] as string) ?? "#f4f4f5",
@@ -418,11 +441,44 @@ export async function saveBrandingSettings(input: {
   actorId: string | null;
 }) {
   const admin = await getAdmin();
+  await assertCommunicationShop(input);
   const s = input.settings;
+  for (const key of [
+    "primaryColor",
+    "backgroundColor",
+    "contentBackgroundColor",
+    "textColor",
+    "mutedTextColor",
+  ] as const)
+    if (!/^#[\da-f]{6}$/i.test(s[key]))
+      throw new Error("Bitte gültige sechsstellige Farbcodes verwenden.");
+  if (!/^[a-zA-Z0-9 ,'-]{1,120}$/.test(s.fontFamily)) throw new Error("Ungültige Schriftfamilie.");
+  if (s.websiteUrl && !/^https?:\/\//i.test(s.websiteUrl))
+    throw new Error("Die Website muss mit https:// beginnen.");
+  if (
+    !s.productUrlTemplate.startsWith("/") ||
+    s.productUrlTemplate.startsWith("//") ||
+    !s.productUrlTemplate.includes("{handle}") ||
+    /[<>"\\]/.test(s.productUrlTemplate)
+  )
+    throw new Error("Produktpfad muss mit / beginnen und {handle} enthalten.");
+  if ((s.attachmentMediaIds?.length ?? 0) > 5) throw new Error("Höchstens fünf PDF-Anhänge.");
+  for (const id of s.attachmentMediaIds ?? []) {
+    const asset = await getMailAsset(input, id);
+    if (asset.mime_type !== "application/pdf") throw new Error("Anhänge müssen PDF-Dateien sein.");
+  }
+  if (s.logoMediaId) {
+    const asset = await getMailAsset(input, s.logoMediaId);
+    if (!["image/png", "image/jpeg", "image/gif"].includes(asset.mime_type))
+      throw new Error("Das Logo muss PNG, JPEG oder GIF sein.");
+  }
   const { error } = await admin.from("communication_branding").upsert(
     {
       organization_id: input.organizationId,
       shop_id: input.shopId,
+      product_url_template: s.productUrlTemplate,
+      attachment_media_ids: s.attachmentMediaIds ?? [],
+      legal_text: s.legalText ?? "",
       logo_media_id: s.logoMediaId,
       primary_color: s.primaryColor,
       background_color: s.backgroundColor,
@@ -571,6 +627,8 @@ export async function saveSenderIdentity(input: {
         .from("sender_identities")
         .update(payload as never)
         .eq("id", input.id)
+        .eq("organization_id", input.organizationId)
+        .eq("shop_id", input.shopId)
     : admin.from("sender_identities").insert(payload as never);
   const { error } = await query;
   if (error) throw new Error(error.message);

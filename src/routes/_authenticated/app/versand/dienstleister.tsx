@@ -304,7 +304,12 @@ function CarrierSettings() {
         title="Verpackungs-Presets"
         actions={
           manage ? (
-            <Button size="sm" variant="outline" className="min-h-11" onClick={() => setPreset({ ...EMPTY_PRESET })}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="min-h-11"
+              onClick={() => setPreset({ ...EMPTY_PRESET })}
+            >
               Preset anlegen
             </Button>
           ) : undefined
@@ -313,7 +318,10 @@ function CarrierSettings() {
         {presets.isLoading ? (
           <ListSkeleton rows={2} />
         ) : !presets.data?.length ? (
-          <EmptyState title="Noch keine Presets" description="Presets beschleunigen das Verpacken." />
+          <EmptyState
+            title="Noch keine Presets"
+            description="Presets beschleunigen das Verpacken."
+          />
         ) : (
           <>
             <RecordCardList>
@@ -326,10 +334,9 @@ function CarrierSettings() {
                     { label: "Gewicht", value: p.weightGrams ? `${p.weightGrams} g` : "—" },
                     {
                       label: "Maße (mm)",
-                      value:
-                        [p.lengthMm, p.widthMm, p.heightMm].every((v) => v === null)
-                          ? "—"
-                          : `${p.lengthMm ?? "?"} × ${p.widthMm ?? "?"} × ${p.heightMm ?? "?"}`,
+                      value: [p.lengthMm, p.widthMm, p.heightMm].every((v) => v === null)
+                        ? "—"
+                        : `${p.lengthMm ?? "?"} × ${p.widthMm ?? "?"} × ${p.heightMm ?? "?"}`,
                     },
                     { label: "Typ", value: p.packagingType ?? "—" },
                   ]}
@@ -409,7 +416,11 @@ function CarrierSettings() {
                             >
                               Bearbeiten
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => presetDelete.mutate(p.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => presetDelete.mutate(p.id)}
+                            >
                               Löschen
                             </Button>
                           </div>
@@ -440,7 +451,7 @@ function CarrierSettings() {
                   onValueChange={(v) => setConfig({ ...config, provider: v })}
                   disabled={!!config.id}
                 >
-                  <SelectTrigger className="h-11">
+                  <SelectTrigger aria-label="Dienstleister" className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -456,6 +467,7 @@ function CarrierSettings() {
               <div className="grid gap-2">
                 <Label>Anzeigename</Label>
                 <Input
+                  aria-label="Anzeigename"
                   className="h-11"
                   value={config.displayName}
                   placeholder={carrierLabel(config.provider)}
@@ -466,6 +478,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Priorität</Label>
                   <Input
+                    aria-label="Priorität"
                     className="h-11"
                     value={config.priority}
                     onChange={(e) => setConfig({ ...config, priority: e.target.value })}
@@ -479,7 +492,7 @@ function CarrierSettings() {
                       setConfig({ ...config, status: v as ConfigDraft["status"] })
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger aria-label="Status" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -493,6 +506,7 @@ function CarrierSettings() {
               <div className="grid gap-2">
                 <Label>Webhook-Secret (Name des Secrets)</Label>
                 <Input
+                  aria-label="Webhook-Secret (Name des Secrets)"
                   className="h-11"
                   value={config.webhookSecretName}
                   placeholder="z. B. DHL_WEBHOOK_SECRET"
@@ -533,6 +547,7 @@ function CarrierSettings() {
               <div className="grid gap-2">
                 <Label>Name</Label>
                 <Input
+                  aria-label="Name"
                   className="h-11"
                   value={preset.name}
                   onChange={(e) => setPreset({ ...preset, name: e.target.value })}
@@ -542,6 +557,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Gewicht (g)</Label>
                   <Input
+                    aria-label="Gewicht (g)"
                     className="h-11"
                     value={preset.weight}
                     onChange={(e) => setPreset({ ...preset, weight: e.target.value })}
@@ -550,6 +566,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Verpackungstyp</Label>
                   <Input
+                    aria-label="Verpackungstyp"
                     className="h-11"
                     value={preset.packagingType}
                     onChange={(e) => setPreset({ ...preset, packagingType: e.target.value })}
@@ -560,6 +577,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Länge</Label>
                   <Input
+                    aria-label="Länge"
                     className="h-11"
                     value={preset.length}
                     onChange={(e) => setPreset({ ...preset, length: e.target.value })}
@@ -568,6 +586,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Breite</Label>
                   <Input
+                    aria-label="Breite"
                     className="h-11"
                     value={preset.width}
                     onChange={(e) => setPreset({ ...preset, width: e.target.value })}
@@ -576,6 +595,7 @@ function CarrierSettings() {
                 <div className="grid gap-2">
                   <Label>Höhe</Label>
                   <Input
+                    aria-label="Höhe"
                     className="h-11"
                     value={preset.height}
                     onChange={(e) => setPreset({ ...preset, height: e.target.value })}

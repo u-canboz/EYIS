@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useNewsletterConfirm } from "@/lib/store-sdk/react/hooks";
 import { shop } from "@/content/shop";
 
 const TITLE = `Newsletter bestätigen — ${shop.name}`;
-const DESCRIPTION =
-  `Bestätige deine Anmeldung zum ${shop.name} Newsletter und erhalte deinen Gutscheincode.`;
+const DESCRIPTION = `Bestätige deine Anmeldung zum ${shop.name} Newsletter.`;
 
 export const Route = createFileRoute("/newsletter/bestaetigen")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -28,14 +26,6 @@ export const Route = createFileRoute("/newsletter/bestaetigen")({
 function ConfirmPage() {
   const { token } = Route.useSearch();
   const confirm = useNewsletterConfirm();
-  const started = useRef(false);
-  const [code, setCode] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!token || started.current) return;
-    started.current = true;
-    confirm.mutate(token, { onSuccess: (result) => setCode(result.discountCode) });
-  }, [token, confirm]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 sm:px-6 lg:py-28">
@@ -54,18 +44,20 @@ function ConfirmPage() {
       ) : confirm.isSuccess ? (
         <div className="mt-5 grid gap-4 text-sm">
           <p>Danke — deine Anmeldung ist bestätigt.</p>
-          {code ? (
-            <p className="border border-border bg-surface px-5 py-4">
-              Dein Gutscheincode: <span className="font-display text-lg tracking-wide">{code}</span>
-            </p>
-          ) : null}
           <p>
             <Link to="/shop" className="underline underline-offset-4">
               Weiter zum Sortiment
             </Link>
           </p>
         </div>
-      ) : null}
+      ) : (
+        <button
+          className="mt-6 min-h-11 rounded-lg bg-primary px-5 text-primary-foreground"
+          onClick={() => confirm.mutate(token)}
+        >
+          Anmeldung bestätigen
+        </button>
+      )}
     </div>
   );
 }

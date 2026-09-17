@@ -20,7 +20,16 @@ export type MediaItem = {
 /** Media library for an organization, with signed preview URLs and usage counts. */
 export const listMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { organizationId: string; search?: string; limit?: number }) => data)
+  .inputValidator(
+    (data: { organizationId: string; shopId?: string; search?: string; limit?: number }) => {
+      if (
+        data.shopId &&
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.shopId)
+      )
+        throw new Error("Ungültiger Shop.");
+      return data;
+    },
+  )
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     let query = supabase
@@ -32,6 +41,7 @@ export const listMedia = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 100);
 
+    if (data.shopId) query = query.or(`shop_id.eq.${data.shopId},shop_id.is.null`);
     const search = safeSearchTerm(data.search);
     if (search) {
       const term = `%${search}%`;

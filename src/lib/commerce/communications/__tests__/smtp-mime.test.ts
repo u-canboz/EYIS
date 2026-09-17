@@ -23,7 +23,10 @@ describe("SMTP MIME", () => {
   });
 
   it("kodiert Nicht-ASCII-Betreffs nach RFC 2047", () => {
-    const mime = buildMimeMessage({ ...base, subject: "Grüße aus München" }, "shop@example.com").body;
+    const mime = buildMimeMessage(
+      { ...base, subject: "Grüße aus München" },
+      "shop@example.com",
+    ).body;
     expect(mime).toContain("=?UTF-8?B?");
     expect(mime).not.toContain("Subject: Grüße");
   });

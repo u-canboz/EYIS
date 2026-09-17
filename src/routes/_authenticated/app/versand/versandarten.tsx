@@ -186,7 +186,9 @@ function ShippingPage() {
                   {
                     label: "Gratis ab",
                     value:
-                      m.freeAboveMinor === null ? "—" : formatMoney(m.freeAboveMinor, m.currencyCode),
+                      m.freeAboveMinor === null
+                        ? "—"
+                        : formatMoney(m.freeAboveMinor, m.currencyCode),
                   },
                   { label: "Länder", value: m.countries.length ? m.countries.join(", ") : "Alle" },
                 ]}
@@ -276,6 +278,7 @@ function ShippingPage() {
               <div className="grid gap-2">
                 <Label>Name</Label>
                 <Input
+                  aria-label="Name"
                   className="h-11"
                   value={draft.name}
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
@@ -285,6 +288,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Code</Label>
                   <Input
+                    aria-label="Code"
                     className="h-11"
                     value={draft.code}
                     onChange={(e) => setDraft({ ...draft, code: e.target.value })}
@@ -298,7 +302,7 @@ function ShippingPage() {
                       setDraft({ ...draft, pricingType: v as "fixed" | "free" })
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger aria-label="Art" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -312,6 +316,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Preis</Label>
                   <Input
+                    aria-label="Preis"
                     className="h-11"
                     value={draft.amount}
                     disabled={draft.pricingType === "free"}
@@ -321,6 +326,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Gratis ab (optional)</Label>
                   <Input
+                    aria-label="Gratis ab (optional)"
                     className="h-11"
                     value={draft.freeAbove}
                     onChange={(e) => setDraft({ ...draft, freeAbove: e.target.value })}
@@ -331,6 +337,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Mindestbestellwert</Label>
                   <Input
+                    aria-label="Mindestbestellwert"
                     className="h-11"
                     value={draft.minSubtotal}
                     onChange={(e) => setDraft({ ...draft, minSubtotal: e.target.value })}
@@ -339,6 +346,7 @@ function ShippingPage() {
                 <div className="grid gap-2">
                   <Label>Position</Label>
                   <Input
+                    aria-label="Position"
                     className="h-11"
                     value={draft.position}
                     onChange={(e) => setDraft({ ...draft, position: e.target.value })}
@@ -348,6 +356,7 @@ function ShippingPage() {
               <div className="grid gap-2">
                 <Label>Länder (ISO-2, leer = alle)</Label>
                 <Input
+                  aria-label="Länder (ISO-2, leer = alle)"
                   className="h-11"
                   value={draft.countries}
                   onChange={(e) => setDraft({ ...draft, countries: e.target.value })}
@@ -356,6 +365,7 @@ function ShippingPage() {
               <div className="grid gap-2">
                 <Label>Beschreibung</Label>
                 <Input
+                  aria-label="Beschreibung"
                   className="h-11"
                   value={draft.description}
                   onChange={(e) => setDraft({ ...draft, description: e.target.value })}

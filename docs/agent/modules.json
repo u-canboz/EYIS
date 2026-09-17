@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-09-10T16:20:30.435Z",
-  "source_commit": "4a7292cef36c103ff6a293940ec5e9e71f9c0897",
-  "latest_migration": "20260910135845_64d7c7a3-27fe-42f0-80e7-2472854ae56a.sql",
+  "generated_at": "2026-09-17T13:31:06.328Z",
+  "source_commit": "0d628e8362d32ddb564280716eafacf1be6eb46a",
+  "latest_migration": "20260917132407_media_storage_policies.sql",
   "generator_version": "1.0.0",
   "generated_by": "scripts/manifest/generate.ts",
   "note": "Generierte Datei. Nicht von Hand bearbeiten — `bun run generate:manifests` ausführen.",
@@ -477,10 +477,12 @@
     {
       "id": "communications",
       "name": "Communications",
-      "purpose": "Vorlagen, Versandwarteschlange, Provider-Events, Suppressions und Absenderidentitäten.",
+      "purpose": "Branding, Vorlagen, PDF-Anhänge, Newsletter mit Double-Opt-in und Willkommensautomation, Versandwarteschlange und Zustellereignisse.",
       "paths": [
         "src/lib/commerce/communications",
         "src/routes/api/public/jobs/communications.ts",
+        "src/routes/api/public/store/newsletter",
+        "src/routes/_authenticated/app/kommunikation",
         "src/routes/api/public/webhooks/communications/$provider.ts"
       ],
       "tables": [
@@ -493,29 +495,41 @@
         "communication_provider_events",
         "communication_suppressions",
         "communication_branding",
+        "newsletter_subscribers",
+        "newsletter_campaigns",
+        "newsletter_deliveries",
+        "newsletter_consent_events",
         "sender_identities"
       ],
-      "rpcs": [],
+      "rpcs": [
+        "newsletter_request_subscription",
+        "newsletter_campaign_stats"
+      ],
       "events": [
         "communication.sent",
         "communication.failed"
       ],
       "permissions": [
         "communications.read",
-        "communications.write"
+        "communications.manage",
+        "communications.send_test"
       ],
       "public_interfaces": [
-        "keine öffentlichen Endpunkte"
+        "Store API v1 newsletter/subscribe, newsletter/confirm, newsletter/unsubscribe; Newsletter-Bestätigungs- und Abmeldeseiten"
       ],
       "tests": [
-        "qa/phase11.ts"
+        "qa/phase11.ts",
+        "qa/communication-studio-local.ts",
+        "src/lib/commerce/communications/__tests__/mail-design.test.ts"
       ],
       "depends_on": [
         "payments-orders",
         "customers-returns"
       ],
       "limitations": [
-        "Echter Versand BLOCKED; nur Test-Provider."
+        "Live-Versand benötigt konfigurierte Provider-Zugangsdaten und verifizierte Absender; lokale QA nutzt ausschließlich den Test-Provider.",
+        "Newsletter-Automationen: einmalige Willkommensmail mit Verzögerung; keine mehrstufigen Journeys.",
+        "Anhänge einschließlich Logo zusammen maximal 5 MB; Test, SMTP und Resend unterstützen Anhänge."
       ]
     },
     {

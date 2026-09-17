@@ -1,24 +1,56 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Nicht-Schema-Ressourcen einer EYIS Dedicated Installation. Wird nach 'Database PASS' geprüft und bereitgestellt. Enthält niemals Secrets.",
   "storage_buckets": [
     {
       "id": "documents",
       "public": false,
       "purpose": "Rechnungen, Gutschriften, Lieferscheine",
-      "security": "Zugriff ausschließlich über signierte URLs; Policies auf storage.objects mandantengebunden"
+      "file_size_limit": 25000000,
+      "allowed_mime_types": [
+        "application/pdf",
+        "application/xml",
+        "text/xml"
+      ],
+      "security": "Mandantengebundene signierte URLs"
     },
     {
       "id": "media",
-      "public": true,
-      "purpose": "Produkt- und Shopmedien",
-      "security": "Öffentlich lesbar, Schreibzugriff nur für Organisationsmitglieder"
+      "public": false,
+      "purpose": "Produktmedien, Shop-Logos und E-Mail-Anhänge",
+      "file_size_limit": 25000000,
+      "allowed_mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+        "image/avif",
+        "application/pdf"
+      ],
+      "security": "Private Dateien; Organisationsrechte über Storage-Policies, Zugriff per signierter URL"
     },
     {
       "id": "returns",
       "public": false,
-      "purpose": "Retouren-Fotos der Kundinnen und Kunden",
-      "security": "Nur Organisation und berechtigte Kundensitzung"
+      "purpose": "Retouren-Fotos",
+      "file_size_limit": 10000000,
+      "allowed_mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ],
+      "security": "Serverseitig geprüfte Kundensitzung"
+    },
+    {
+      "id": "shipping-labels",
+      "public": false,
+      "purpose": "Versandetiketten",
+      "file_size_limit": 10000000,
+      "allowed_mime_types": [
+        "application/pdf",
+        "image/png"
+      ],
+      "security": "Serverseitig erzeugt, mandantengebunden signiert"
     }
   ],
   "jobs": [
@@ -144,6 +176,7 @@
   ],
   "verification": [
     "Alle Buckets existieren mit der erwarteten Sichtbarkeit",
+    "Bucket-Größenlimits und MIME-Allowlists entsprechen dem Manifest; Storage-Medien-Policies stammen aus den Migrationen",
     "Job-Endpunkte antworten mit 401 ohne gültiges Cron-Secret",
     "Runtime-Konfiguration vollständig, Secrets projektlokal gesetzt",
     "/api/public/store/v1/runtime-config liefert Shop-Handle und Publishable Key",

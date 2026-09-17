@@ -17,13 +17,7 @@ export function RecordList({
   desktopHidden?: boolean | undefined;
 }) {
   return (
-    <ul
-      className={cn(
-        "min-w-0 divide-y divide-border",
-        desktopHidden && "lg:hidden",
-        className,
-      )}
-    >
+    <ul className={cn("min-w-0 divide-y divide-border", desktopHidden && "lg:hidden", className)}>
       {children}
     </ul>
   );
@@ -64,8 +58,13 @@ function RowBody({
 }: RowProps & { interactive: boolean }) {
   return (
     <>
-      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-        {leading ? <div className="shrink-0">{leading}</div> : <span className="hidden" />}
+      <div
+        className={cn(
+          "grid min-w-0 items-center gap-3",
+          leading ? "grid-cols-[auto_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1fr)_auto]",
+        )}
+      >
+        {leading ? <div className="shrink-0">{leading}</div> : null}
         <div className="min-w-0">
           <div className="min-w-0 truncate text-sm font-medium">{title}</div>
           {subtitle ? (
@@ -75,11 +74,11 @@ function RowBody({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <div className="text-right">
-            {trailing ? (
-              <div className="text-sm font-semibold tabular-nums">{trailing}</div>
-            ) : null}
+            {trailing ? <div className="text-sm font-semibold tabular-nums">{trailing}</div> : null}
             {trailingHint ? (
-              <div className="mt-0.5 text-xs text-muted-foreground tabular-nums">{trailingHint}</div>
+              <div className="mt-0.5 text-xs text-muted-foreground tabular-nums">
+                {trailingHint}
+              </div>
             ) : null}
           </div>
           {interactive ? (

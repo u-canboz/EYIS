@@ -1,3 +1,4 @@
+import { PageHeader } from "@/eyis/shell/PageHeader";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -110,12 +111,10 @@ function ReceivingPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Wareneingang</h1>
-        <p className="text-muted-foreground text-sm">
-          Schritt {step + 1} von 3 · Lagerort, Mengen, Bestätigung
-        </p>
-      </header>
+      <PageHeader
+        title="Wareneingang"
+        description={<>Schritt {step + 1} von 3 · Lagerort, Mengen, Bestätigung</>}
+      />
 
       {step === 0 && (
         <section className="max-w-md space-y-4 rounded-lg border p-5">
@@ -203,11 +202,19 @@ function ReceivingPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Referenz (optional)</Label>
-              <Input value={reference} onChange={(event) => setReference(event.target.value)} />
+              <Input
+                aria-label="Referenz (optional)"
+                value={reference}
+                onChange={(event) => setReference(event.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Notiz (optional)</Label>
-              <Input value={note} onChange={(event) => setNote(event.target.value)} />
+              <Input
+                aria-label="Notiz (optional)"
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+              />
             </div>
           </div>
           <div className="flex gap-2">

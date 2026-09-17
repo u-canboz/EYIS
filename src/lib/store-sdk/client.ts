@@ -165,6 +165,8 @@ export function createCommerceClient(input: CommerceClientConfig) {
         body: { cartId: requireCart().cartId, email: email ?? null },
       }),
     get: (sessionId: string) => withCartToken<StoreCheckout>(`/checkout/${sessionId}`, {}),
+    cancel: (sessionId: string) =>
+      withCartToken<StoreCart>(`/checkout/${sessionId}/cancel`, { method: "POST" }),
     setEmail: (sessionId: string, email: string) =>
       withCartToken<StoreCheckout>(`/checkout/${sessionId}/email`, {
         method: "POST",
@@ -360,6 +362,23 @@ export function createCommerceClient(input: CommerceClientConfig) {
   };
 
   return {
+    newsletter: {
+      confirm: (token: string) =>
+        request<{ ok: true; discountCode: null }>({
+          method: "POST",
+          path: "/newsletter/confirm",
+          body: { token },
+        }),
+      unsubscribe: (token: string) =>
+        request<{ ok: true }>({ method: "POST", path: "/newsletter/unsubscribe", body: { token } }),
+      subscribe: (input: {
+        email: string;
+        firstName?: string;
+        consent: true;
+        consentText: string;
+      }) =>
+        request<{ accepted: true }>({ method: "POST", path: "/newsletter/subscribe", body: input }),
+    },
     config: () => request<StoreConfig>({ path: "/config" }),
     /**
      * Active payment methods for this shop, discovered server-side.

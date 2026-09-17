@@ -109,6 +109,7 @@ function ReturnSettingsPage() {
           <div className="grid gap-1.5">
             <Label className="text-xs">Rückgabefrist (Tage)</Label>
             <Input
+              aria-label="Rückgabefrist (Tage)"
               className="h-11"
               type="number"
               min={0}
@@ -122,7 +123,7 @@ function ReturnSettingsPage() {
               value={draft.windowStart}
               onValueChange={(v) => set("windowStart", v as ReturnWindowStart)}
             >
-              <SelectTrigger className="h-11">
+              <SelectTrigger aria-label="Frist beginnt ab" className="h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -140,7 +141,7 @@ function ReturnSettingsPage() {
             value={draft.approvalStrategy}
             onValueChange={(v) => set("approvalStrategy", v as ReturnApprovalStrategy)}
           >
-            <SelectTrigger className="h-11">
+            <SelectTrigger aria-label="Genehmigung" className="h-11">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -172,6 +173,7 @@ function ReturnSettingsPage() {
         <div className="grid gap-1.5">
           <Label className="text-xs">Rücksendehinweise für Kund:innen</Label>
           <Textarea
+            aria-label="Rücksendehinweise für Kund:innen"
             value={draft.instructions ?? ""}
             onChange={(e) => set("instructions", e.target.value)}
             placeholder="z. B. Rücksendeadresse und Verpackungshinweise"

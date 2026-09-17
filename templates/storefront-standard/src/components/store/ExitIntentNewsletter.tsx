@@ -71,7 +71,12 @@ export function ExitIntentNewsletter() {
     event.preventDefault();
     const value = email.trim();
     if (!value.includes("@")) return;
-    subscribe.mutate({ email: value, source: "exit-intent" });
+    subscribe.mutate({
+      email: value,
+      consent: true,
+      consentText:
+        "Ich möchte Neuigkeiten und Angebote per E-Mail erhalten. Abmeldung jederzeit möglich.",
+    });
   };
 
   return (
@@ -116,8 +121,12 @@ export function ExitIntentNewsletter() {
               className="min-h-11 w-full min-w-0 border border-border bg-background px-4 text-sm focus:border-foreground focus:outline-none"
             />
             <Button type="submit" size="lg" disabled={subscribe.isPending} className="rounded-none">
-              {subscribe.isPending ? "Wird gesendet …" : "Gutschein sichern"}
+              {subscribe.isPending ? "Wird gesendet …" : "Zum Newsletter anmelden"}
             </Button>
+            <label className="flex items-start gap-3 text-left text-xs sm:col-span-full">
+              <input type="checkbox" required className="mt-1 shrink-0" />
+              Ich möchte Neuigkeiten und Angebote per E-Mail erhalten. Abmeldung jederzeit möglich.
+            </label>
           </form>
         )}
         {subscribe.isError ? (

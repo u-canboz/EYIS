@@ -79,6 +79,7 @@ function LogPage() {
         </ScrollTabs>
         <Input
           className="h-11 w-full sm:w-64"
+          aria-label="Empfänger suchen"
           placeholder="Empfänger suchen"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -88,7 +89,10 @@ function LogPage() {
       {logs.isLoading ? (
         <ListSkeleton />
       ) : !logs.data?.length ? (
-        <EmptyState title="Keine Nachrichten" description="Für diese Ansicht liegen keine Nachrichten vor." />
+        <EmptyState
+          title="Keine Nachrichten"
+          description="Für diese Ansicht liegen keine Nachrichten vor."
+        />
       ) : (
         <>
           <RecordCardList>

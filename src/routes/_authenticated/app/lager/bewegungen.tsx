@@ -1,3 +1,4 @@
+import { PageHeader } from "@/eyis/shell/PageHeader";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -98,15 +99,19 @@ function MovementsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Bestandsbewegungen</h1>
-        <p className="text-muted-foreground text-sm">
-          Das Journal ist unveränderbar. Korrekturen entstehen ausschließlich durch Gegenbuchungen.
-        </p>
-      </header>
+      <PageHeader
+        title="Bestandsbewegungen"
+        description={
+          <>
+            Das Journal ist unveränderbar. Korrekturen entstehen ausschließlich durch
+            Gegenbuchungen.
+          </>
+        }
+      />
 
       <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Input
+          aria-label="Produkt oder SKU"
           placeholder="Produkt oder SKU"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -139,13 +144,24 @@ function MovementsPage() {
         </Select>
         <div className="space-y-1">
           <Label className="text-xs">Von</Label>
-          <Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
+          <Input
+            aria-label="Von"
+            type="date"
+            value={from}
+            onChange={(event) => setFrom(event.target.value)}
+          />
         </div>
         <div className="space-y-1">
           <Label className="text-xs">Bis</Label>
-          <Input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
+          <Input
+            aria-label="Bis"
+            type="date"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+          />
         </div>
         <Input
+          aria-label="Referenz"
           placeholder="Referenz"
           value={reference}
           onChange={(event) => setReference(event.target.value)}

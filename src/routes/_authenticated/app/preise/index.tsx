@@ -224,7 +224,9 @@ function PricingOverviewPage() {
                         value:
                           item.starts_at || item.ends_at
                             ? `${item.starts_at ? new Date(item.starts_at).toLocaleDateString("de-DE") : "…"} – ${
-                                item.ends_at ? new Date(item.ends_at).toLocaleDateString("de-DE") : "…"
+                                item.ends_at
+                                  ? new Date(item.ends_at).toLocaleDateString("de-DE")
+                                  : "…"
                               }`
                             : "dauerhaft",
                       },
@@ -287,7 +289,9 @@ function PricingOverviewPage() {
                         <td className="p-3 text-xs text-muted-foreground">
                           {item.starts_at || item.ends_at
                             ? `${item.starts_at ? new Date(item.starts_at).toLocaleDateString("de-DE") : "…"} – ${
-                                item.ends_at ? new Date(item.ends_at).toLocaleDateString("de-DE") : "…"
+                                item.ends_at
+                                  ? new Date(item.ends_at).toLocaleDateString("de-DE")
+                                  : "…"
                               }`
                             : "dauerhaft"}
                         </td>
@@ -320,7 +324,7 @@ function PricingOverviewPage() {
             <div className="w-full sm:w-[240px]">
               <Label>Aktion</Label>
               <Select value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-                <SelectTrigger className="mt-2 h-11">
+                <SelectTrigger aria-label="Aktion" className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -379,6 +383,7 @@ function PricingOverviewPage() {
             <div className="w-full flex-1">
               <Label>Neue Kundengruppe</Label>
               <Input
+                aria-label="Neue Kundengruppe"
                 className="mt-2 h-11"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}

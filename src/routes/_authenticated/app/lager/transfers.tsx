@@ -1,3 +1,4 @@
+import { PageHeader } from "@/eyis/shell/PageHeader";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -152,13 +153,15 @@ function TransfersPage() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">Umlagerungen</h1>
-        <p className="text-muted-foreground text-sm">
-          Beim Start wird der Bestand aus dem Quelllager entnommen und als „unterwegs“ geführt, beim
-          Abschluss im Ziellager eingebucht.
-        </p>
-      </header>
+      <PageHeader
+        title="Umlagerungen"
+        description={
+          <>
+            Beim Start wird der Bestand aus dem Quelllager entnommen und als „unterwegs“ geführt,
+            beim Abschluss im Ziellager eingebucht.
+          </>
+        }
+      />
 
       {canTransfer && (
         <section className="space-y-4 rounded-lg border p-5">
@@ -198,7 +201,11 @@ function TransfersPage() {
             </div>
             <div className="space-y-2">
               <Label>Referenz (optional)</Label>
-              <Input value={reference} onChange={(event) => setReference(event.target.value)} />
+              <Input
+                aria-label="Referenz (optional)"
+                value={reference}
+                onChange={(event) => setReference(event.target.value)}
+              />
             </div>
           </div>
 
