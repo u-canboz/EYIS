@@ -7,30 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -1648,7 +1628,6 @@ export type Database = {
       }
       communication_branding: {
         Row: {
-          attachment_media_ids: string[]
           background_color: string
           border_radius: number
           button_style: string
@@ -1657,13 +1636,11 @@ export type Database = {
           font_family: string
           footer_text: string
           id: string
-          legal_text: string
           logo_media_id: string | null
           metadata: Json
           muted_text_color: string
           organization_id: string
           primary_color: string
-          product_url_template: string
           shop_id: string
           social_links: Json
           support_email: string | null
@@ -1672,7 +1649,6 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
-          attachment_media_ids?: string[]
           background_color?: string
           border_radius?: number
           button_style?: string
@@ -1681,13 +1657,11 @@ export type Database = {
           font_family?: string
           footer_text?: string
           id?: string
-          legal_text?: string
           logo_media_id?: string | null
           metadata?: Json
           muted_text_color?: string
           organization_id: string
           primary_color?: string
-          product_url_template?: string
           shop_id: string
           social_links?: Json
           support_email?: string | null
@@ -1696,7 +1670,6 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
-          attachment_media_ids?: string[]
           background_color?: string
           border_radius?: number
           button_style?: string
@@ -1705,13 +1678,11 @@ export type Database = {
           font_family?: string
           footer_text?: string
           id?: string
-          legal_text?: string
           logo_media_id?: string | null
           metadata?: Json
           muted_text_color?: string
           organization_id?: string
           primary_color?: string
-          product_url_template?: string
           shop_id?: string
           social_links?: Json
           support_email?: string | null
@@ -3183,96 +3154,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      eyis_installation_state: {
-        Row: {
-          baseline_version: string
-          completed_at: string | null
-          created_at: string
-          id: boolean
-          migration_head: string
-          migration_history_reconciled: boolean
-          resources_verified: boolean
-          schema_fingerprint: string
-          schema_version: string
-          singleton: boolean
-          started_at: string
-          state: string
-          system_seed_version: string | null
-          updated_at: string
-        }
-        Insert: {
-          baseline_version: string
-          completed_at?: string | null
-          created_at?: string
-          id?: boolean
-          migration_head: string
-          migration_history_reconciled?: boolean
-          resources_verified?: boolean
-          schema_fingerprint: string
-          schema_version: string
-          singleton?: boolean
-          started_at?: string
-          state?: string
-          system_seed_version?: string | null
-          updated_at?: string
-        }
-        Update: {
-          baseline_version?: string
-          completed_at?: string | null
-          created_at?: string
-          id?: boolean
-          migration_head?: string
-          migration_history_reconciled?: boolean
-          resources_verified?: boolean
-          schema_fingerprint?: string
-          schema_version?: string
-          singleton?: boolean
-          started_at?: string
-          state?: string
-          system_seed_version?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      eyis_installation_units: {
-        Row: {
-          checksum: string
-          completed_at: string | null
-          created_at: string
-          error_code: string | null
-          error_message: string | null
-          position: number
-          started_at: string | null
-          status: string
-          unit_id: string
-          updated_at: string
-        }
-        Insert: {
-          checksum: string
-          completed_at?: string | null
-          created_at?: string
-          error_code?: string | null
-          error_message?: string | null
-          position: number
-          started_at?: string | null
-          status?: string
-          unit_id: string
-          updated_at?: string
-        }
-        Update: {
-          checksum?: string
-          completed_at?: string | null
-          created_at?: string
-          error_code?: string | null
-          error_message?: string | null
-          position?: number
-          started_at?: string | null
-          status?: string
-          unit_id?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       fulfillment_items: {
         Row: {
@@ -4817,260 +4698,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "shops"
             referencedColumns: ["id"]
-          },
-        ]
-      }
-      newsletter_campaigns: {
-        Row: {
-          activated_at: string | null
-          blocks: Json
-          created_at: string
-          created_by: string | null
-          delay_minutes: number
-          id: string
-          kind: string
-          last_processed_at: string | null
-          name: string
-          organization_id: string
-          preheader: string
-          scheduled_at: string | null
-          shop_id: string
-          status: string
-          subject: string
-          updated_at: string
-        }
-        Insert: {
-          activated_at?: string | null
-          blocks?: Json
-          created_at?: string
-          created_by?: string | null
-          delay_minutes?: number
-          id?: string
-          kind?: string
-          last_processed_at?: string | null
-          name: string
-          organization_id: string
-          preheader?: string
-          scheduled_at?: string | null
-          shop_id: string
-          status?: string
-          subject?: string
-          updated_at?: string
-        }
-        Update: {
-          activated_at?: string | null
-          blocks?: Json
-          created_at?: string
-          created_by?: string | null
-          delay_minutes?: number
-          id?: string
-          kind?: string
-          last_processed_at?: string | null
-          name?: string
-          organization_id?: string
-          preheader?: string
-          scheduled_at?: string | null
-          shop_id?: string
-          status?: string
-          subject?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "newsletter_campaigns_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "newsletter_campaigns_organization_id_shop_id_fkey"
-            columns: ["organization_id", "shop_id"]
-            isOneToOne: false
-            referencedRelation: "shops"
-            referencedColumns: ["organization_id", "id"]
-          },
-        ]
-      }
-      newsletter_consent_events: {
-        Row: {
-          consent_text: string
-          event_type: string
-          id: string
-          occurred_at: string
-          organization_id: string
-          shop_id: string
-          source: string
-          subscriber_id: string
-        }
-        Insert: {
-          consent_text: string
-          event_type: string
-          id?: string
-          occurred_at?: string
-          organization_id: string
-          shop_id: string
-          source: string
-          subscriber_id: string
-        }
-        Update: {
-          consent_text?: string
-          event_type?: string
-          id?: string
-          occurred_at?: string
-          organization_id?: string
-          shop_id?: string
-          source?: string
-          subscriber_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "newsletter_consent_events_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "newsletter_consent_events_organization_id_shop_id_subscrib_fkey"
-            columns: ["organization_id", "shop_id", "subscriber_id"]
-            isOneToOne: false
-            referencedRelation: "newsletter_subscribers"
-            referencedColumns: ["organization_id", "shop_id", "id"]
-          },
-        ]
-      }
-      newsletter_deliveries: {
-        Row: {
-          campaign_id: string
-          communication_id: string | null
-          created_at: string
-          id: string
-          last_error: string | null
-          organization_id: string
-          shop_id: string
-          subscriber_id: string
-        }
-        Insert: {
-          campaign_id: string
-          communication_id?: string | null
-          created_at?: string
-          id?: string
-          last_error?: string | null
-          organization_id: string
-          shop_id: string
-          subscriber_id: string
-        }
-        Update: {
-          campaign_id?: string
-          communication_id?: string | null
-          created_at?: string
-          id?: string
-          last_error?: string | null
-          organization_id?: string
-          shop_id?: string
-          subscriber_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "newsletter_deliveries_communication_id_fkey"
-            columns: ["communication_id"]
-            isOneToOne: true
-            referencedRelation: "communications"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "newsletter_deliveries_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "newsletter_deliveries_organization_id_shop_id_campaign_id_fkey"
-            columns: ["organization_id", "shop_id", "campaign_id"]
-            isOneToOne: false
-            referencedRelation: "newsletter_campaigns"
-            referencedColumns: ["organization_id", "shop_id", "id"]
-          },
-          {
-            foreignKeyName: "newsletter_deliveries_organization_id_shop_id_subscriber_i_fkey"
-            columns: ["organization_id", "shop_id", "subscriber_id"]
-            isOneToOne: false
-            referencedRelation: "newsletter_subscribers"
-            referencedColumns: ["organization_id", "shop_id", "id"]
-          },
-        ]
-      }
-      newsletter_subscribers: {
-        Row: {
-          confirmation_expires_at: string | null
-          confirmation_requested_at: string | null
-          confirmation_token_hash: string | null
-          confirmed_at: string | null
-          consent_text: string
-          created_at: string
-          email: string
-          first_name: string
-          id: string
-          organization_id: string
-          shop_id: string
-          source: string
-          status: string
-          unsubscribe_token: string
-          unsubscribed_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          confirmation_expires_at?: string | null
-          confirmation_requested_at?: string | null
-          confirmation_token_hash?: string | null
-          confirmed_at?: string | null
-          consent_text: string
-          created_at?: string
-          email: string
-          first_name?: string
-          id?: string
-          organization_id: string
-          shop_id: string
-          source?: string
-          status?: string
-          unsubscribe_token?: string
-          unsubscribed_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          confirmation_expires_at?: string | null
-          confirmation_requested_at?: string | null
-          confirmation_token_hash?: string | null
-          confirmed_at?: string | null
-          consent_text?: string
-          created_at?: string
-          email?: string
-          first_name?: string
-          id?: string
-          organization_id?: string
-          shop_id?: string
-          source?: string
-          status?: string
-          unsubscribe_token?: string
-          unsubscribed_at?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "newsletter_subscribers_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "newsletter_subscribers_organization_id_shop_id_fkey"
-            columns: ["organization_id", "shop_id"]
-            isOneToOne: false
-            referencedRelation: "shops"
-            referencedColumns: ["organization_id", "id"]
           },
         ]
       }
@@ -9791,27 +9418,6 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
-      newsletter_campaign_stats: {
-        Args: { p_org: string; p_shop: string }
-        Returns: {
-          campaign_id: string
-          failed: number
-          queued: number
-          sent: number
-          suppressed: number
-        }[]
-      }
-      newsletter_request_subscription: {
-        Args: {
-          p_consent: string
-          p_email: string
-          p_first_name: string
-          p_org: string
-          p_shop: string
-          p_token_hash: string
-        }
-        Returns: string
-      }
       ops_expire_due: { Args: never; Returns: Json }
       order_cancel: {
         Args: {
@@ -10338,12 +9944,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10367,11 +9973,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10392,11 +9998,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10417,11 +10023,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10434,11 +10040,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10448,9 +10054,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: [
