@@ -7,30 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -3183,96 +3163,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      eyis_installation_state: {
-        Row: {
-          baseline_version: string
-          completed_at: string | null
-          created_at: string
-          id: boolean
-          migration_head: string
-          migration_history_reconciled: boolean
-          resources_verified: boolean
-          schema_fingerprint: string
-          schema_version: string
-          singleton: boolean
-          started_at: string
-          state: string
-          system_seed_version: string | null
-          updated_at: string
-        }
-        Insert: {
-          baseline_version: string
-          completed_at?: string | null
-          created_at?: string
-          id?: boolean
-          migration_head: string
-          migration_history_reconciled?: boolean
-          resources_verified?: boolean
-          schema_fingerprint: string
-          schema_version: string
-          singleton?: boolean
-          started_at?: string
-          state?: string
-          system_seed_version?: string | null
-          updated_at?: string
-        }
-        Update: {
-          baseline_version?: string
-          completed_at?: string | null
-          created_at?: string
-          id?: boolean
-          migration_head?: string
-          migration_history_reconciled?: boolean
-          resources_verified?: boolean
-          schema_fingerprint?: string
-          schema_version?: string
-          singleton?: boolean
-          started_at?: string
-          state?: string
-          system_seed_version?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      eyis_installation_units: {
-        Row: {
-          checksum: string
-          completed_at: string | null
-          created_at: string
-          error_code: string | null
-          error_message: string | null
-          position: number
-          started_at: string | null
-          status: string
-          unit_id: string
-          updated_at: string
-        }
-        Insert: {
-          checksum: string
-          completed_at?: string | null
-          created_at?: string
-          error_code?: string | null
-          error_message?: string | null
-          position: number
-          started_at?: string | null
-          status?: string
-          unit_id: string
-          updated_at?: string
-        }
-        Update: {
-          checksum?: string
-          completed_at?: string | null
-          created_at?: string
-          error_code?: string | null
-          error_message?: string | null
-          position?: number
-          started_at?: string | null
-          status?: string
-          unit_id?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       fulfillment_items: {
         Row: {
@@ -10338,12 +10228,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10367,11 +10257,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10392,11 +10282,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10417,11 +10307,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10434,11 +10324,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -10448,9 +10338,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: [
