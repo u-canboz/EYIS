@@ -286,7 +286,7 @@ function TaxPage() {
                       }))
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger aria-label="Preismodus" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -300,6 +300,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Sitzland</Label>
                   <Input
+                    aria-label="Sitzland"
                     className="h-11"
                     value={settings.homeCountryCode}
                     maxLength={2}
@@ -316,7 +317,7 @@ function TaxPage() {
                       setSettings((s) => ({ ...s, defaultTaxClassId: v === "none" ? null : v }))
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger aria-label="Standard-Steuerklasse" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -340,7 +341,7 @@ function TaxPage() {
                       }))
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger aria-label="Versandbesteuerung" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -353,6 +354,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Steuernummer</Label>
                   <Input
+                    aria-label="Steuernummer"
                     className="h-11"
                     value={settings.taxNumber}
                     onChange={(e) => setSettings((s) => ({ ...s, taxNumber: e.target.value }))}
@@ -361,6 +363,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>USt-IdNr. des Shops</Label>
                   <Input
+                    aria-label="USt-IdNr. des Shops"
                     className="h-11"
                     value={settings.vatId}
                     onChange={(e) => setSettings((s) => ({ ...s, vatId: e.target.value }))}
@@ -406,7 +409,11 @@ function TaxPage() {
           <TabsContent value="classes" className="space-y-4 pt-4">
             <Panel bodyClassName="p-0">
               {classes.length === 0 ? (
-                <EmptyState title="Keine Steuerklassen" description="Lege unten eine erste Steuerklasse an." className="border-0" />
+                <EmptyState
+                  title="Keine Steuerklassen"
+                  description="Lege unten eine erste Steuerklasse an."
+                  className="border-0"
+                />
               ) : (
                 <div className="min-w-0 divide-y divide-border">
                   {classes.map((c) => (
@@ -416,9 +423,14 @@ function TaxPage() {
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{c["name"] as string}</p>
-                        <p className="truncate text-xs text-muted-foreground">{c["code"] as string}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {c["code"] as string}
+                        </p>
                       </div>
-                      <Badge variant={c["is_system"] ? "secondary" : "outline"} className="shrink-0">
+                      <Badge
+                        variant={c["is_system"] ? "secondary" : "outline"}
+                        className="shrink-0"
+                      >
                         {c["is_system"] ? "System" : "Eigene"}
                       </Badge>
                     </div>
@@ -431,6 +443,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Name</Label>
                   <Input
+                    aria-label="Name"
                     className="h-11"
                     value={newClass.name}
                     onChange={(e) => setNewClass((s) => ({ ...s, name: e.target.value }))}
@@ -439,6 +452,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Code</Label>
                   <Input
+                    aria-label="Code"
                     className="h-11"
                     value={newClass.code}
                     onChange={(e) => setNewClass((s) => ({ ...s, code: e.target.value }))}
@@ -458,7 +472,10 @@ function TaxPage() {
           {/* ---------------- Rates ---------------- */}
           <TabsContent value="rates" className="space-y-4 pt-4">
             {rates.length === 0 ? (
-              <EmptyState title="Keine Steuersätze" description="Lege unten einen ersten Steuersatz an." />
+              <EmptyState
+                title="Keine Steuersätze"
+                description="Lege unten einen ersten Steuersatz an."
+              />
             ) : (
               <TableScroll>
                 <table className="w-full text-sm">
@@ -478,7 +495,8 @@ function TaxPage() {
                       return (
                         <tr key={r["id"] as string} className="border-t border-border">
                           <td className="px-4 py-2">
-                            {(classById.get(r["tax_class_id"] as string)?.["name"] as string) ?? "—"}
+                            {(classById.get(r["tax_class_id"] as string)?.["name"] as string) ??
+                              "—"}
                           </td>
                           <td className="px-4 py-2">{r["country_code"] as string}</td>
                           <td className="px-4 py-2 tabular-nums">
@@ -533,6 +551,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Land</Label>
                   <Input
+                    aria-label="Land"
                     className="h-11 w-24"
                     maxLength={2}
                     value={rateDraft.countryCode}
@@ -544,6 +563,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Satz in %</Label>
                   <Input
+                    aria-label="Satz in %"
                     className="h-11 w-24"
                     value={rateDraft.percent}
                     onChange={(e) => setRateDraft((s) => ({ ...s, percent: e.target.value }))}
@@ -567,6 +587,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Lieferland</Label>
                   <Input
+                    aria-label="Lieferland"
                     className="h-11"
                     maxLength={2}
                     value={preview.country}
@@ -583,7 +604,7 @@ function TaxPage() {
                       setPreview((s) => ({ ...s, customerType: v as "consumer" | "business" }))
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger aria-label="Kundentyp" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -600,7 +621,7 @@ function TaxPage() {
                       setPreview((s) => ({ ...s, taxClassId: v === "default" ? "" : v }))
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger aria-label="Steuerklasse" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -616,6 +637,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Betrag je Stück</Label>
                   <Input
+                    aria-label="Betrag je Stück"
                     className="h-11"
                     value={preview.amount}
                     onChange={(e) => setPreview((s) => ({ ...s, amount: e.target.value }))}
@@ -624,6 +646,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Menge</Label>
                   <Input
+                    aria-label="Menge"
                     className="h-11"
                     value={preview.quantity}
                     onChange={(e) => setPreview((s) => ({ ...s, quantity: e.target.value }))}
@@ -632,6 +655,7 @@ function TaxPage() {
                 <div className="min-w-0 space-y-2">
                   <Label>Versandkosten</Label>
                   <Input
+                    aria-label="Versandkosten"
                     className="h-11"
                     value={preview.shipping}
                     onChange={(e) => setPreview((s) => ({ ...s, shipping: e.target.value }))}
@@ -643,9 +667,15 @@ function TaxPage() {
                   checked={preview.vatIdValid}
                   onCheckedChange={(v) => setPreview((s) => ({ ...s, vatIdValid: v }))}
                 />
-                <span className="min-w-0 text-sm">Gültige USt-IdNr. vorhanden (Reverse Charge prüfen)</span>
+                <span className="min-w-0 text-sm">
+                  Gültige USt-IdNr. vorhanden (Reverse Charge prüfen)
+                </span>
               </div>
-              <Button className="mt-4 h-11" onClick={() => runPreview.mutate()} disabled={runPreview.isPending}>
+              <Button
+                className="mt-4 h-11"
+                onClick={() => runPreview.mutate()}
+                disabled={runPreview.isPending}
+              >
                 Steuer berechnen
               </Button>
             </Panel>
@@ -659,12 +689,17 @@ function TaxPage() {
                 </div>
                 <div className="mt-3 min-w-0 space-y-1">
                   {result.breakdown.map((b, i) => (
-                    <div key={i} className="flex min-w-0 items-center justify-between gap-2 text-sm">
+                    <div
+                      key={i}
+                      className="flex min-w-0 items-center justify-between gap-2 text-sm"
+                    >
                       <span className="min-w-0 break-words">
                         {b.label} · {TAX_REASON_LABELS[b.reasonCode] ?? b.reasonCode} ·{" "}
                         {b.countryCode ?? "—"}
                       </span>
-                      <span className="shrink-0 tabular-nums">{formatMoney(b.taxMinor, currency)}</span>
+                      <span className="shrink-0 tabular-nums">
+                        {formatMoney(b.taxMinor, currency)}
+                      </span>
                     </div>
                   ))}
                 </div>

@@ -41,7 +41,20 @@ function StoreCartPage() {
       </StoreContainer>
     );
 
+  if (cart.error)
+    return (
+      <StoreContainer className="py-8">
+        <StoreNotice
+          tone="error"
+          title="Warenkorb konnte nicht geladen werden"
+          description={cart.error.message}
+          action={<Button onClick={() => void cart.refetch()}>Erneut versuchen</Button>}
+        />
+      </StoreContainer>
+    );
   const data = cart.data;
+  const locked = data?.status === "checkout";
+  const mutationError = (error: Error) => toast.error(error.message);
 
   if (!data || data.items.length === 0)
     return (
@@ -50,7 +63,7 @@ function StoreCartPage() {
         <div className="mt-6">
           <StoreNotice
             title="Dein Warenkorb ist leer"
-            description="Sieh dich in der Kollektion um – wir legen alles versandfertig für dich zurück."
+            description="Entdecke den Katalog und füge Produkte hinzu."
             action={
               <Button asChild className="mt-2 h-11">
                 <Link to="/store">Zur Kollektion</Link>
@@ -64,6 +77,19 @@ function StoreCartPage() {
   return (
     <StoreContainer className="py-8 sm:py-12">
       <StoreHeading title="Warenkorb" />
+      {locked && (
+        <div className="mt-5">
+          <StoreNotice
+            title="Deine Kasse ist bereits gestartet"
+            description="Setze den Checkout fort. Über „Warenkorb bearbeiten“ kannst du dort zur Bearbeitung zurückkehren."
+            action={
+              <Button asChild>
+                <Link to="/store/checkout">Zur Kasse</Link>
+              </Button>
+            }
+          />
+        </div>
+      )}
 
       <ul className="mt-7 min-w-0 divide-y divide-border rounded-2xl border border-border">
         {data.items.map((item) => (
@@ -76,22 +102,27 @@ function StoreCartPage() {
               <div className="mt-3 flex items-center gap-2">
                 <Input
                   type="number"
+                  disabled={locked || cart.updateItem.isPending}
                   min={1}
                   className="h-11 w-20 tabular-nums"
                   aria-label={`Menge ${item.title}`}
                   value={item.quantity}
                   onChange={(e) =>
-                    cart.updateItem.mutate({
-                      itemId: item.id,
-                      quantity: Number(e.target.value) || 1,
-                    })
+                    cart.updateItem.mutate(
+                      {
+                        itemId: item.id,
+                        quantity: Number(e.target.value) || 1,
+                      },
+                      { onError: mutationError },
+                    )
                   }
                 />
                 <Button
                   variant="ghost"
                   className="size-11 shrink-0"
                   aria-label={`${item.title} entfernen`}
-                  onClick={() => cart.removeItem.mutate(item.id)}
+                  disabled={locked || cart.removeItem.isPending}
+                  onClick={() => cart.removeItem.mutate(item.id, { onError: mutationError })}
                 >
                   <X className="size-4" aria-hidden />
                 </Button>
@@ -115,7 +146,7 @@ function StoreCartPage() {
         <Button
           variant="outline"
           className="h-11"
-          disabled={!code.trim() || cart.applyPromotion.isPending}
+          disabled={locked || !code.trim() || cart.applyPromotion.isPending}
           onClick={() =>
             cart.applyPromotion.mutate(code.trim(), {
               onSuccess: () => {
@@ -137,7 +168,8 @@ function StoreCartPage() {
               key={c}
               type="button"
               className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-sm"
-              onClick={() => cart.removePromotion.mutate(c)}
+              disabled={locked || cart.removePromotion.isPending}
+              onClick={() => cart.removePromotion.mutate(c, { onError: mutationError })}
             >
               <span className="min-w-0 break-words">{c}</span>
               <X className="size-3.5 shrink-0" aria-hidden />
@@ -149,7 +181,9 @@ function StoreCartPage() {
       <dl className="mt-7 rounded-2xl border border-border p-5 text-sm">
         <div className="flex justify-between gap-4 py-1">
           <dt className="text-muted-foreground">Zwischensumme</dt>
-          <dd className="tabular-nums">{formatPrice(data.totals.subtotalMinor, data.currencyCode)}</dd>
+          <dd className="tabular-nums">
+            {formatPrice(data.totals.subtotalMinor, data.currencyCode)}
+          </dd>
         </div>
         <div className="flex justify-between gap-4 py-1">
           <dt className="text-muted-foreground">Rabatt</dt>

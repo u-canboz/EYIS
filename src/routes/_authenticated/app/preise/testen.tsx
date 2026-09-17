@@ -142,7 +142,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Variante</Label>
             <Select value={variantId} onValueChange={setVariantId} disabled={!variants.length}>
-              <SelectTrigger className="mt-2 h-11">
+              <SelectTrigger aria-label="Variante" className="mt-2 h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -158,6 +158,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Menge</Label>
             <Input
+              aria-label="Menge"
               className="mt-2 h-11"
               type="number"
               min={1}
@@ -168,7 +169,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Kundengruppe</Label>
             <Select value={groupId} onValueChange={setGroupId}>
-              <SelectTrigger className="mt-2 h-11">
+              <SelectTrigger aria-label="Kundengruppe" className="mt-2 h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -184,6 +185,7 @@ function PricingPreviewPage() {
           <div>
             <Label>Gutscheincode</Label>
             <Input
+              aria-label="Gutscheincode"
               className="mt-2 h-11"
               value={code}
               onChange={(e) => setCode(e.target.value)}

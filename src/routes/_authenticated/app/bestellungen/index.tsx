@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -10,6 +10,8 @@ import {
   PAYMENT_STATUS_LABELS,
   FULFILLMENT_STATUS_LABELS,
 } from "@/lib/commerce/payments/payment-types";
+import { TableScroll } from "@/eyis/data/TableScroll";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/eyis/data/StatusBadge";
@@ -27,7 +29,6 @@ import { TabsBar } from "@/eyis/data/TabsBar";
 import { SectionPanel } from "@/eyis/data/SectionPanel";
 import { RecordList, RecordRow } from "@/eyis/data/RecordRow";
 import { EmptyState, ErrorState, ListSkeleton, PermissionState } from "@/eyis/data/States";
-
 
 export const Route = createFileRoute("/_authenticated/app/bestellungen/")({
   head: () => ({
@@ -111,7 +112,7 @@ function OrdersPage() {
     <div className="min-w-0">
       <PageHeader
         title="Bestellungen"
-        description="Bestellungen entstehen ausschließlich nach serverseitig bestätigter Zahlung."
+        description="Behalte Zahlung und Versand im Blick und bearbeite offene Bestellungen."
       />
 
       <TabsBar
@@ -178,62 +179,158 @@ function OrdersPage() {
         {orders.isLoading ? (
           <ListSkeleton />
         ) : orders.error ? (
-          <ErrorState description={(orders.error as Error).message} />
+          <ErrorState
+            description={(orders.error as Error).message}
+            action={
+              <Button variant="outline" onClick={() => void orders.refetch()}>
+                Erneut laden
+              </Button>
+            }
+          />
         ) : !rows.length ? (
           <EmptyState
             title="Keine Bestellungen"
             description="Für diese Auswahl gibt es keine Bestellungen. Setze Segment und Filter zurück, um alle Bestellungen zu sehen."
+            action={
+              search || segment !== "all" || activeFilters ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearch("");
+                    setSegment("all");
+                    setOrderStatus("all");
+                    setPaymentStatus("all");
+                  }}
+                >
+                  Alle Bestellungen anzeigen
+                </Button>
+              ) : undefined
+            }
           />
         ) : (
-          <SectionPanel flush>
-            <RecordList>
-              {rows.map((o) => (
-                <RecordRow
-                  key={o.id}
-                  to="/app/bestellungen/$orderId"
-                  params={{ orderId: o.id }}
-                  title={
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span className="truncate tabular-nums">{o.orderNumber}</span>
-                      {o.environment === "test" ? (
-                        <Badge variant="outline" className="shrink-0">
-                          Test
-                        </Badge>
-                      ) : null}
-                    </span>
-                  }
-                  subtitle={`${new Date(o.placedAt).toLocaleString("de-DE", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })} · ${o.email ?? "Gast"}`}
-                  badges={
-                    <>
-                      <StatusBadge tone={paymentTone(o.paymentStatus)}>
-                        {PAYMENT_STATUS_LABELS[o.paymentStatus]}
-                      </StatusBadge>
-                      <StatusBadge tone={fulfillmentTone(o.fulfillmentStatus)}>
-                        {FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}
-                      </StatusBadge>
-                      {o.orderStatus === "cancelled" ? (
-                        <StatusBadge tone={orderTone(o.orderStatus)}>
-                          {ORDER_STATUS_LABELS[o.orderStatus]}
+          <>
+            <TableScroll desktopOnly>
+              <table className="w-full text-left text-sm">
+                <caption className="sr-only">Bestellungen mit Zahlungs- und Versandstatus</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" className="px-5">
+                      Bestellung
+                    </th>
+                    <th scope="col" className="px-4">
+                      Datum
+                    </th>
+                    <th scope="col" className="px-4">
+                      Kunde
+                    </th>
+                    <th scope="col" className="px-4">
+                      Zahlung
+                    </th>
+                    <th scope="col" className="px-4">
+                      Versand
+                    </th>
+                    <th scope="col" className="px-5 text-right">
+                      Gesamt
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {rows.map((o) => (
+                    <tr key={o.id}>
+                      <td className="px-5">
+                        <Link
+                          to="/app/bestellungen/$orderId"
+                          params={{ orderId: o.id }}
+                          className="inline-flex min-h-11 items-center gap-2 rounded-md font-medium hover:text-primary"
+                        >
+                          {o.orderNumber}
+                          {o.environment === "test" && <Badge variant="outline">Test</Badge>}
+                        </Link>
+                      </td>
+                      <td className="whitespace-nowrap px-4 text-muted-foreground">
+                        {new Date(o.placedAt).toLocaleDateString("de-DE")}
+                      </td>
+                      <td className="max-w-56 break-words px-4">{o.email ?? "Gast"}</td>
+                      <td className="px-4">
+                        <StatusBadge tone={paymentTone(o.paymentStatus)}>
+                          {PAYMENT_STATUS_LABELS[o.paymentStatus]}
                         </StatusBadge>
-                      ) : null}
-                    </>
-                  }
-                  trailing={formatMoney(o.totalMinor, o.currencyCode)}
-                  {...(o.refundedMinor > 0
-                    ? { trailingHint: `−${formatMoney(o.refundedMinor, o.currencyCode)}` }
-                    : {})}
-                />
-              ))}
-            </RecordList>
-          </SectionPanel>
+                      </td>
+                      <td className="px-4">
+                        <StatusBadge
+                          tone={
+                            o.orderStatus === "cancelled"
+                              ? orderTone(o.orderStatus)
+                              : fulfillmentTone(o.fulfillmentStatus)
+                          }
+                        >
+                          {o.orderStatus === "cancelled"
+                            ? ORDER_STATUS_LABELS[o.orderStatus]
+                            : FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}
+                        </StatusBadge>
+                      </td>
+                      <td className="whitespace-nowrap px-5 text-right font-medium tabular-nums">
+                        {formatMoney(o.totalMinor, o.currencyCode)}
+                        {o.refundedMinor > 0 && (
+                          <span className="block text-xs text-muted-foreground">
+                            −{formatMoney(o.refundedMinor, o.currencyCode)} erstattet
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TableScroll>
+            <SectionPanel flush className="lg:hidden">
+              <RecordList>
+                {rows.map((o) => (
+                  <RecordRow
+                    key={o.id}
+                    to="/app/bestellungen/$orderId"
+                    params={{ orderId: o.id }}
+                    title={
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="truncate tabular-nums">{o.orderNumber}</span>
+                        {o.environment === "test" ? (
+                          <Badge variant="outline" className="shrink-0">
+                            Test
+                          </Badge>
+                        ) : null}
+                      </span>
+                    }
+                    subtitle={`${new Date(o.placedAt).toLocaleString("de-DE", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })} · ${o.email ?? "Gast"}`}
+                    badges={
+                      <>
+                        <StatusBadge tone={paymentTone(o.paymentStatus)}>
+                          {PAYMENT_STATUS_LABELS[o.paymentStatus]}
+                        </StatusBadge>
+                        <StatusBadge tone={fulfillmentTone(o.fulfillmentStatus)}>
+                          {FULFILLMENT_STATUS_LABELS[o.fulfillmentStatus]}
+                        </StatusBadge>
+                        {o.orderStatus === "cancelled" ? (
+                          <StatusBadge tone={orderTone(o.orderStatus)}>
+                            {ORDER_STATUS_LABELS[o.orderStatus]}
+                          </StatusBadge>
+                        ) : null}
+                      </>
+                    }
+                    trailing={formatMoney(o.totalMinor, o.currencyCode)}
+                    {...(o.refundedMinor > 0
+                      ? { trailingHint: `−${formatMoney(o.refundedMinor, o.currencyCode)}` }
+                      : {})}
+                  />
+                ))}
+              </RecordList>
+            </SectionPanel>
+          </>
         )}
       </div>
     </div>
   );
 }
-

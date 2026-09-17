@@ -312,9 +312,7 @@ export const MODULES: ModuleDef[] = [
     rpcs: [],
     events: ["return.created", "return.received"],
     permissions: ["customers.read", "customers.write", "returns.write"],
-    public_interfaces: [
-      "Store API /customer/*, /orders/guest*, /returns, /returns/eligibility",
-    ],
+    public_interfaces: ["Store API /customer/*, /orders/guest*, /returns, /returns/eligibility"],
     tests: ["qa/e2e2.ts"],
     depends_on: ["payments-orders", "inventory", "documents"],
     limitations: ["Kein Umtausch, nur Retoure mit Erstattung."],
@@ -323,10 +321,12 @@ export const MODULES: ModuleDef[] = [
     id: "communications",
     name: "Communications",
     purpose:
-      "Vorlagen, Versandwarteschlange, Provider-Events, Suppressions und Absenderidentitäten.",
+      "Branding, Vorlagen, PDF-Anhänge, Newsletter mit Double-Opt-in und Willkommensautomation, Versandwarteschlange und Zustellereignisse.",
     paths: [
       "src/lib/commerce/communications",
       "src/routes/api/public/jobs/communications.ts",
+      "src/routes/api/public/store/newsletter",
+      "src/routes/_authenticated/app/kommunikation",
       "src/routes/api/public/webhooks/communications/$provider.ts",
     ],
     tables: [
@@ -339,15 +339,29 @@ export const MODULES: ModuleDef[] = [
       "communication_provider_events",
       "communication_suppressions",
       "communication_branding",
+      "newsletter_subscribers",
+      "newsletter_campaigns",
+      "newsletter_deliveries",
+      "newsletter_consent_events",
       "sender_identities",
     ],
-    rpcs: [],
+    rpcs: ["newsletter_request_subscription", "newsletter_campaign_stats"],
     events: ["communication.sent", "communication.failed"],
-    permissions: ["communications.read", "communications.write"],
-    public_interfaces: ["keine öffentlichen Endpunkte"],
-    tests: ["qa/phase11.ts"],
+    permissions: ["communications.read", "communications.manage", "communications.send_test"],
+    public_interfaces: [
+      "Store API v1 newsletter/subscribe, newsletter/confirm, newsletter/unsubscribe; Newsletter-Bestätigungs- und Abmeldeseiten",
+    ],
+    tests: [
+      "qa/phase11.ts",
+      "qa/communication-studio-local.ts",
+      "src/lib/commerce/communications/__tests__/mail-design.test.ts",
+    ],
     depends_on: ["payments-orders", "customers-returns"],
-    limitations: ["Echter Versand BLOCKED; nur Test-Provider."],
+    limitations: [
+      "Live-Versand benötigt konfigurierte Provider-Zugangsdaten und verifizierte Absender; lokale QA nutzt ausschließlich den Test-Provider.",
+      "Newsletter-Automationen: einmalige Willkommensmail mit Verzögerung; keine mehrstufigen Journeys.",
+      "Anhänge einschließlich Logo zusammen maximal 5 MB; Test, SMTP und Resend unterstützen Anhänge.",
+    ],
   },
   {
     id: "automation",
@@ -424,9 +438,7 @@ export const MODULES: ModuleDef[] = [
     public_interfaces: ["createCommerceClient(), CommerceProvider, Hooks"],
     tests: ["src/lib/store-sdk/__tests__/boundaries.test.ts", "qa/phase12.ts"],
     depends_on: ["store-api"],
-    limitations: [
-      "Verteilung derzeit repository-source; kein veröffentlichtes npm-Paket.",
-    ],
+    limitations: ["Verteilung derzeit repository-source; kein veröffentlichtes npm-Paket."],
   },
   {
     id: "storefront-reference",

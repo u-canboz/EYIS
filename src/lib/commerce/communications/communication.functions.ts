@@ -134,6 +134,7 @@ export const previewTemplateFn = createServerFn({ method: "POST" })
         preheader?: string | null;
         blocks?: Block[];
         orderId?: string | null;
+        newsletter?: boolean;
       },
     ) => data,
   )
@@ -425,5 +426,5 @@ export const processCommunicationQueueFn = createServerFn({ method: "POST" })
       "communications.manage",
     );
     const { processQueue } = await import("./communication.server");
-    return await processQueue(50);
+    return await processQueue(50, { organizationId: data.organizationId });
   });

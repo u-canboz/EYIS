@@ -130,7 +130,7 @@ function CartsPage() {
         }
         filters={
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="h-11 w-full md:w-48">
+            <SelectTrigger aria-label="Status filtern" className="h-11 w-full md:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -180,7 +180,12 @@ function CartsPage() {
                   },
                 ]}
                 actions={
-                  <Button variant="outline" size="sm" className="min-h-11" onClick={() => setOpenCart(c.id)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="min-h-11"
+                    onClick={() => setOpenCart(c.id)}
+                  >
                     Details
                   </Button>
                 }
@@ -217,7 +222,9 @@ function CartsPage() {
                     </td>
                     <td className="max-w-[16rem] truncate p-3">{c.email ?? "—"}</td>
                     <td className="p-3 tabular-nums">{c.itemCount}</td>
-                    <td className="p-3 tabular-nums">{formatMoney(c.totalMinor, c.currencyCode)}</td>
+                    <td className="p-3 tabular-nums">
+                      {formatMoney(c.totalMinor, c.currencyCode)}
+                    </td>
                     <td className="p-3 text-xs whitespace-nowrap tabular-nums text-muted-foreground">
                       {new Date(c.updatedAt).toLocaleString("de-DE")}
                     </td>
@@ -293,7 +300,9 @@ function CartsPage() {
                           <td className="p-2 tabular-nums">
                             {formatMoney(Number(s["shipping_minor"]))}
                           </td>
-                          <td className="p-2 tabular-nums">{formatMoney(Number(s["tax_minor"]))}</td>
+                          <td className="p-2 tabular-nums">
+                            {formatMoney(Number(s["tax_minor"]))}
+                          </td>
                           <td className="p-2 font-medium tabular-nums">
                             {formatMoney(Number(s["total_minor"]))}
                           </td>

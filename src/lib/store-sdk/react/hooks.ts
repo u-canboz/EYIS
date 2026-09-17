@@ -170,3 +170,16 @@ export function useCustomerOrder(orderId: string, extra?: QueryExtra<StoreOrder>
     ...extra,
   });
 }
+
+/** Double opt-in; the storefront must show and collect the supplied consent text. */
+export function useNewsletterSubscribe() {
+  const client = useCommerce();
+  return useMutation({
+    mutationFn: (input: Parameters<typeof client.newsletter.subscribe>[0]) =>
+      client.newsletter.subscribe(input),
+  });
+}
+export function useNewsletterConfirm() {
+  const client = useCommerce();
+  return useMutation({ mutationFn: (token: string) => client.newsletter.confirm(token) });
+}

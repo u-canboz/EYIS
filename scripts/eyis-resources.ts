@@ -16,7 +16,13 @@ import { join } from "node:path";
 
 type ResourceManifest = {
   version: string;
-  storage_buckets: { id: string; public: boolean; purpose: string }[];
+  storage_buckets: {
+    id: string;
+    public: boolean;
+    purpose: string;
+    file_size_limit: number;
+    allowed_mime_types: string[];
+  }[];
   jobs: {
     id: string;
     endpoint: string;
@@ -39,6 +45,7 @@ const manifest = JSON.parse(
 ) as ResourceManifest;
 
 const provision = process.argv[2] === "provision";
+const storageOnly = process.argv.includes("--storage-only");
 const baseUrl = (process.env["COMMERCE_OS_URL"] ?? "http://localhost:8080").replace(/\/$/, "");
 
 /** Fehlertexte niemals roh ausgeben: sie enthalten Verbindungszeichenfolgen. */
@@ -113,14 +120,18 @@ if (!url || !serviceKey) {
   if (error) {
     rows.push({ check: "Storage buckets", status: "FAIL", detail: error.message });
   } else {
-    const have = new Map((buckets ?? []).map((b) => [b.id, b.public]));
+    const have = new Map((buckets ?? []).map((b) => [b.id, b]));
     for (const want of manifest.storage_buckets) {
       if (!have.has(want.id)) {
         if (!provision) {
           rows.push({ check: `Bucket ${want.id}`, status: "FAIL", detail: "fehlt" });
           continue;
         }
-        const { error: cErr } = await admin.storage.createBucket(want.id, { public: want.public });
+        const { error: cErr } = await admin.storage.createBucket(want.id, {
+          public: want.public,
+          fileSizeLimit: want.file_size_limit,
+          allowedMimeTypes: want.allowed_mime_types,
+        });
         rows.push({
           check: `Bucket ${want.id}`,
           status: cErr ? "FAIL" : "FIXED",
@@ -128,27 +139,39 @@ if (!url || !serviceKey) {
         });
         continue;
       }
-      const isPublic = have.get(want.id);
-      if (isPublic !== want.public && provision) {
-        const { error: uErr } = await admin.storage.updateBucket(want.id, { public: want.public });
+      const bucket = have.get(want.id)!;
+      const isPublic = bucket.public;
+      const matches =
+        isPublic === want.public &&
+        Number(bucket.file_size_limit) === want.file_size_limit &&
+        JSON.stringify([...(bucket.allowed_mime_types ?? [])].sort()) ===
+          JSON.stringify([...want.allowed_mime_types].sort());
+      if (!matches && provision) {
+        const { error: uErr } = await admin.storage.updateBucket(want.id, {
+          public: want.public,
+          fileSizeLimit: want.file_size_limit,
+          allowedMimeTypes: want.allowed_mime_types,
+        });
         rows.push({
           check: `Bucket ${want.id}`,
           status: uErr ? "FAIL" : "FIXED",
-          detail: uErr ? uErr.message : `Sichtbarkeit auf public=${want.public} gesetzt`,
+          detail: uErr
+            ? uErr.message
+            : `Sichtbarkeit, Dateigröße und Dateitypen gemäß Manifest eingerichtet`,
         });
         continue;
       }
       rows.push({
         check: `Bucket ${want.id}`,
-        status: isPublic === want.public ? "PASS" : "FAIL",
-        detail: `public=${isPublic}, erwartet ${want.public}`,
+        status: matches ? "PASS" : "FAIL",
+        detail: `public=${isPublic}, Größenlimit ${bucket.file_size_limit}, Dateitypen ${bucket.allowed_mime_types?.join(",") ?? "unbegrenzt"}`,
       });
     }
   }
 }
 
 // --- Jobs ------------------------------------------------------------------
-for (const job of manifest.jobs) {
+for (const job of storageOnly ? [] : manifest.jobs) {
   try {
     const res = await fetch(`${baseUrl}${job.endpoint}`, { method: "POST" });
     rows.push({
@@ -165,7 +188,7 @@ for (const job of manifest.jobs) {
   }
 }
 
-{
+if (!storageOnly) {
   const dbUrl =
     process.env["SUPABASE_DB_URL"] ??
     process.env["DATABASE_URL"] ??
@@ -217,7 +240,7 @@ for (const job of manifest.jobs) {
 }
 
 // --- Runtime-Konfiguration -------------------------------------------------
-for (const cfg of manifest.runtime_configuration) {
+for (const cfg of storageOnly ? [] : manifest.runtime_configuration) {
   const present = Boolean(process.env[cfg.key]);
   rows.push({
     check: `Config ${cfg.key}`,

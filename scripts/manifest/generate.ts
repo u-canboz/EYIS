@@ -16,6 +16,7 @@ import { readdirSync, readFileSync, statSync, writeFileSync, existsSync, mkdirSy
 import { join, relative } from "node:path";
 import { execSync } from "node:child_process";
 import { MODULES } from "./modules.def";
+import { RESOURCES } from "./resources.def";
 import {
   STORE_API_BASE_PATH,
   STORE_API_GROUPS,
@@ -381,6 +382,7 @@ const routes = buildRoutes();
 const store = buildStoreApi();
 const modules = buildModules();
 
+emit("installer/resources/eyis-resources.manifest.json", RESOURCES);
 emit("docs/agent/routes.json", routes);
 emit("docs/agent/store-api-v1.json", store);
 emit("docs/agent/openapi-store-v1.json", buildOpenApi(store));

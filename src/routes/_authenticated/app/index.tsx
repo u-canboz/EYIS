@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Plus, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { getWorkspace } from "@/lib/commerce/workspace.functions";
 import { listOrdersFn } from "@/lib/commerce/orders/order.functions";
 import { listReturnsFn } from "@/lib/commerce/returns/return.functions";
@@ -13,16 +13,12 @@ import { formatMoney } from "@/lib/commerce/money";
 import { PageHeader } from "@/eyis/shell/PageHeader";
 import { SectionPanel, SectionLink } from "@/eyis/data/SectionPanel";
 import { RecordList, RecordRow } from "@/eyis/data/RecordRow";
-import {
-  AttentionList,
-  DistributionBar,
-  LeadMetric,
-  SubMetric,
-} from "@/eyis/data/Metrics";
+import { AttentionList, DistributionBar, LeadMetric, SubMetric } from "@/eyis/data/Metrics";
 import { StatusBadge } from "@/eyis/data/StatusBadge";
 import { paymentTone } from "@/eyis/data/status-tones";
 import { PAYMENT_STATUS_LABELS } from "@/lib/commerce/payments/payment-types";
-import { EmptyState, ListSkeleton } from "@/eyis/data/States";
+import { EmptyState, ErrorState, ListSkeleton } from "@/eyis/data/States";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -50,7 +46,8 @@ export const Route = createFileRoute("/_authenticated/app/")({
 const DAY = 86_400_000;
 
 function dayKey(iso: string) {
-  return iso.slice(0, 10);
+  const date = new Date(iso);
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
 function Overview() {
@@ -177,116 +174,164 @@ function Overview() {
 
   return (
     <div className="min-w-0">
-      <PageHeader eyebrow={<span className="truncate">Betrieb</span>} title={org?.name ?? "Übersicht"} />
+      <PageHeader
+        eyebrow={org?.name}
+        title="Dein Geschäft im Überblick"
+        description="Bestellungen bearbeiten, Bestände prüfen und den nächsten Schritt im Blick behalten."
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/app/bestellungen">
+                Bestellungen <ArrowUpRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/app/produkte/neu">
+                <Plus className="size-4" /> Produkt anlegen
+              </Link>
+            </Button>
+          </>
+        }
+      />
+      {[workspace, orders, returns, stock, inbox, comms].some((q) => q.isError) && (
+        <ErrorState
+          className="mb-5"
+          title="Ein Teil der Übersicht ist nicht verfügbar"
+          description="Die betroffenen Kennzahlen sind derzeit unvollständig. Lade die Daten erneut."
+          action={
+            <Button
+              variant="outline"
+              onClick={() => {
+                void workspace.refetch();
+                void orders.refetch();
+                void returns.refetch();
+                void stock.refetch();
+                void inbox.refetch();
+                void comms.refetch();
+              }}
+            >
+              Erneut laden
+            </Button>
+          }
+        />
+      )}
 
       <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-        {/* 1 — Umsatz: die eine große Zahl, mit dem einzigen Diagramm der Seite. */}
-        <SectionPanel>
-          {loading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-10 w-48" />
-              <Skeleton className="h-12 w-full" />
-            </div>
-          ) : (
-            <>
-              <LeadMetric
-                label="Umsatz heute"
-                value={formatMoney(revenueToday, currency)}
-                caption={`${ordersToday} Bestellungen heute · 14-Tage-Verlauf`}
-                {...(typeof trend === "number" ? { trendPercent: trend } : {})}
-                series={series}
-              />
-              {/* 2 — Bestellungen & Zahlungen direkt darunter. */}
-              <div className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4">
-                <SubMetric
-                  label="Bestellungen gesamt"
-                  value={orderRows.length}
-                  caption={`${openOrders.length} offen`}
-                  to="/app/bestellungen"
-                />
-                <SubMetric
-                  label="Zahlungseingang"
-                  value={formatMoney(paidMinor, currency)}
-                  caption={`${unpaid.length} offen oder fehlgeschlagen`}
-                  to="/app/zahlungen"
-                />
+        <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(19rem,1fr)]">
+          {/* 1 — Umsatz: die eine große Zahl, mit dem einzigen Diagramm der Seite. */}
+          <SectionPanel
+            title="Umsatzentwicklung"
+            description="Die letzten 14 Tage · aus Bestellungen"
+          >
+            {loading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-10 w-48" />
+                <Skeleton className="h-12 w-full" />
               </div>
-            </>
-          )}
-        </SectionPanel>
+            ) : (
+              <>
+                <LeadMetric
+                  label="Umsatz heute"
+                  value={formatMoney(revenueToday, currency)}
+                  caption={`${ordersToday} Bestellungen heute · 14-Tage-Verlauf`}
+                  {...(typeof trend === "number" ? { trendPercent: trend } : {})}
+                  series={series}
+                />
+                {/* 2 — Bestellungen & Zahlungen direkt darunter. */}
+                <div className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4">
+                  <SubMetric
+                    label="Bestellungen gesamt"
+                    value={orderRows.length}
+                    caption={`${openOrders.length} offen`}
+                    to="/app/bestellungen"
+                  />
+                  <SubMetric
+                    label="Zahlungseingang"
+                    value={formatMoney(paidMinor, currency)}
+                    caption={`${unpaid.length} offen oder fehlgeschlagen`}
+                    to="/app/bestellungen"
+                  />
+                </div>
+              </>
+            )}
+          </SectionPanel>
 
-        {/* 3 — Operative Aufmerksamkeit als eine scanbare Liste. */}
-        <SectionPanel title="Braucht Aufmerksamkeit" flush bodyClassName="px-4 pb-3 sm:px-5">
-          {loading ? (
-            <ListSkeleton rows={4} />
-          ) : (
-            <AttentionList
-              items={[
-                {
-                  key: "payments",
-                  label: "Zahlung offen",
-                  count: unpaid.length,
-                  hint: "ausstehend oder fehlgeschlagen",
-                  to: "/app/zahlungen",
-                  tone: "critical",
-                },
-                {
-                  key: "orders",
-                  label: "Bestellungen zu bearbeiten",
-                  count: openOrders.length,
-                  hint: "noch nicht versendet",
-                  to: "/app/bestellungen",
-                  tone: "warn",
-                },
-                {
-                  key: "shipping",
-                  label: "Versandprobleme",
-                  count: shippingIssues.length,
-                  hint: "teilweise versendet",
-                  to: "/app/versand",
-                  tone: "warn",
-                },
-                {
-                  key: "returns",
-                  label: "Retouren",
-                  count: openReturns.length,
-                  hint: "in Bearbeitung",
-                  to: "/app/retouren",
-                  tone: "warn",
-                },
-                {
-                  key: "comms",
-                  label: "Fehlgeschlagene E-Mails",
-                  count: failedComms.length,
-                  hint: "nicht zugestellt",
-                  to: "/app/kommunikation/verlauf",
-                  tone: "critical",
-                },
-                {
-                  key: "automation",
-                  label: "Automationsfehler",
-                  count: automationFailures.length,
-                  hint: "fehlgeschlagene Läufe",
-                  to: "/app/automationen/verlauf",
-                  tone: "critical",
-                },
-                {
-                  key: "tasks",
-                  label: "Offene Aufgaben",
-                  count: openTasks.length,
-                  hint: "zugewiesen im Team",
-                  to: "/app/automationen/aufgaben",
-                  tone: "neutral",
-                },
-              ]}
-            />
-          )}
-        </SectionPanel>
-
-        <div className="grid min-w-0 gap-4 sm:gap-5 xl:grid-cols-2">
+          {/* 3 — Operative Aufmerksamkeit als eine scanbare Liste. */}
+          <SectionPanel title="Braucht Aufmerksamkeit" flush bodyClassName="px-4 pb-3 sm:px-5">
+            {loading ? (
+              <ListSkeleton rows={4} />
+            ) : (
+              <AttentionList
+                items={[
+                  {
+                    key: "payments",
+                    label: "Zahlung offen",
+                    count: unpaid.length,
+                    hint: "ausstehend oder fehlgeschlagen",
+                    to: "/app/bestellungen",
+                    tone: "critical",
+                  },
+                  {
+                    key: "orders",
+                    label: "Bestellungen zu bearbeiten",
+                    count: openOrders.length,
+                    hint: "noch nicht versendet",
+                    to: "/app/bestellungen",
+                    tone: "warn",
+                  },
+                  {
+                    key: "shipping",
+                    label: "Versandprobleme",
+                    count: shippingIssues.length,
+                    hint: "teilweise versendet",
+                    to: "/app/versand",
+                    tone: "warn",
+                  },
+                  {
+                    key: "returns",
+                    label: "Retouren",
+                    count: openReturns.length,
+                    hint: "in Bearbeitung",
+                    to: "/app/retouren",
+                    tone: "warn",
+                  },
+                  {
+                    key: "comms",
+                    label: "Fehlgeschlagene E-Mails",
+                    count: failedComms.length,
+                    hint: "nicht zugestellt",
+                    to: "/app/kommunikation/verlauf",
+                    tone: "critical",
+                  },
+                  {
+                    key: "automation",
+                    label: "Automationsfehler",
+                    count: automationFailures.length,
+                    hint: "fehlgeschlagene Läufe",
+                    to: "/app/automationen/verlauf",
+                    tone: "critical",
+                  },
+                  {
+                    key: "tasks",
+                    label: "Offene Aufgaben",
+                    count: openTasks.length,
+                    hint: "zugewiesen im Team",
+                    to: "/app/automationen/aufgaben",
+                    tone: "neutral",
+                  },
+                ]}
+              />
+            )}
+          </SectionPanel>
+        </div>
+        <div className="grid min-w-0 items-start gap-4 sm:gap-5 xl:grid-cols-2">
           {/* 4 — Bestellstatus. */}
           <SectionPanel title="Bestellstatus" description="Verteilung über alle Bestellungen">
-            {loading ? <Skeleton className="h-16 w-full" /> : <DistributionBar segments={fulfillment} />}
+            {loading ? (
+              <Skeleton className="h-16 w-full" />
+            ) : (
+              <DistributionBar segments={fulfillment} />
+            )}
           </SectionPanel>
 
           {/* 5 — Kritische Bestände. */}
@@ -296,11 +341,18 @@ function Overview() {
           >
             {stock.isLoading ? (
               <Skeleton className="h-16 w-full" />
+            ) : stock.isError ? (
+              <ErrorState description="Bestandsdaten konnten nicht geladen werden." />
             ) : outOfStock + lowStock === 0 ? (
-              <EmptyState
-                title="Bestände in Ordnung"
-                description="Kein Artikel unter dem Meldebestand."
-              />
+              <div className="flex items-center gap-3 py-2">
+                <CheckCircle2 className="size-6 shrink-0 text-success" aria-hidden />
+                <div>
+                  <p className="text-sm font-medium">Bestände in Ordnung</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Kein Artikel unter dem Meldebestand.
+                  </p>
+                </div>
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 <SubMetric
@@ -330,6 +382,8 @@ function Overview() {
             <div className="px-4 pb-4 sm:px-5">
               <ListSkeleton rows={4} />
             </div>
+          ) : orders.isError ? (
+            <ErrorState description="Bestellungen konnten nicht geladen werden." />
           ) : orderRows.length === 0 ? (
             <div className="px-4 pb-4 sm:px-5">
               <EmptyState
@@ -346,7 +400,11 @@ function Overview() {
                   params={{ orderId: o.id }}
                   title={o.orderNumber}
                   subtitle={o.email ?? "Gast"}
-                  badges={<StatusBadge tone={paymentTone(o.paymentStatus)}>{PAYMENT_STATUS_LABELS[o.paymentStatus]}</StatusBadge>}
+                  badges={
+                    <StatusBadge tone={paymentTone(o.paymentStatus)}>
+                      {PAYMENT_STATUS_LABELS[o.paymentStatus]}
+                    </StatusBadge>
+                  }
                   trailing={formatMoney(o.totalMinor, o.currencyCode)}
                   trailingHint={new Date(o.placedAt).toLocaleDateString("de-DE", {
                     day: "2-digit",

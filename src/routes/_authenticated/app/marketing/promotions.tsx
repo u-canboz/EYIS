@@ -366,6 +366,7 @@ function PromotionsPage() {
             <div>
               <Label>Name</Label>
               <Input
+                aria-label="Name"
                 className="mt-2 h-11"
                 value={form.name}
                 onChange={(e) => set("name", e.target.value)}
@@ -374,6 +375,7 @@ function PromotionsPage() {
             <div>
               <Label>Gutscheincode (optional)</Label>
               <Input
+                aria-label="Gutscheincode (optional)"
                 className="mt-2 h-11"
                 value={form.code}
                 onChange={(e) => set("code", e.target.value)}
@@ -383,7 +385,7 @@ function PromotionsPage() {
             <div>
               <Label>Art</Label>
               <Select value={form.type} onValueChange={(v) => set("type", v as PromotionType)}>
-                <SelectTrigger className="mt-2 h-11">
+                <SelectTrigger aria-label="Art" className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -405,6 +407,13 @@ function PromotionsPage() {
                       : "Betrag"}
                 </Label>
                 <Input
+                  aria-label={
+                    form.type === "percentage"
+                      ? "Prozent"
+                      : form.type === "buy_x_get_y"
+                        ? "Gratis-Menge"
+                        : "Betrag"
+                  }
                   className="mt-2 h-11"
                   value={form.value}
                   onChange={(e) => set("value", e.target.value)}
@@ -414,6 +423,7 @@ function PromotionsPage() {
             <div>
               <Label>Start</Label>
               <Input
+                aria-label="Start"
                 className="mt-2 h-11"
                 type="datetime-local"
                 value={form.startsAt}
@@ -423,6 +433,7 @@ function PromotionsPage() {
             <div>
               <Label>Ende</Label>
               <Input
+                aria-label="Ende"
                 className="mt-2 h-11"
                 type="datetime-local"
                 value={form.endsAt}
@@ -432,6 +443,7 @@ function PromotionsPage() {
             <div>
               <Label>Mindestbestellwert</Label>
               <Input
+                aria-label="Mindestbestellwert"
                 className="mt-2 h-11"
                 value={form.minimumSubtotal}
                 onChange={(e) => set("minimumSubtotal", e.target.value)}
@@ -441,6 +453,7 @@ function PromotionsPage() {
             <div>
               <Label>Mindestmenge</Label>
               <Input
+                aria-label="Mindestmenge"
                 className="mt-2 h-11"
                 value={form.minimumQuantity}
                 onChange={(e) => set("minimumQuantity", e.target.value)}
@@ -449,7 +462,7 @@ function PromotionsPage() {
             <div>
               <Label>Kundengruppe</Label>
               <Select value={form.customerGroupId} onValueChange={(v) => set("customerGroupId", v)}>
-                <SelectTrigger className="mt-2 h-11">
+                <SelectTrigger aria-label="Kundengruppe" className="mt-2 h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -465,6 +478,7 @@ function PromotionsPage() {
             <div>
               <Label>Priorität</Label>
               <Input
+                aria-label="Priorität"
                 className="mt-2 h-11"
                 value={form.priority}
                 onChange={(e) => set("priority", e.target.value)}
@@ -473,6 +487,7 @@ function PromotionsPage() {
             <div>
               <Label>Nutzungslimit gesamt</Label>
               <Input
+                aria-label="Nutzungslimit gesamt"
                 className="mt-2 h-11"
                 value={form.usageLimit}
                 onChange={(e) => set("usageLimit", e.target.value)}
@@ -481,6 +496,7 @@ function PromotionsPage() {
             <div>
               <Label>Limit pro Kunde (vorbereitet)</Label>
               <Input
+                aria-label="Limit pro Kunde (vorbereitet)"
                 className="mt-2 h-11"
                 value={form.usageLimitPerCustomer}
                 onChange={(e) => set("usageLimitPerCustomer", e.target.value)}
@@ -489,6 +505,7 @@ function PromotionsPage() {
             <div className="md:col-span-2 lg:col-span-3">
               <Label>Beschreibung</Label>
               <Textarea
+                aria-label="Beschreibung"
                 className="mt-2"
                 value={form.description}
                 onChange={(e) => set("description", e.target.value)}

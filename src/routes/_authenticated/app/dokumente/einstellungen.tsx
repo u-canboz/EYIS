@@ -177,8 +177,11 @@ function DocumentSettingsPage() {
 
   const field = (key: string, label: string, placeholder?: string) => (
     <div className="grid min-w-0 gap-1.5">
-      <Label className="text-xs">{label}</Label>
+      <Label htmlFor={`document-${key}`} className="text-xs">
+        {label}
+      </Label>
       <Input
+        id={`document-${key}`}
         className="h-11"
         value={String(settings[key] ?? "")}
         placeholder={placeholder}
@@ -195,6 +198,7 @@ function DocumentSettingsPage() {
         <p className="text-muted-foreground text-xs">{description}</p>
       </div>
       <Switch
+        aria-label={label}
         checked={!!settings[key]}
         disabled={disabled}
         onCheckedChange={(v) => setSettings((p) => ({ ...p, [key]: v }))}
@@ -267,6 +271,7 @@ function DocumentSettingsPage() {
             <div className="grid min-w-0 gap-1.5">
               <Label className="text-xs">Zahlungsziel in Tagen</Label>
               <Input
+                aria-label="Zahlungsziel in Tagen"
                 className="h-11"
                 type="number"
                 min={0}
@@ -315,6 +320,7 @@ function DocumentSettingsPage() {
             <div className="grid min-w-0 gap-1.5 sm:max-w-xs">
               <Label className="text-xs">Akzentfarbe</Label>
               <Input
+                aria-label="Akzentfarbe"
                 className="h-11"
                 value={String(branding["primary_color"] ?? "#1F2937")}
                 disabled={disabled}
@@ -324,6 +330,7 @@ function DocumentSettingsPage() {
             <div className="grid min-w-0 gap-1.5">
               <Label className="text-xs">Absenderzeile über der Anschrift</Label>
               <Input
+                aria-label="Absenderzeile über der Anschrift"
                 className="h-11"
                 value={String(branding["sender_block"] ?? "")}
                 disabled={disabled}
@@ -334,6 +341,7 @@ function DocumentSettingsPage() {
             <div className="grid gap-1.5">
               <Label className="text-xs">Zahlungshinweis</Label>
               <Textarea
+                aria-label="Zahlungshinweis"
                 rows={2}
                 value={String(branding["payment_details"] ?? "")}
                 disabled={disabled}
@@ -343,6 +351,7 @@ function DocumentSettingsPage() {
             <div className="grid gap-1.5">
               <Label className="text-xs">Fußzeile</Label>
               <Textarea
+                aria-label="Fußzeile"
                 rows={2}
                 value={String(branding["legal_footer"] ?? "")}
                 disabled={disabled}
@@ -386,7 +395,7 @@ function DocumentSettingsPage() {
                 disabled={disabled}
                 onValueChange={(v) => setSettings((p) => ({ ...p, invoice_creation_strategy: v }))}
               >
-                <SelectTrigger className="h-11">
+                <SelectTrigger aria-label="Wann soll eine Rechnung entstehen?" className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -479,6 +488,7 @@ function SequenceCard(props: {
       <div className="grid min-w-0 gap-1.5">
         <Label className="text-xs">Präfix</Label>
         <Input
+          aria-label="Präfix"
           className="h-11"
           value={prefix}
           disabled={props.disabled}
@@ -488,6 +498,7 @@ function SequenceCard(props: {
       <div className="grid min-w-0 gap-1.5">
         <Label className="text-xs">Stellen</Label>
         <Input
+          aria-label="Stellen"
           className="h-11"
           type="number"
           min={1}
@@ -504,7 +515,7 @@ function SequenceCard(props: {
           disabled={props.disabled}
           onValueChange={(v) => setResetPolicy(v as SequenceResetPolicy)}
         >
-          <SelectTrigger className="h-11">
+          <SelectTrigger aria-label="Rücksetzung" className="h-11">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -519,6 +530,7 @@ function SequenceCard(props: {
       <div className="grid min-w-0 gap-1.5">
         <Label className="text-xs">Nächste Nummer</Label>
         <Input
+          aria-label="Nächste Nummer"
           className="h-11"
           type="number"
           min={1}

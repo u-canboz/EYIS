@@ -25,10 +25,15 @@ export function CommandPalette({
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Modul, Seite oder Aktion suchen …" />
+      <CommandInput
+        aria-label="Bereich suchen"
+        placeholder="Bereich suchen, z. B. Bestellungen …"
+      />
 
       <CommandList>
-        <CommandEmpty>Nichts gefunden.</CommandEmpty>
+        <CommandEmpty>
+          Kein passender Bereich. Versuche „Produkte“, „Versand“ oder „Rechnungen“.
+        </CommandEmpty>
         {NAV_GROUPS.map((group) => (
           <CommandGroup key={group.id} heading={group.label}>
             {group.items.map((item) => {

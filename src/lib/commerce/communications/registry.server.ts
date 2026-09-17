@@ -44,7 +44,8 @@ export async function bindProvider(
       environment: "live",
     });
     if (key === "resend") return createResendProvider(creds?.["apiKey"] ?? null);
-    if (!creds?.["host"] || !creds["username"] || !creds["password"]) return createSmtpProvider(null);
+    if (!creds?.["host"] || !creds["username"] || !creds["password"])
+      return createSmtpProvider(null);
     const { resolveTlsMode } = await import("./providers/smtp.server");
     const port = Number(creds["port"] ?? 587);
     return createSmtpProvider({

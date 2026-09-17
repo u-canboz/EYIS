@@ -113,6 +113,48 @@ export const STORE_ERROR_CODES: { code: string; status: string; meaning: string 
 
 export const STORE_API_GROUPS: StoreEndpointGroup[] = [
   {
+    key: "newsletter",
+    title: "Newsletter",
+    description:
+      "Anmeldung mit Double-Opt-in. Bestätigung und Abmeldung erfolgen über die Links in der E-Mail.",
+    endpoints: [
+      {
+        method: "POST",
+        path: "/newsletter/confirm",
+        auth: "key",
+        profile: "guest_lookup",
+        summary: "Newsletter-Anmeldung mit Token bestätigen",
+        input: "{token}",
+        output: "{ok:true,discountCode:null}",
+        errors: ["VALIDATION_ERROR", "RATE_LIMITED"],
+        sdk: "newsletter.confirm",
+      },
+      {
+        method: "POST",
+        path: "/newsletter/unsubscribe",
+        auth: "key",
+        profile: "guest_lookup",
+        summary: "Newsletter mit Token abmelden",
+        input: "{token}",
+        output: "{ok:true}",
+        errors: ["VALIDATION_ERROR", "RATE_LIMITED"],
+        sdk: "newsletter.unsubscribe",
+      },
+
+      {
+        method: "POST",
+        path: "/newsletter/subscribe",
+        auth: "key",
+        profile: "guest_lookup",
+        summary: "Newsletter-Anmeldung anfordern",
+        input: "{email, firstName?, consent:true, consentText}",
+        output: "{accepted:true}",
+        errors: ["VALIDATION_ERROR", "RATE_LIMITED"],
+        sdk: "newsletter.subscribe",
+      },
+    ],
+  },
+  {
     key: "config",
     title: "Konfiguration",
     description: "Shop-Stammdaten, Länder, Steueranzeige und Feature-Flags.",
@@ -357,6 +399,16 @@ export const STORE_API_GROUPS: StoreEndpointGroup[] = [
         output: "StoreCheckout",
         errors: ["NOT_FOUND", "FORBIDDEN"],
         sdk: "await client.checkout.get(sessionId)",
+      },
+      {
+        method: "POST",
+        path: "/checkout/:sessionId/cancel",
+        auth: "cart",
+        profile: "checkout",
+        summary: "Checkout abbrechen, Reservierungen freigeben und Warenkorb entsperren.",
+        output: "StoreCart",
+        errors: ["NOT_FOUND", "FORBIDDEN"],
+        sdk: "await client.checkout.cancel(sessionId)",
       },
       {
         method: "POST",

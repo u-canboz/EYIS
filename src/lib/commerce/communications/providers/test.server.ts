@@ -10,7 +10,7 @@ export const testProvider: CommunicationProvider = {
   label: "Interner Testversand",
   isSandbox: true,
   capabilities: {
-    supportsAttachments: false,
+    supportsAttachments: true,
     supportsTags: true,
     supportsTemplates: false,
     supportsDeliveryWebhooks: false,

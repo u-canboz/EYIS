@@ -12,7 +12,7 @@ const { getAdmin } = await import("../src/lib/commerce/core.server");
 const admin = await getAdmin();
 const { data: installation, error: installationError } = await admin
   .from("commerce_installation")
-  .select("organization_id, shop_id, storefront_publishable_key")
+  .select("organization_id, shop_id, storefront_publishable_key, core_version")
   .eq("singleton", true)
   .single();
 if (installationError || !installation?.organization_id || !installation.shop_id)
@@ -187,6 +187,21 @@ try {
   });
   check("Cart rejects missing token", unauthorized.status === 401 || unauthorized.status === 403);
   let checkout = await request("/checkout", "POST", { cartId, email: "buyer@example.test" });
+  check("Checkout exposes cart lock", checkout.cart.status === "checkout");
+  const deniedCancel = await fetch(`${origin}/api/public/store/v1/checkout/${checkout.id}/cancel`, {
+    method: "POST",
+    headers: { "X-Commerce-Key": key },
+  });
+  check(
+    "Checkout cancellation rejects missing token",
+    deniedCancel.status === 401 || deniedCancel.status === 403,
+  );
+  const unlocked = await request(`/checkout/${checkout.id}/cancel`, "POST", {});
+  check(
+    "Checkout cancellation unlocks cart and preserves items",
+    unlocked.status === "active" && unlocked.items.length === 1,
+  );
+  checkout = await request("/checkout", "POST", { cartId, email: "buyer@example.test" });
   const sessionId = checkout.id;
   checkout = await request(`/checkout/${sessionId}/address`, "POST", {
     type: "shipping",
@@ -282,12 +297,13 @@ try {
   const overview = await getUpdateOverview();
   check(
     "Update overview reads persisted state",
-    overview.maintenanceState === "off" && overview.installedVersion === "0.0.0-dev",
+    overview.maintenanceState === "off" && overview.installedVersion === installation.core_version,
+    overview.installedVersion,
   );
   console.log("LOCAL COMMERCE SMOKE PASS");
 } finally {
   writeFileSync(
-    "../local-smoke-results.json",
+    process.env["EYIS_LOCAL_SMOKE_RESULT_PATH"] ?? "../local-smoke-results.json",
     JSON.stringify({ at: new Date().toISOString(), origin, checks }, null, 2),
   );
 }

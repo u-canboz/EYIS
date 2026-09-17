@@ -5,7 +5,7 @@
  * units, tax rates are basis points (1900 = 19 %).
  */
 
-export const DOCUMENT_RENDERER_VERSION = "doc-renderer-1.0.0";
+export const DOCUMENT_RENDERER_VERSION = "doc-renderer-1.1.0";
 
 export type DocumentType =
   | "invoice"

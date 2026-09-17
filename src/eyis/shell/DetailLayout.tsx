@@ -20,12 +20,14 @@ export function DetailLayout({
     <div
       className={cn(
         "grid min-w-0 grid-cols-1 items-start gap-4",
-        aside && "lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]",
+        aside && "lg:grid-cols-[minmax(0,1fr)_19rem] xl:grid-cols-[minmax(0,1fr)_21rem]",
         className,
       )}
     >
       <div className="flex min-w-0 flex-col gap-4">{main}</div>
-      {aside ? <div className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20">{aside}</div> : null}
+      {aside ? (
+        <div className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20">{aside}</div>
+      ) : null}
     </div>
   );
 }
@@ -58,9 +60,9 @@ export function Panel({
       )}
     >
       {title ? (
-        <header className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3.5 sm:px-5">
+        <header className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-border px-4 py-3.5 sm:px-5">
           <div className="min-w-0">
-            <h2 className="min-w-0 truncate font-display text-[0.95rem] font-semibold tracking-tight">
+            <h2 className="min-w-0 break-words font-display text-base font-semibold tracking-tight">
               {title}
             </h2>
             {description ? (
@@ -71,7 +73,6 @@ export function Panel({
         </header>
       ) : null}
       <div className={cn("min-w-0 px-4 py-4 sm:px-5", bodyClassName)}>{children}</div>
-
     </section>
   );
 }
@@ -104,7 +105,13 @@ export function RelatedLinks({
   items,
 }: {
   title?: string;
-  items: { to: string; params?: Record<string, string>; label: string; hint?: string; icon: LucideIcon }[];
+  items: {
+    to: string;
+    params?: Record<string, string>;
+    label: string;
+    hint?: string;
+    icon: LucideIcon;
+  }[];
 }) {
   return (
     <Panel title={title} bodyClassName="p-2">

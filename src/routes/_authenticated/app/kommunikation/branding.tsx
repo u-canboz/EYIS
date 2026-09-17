@@ -15,8 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ErrorState } from "@/eyis/data/States";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader, StickyActionBar } from "@/eyis/shell/PageHeader";
+import { MailAssetPicker } from "@/eyis/commerce/MailAssetPicker";
 import { DetailLayout, Panel } from "@/eyis/shell/DetailLayout";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation/branding")({
@@ -66,13 +68,25 @@ function BrandingPage() {
   const previewQuery = useQuery({
     queryKey: ["communication-branding-preview", organizationId, shopId, branding.dataUpdatedAt],
     enabled: !!organizationId && !!shopId,
-    queryFn: () => preview({ data: { organizationId, shopId, templateKey: "order.confirmation" } }),
+    queryFn: () => preview({ data: { organizationId, shopId, templateKey: "order.confirmed" } }),
   });
+
+  if (branding.isError)
+    return (
+      <ErrorState
+        description="Die E-Mail-Gestaltung konnte nicht geladen werden."
+        action={
+          <Button variant="outline" onClick={() => void branding.refetch()}>
+            Erneut laden
+          </Button>
+        }
+      />
+    );
 
   if (!settings) {
     return (
       <div className="min-w-0 space-y-5">
-        <PageHeader title="Branding" />
+        <PageHeader title="Branding Studio" />
         <Skeleton className="h-96 w-full rounded-xl" />
       </div>
     );
@@ -108,7 +122,7 @@ function BrandingPage() {
             Kommunikation
           </Link>
         }
-        title="Branding"
+        title="Branding Studio"
         description="Gilt für alle E-Mails dieses Shops – Vorlagen erben diese Gestaltung automatisch."
         actions={
           <Button className="hidden h-11 sm:inline-flex" disabled={busy} onClick={doSave}>
@@ -119,7 +133,13 @@ function BrandingPage() {
 
       <DetailLayout
         main={
-          <Panel title="Gestaltung" bodyClassName="space-y-4">
+          <Panel title="Gestaltung" bodyClassName="space-y-5">
+            <MailAssetPicker
+              label="Shop-Logo"
+              kind="logo"
+              value={settings.logoMediaId ? [settings.logoMediaId] : []}
+              onChange={(ids) => set("logoMediaId", ids[0] ?? null)}
+            />
             <div className="grid min-w-0 gap-4 sm:grid-cols-2">
               {COLOR_FIELDS.map((f) => (
                 <div key={f.key} className="min-w-0 space-y-2">
@@ -185,6 +205,19 @@ function BrandingPage() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="productUrlTemplate">Produkt-Link in deiner Storefront</Label>
+              <Input
+                id="productUrlTemplate"
+                value={settings.productUrlTemplate}
+                onChange={(e) => set("productUrlTemplate", e.target.value)}
+                placeholder="/produkt/{handle}"
+              />
+              <p className="text-xs text-muted-foreground">
+                Wird an die Website-Adresse angehängt. Zum Beispiel /products/&#123;handle&#125;
+                oder /produkt/&#123;handle&#125;.
+              </p>
+            </div>
             <div className="min-w-0 space-y-2">
               <Label htmlFor="footerText">Footer-Text</Label>
               <Textarea
@@ -197,6 +230,28 @@ function BrandingPage() {
                 Rechtliche Pflichtangaben gehören hierher (z. B. Firma, Anschrift, Registernummer).
               </p>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="legalText">Rechtstext-Baustein</Label>
+              <Textarea
+                id="legalText"
+                rows={5}
+                value={settings.legalText ?? ""}
+                onChange={(e) => set("legalText", e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Über den Baustein „Rechtstext“ in Vorlagen und Newslettern einfügen.
+              </p>
+            </div>
+            <MailAssetPicker
+              label="Standard-PDF-Anhänge für E-Mails"
+              kind="pdf"
+              value={settings.attachmentMediaIds ?? []}
+              onChange={(ids) => set("attachmentMediaIds", ids)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Diese Dokumente werden jeder neuen E-Mail angehängt. Einzelne Vorlagen können
+              zusätzliche PDFs enthalten. Zusammen maximal 5 MB.
+            </p>
           </Panel>
         }
         aside={
@@ -207,12 +262,21 @@ function BrandingPage() {
               <div className="min-w-0 overflow-hidden rounded-lg border border-border">
                 <iframe
                   title="Branding-Vorschau"
+                  sandbox=""
                   srcDoc={previewQuery.data.html}
                   className="h-[600px] w-full bg-white"
                 />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Keine Vorschau verfügbar.</p>
+              <ErrorState
+                title="Vorschau nicht verfügbar"
+                description="Die Vorlage konnte nicht geladen werden."
+                action={
+                  <Button variant="outline" onClick={() => void previewQuery.refetch()}>
+                    Erneut laden
+                  </Button>
+                }
+              />
             )}
             <p className="text-xs text-muted-foreground">
               Die Vorschau aktualisiert sich nach dem Speichern.

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { MailBlockEditor } from "@/eyis/commerce/MailBlockEditor";
 import { ArrowLeft } from "lucide-react";
 import {
   forkTemplateFn,
@@ -94,7 +95,15 @@ function TemplateEditor() {
   }, [current]);
 
   const previewQuery = useQuery({
-    queryKey: ["communication-preview", organizationId, shopId, templateId, subject, blocks],
+    queryKey: [
+      "communication-preview",
+      organizationId,
+      shopId,
+      templateId,
+      subject,
+      preheader,
+      blocks,
+    ],
     enabled: !!organizationId && !!shopId && blocks.length > 0,
     queryFn: () => preview({ data: { organizationId, shopId, subject, preheader, blocks } }),
   });
@@ -265,113 +274,30 @@ function TemplateEditor() {
                 />
               </div>
 
-              <div className="min-w-0 space-y-3">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                  <p className="truncate text-sm font-medium">Blöcke</p>
-                  {!isSystem && (
-                    <Select
-                      onValueChange={(value) => {
-                        setBlocks((prev) => [...prev, { type: value as BlockType }]);
-                        setDirty(true);
-                      }}
-                    >
-                      <SelectTrigger aria-label="Block hinzufügen" className="h-11 w-48 shrink-0 text-xs">
-                        <SelectValue placeholder="Block hinzufügen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {EDITABLE_BLOCKS.map((b) => (
-                          <SelectItem key={b} value={b}>
-                            {BLOCK_LABELS[b]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-
-                {blocks.map((block, index) => (
-                  <div key={`${block.type}-${index}`} className="min-w-0 rounded-lg border border-border p-3">
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                      <p className="truncate text-sm font-medium">
-                        {BLOCK_LABELS[block.type] ?? block.type}
-                      </p>
-                      {!isSystem && (
-                        <div className="flex shrink-0 gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="size-9"
-                            onClick={() => moveBlock(index, -1)}
-                          >
-                            ↑
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="size-9"
-                            onClick={() => moveBlock(index, 1)}
-                          >
-                            ↓
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setBlocks((prev) => prev.filter((_, i) => i !== index));
-                              setDirty(true);
-                            }}
-                          >
-                            Entfernen
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    {(block.type === "heading" || block.type === "text") && (
-                      <Textarea
-                        className="mt-2"
-                        rows={block.type === "text" ? 3 : 1}
-                        disabled={isSystem}
-                        value={block.text ?? ""}
-                        onChange={(e) => patchBlock(index, { text: e.target.value })}
-                      />
-                    )}
-                    {block.type === "button" && (
-                      <div className="mt-2 grid min-w-0 gap-2 sm:grid-cols-2">
-                        <Input
-                          className="h-11"
-                          placeholder="Beschriftung"
-                          disabled={isSystem}
-                          value={block.label ?? ""}
-                          onChange={(e) => patchBlock(index, { label: e.target.value })}
-                        />
-                        <Input
-                          className="h-11"
-                          placeholder="{{links.order}}"
-                          disabled={isSystem}
-                          value={block.url ?? ""}
-                          onChange={(e) => patchBlock(index, { url: e.target.value })}
-                        />
-                      </div>
-                    )}
-                    {!["heading", "text", "button"].includes(block.type) && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Inhalt kommt automatisch aus den Daten der Nachricht.
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <MailBlockEditor
+                blocks={blocks}
+                disabled={isSystem}
+                onChange={(value) => {
+                  setBlocks(value);
+                  setDirty(true);
+                }}
+              />
 
               {!isSystem && (
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" className="h-11" disabled={busy || !dirty} onClick={saveDraftNow}>
+                  <Button
+                    size="sm"
+                    className="h-11"
+                    disabled={busy || !dirty}
+                    onClick={saveDraftNow}
+                  >
                     Entwurf speichern
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     className="h-11"
-                    disabled={busy || !current || !!current.publishedAt}
+                    disabled={busy || dirty || !current || !!current.publishedAt}
                     onClick={() =>
                       run("Fassung veröffentlicht.", async () => {
                         await publish({
@@ -387,7 +313,10 @@ function TemplateEditor() {
               )}
             </Panel>
 
-            <Panel title="Testmail senden" description="Testmails nutzen den eingestellten Anbieter. Der interne Testversand verlässt die Plattform nie.">
+            <Panel
+              title="Testmail senden"
+              description="Testmails nutzen den eingestellten Anbieter. Der interne Testversand verlässt die Plattform nie."
+            >
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Input
                   className="h-11"
@@ -443,6 +372,7 @@ function TemplateEditor() {
                 </div>
                 <iframe
                   title="E-Mail-Vorschau"
+                  sandbox=""
                   srcDoc={previewQuery.data.html}
                   className="h-[600px] w-full bg-white"
                 />

@@ -42,7 +42,9 @@ export const DEFAULT_PORTS: Record<SmtpEncryption, number> = { tls: 465, starttl
  * Der Händler wählt "TLS" oder "STARTTLS" — `secureTransport` bleibt intern.
  */
 export function resolveTlsMode(value: unknown, port?: number): SmtpEncryption {
-  const raw = String(value ?? "").trim().toLowerCase();
+  const raw = String(value ?? "")
+    .trim()
+    .toLowerCase();
   if ((SMTP_TLS_MODES as readonly string[]).includes(raw)) return raw as SmtpEncryption;
   if (raw === "ssl" || raw === "implicit" || raw === "on") return "tls";
   if (raw === "start_tls" || raw === "tls-start") return "starttls";
@@ -77,7 +79,6 @@ export type SmtpConnect = (
   },
 ) => SmtpSocket;
 
-
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -108,7 +109,6 @@ async function runtimeConnect(): Promise<SmtpConnect> {
   );
 }
 
-
 function classify(code: number, text: string): CommunicationError {
   if (code === 421 || code === 450 || code === 451 || code === 452)
     return new CommunicationError("provider_unavailable", `SMTP-Server nicht bereit (${code}).`);
@@ -130,7 +130,10 @@ class SmtpSession {
   private buffer = "";
   readonly capabilities = new Set<string>();
 
-  constructor(socket: SmtpSocket, private readonly timeoutMs: number) {
+  constructor(
+    socket: SmtpSocket,
+    private readonly timeoutMs: number,
+  ) {
     this.socket = socket;
     this.reader = socket.readable.getReader();
     this.writer = socket.writable.getWriter();
@@ -297,7 +300,7 @@ export function buildMimeMessage(
     "MIME-Version: 1.0",
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
   ];
-  const body = [
+  let body = [
     headers.join("\r\n"),
     "",
     `--${boundary}`,
@@ -313,13 +316,32 @@ export function buildMimeMessage(
     `--${boundary}--`,
     "",
   ].join("\r\n");
+  if (message.unsubscribeUrl && /^https?:\/\/[^\r\n]+$/.test(message.unsubscribeUrl))
+    body = `List-Unsubscribe: <${message.unsubscribeUrl}>\r\nList-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n${body}`;
+  if (message.attachments?.length) {
+    const outer = `${boundary}_mixed`;
+    const parts = message.attachments.map((a) =>
+      [
+        `--${outer}`,
+        `Content-Type: ${a.contentType.replace(/[\r\n]/g, "")}`,
+        "Content-Transfer-Encoding: base64",
+        `Content-Disposition: ${a.contentId ? "inline" : "attachment"}; filename="${encodeHeader(a.filename.replace(/[\r\n"\\]/g, "_"))}"`,
+        ...(a.contentId ? [`Content-ID: <${a.contentId.replace(/[^a-zA-Z0-9-]/g, "")}>`] : []),
+        "",
+        wrap(a.content),
+      ].join("\r\n"),
+    );
+    const marker = `Content-Type: multipart/alternative; boundary="${boundary}"`;
+    body = body.replace(
+      marker,
+      `Content-Type: multipart/mixed; boundary="${outer}"\r\n\r\n--${outer}\r\n${marker}`,
+    );
+    body += `\r\n${parts.join("\r\n")}\r\n--${outer}--\r\n`;
+  }
   return { from: fromAddress, envelopeFrom: fromAddress, body };
 }
 
-async function openSession(
-  config: SmtpConfig,
-  connect: SmtpConnect,
-): Promise<SmtpSession> {
+async function openSession(config: SmtpConfig, connect: SmtpConnect): Promise<SmtpSession> {
   const timeout = config.timeoutMs ?? 15_000;
   const mode = resolveTlsMode(config.encryption, config.port);
   let socket: SmtpSocket;
@@ -359,7 +381,6 @@ async function openSession(
   await session.authenticate(config.username, config.password);
   return session;
 }
-
 
 /** Reiner Verbindungstest: TLS aufbauen, anmelden, sauber trennen. */
 export async function verifySmtpConnection(
@@ -404,10 +425,7 @@ export function createSmtpProvider(
       const connector = connect ?? (await runtimeConnect());
       const session = await openSession(config, connector);
       try {
-        const { from, body } = buildMimeMessage(
-          message,
-          config.senderAddress ?? config.username,
-        );
+        const { from, body } = buildMimeMessage(message, config.senderAddress ?? config.username);
         await session.command(`MAIL FROM:<${from}>`, [250]);
         await session.command(`RCPT TO:<${addressOf(message.to)}>`, [250, 251]);
         await session.command("DATA", [354]);

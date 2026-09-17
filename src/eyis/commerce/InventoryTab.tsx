@@ -275,6 +275,7 @@ function ReceiveDialog({
           <div className="space-y-2">
             <Label>Menge</Label>
             <Input
+              aria-label="Menge"
               inputMode="numeric"
               value={quantity}
               onChange={(event) => setQuantity(event.target.value)}
@@ -282,7 +283,11 @@ function ReceiveDialog({
           </div>
           <div className="space-y-2">
             <Label>Notiz (optional)</Label>
-            <Input value={note} onChange={(event) => setNote(event.target.value)} />
+            <Input
+              aria-label="Notiz (optional)"
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>
@@ -358,6 +363,7 @@ function AdjustDialog({
           <div className="space-y-2">
             <Label>Gezählter Bestand</Label>
             <Input
+              aria-label="Gezählter Bestand"
               inputMode="numeric"
               value={counted}
               onChange={(event) => setCounted(event.target.value)}
@@ -366,7 +372,7 @@ function AdjustDialog({
           <div className="space-y-2">
             <Label>Grund</Label>
             <Select value={reason} onValueChange={setReason}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Grund">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -380,7 +386,11 @@ function AdjustDialog({
           </div>
           <div className="space-y-2">
             <Label>Notiz (optional)</Label>
-            <Input value={note} onChange={(event) => setNote(event.target.value)} />
+            <Input
+              aria-label="Notiz (optional)"
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>

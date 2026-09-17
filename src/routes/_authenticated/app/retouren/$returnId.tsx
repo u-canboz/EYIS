@@ -257,233 +257,227 @@ function ReturnDetailPage() {
 
       {action && (
         <Panel title={`Nächster Schritt: ${action.label}`} bodyClassName="space-y-4">
-            {!action.permission || can(action.permission) ? (
-              <>
-                {action.key === "authorize" && (
-                  <div className="space-y-3">
-                    <Button onClick={() => authorizeM.mutate()} disabled={authorizeM.isPending}>
-                      Retoure genehmigen
-                    </Button>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Ablehnungsgrund"
-                        value={rejectReason}
-                        onChange={(e) => setRejectReason(e.target.value)}
-                      />
-                      <Button
-                        variant="destructive"
-                        disabled={!rejectReason.trim()}
-                        onClick={() => rejectM.mutate()}
-                      >
-                        Ablehnen
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                {action.key === "in_transit" && (
-                  <Button onClick={() => transitM.mutate()} disabled={transitM.isPending}>
-                    Als unterwegs markieren
+          {!action.permission || can(action.permission) ? (
+            <>
+              {action.key === "authorize" && (
+                <div className="space-y-3">
+                  <Button onClick={() => authorizeM.mutate()} disabled={authorizeM.isPending}>
+                    Retoure genehmigen
                   </Button>
-                )}
-                {action.key === "receive" && (
-                  <div className="space-y-3">
-                    {r.items.map((it) => {
-                      const d = receiveDraft(it.id, it.quantityRequested);
-                      return (
-                        <div
-                          key={it.id}
-                          className="grid gap-2 rounded-md border p-3 sm:grid-cols-3"
-                        >
-                          <div className="text-sm">
-                            <p className="font-medium">{it.title}</p>
-                            <p className="text-xs text-muted-foreground">
-                              beantragt: {it.quantityRequested}
-                            </p>
-                          </div>
-                          <Input
-                            type="number"
-                            min={0}
-                            max={it.quantityRequested}
-                            value={d.qty}
-                            onChange={(e) =>
-                              setReceive({
-                                ...receive,
-                                [it.id]: { ...d, qty: Number(e.target.value) },
-                              })
-                            }
-                          />
-                          <Select
-                            value={d.condition}
-                            onValueChange={(v) =>
-                              setReceive({
-                                ...receive,
-                                [it.id]: { ...d, condition: v as ReturnItemCondition },
-                              })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(CONDITION_LABELS).map(([k, label]) => (
-                                <SelectItem key={k} value={k}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      );
-                    })}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Ablehnungsgrund"
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                    />
                     <Button
-                      onClick={() => {
-                        if (!Object.keys(receive).length) {
-                          setReceive(
-                            Object.fromEntries(
-                              r.items.map((it) => [
-                                it.id,
-                                {
-                                  qty: it.quantityRequested,
-                                  condition: "unopened" as ReturnItemCondition,
-                                },
-                              ]),
-                            ),
-                          );
-                        }
-                        receiveM.mutate();
-                      }}
-                      disabled={receiveM.isPending}
+                      variant="destructive"
+                      disabled={!rejectReason.trim()}
+                      onClick={() => rejectM.mutate()}
                     >
-                      Wareneingang buchen
+                      Ablehnen
                     </Button>
                   </div>
-                )}
-                {action.key === "inspect" && (
-                  <Button onClick={() => startM.mutate()} disabled={startM.isPending}>
-                    Prüfung starten
-                  </Button>
-                )}
-                {action.key === "decide" && (
-                  <div className="space-y-3">
-                    {r.items.map((it) => {
-                      const d = inspectDraft(it.id, it.quantityReceived || it.quantityRequested);
-                      return (
-                        <div
-                          key={it.id}
-                          className="grid gap-2 rounded-md border p-3 sm:grid-cols-4"
-                        >
-                          <div className="text-sm">
-                            <p className="font-medium">{it.title}</p>
-                            <p className="text-xs text-muted-foreground">
-                              erhalten: {it.quantityReceived}
-                            </p>
-                          </div>
-                          <Input
-                            type="number"
-                            min={0}
-                            max={it.quantityReceived || it.quantityRequested}
-                            value={d.qty}
-                            onChange={(e) =>
-                              setInspect({
-                                ...inspect,
-                                [it.id]: { ...d, qty: Number(e.target.value) },
-                              })
-                            }
-                          />
-                          <Select
-                            value={d.condition}
-                            onValueChange={(v) =>
-                              setInspect({
-                                ...inspect,
-                                [it.id]: { ...d, condition: v as ReturnItemCondition },
-                              })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(CONDITION_LABELS).map(([k, label]) => (
-                                <SelectItem key={k} value={k}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Select
-                            value={d.restock}
-                            onValueChange={(v) =>
-                              setInspect({
-                                ...inspect,
-                                [it.id]: { ...d, restock: v as RestockDecision },
-                              })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(RESTOCK_LABELS).map(([k, label]) => (
-                                <SelectItem key={k} value={k}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                </div>
+              )}
+              {action.key === "in_transit" && (
+                <Button onClick={() => transitM.mutate()} disabled={transitM.isPending}>
+                  Als unterwegs markieren
+                </Button>
+              )}
+              {action.key === "receive" && (
+                <div className="space-y-3">
+                  {r.items.map((it) => {
+                    const d = receiveDraft(it.id, it.quantityRequested);
+                    return (
+                      <div key={it.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-3">
+                        <div className="text-sm">
+                          <p className="font-medium">{it.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            beantragt: {it.quantityRequested}
+                          </p>
                         </div>
-                      );
-                    })}
-                    <Button
-                      onClick={() => {
-                        if (!Object.keys(inspect).length) {
-                          setInspect(
-                            Object.fromEntries(
-                              r.items.map((it) => [
-                                it.id,
-                                {
-                                  qty: it.quantityReceived || it.quantityRequested,
-                                  condition: "unopened" as ReturnItemCondition,
-                                  restock: "restock" as RestockDecision,
-                                  note: "",
-                                },
-                              ]),
-                            ),
-                          );
-                        }
-                        inspectM.mutate();
-                      }}
-                      disabled={inspectM.isPending}
-                    >
-                      Prüfergebnis speichern
-                    </Button>
-                  </div>
-                )}
-                {action.key === "settle" && (
-                  <div className="space-y-3">
-                    <label className="flex items-center gap-2 text-sm">
-                      <Checkbox
-                        checked={createCreditNote}
-                        onCheckedChange={(v) => setCreateCreditNote(Boolean(v))}
-                      />
-                      Gutschrift zur Rechnung erzeugen
-                    </label>
-                    <Button onClick={() => settleM.mutate()} disabled={settleM.isPending}>
-                      Erstattung über {formatMoney(r.refundTotalMinor, r.currencyCode)} auslösen
-                    </Button>
-                  </div>
-                )}
-                {action.key === "complete" && (
-                  <Button onClick={() => completeM.mutate()} disabled={completeM.isPending}>
-                    Retoure abschließen
+                        <Input
+                          type="number"
+                          min={0}
+                          max={it.quantityRequested}
+                          value={d.qty}
+                          onChange={(e) =>
+                            setReceive({
+                              ...receive,
+                              [it.id]: { ...d, qty: Number(e.target.value) },
+                            })
+                          }
+                        />
+                        <Select
+                          value={d.condition}
+                          onValueChange={(v) =>
+                            setReceive({
+                              ...receive,
+                              [it.id]: { ...d, condition: v as ReturnItemCondition },
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(CONDITION_LABELS).map(([k, label]) => (
+                              <SelectItem key={k} value={k}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    );
+                  })}
+                  <Button
+                    onClick={() => {
+                      if (!Object.keys(receive).length) {
+                        setReceive(
+                          Object.fromEntries(
+                            r.items.map((it) => [
+                              it.id,
+                              {
+                                qty: it.quantityRequested,
+                                condition: "unopened" as ReturnItemCondition,
+                              },
+                            ]),
+                          ),
+                        );
+                      }
+                      receiveM.mutate();
+                    }}
+                    disabled={receiveM.isPending}
+                  >
+                    Wareneingang buchen
                   </Button>
-                )}
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Dir fehlt die Berechtigung für diesen Schritt ({action.permission}).
-              </p>
-            )}
-      </Panel>
+                </div>
+              )}
+              {action.key === "inspect" && (
+                <Button onClick={() => startM.mutate()} disabled={startM.isPending}>
+                  Prüfung starten
+                </Button>
+              )}
+              {action.key === "decide" && (
+                <div className="space-y-3">
+                  {r.items.map((it) => {
+                    const d = inspectDraft(it.id, it.quantityReceived || it.quantityRequested);
+                    return (
+                      <div key={it.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-4">
+                        <div className="text-sm">
+                          <p className="font-medium">{it.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            erhalten: {it.quantityReceived}
+                          </p>
+                        </div>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={it.quantityReceived || it.quantityRequested}
+                          value={d.qty}
+                          onChange={(e) =>
+                            setInspect({
+                              ...inspect,
+                              [it.id]: { ...d, qty: Number(e.target.value) },
+                            })
+                          }
+                        />
+                        <Select
+                          value={d.condition}
+                          onValueChange={(v) =>
+                            setInspect({
+                              ...inspect,
+                              [it.id]: { ...d, condition: v as ReturnItemCondition },
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(CONDITION_LABELS).map(([k, label]) => (
+                              <SelectItem key={k} value={k}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={d.restock}
+                          onValueChange={(v) =>
+                            setInspect({
+                              ...inspect,
+                              [it.id]: { ...d, restock: v as RestockDecision },
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(RESTOCK_LABELS).map(([k, label]) => (
+                              <SelectItem key={k} value={k}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    );
+                  })}
+                  <Button
+                    onClick={() => {
+                      if (!Object.keys(inspect).length) {
+                        setInspect(
+                          Object.fromEntries(
+                            r.items.map((it) => [
+                              it.id,
+                              {
+                                qty: it.quantityReceived || it.quantityRequested,
+                                condition: "unopened" as ReturnItemCondition,
+                                restock: "restock" as RestockDecision,
+                                note: "",
+                              },
+                            ]),
+                          ),
+                        );
+                      }
+                      inspectM.mutate();
+                    }}
+                    disabled={inspectM.isPending}
+                  >
+                    Prüfergebnis speichern
+                  </Button>
+                </div>
+              )}
+              {action.key === "settle" && (
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={createCreditNote}
+                      onCheckedChange={(v) => setCreateCreditNote(Boolean(v))}
+                    />
+                    Gutschrift zur Rechnung erzeugen
+                  </label>
+                  <Button onClick={() => settleM.mutate()} disabled={settleM.isPending}>
+                    Erstattung über {formatMoney(r.refundTotalMinor, r.currencyCode)} auslösen
+                  </Button>
+                </div>
+              )}
+              {action.key === "complete" && (
+                <Button onClick={() => completeM.mutate()} disabled={completeM.isPending}>
+                  Retoure abschließen
+                </Button>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Dir fehlt die Berechtigung für diesen Schritt ({action.permission}).
+            </p>
+          )}
+        </Panel>
       )}
 
       <Panel
@@ -506,42 +500,62 @@ function ReturnDetailPage() {
           ) : undefined
         }
       >
-          {r.items.map((it) => (
-            <div
-              key={it.id}
-              className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border p-3 text-sm"
-            >
-              <div className="min-w-0">
-                <p className="min-w-0 break-words font-medium">
-                  {it.title} {it.variantTitle ? `· ${it.variantTitle}` : ""}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  beantragt {it.quantityRequested} · erhalten {it.quantityReceived} · genehmigt{" "}
-                  {it.quantityApproved} · {CONDITION_LABELS[it.condition]} ·{" "}
-                  {RESTOCK_LABELS[it.restockDecision]}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                <span className="tabular-nums">{formatMoney(it.refundAmountMinor ?? 0, r.currencyCode)}</span>
-                {it.restockDecision === "restock" && !it.restockedAt && can("inventory.manage") && (
-                  <Button size="sm" className="min-h-11" variant="outline" onClick={() => restockM.mutate(it.id)}>
-                    Einlagern
-                  </Button>
-                )}
-                {it.restockedAt && <Badge variant="secondary">eingelagert</Badge>}
-              </div>
+        {r.items.map((it) => (
+          <div
+            key={it.id}
+            className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border p-3 text-sm"
+          >
+            <div className="min-w-0">
+              <p className="min-w-0 break-words font-medium">
+                {it.title} {it.variantTitle ? `· ${it.variantTitle}` : ""}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                beantragt {it.quantityRequested} · erhalten {it.quantityReceived} · genehmigt{" "}
+                {it.quantityApproved} · {CONDITION_LABELS[it.condition]} ·{" "}
+                {RESTOCK_LABELS[it.restockDecision]}
+              </p>
             </div>
-          ))}
+            <div className="flex shrink-0 items-center gap-3">
+              <span className="tabular-nums">
+                {formatMoney(it.refundAmountMinor ?? 0, r.currencyCode)}
+              </span>
+              {it.restockDecision === "restock" && !it.restockedAt && can("inventory.manage") && (
+                <Button
+                  size="sm"
+                  className="min-h-11"
+                  variant="outline"
+                  onClick={() => restockM.mutate(it.id)}
+                >
+                  Einlagern
+                </Button>
+              )}
+              {it.restockedAt && <Badge variant="secondary">eingelagert</Badge>}
+            </div>
+          </div>
+        ))}
       </Panel>
 
       <div className="grid min-w-0 gap-4 md:grid-cols-2">
         <Panel title="Details" bodyClassName="space-y-2 text-sm">
-          <p>Erstattung gesamt: <span className="tabular-nums">{formatMoney(r.refundTotalMinor, r.currencyCode)}</span></p>
-          <p>Versandkosten-Erstattung: <span className="tabular-nums">{formatMoney(r.shippingRefundMinor, r.currencyCode)}</span></p>
+          <p>
+            Erstattung gesamt:{" "}
+            <span className="tabular-nums">{formatMoney(r.refundTotalMinor, r.currencyCode)}</span>
+          </p>
+          <p>
+            Versandkosten-Erstattung:{" "}
+            <span className="tabular-nums">
+              {formatMoney(r.shippingRefundMinor, r.currencyCode)}
+            </span>
+          </p>
           {r.customerNote && (
             <div>
               <Label className="text-xs">Kundennachricht</Label>
-              <Textarea readOnly value={r.customerNote} className="mt-1" />
+              <Textarea
+                aria-label="Kundennachricht"
+                readOnly
+                value={r.customerNote}
+                className="mt-1"
+              />
             </div>
           )}
           {r.rejectionReason && <p className="text-destructive">Ablehnung: {r.rejectionReason}</p>}

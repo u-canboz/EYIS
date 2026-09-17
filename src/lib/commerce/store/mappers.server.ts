@@ -39,6 +39,7 @@ export function availabilityFrom(available: number, lowThreshold = 5): StoreAvai
 export function mapCart(view: CartView): StoreCart {
   return {
     id: view.id,
+    status: view.status,
     currencyCode: view.currencyCode,
     email: view.email,
     items: view.items.map((i) => ({

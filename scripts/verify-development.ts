@@ -29,6 +29,8 @@ try {
           (part) =>
             [
               ".git",
+              ".local-runtime",
+              ".local-state",
               "node_modules",
               ".output",
               ".tanstack",

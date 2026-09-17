@@ -30,6 +30,26 @@ export function TabsBar({
               type="button"
               role="tab"
               aria-selected={active}
+              tabIndex={active ? 0 : -1}
+              onKeyDown={(event) => {
+                const index = items.findIndex((i) => i.value === item.value);
+                const target =
+                  event.key === "ArrowRight"
+                    ? (index + 1) % items.length
+                    : event.key === "ArrowLeft"
+                      ? (index - 1 + items.length) % items.length
+                      : event.key === "Home"
+                        ? 0
+                        : event.key === "End"
+                          ? items.length - 1
+                          : -1;
+                if (target < 0) return;
+                event.preventDefault();
+                onChange(items[target]!.value);
+                event.currentTarget.parentElement
+                  ?.querySelectorAll<HTMLButtonElement>("[role=tab]")
+                  [target]?.focus();
+              }}
               onClick={() => onChange(item.value)}
               className={cn(
                 "relative inline-flex min-h-11 items-center gap-1.5 border-b-2 px-3 text-sm whitespace-nowrap transition-colors",
@@ -42,7 +62,7 @@ export function TabsBar({
               {typeof item.count === "number" ? (
                 <span
                   className={cn(
-                    "rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums",
+                    "rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums",
                     active ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground",
                   )}
                 >

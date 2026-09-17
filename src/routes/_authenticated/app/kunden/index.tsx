@@ -188,7 +188,6 @@ function CustomersPage() {
         )}
       </div>
 
-
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
@@ -234,7 +233,7 @@ function CustomersPage() {
               <div>
                 <Label>Kundentyp</Label>
                 <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-                  <SelectTrigger className="h-11">
+                  <SelectTrigger aria-label="Kundentyp" className="h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -244,7 +243,11 @@ function CustomersPage() {
                 </Select>
               </div>
             </div>
-            <Button className="min-h-11 w-full" onClick={() => create.mutate()} disabled={create.isPending}>
+            <Button
+              className="min-h-11 w-full"
+              onClick={() => create.mutate()}
+              disabled={create.isPending}
+            >
               Speichern
             </Button>
           </div>

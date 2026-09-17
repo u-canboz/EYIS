@@ -93,18 +93,16 @@ export function AuthPanel({ authPath }: { authPath: string }) {
   }
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-2">
-      <section className="hidden flex-col justify-between bg-sidebar p-12 text-sidebar-foreground lg:flex">
+    <main className="grid min-h-dvh bg-card lg:grid-cols-[1fr_1.1fr]">
+      <section className="hidden flex-col justify-between border-r border-border bg-background p-12 text-sidebar-foreground lg:flex">
         <Link to="/" aria-label="EYIS Startseite">
           <EyisLogo variant="wordmark" width={110} />
         </Link>
         <div className="max-w-md">
-          <h1 className="font-display text-4xl leading-tight">
-            Ein Betriebssystem für deinen gesamten Handel.
-          </h1>
+          <h1 className="font-display text-4xl leading-tight">Dein Handel. Alles an einem Ort.</h1>
           <p className="mt-4 text-sm text-sidebar-foreground/70">
-            Organisationen, Shops, Rollen und Einladungen – sauber getrennt, lückenlos
-            protokolliert.
+            Produkte pflegen, Bestellungen versenden und deine Kunden begleiten. Dein
+            EYIS-Arbeitsplatz hält alles zusammen.
           </p>
         </div>
         <p className="text-xs text-sidebar-foreground/50">EYIS Backoffice</p>
@@ -112,6 +110,12 @@ export function AuthPanel({ authPath }: { authPath: string }) {
 
       <section className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
+          <div className="mb-8">
+            <h2 className="font-display text-3xl font-semibold">Willkommen bei EYIS</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Melde dich an, um deinen Shop zu verwalten.
+            </p>
+          </div>
           <div className="mb-8 flex justify-center lg:hidden">
             <EyisLogo variant="full" width={240} className="max-w-[70vw]" />
           </div>
@@ -141,6 +145,7 @@ export function AuthPanel({ authPath }: { authPath: string }) {
                   <Label htmlFor="email">E-Mail</Label>
                   <Input
                     id="email"
+                    autoComplete="email"
                     type="email"
                     required
                     value={email}
@@ -151,6 +156,7 @@ export function AuthPanel({ authPath }: { authPath: string }) {
                   <Label htmlFor="password">Passwort</Label>
                   <Input
                     id="password"
+                    autoComplete="current-password"
                     type="password"
                     required
                     value={password}
@@ -158,7 +164,7 @@ export function AuthPanel({ authPath }: { authPath: string }) {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  Anmelden
+                  {loading ? "Anmeldung läuft …" : "Anmelden"}
                 </Button>
               </form>
             </TabsContent>
@@ -167,12 +173,18 @@ export function AuthPanel({ authPath }: { authPath: string }) {
               <form onSubmit={signUp} className="mt-6 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
-                  <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                  <Input
+                    id="name"
+                    autoComplete="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email2">E-Mail</Label>
                   <Input
                     id="email2"
+                    autoComplete="email"
                     type="email"
                     required
                     value={email}
@@ -183,6 +195,7 @@ export function AuthPanel({ authPath }: { authPath: string }) {
                   <Label htmlFor="password2">Passwort</Label>
                   <Input
                     id="password2"
+                    autoComplete="new-password"
                     type="password"
                     required
                     minLength={8}

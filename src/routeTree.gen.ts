@@ -50,6 +50,7 @@ import { Route as AuthenticatedAppEntwicklerFeedsRouteImport } from './routes/_a
 import { Route as AuthenticatedAppEntwicklerProtokollRouteImport } from './routes/_authenticated/app/entwickler/protokoll'
 import { Route as AuthenticatedAppKommunikationIndexRouteImport } from './routes/_authenticated/app/kommunikation/index'
 import { Route as AuthenticatedAppKommunikationBrandingRouteImport } from './routes/_authenticated/app/kommunikation/branding'
+import { Route as AuthenticatedAppKommunikationNewsletterRouteImport } from './routes/_authenticated/app/kommunikation/newsletter'
 import { Route as AuthenticatedAppKommunikationRegelnRouteImport } from './routes/_authenticated/app/kommunikation/regeln'
 import { Route as AuthenticatedAppKundenIndexRouteImport } from './routes/_authenticated/app/kunden/index'
 import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app/kunden/$customerId'
@@ -59,9 +60,7 @@ import { Route as AuthenticatedAppLagerLagerorteRouteImport } from './routes/_au
 import { Route as AuthenticatedAppLagerReservierungenRouteImport } from './routes/_authenticated/app/lager/reservierungen'
 import { Route as AuthenticatedAppLagerTransfersRouteImport } from './routes/_authenticated/app/lager/transfers'
 import { Route as AuthenticatedAppLagerWareneingangRouteImport } from './routes/_authenticated/app/lager/wareneingang'
-import { Route as AuthenticatedAppMarketingBrandingRouteImport } from './routes/_authenticated/app/marketing/branding'
 import { Route as AuthenticatedAppMarketingGoogleShoppingRouteImport } from './routes/_authenticated/app/marketing/google-shopping'
-import { Route as AuthenticatedAppMarketingInhalteRouteImport } from './routes/_authenticated/app/marketing/inhalte'
 import { Route as AuthenticatedAppMarketingPromotionsRouteImport } from './routes/_authenticated/app/marketing/promotions'
 import { Route as AuthenticatedAppPreiseIndexRouteImport } from './routes/_authenticated/app/preise/index'
 import { Route as AuthenticatedAppPreiseTestenRouteImport } from './routes/_authenticated/app/preise/testen'
@@ -106,6 +105,8 @@ import { Route as AuthenticatedAppKommunikationVorlagenIndexRouteImport } from '
 import { Route as AuthenticatedAppKommunikationVorlagenTemplateIdRouteImport } from './routes/_authenticated/app/kommunikation/vorlagen/$templateId'
 import { Route as AuthenticatedAppSystemEinrichtungIndexRouteImport } from './routes/_authenticated/app/system/einrichtung/index'
 import { Route as ApiPublicMerchantGoogleCallbackRouteImport } from './routes/api/public/merchant/google/callback'
+import { Route as ApiPublicStoreNewsletterConfirmRouteImport } from './routes/api/public/store/newsletter/confirm'
+import { Route as ApiPublicStoreNewsletterUnsubscribeRouteImport } from './routes/api/public/store/newsletter/unsubscribe'
 import { Route as ApiPublicStoreV1SplatRouteImport } from './routes/api/public/store/v1/$'
 import { Route as ApiPublicStoreV1RuntimeConfigRouteImport } from './routes/api/public/store/v1/runtime-config'
 import { Route as ApiPublicWebhooksCarrierProviderRouteImport } from './routes/api/public/webhooks/carrier/$provider'
@@ -335,6 +336,12 @@ const AuthenticatedAppKommunikationBrandingRoute =
     path: '/app/kommunikation/branding',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppKommunikationNewsletterRoute =
+  AuthenticatedAppKommunikationNewsletterRouteImport.update({
+    id: '/app/kommunikation/newsletter',
+    path: '/app/kommunikation/newsletter',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppKommunikationRegelnRoute =
   AuthenticatedAppKommunikationRegelnRouteImport.update({
     id: '/app/kommunikation/regeln',
@@ -389,22 +396,10 @@ const AuthenticatedAppLagerWareneingangRoute =
     path: '/app/lager/wareneingang',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAppMarketingBrandingRoute =
-  AuthenticatedAppMarketingBrandingRouteImport.update({
-    id: '/app/marketing/branding',
-    path: '/app/marketing/branding',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAppMarketingGoogleShoppingRoute =
   AuthenticatedAppMarketingGoogleShoppingRouteImport.update({
     id: '/app/marketing/google-shopping',
     path: '/app/marketing/google-shopping',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAppMarketingInhalteRoute =
-  AuthenticatedAppMarketingInhalteRouteImport.update({
-    id: '/app/marketing/inhalte',
-    path: '/app/marketing/inhalte',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppMarketingPromotionsRoute =
@@ -663,6 +658,18 @@ const ApiPublicMerchantGoogleCallbackRoute =
     path: '/api/public/merchant/google/callback',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicStoreNewsletterConfirmRoute =
+  ApiPublicStoreNewsletterConfirmRouteImport.update({
+    id: '/api/public/store/newsletter/confirm',
+    path: '/api/public/store/newsletter/confirm',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicStoreNewsletterUnsubscribeRoute =
+  ApiPublicStoreNewsletterUnsubscribeRouteImport.update({
+    id: '/api/public/store/newsletter/unsubscribe',
+    path: '/api/public/store/newsletter/unsubscribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicStoreV1SplatRoute = ApiPublicStoreV1SplatRouteImport.update({
   id: '/api/public/store/v1/$',
   path: '/api/public/store/v1/$',
@@ -723,6 +730,7 @@ export interface FileRoutesByFullPath {
   '/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/app/kommunikation/newsletter': typeof AuthenticatedAppKommunikationNewsletterRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
@@ -730,9 +738,7 @@ export interface FileRoutesByFullPath {
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
-  '/app/marketing/branding': typeof AuthenticatedAppMarketingBrandingRoute
   '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
-  '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -781,6 +787,8 @@ export interface FileRoutesByFullPath {
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
+  '/api/public/store/newsletter/confirm': typeof ApiPublicStoreNewsletterConfirmRoute
+  '/api/public/store/newsletter/unsubscribe': typeof ApiPublicStoreNewsletterUnsubscribeRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -824,6 +832,7 @@ export interface FileRoutesByTo {
   '/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/app/kommunikation/newsletter': typeof AuthenticatedAppKommunikationNewsletterRoute
   '/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
@@ -831,9 +840,7 @@ export interface FileRoutesByTo {
   '/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
-  '/app/marketing/branding': typeof AuthenticatedAppMarketingBrandingRoute
   '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
-  '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -882,6 +889,8 @@ export interface FileRoutesByTo {
   '/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
+  '/api/public/store/newsletter/confirm': typeof ApiPublicStoreNewsletterConfirmRoute
+  '/api/public/store/newsletter/unsubscribe': typeof ApiPublicStoreNewsletterUnsubscribeRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -928,6 +937,7 @@ export interface FileRoutesById {
   '/_authenticated/app/entwickler/feeds': typeof AuthenticatedAppEntwicklerFeedsRoute
   '/_authenticated/app/entwickler/protokoll': typeof AuthenticatedAppEntwicklerProtokollRoute
   '/_authenticated/app/kommunikation/branding': typeof AuthenticatedAppKommunikationBrandingRoute
+  '/_authenticated/app/kommunikation/newsletter': typeof AuthenticatedAppKommunikationNewsletterRoute
   '/_authenticated/app/kommunikation/regeln': typeof AuthenticatedAppKommunikationRegelnRoute
   '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/_authenticated/app/lager/bewegungen': typeof AuthenticatedAppLagerBewegungenRoute
@@ -935,9 +945,7 @@ export interface FileRoutesById {
   '/_authenticated/app/lager/reservierungen': typeof AuthenticatedAppLagerReservierungenRoute
   '/_authenticated/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/_authenticated/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
-  '/_authenticated/app/marketing/branding': typeof AuthenticatedAppMarketingBrandingRoute
   '/_authenticated/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
-  '/_authenticated/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/_authenticated/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/_authenticated/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -986,6 +994,8 @@ export interface FileRoutesById {
   '/_authenticated/app/kommunikation/verlauf/$communicationId': typeof AuthenticatedAppKommunikationVerlaufCommunicationIdRoute
   '/_authenticated/app/kommunikation/vorlagen/$templateId': typeof AuthenticatedAppKommunikationVorlagenTemplateIdRoute
   '/api/public/merchant/google/callback': typeof ApiPublicMerchantGoogleCallbackRoute
+  '/api/public/store/newsletter/confirm': typeof ApiPublicStoreNewsletterConfirmRoute
+  '/api/public/store/newsletter/unsubscribe': typeof ApiPublicStoreNewsletterUnsubscribeRoute
   '/api/public/store/v1/$': typeof ApiPublicStoreV1SplatRoute
   '/api/public/store/v1/runtime-config': typeof ApiPublicStoreV1RuntimeConfigRoute
   '/api/public/webhooks/carrier/$provider': typeof ApiPublicWebhooksCarrierProviderRoute
@@ -1032,6 +1042,7 @@ export interface FileRouteTypes {
     | '/app/entwickler/feeds'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
+    | '/app/kommunikation/newsletter'
     | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
@@ -1039,9 +1050,7 @@ export interface FileRouteTypes {
     | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
-    | '/app/marketing/branding'
     | '/app/marketing/google-shopping'
-    | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
@@ -1090,6 +1099,8 @@ export interface FileRouteTypes {
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/merchant/google/callback'
+    | '/api/public/store/newsletter/confirm'
+    | '/api/public/store/newsletter/unsubscribe'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1133,6 +1144,7 @@ export interface FileRouteTypes {
     | '/app/entwickler/feeds'
     | '/app/entwickler/protokoll'
     | '/app/kommunikation/branding'
+    | '/app/kommunikation/newsletter'
     | '/app/kommunikation/regeln'
     | '/app/kunden/$customerId'
     | '/app/lager/bewegungen'
@@ -1140,9 +1152,7 @@ export interface FileRouteTypes {
     | '/app/lager/reservierungen'
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
-    | '/app/marketing/branding'
     | '/app/marketing/google-shopping'
-    | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
@@ -1191,6 +1201,8 @@ export interface FileRouteTypes {
     | '/app/kommunikation/verlauf/$communicationId'
     | '/app/kommunikation/vorlagen/$templateId'
     | '/api/public/merchant/google/callback'
+    | '/api/public/store/newsletter/confirm'
+    | '/api/public/store/newsletter/unsubscribe'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1236,6 +1248,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/entwickler/feeds'
     | '/_authenticated/app/entwickler/protokoll'
     | '/_authenticated/app/kommunikation/branding'
+    | '/_authenticated/app/kommunikation/newsletter'
     | '/_authenticated/app/kommunikation/regeln'
     | '/_authenticated/app/kunden/$customerId'
     | '/_authenticated/app/lager/bewegungen'
@@ -1243,9 +1256,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/lager/reservierungen'
     | '/_authenticated/app/lager/transfers'
     | '/_authenticated/app/lager/wareneingang'
-    | '/_authenticated/app/marketing/branding'
     | '/_authenticated/app/marketing/google-shopping'
-    | '/_authenticated/app/marketing/inhalte'
     | '/_authenticated/app/marketing/promotions'
     | '/_authenticated/app/preise/testen'
     | '/_authenticated/app/produkte/$productId'
@@ -1294,6 +1305,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/kommunikation/verlauf/$communicationId'
     | '/_authenticated/app/kommunikation/vorlagen/$templateId'
     | '/api/public/merchant/google/callback'
+    | '/api/public/store/newsletter/confirm'
+    | '/api/public/store/newsletter/unsubscribe'
     | '/api/public/store/v1/$'
     | '/api/public/store/v1/runtime-config'
     | '/api/public/webhooks/carrier/$provider'
@@ -1328,6 +1341,8 @@ export interface RootRouteChildren {
   ApiPublicWebhooksPaypalRoute: typeof ApiPublicWebhooksPaypalRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicMerchantGoogleCallbackRoute: typeof ApiPublicMerchantGoogleCallbackRoute
+  ApiPublicStoreNewsletterConfirmRoute: typeof ApiPublicStoreNewsletterConfirmRoute
+  ApiPublicStoreNewsletterUnsubscribeRoute: typeof ApiPublicStoreNewsletterUnsubscribeRoute
   ApiPublicStoreV1SplatRoute: typeof ApiPublicStoreV1SplatRoute
   ApiPublicStoreV1RuntimeConfigRoute: typeof ApiPublicStoreV1RuntimeConfigRoute
   ApiPublicWebhooksCarrierProviderRoute: typeof ApiPublicWebhooksCarrierProviderRoute
@@ -1623,6 +1638,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppKommunikationBrandingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/kommunikation/newsletter': {
+      id: '/_authenticated/app/kommunikation/newsletter'
+      path: '/app/kommunikation/newsletter'
+      fullPath: '/app/kommunikation/newsletter'
+      preLoaderRoute: typeof AuthenticatedAppKommunikationNewsletterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/kommunikation/regeln': {
       id: '/_authenticated/app/kommunikation/regeln'
       path: '/app/kommunikation/regeln'
@@ -1686,25 +1708,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppLagerWareneingangRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/app/marketing/branding': {
-      id: '/_authenticated/app/marketing/branding'
-      path: '/app/marketing/branding'
-      fullPath: '/app/marketing/branding'
-      preLoaderRoute: typeof AuthenticatedAppMarketingBrandingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/app/marketing/google-shopping': {
       id: '/_authenticated/app/marketing/google-shopping'
       path: '/app/marketing/google-shopping'
       fullPath: '/app/marketing/google-shopping'
       preLoaderRoute: typeof AuthenticatedAppMarketingGoogleShoppingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/app/marketing/inhalte': {
-      id: '/_authenticated/app/marketing/inhalte'
-      path: '/app/marketing/inhalte'
-      fullPath: '/app/marketing/inhalte'
-      preLoaderRoute: typeof AuthenticatedAppMarketingInhalteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/marketing/promotions': {
@@ -2015,6 +2023,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMerchantGoogleCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/store/newsletter/confirm': {
+      id: '/api/public/store/newsletter/confirm'
+      path: '/api/public/store/newsletter/confirm'
+      fullPath: '/api/public/store/newsletter/confirm'
+      preLoaderRoute: typeof ApiPublicStoreNewsletterConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/store/newsletter/unsubscribe': {
+      id: '/api/public/store/newsletter/unsubscribe'
+      path: '/api/public/store/newsletter/unsubscribe'
+      fullPath: '/api/public/store/newsletter/unsubscribe'
+      preLoaderRoute: typeof ApiPublicStoreNewsletterUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/store/v1/$': {
       id: '/api/public/store/v1/$'
       path: '/api/public/store/v1/$'
@@ -2067,6 +2089,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppEntwicklerFeedsRoute: typeof AuthenticatedAppEntwicklerFeedsRoute
   AuthenticatedAppEntwicklerProtokollRoute: typeof AuthenticatedAppEntwicklerProtokollRoute
   AuthenticatedAppKommunikationBrandingRoute: typeof AuthenticatedAppKommunikationBrandingRoute
+  AuthenticatedAppKommunikationNewsletterRoute: typeof AuthenticatedAppKommunikationNewsletterRoute
   AuthenticatedAppKommunikationRegelnRoute: typeof AuthenticatedAppKommunikationRegelnRoute
   AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
   AuthenticatedAppLagerBewegungenRoute: typeof AuthenticatedAppLagerBewegungenRoute
@@ -2074,9 +2097,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppLagerReservierungenRoute: typeof AuthenticatedAppLagerReservierungenRoute
   AuthenticatedAppLagerTransfersRoute: typeof AuthenticatedAppLagerTransfersRoute
   AuthenticatedAppLagerWareneingangRoute: typeof AuthenticatedAppLagerWareneingangRoute
-  AuthenticatedAppMarketingBrandingRoute: typeof AuthenticatedAppMarketingBrandingRoute
   AuthenticatedAppMarketingGoogleShoppingRoute: typeof AuthenticatedAppMarketingGoogleShoppingRoute
-  AuthenticatedAppMarketingInhalteRoute: typeof AuthenticatedAppMarketingInhalteRoute
   AuthenticatedAppMarketingPromotionsRoute: typeof AuthenticatedAppMarketingPromotionsRoute
   AuthenticatedAppPreiseTestenRoute: typeof AuthenticatedAppPreiseTestenRoute
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
@@ -2146,6 +2167,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppEntwicklerProtokollRoute,
   AuthenticatedAppKommunikationBrandingRoute:
     AuthenticatedAppKommunikationBrandingRoute,
+  AuthenticatedAppKommunikationNewsletterRoute:
+    AuthenticatedAppKommunikationNewsletterRoute,
   AuthenticatedAppKommunikationRegelnRoute:
     AuthenticatedAppKommunikationRegelnRoute,
   AuthenticatedAppKundenCustomerIdRoute: AuthenticatedAppKundenCustomerIdRoute,
@@ -2156,11 +2179,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppLagerTransfersRoute: AuthenticatedAppLagerTransfersRoute,
   AuthenticatedAppLagerWareneingangRoute:
     AuthenticatedAppLagerWareneingangRoute,
-  AuthenticatedAppMarketingBrandingRoute:
-    AuthenticatedAppMarketingBrandingRoute,
   AuthenticatedAppMarketingGoogleShoppingRoute:
     AuthenticatedAppMarketingGoogleShoppingRoute,
-  AuthenticatedAppMarketingInhalteRoute: AuthenticatedAppMarketingInhalteRoute,
   AuthenticatedAppMarketingPromotionsRoute:
     AuthenticatedAppMarketingPromotionsRoute,
   AuthenticatedAppPreiseTestenRoute: AuthenticatedAppPreiseTestenRoute,
@@ -2268,6 +2288,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWebhooksPaypalRoute: ApiPublicWebhooksPaypalRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicMerchantGoogleCallbackRoute: ApiPublicMerchantGoogleCallbackRoute,
+  ApiPublicStoreNewsletterConfirmRoute: ApiPublicStoreNewsletterConfirmRoute,
+  ApiPublicStoreNewsletterUnsubscribeRoute:
+    ApiPublicStoreNewsletterUnsubscribeRoute,
   ApiPublicStoreV1SplatRoute: ApiPublicStoreV1SplatRoute,
   ApiPublicStoreV1RuntimeConfigRoute: ApiPublicStoreV1RuntimeConfigRoute,
   ApiPublicWebhooksCarrierProviderRoute: ApiPublicWebhooksCarrierProviderRoute,

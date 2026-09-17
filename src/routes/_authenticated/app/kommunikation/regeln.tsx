@@ -110,12 +110,18 @@ function RulesPage() {
           </div>
         ) : !rules.data?.length ? (
           <div className="p-4">
-            <EmptyState title="Keine Regeln" description="Für diesen Shop sind keine Auslöser konfiguriert." />
+            <EmptyState
+              title="Keine Regeln"
+              description="Für diesen Shop sind keine Auslöser konfiguriert."
+            />
           </div>
         ) : (
           <ul className="min-w-0 divide-y divide-border">
             {rules.data.map((r) => (
-              <li key={r.id} className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <li
+                key={r.id}
+                className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]"
+              >
                 <div className="min-w-0">
                   <p className="truncate font-medium">{r.templateName}</p>
                   <p className="truncate text-xs text-muted-foreground">
@@ -176,7 +182,10 @@ function RulesPage() {
               const config = providers.data?.configs.find((c) => c.provider === p.key);
               const active = config?.status === "active";
               return (
-                <li key={p.key} className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+                <li
+                  key={p.key}
+                  className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]"
+                >
                   <div className="min-w-0">
                     <p className="truncate font-medium">{p.label}</p>
                     <p className="text-xs text-pretty text-muted-foreground">
@@ -219,7 +228,10 @@ function RulesPage() {
       <Panel title="Absender" bodyClassName="p-0">
         <ul className="min-w-0 divide-y divide-border">
           {(providers.data?.senders ?? []).map((s) => (
-            <li key={s.id} className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <li
+              key={s.id}
+              className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto]"
+            >
               <div className="min-w-0">
                 <p className="truncate font-medium">
                   {s.senderName} &lt;{s.senderAddress}&gt;
@@ -267,24 +279,28 @@ function RulesPage() {
         <div className="grid min-w-0 gap-3 border-t border-border p-4 sm:grid-cols-2 lg:grid-cols-5">
           <Input
             className="h-11"
+            aria-label="Bezeichnung"
             placeholder="Bezeichnung"
             value={sender.displayName}
             onChange={(e) => setSender({ ...sender, displayName: e.target.value })}
           />
           <Input
             className="h-11"
+            aria-label="Absendername"
             placeholder="Absendername"
             value={sender.senderName}
             onChange={(e) => setSender({ ...sender, senderName: e.target.value })}
           />
           <Input
             className="h-11"
+            aria-label="Absender-E-Mail"
             placeholder="absender@example.com"
             value={sender.senderAddress}
             onChange={(e) => setSender({ ...sender, senderAddress: e.target.value })}
           />
           <Input
             className="h-11"
+            aria-label="Antwort an (optional)"
             placeholder="Antwort an (optional)"
             value={sender.replyTo}
             onChange={(e) => setSender({ ...sender, replyTo: e.target.value })}
@@ -327,7 +343,10 @@ function RulesPage() {
         ) : (
           <ul className="min-w-0 divide-y divide-border">
             {suppressions.data.map((s) => (
-              <li key={s.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 text-sm">
+              <li
+                key={s.id}
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 text-sm"
+              >
                 <span className="min-w-0 truncate">
                   {s.address} · {s.reason}
                 </span>

@@ -254,7 +254,10 @@ function InventoryPage() {
         </Select>
       </div>
 
-      <nav aria-label="Lagerbereiche" className="scroll-x -mx-4 mt-3 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
+      <nav
+        aria-label="Lagerbereiche"
+        className="scroll-x -mx-4 mt-3 flex gap-2 px-4 pb-1 md:mx-0 md:flex-wrap md:px-0"
+      >
         {[
           { to: "/app/lager/wareneingang", label: "Wareneingang" },
           { to: "/app/lager/transfers", label: "Umlagerungen" },
@@ -294,9 +297,7 @@ function InventoryPage() {
                   subtitle={`${row.variant_title}${row.sku ? ` · ${row.sku}` : ""}`}
                   badges={
                     row.status === "in_stock" ? null : (
-                      <Badge
-                        variant={row.status === "out_of_stock" ? "destructive" : "secondary"}
-                      >
+                      <Badge variant={row.status === "out_of_stock" ? "destructive" : "secondary"}>
                         {STOCK_STATUS_LABEL[row.status]}
                       </Badge>
                     )
@@ -366,7 +367,6 @@ function InventoryPage() {
         )}
       </div>
 
-
       <Dialog open={mode !== null} onOpenChange={(open) => (open ? null : closeDialog())}>
         <DialogContent>
           <DialogHeader>
@@ -422,7 +422,7 @@ function InventoryPage() {
               <div className="space-y-2">
                 <Label>Grund</Label>
                 <Select value={reason} onValueChange={setReason}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Grund">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -438,7 +438,11 @@ function InventoryPage() {
 
             <div className="space-y-2">
               <Label>Notiz (optional)</Label>
-              <Input value={note} onChange={(event) => setNote(event.target.value)} />
+              <Input
+                aria-label="Notiz (optional)"
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+              />
             </div>
 
             {consequence && (

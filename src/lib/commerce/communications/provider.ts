@@ -14,7 +14,16 @@ export type ProviderCapabilities = {
   supportsOpenTracking: boolean;
 };
 
+export type MailAttachment = {
+  filename: string;
+  contentType: string;
+  content: string;
+  contentId?: string;
+};
+
 export type SendMessage = {
+  attachments?: MailAttachment[];
+  unsubscribeUrl?: string | undefined;
   to: string;
   senderName: string | null;
   senderAddress: string | null;

@@ -233,7 +233,7 @@ function TaskInbox() {
             <div className="space-y-2">
               <Label>Priorität</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
-                <SelectTrigger className="h-11 w-full">
+                <SelectTrigger aria-label="Priorität" className="h-11 w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

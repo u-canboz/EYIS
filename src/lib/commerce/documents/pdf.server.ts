@@ -1,382 +1,109 @@
-/**
- * Server-only PDF renderer for commerce documents.
- *
- * Uses pdf-lib with the standard WinAnsi fonts, which cover German umlauts
- * without embedding font files — important for the Worker runtime where the
- * bundle must stay small and no filesystem is available.
- */
+/** Server-only, measured A4 layout for invoices, credit notes and delivery notes. */
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import { DOCUMENT_RENDERER_VERSION, type RenderableDocument } from "./document.types";
 import { formatAddressLines } from "./document.viewmodel";
 
 const A4: [number, number] = [595.28, 841.89];
-const MARGIN = 56;
-const BOTTOM = 90;
+const MARGIN = 48;
+const RIGHT = A4[0] - MARGIN;
+const WIDTH = RIGHT - MARGIN;
+const INK = rgb(0.12, 0.14, 0.17);
+const MUTED = rgb(0.38, 0.41, 0.45);
+const RULE = rgb(0.86, 0.88, 0.9);
 
-function hexToRgb(hex: string | null | undefined) {
-  const value = (hex ?? "#1F2937").replace("#", "");
-  const full =
-    value.length === 3
-      ? value
-          .split("")
-          .map((c) => c + c)
-          .join("")
-      : value;
-  const n = Number.parseInt(full.slice(0, 6) || "1F2937", 16);
-  if (Number.isNaN(n)) return rgb(0.12, 0.16, 0.22);
-  return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
-}
-
-/** Standard fonts are WinAnsi — strip anything they cannot encode. */
-function safe(text: string) {
-  return (text ?? "")
-    .replace(/\u20AC/g, "EUR")
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/[\u201C\u201D]/g, '"')
-    .replace(/[\u2013\u2014]/g, "-")
-    .replace(/\u2212/g, "-")
-    .replace(/[^\u0000-\u00FF]/g, "");
-}
-
-function money(minor: number, currency: string) {
-  const sign = minor < 0 ? "-" : "";
-  const abs = Math.abs(minor);
-  const s = `${Math.floor(abs / 100)},${String(abs % 100).padStart(2, "0")}`;
-  const withDots = s.replace(/\B(?=(\d{3})+(?!\d)(?=.*,))/g, ".");
-  return `${sign}${withDots} ${currency === "EUR" ? "EUR" : currency}`;
-}
-
-function date(value: string | null) {
-  if (!value) return "—".replace("—", "-");
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return `${String(d.getUTCDate()).padStart(2, "0")}.${String(d.getUTCMonth() + 1).padStart(2, "0")}.${d.getUTCFullYear()}`;
-}
-
-function rate(bp: number) {
-  const v = bp / 100;
-  return `${Number.isInteger(v) ? v.toFixed(0) : v.toFixed(2).replace(".", ",")} %`;
-}
-
-function truncate(text: string, font: PDFFont, size: number, maxWidth: number) {
-  let out = text;
-  while (out.length > 1 && font.widthOfTextAtSize(out, size) > maxWidth) {
-    out = out.slice(0, -1);
-  }
-  return out.length < text.length ? `${out.slice(0, -1)}…`.replace("…", "...") : out;
-}
-
-function wrap(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let current = "";
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (font.widthOfTextAtSize(candidate, size) > maxWidth && current) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = candidate;
-    }
-  }
-  if (current) lines.push(current);
-  return lines;
-}
-
-type Ctx = {
-  pdf: PDFDocument;
-  regular: PDFFont;
-  bold: PDFFont;
-  accent: ReturnType<typeof hexToRgb>;
-  doc: RenderableDocument;
-  pages: PDFPage[];
+/** Useful for geometric QA without inspecting compressed PDF internals. */
+export type DocumentTextPlacement = {
+  page: number;
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  size: number;
+  region: string;
 };
 
-function newPage(ctx: Ctx) {
-  const page = ctx.pdf.addPage(A4);
-  ctx.pages.push(page);
-  return page;
+function safe(value: string) {
+  return (value ?? "")
+    .replace(/€/g, "EUR")
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—−]/g, "-")
+    .replace(/…/g, "...")
+    .replace(/[^\x20-\x7E\xA0-\xFF\n]/g, "");
+}
+function accent(hex: string | null | undefined) {
+  const source = /^#[\da-f]{6}$/i.test(hex ?? "") ? hex! : "#243746";
+  const n = Number.parseInt(source.slice(1), 16);
+  return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+}
+function money(minor: number, currency: string, includeCurrency = false) {
+  const value = new Intl.NumberFormat("de-DE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(minor / 100);
+  return includeCurrency ? `${value} ${currency}` : value;
+}
+function date(value: string | null) {
+  if (!value) return "-";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime())
+    ? value
+    : new Intl.DateTimeFormat("de-DE", { timeZone: "UTC" }).format(d);
+}
+function rate(value: number) {
+  return `${new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 }).format(value / 100)} %`;
 }
 
-export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8Array> {
+/** Preserves paragraphs and splits long SKUs/URLs instead of overflowing a cell. */
+export function wrapDocumentText(
+  value: string,
+  font: PDFFont,
+  size: number,
+  width: number,
+): string[] {
+  const out: string[] = [];
+  for (const paragraph of safe(value).split("\n")) {
+    let line = "";
+    for (const word of paragraph.split(/\s+/).filter(Boolean)) {
+      if (line && font.widthOfTextAtSize(`${line} ${word}`, size) <= width) {
+        line += ` ${word}`;
+        continue;
+      }
+      if (line) {
+        out.push(line);
+        line = "";
+      }
+      for (const character of word) {
+        if (line && font.widthOfTextAtSize(line + character, size) > width) {
+          out.push(line);
+          line = "";
+        }
+        line += character;
+      }
+    }
+    out.push(line);
+  }
+  return out.length ? out : [""];
+}
+
+export async function renderDocumentPdf(
+  doc: RenderableDocument,
+  options?: { onText?: (placement: DocumentTextPlacement) => void },
+): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const ctx: Ctx = {
-    pdf,
-    regular,
-    bold,
-    accent: hexToRgb(doc.branding.primary_color),
-    doc,
-    pages: [],
-  };
-
+  const color = accent(doc.branding.primary_color);
   pdf.setTitle(safe(`${doc.title} ${doc.number}`));
   pdf.setProducer("EYIS");
   pdf.setCreator(`EYIS ${DOCUMENT_RENDERER_VERSION}`);
-
-  let page = newPage(ctx);
-  const width = A4[0];
-  const contentWidth = width - MARGIN * 2;
-  let y = A4[1] - MARGIN;
-  const grey = rgb(0.42, 0.45, 0.5);
-  const black = rgb(0.1, 0.11, 0.13);
-
-  const text = (
-    p: PDFPage,
-    value: string,
-    x: number,
-    yy: number,
-    opts?: { size?: number; font?: PDFFont; color?: ReturnType<typeof hexToRgb> },
-  ) =>
-    p.drawText(safe(value), {
-      x,
-      y: yy,
-      size: opts?.size ?? 9.5,
-      font: opts?.font ?? regular,
-      color: opts?.color ?? black,
-    });
-
-  // ── Header ────────────────────────────────────────────────────────────
+  const pages: PDFPage[] = [];
   const seller = doc.seller;
-  text(page, seller.company_name ?? "", MARGIN, y, { size: 16, font: bold, color: ctx.accent });
-  y -= 16;
-  const sellerLines = [
-    [seller.address_line1, seller.address_line2].filter(Boolean).join(", "),
-    `${seller.postal_code ?? ""} ${seller.city ?? ""}`.trim(),
-    seller.country_code ?? "",
-    seller.contact_email ?? "",
-    seller.website ?? "",
-  ].filter((l) => (l ?? "").trim().length > 0) as string[];
-  for (const line of sellerLines) {
-    text(page, line, MARGIN, y, { size: 8.5, color: grey });
-    y -= 11;
-  }
-
-  // Document title block (right)
-  let ry = A4[1] - MARGIN;
-  const rightX = width - MARGIN;
-  const drawRight = (value: string, size: number, font: PDFFont, color = black) => {
-    const w = font.widthOfTextAtSize(safe(value), size);
-    page.drawText(safe(value), { x: rightX - w, y: ry, size, font, color });
-    ry -= size + 4;
-  };
-  drawRight(doc.title, 18, bold, ctx.accent);
-  drawRight(doc.number, 11, bold);
-  if (doc.issueDate) drawRight(`Datum: ${date(doc.issueDate)}`, 9, regular, grey);
-  if (doc.serviceDate) drawRight(`Leistungsdatum: ${date(doc.serviceDate)}`, 9, regular, grey);
-  if (doc.dueDate) drawRight(`Fällig: ${date(doc.dueDate)}`, 9, regular, grey);
-  for (const ref of doc.reference) drawRight(`${ref.label}: ${ref.value}`, 9, regular, grey);
-
-  y = Math.min(y, ry) - 24;
-
-  // ── Recipient ─────────────────────────────────────────────────────────
-  if (doc.branding.sender_block) {
-    text(page, doc.branding.sender_block, MARGIN, y, { size: 7.5, color: grey });
-    y -= 12;
-  }
-  text(page, doc.kind === "delivery_note" ? "Lieferanschrift" : "Rechnungsanschrift", MARGIN, y, {
-    size: 8,
-    font: bold,
-    color: grey,
-  });
-  y -= 13;
-  for (const line of formatAddressLines(doc.recipient)) {
-    text(page, line, MARGIN, y, { size: 10 });
-    y -= 12.5;
-  }
-  if (doc.recipientVatId) {
-    text(page, `USt-IdNr.: ${doc.recipientVatId}`, MARGIN, y, { size: 8.5, color: grey });
-    y -= 12;
-  }
-  y -= 18;
-
-  if (doc.isDraft) {
-    page.drawRectangle({
-      x: MARGIN,
-      y: y - 4,
-      width: contentWidth,
-      height: 20,
-      color: rgb(0.98, 0.9, 0.7),
-    });
-    text(page, "ENTWURF - noch nicht ausgestellt, keine gültige Rechnung", MARGIN + 8, y + 2, {
-      size: 9,
-      font: bold,
-      color: rgb(0.45, 0.3, 0.05),
-    });
-    y -= 30;
-  }
-
-  // ── Table ─────────────────────────────────────────────────────────────
-  const showAmounts = doc.showAmounts;
-  // Column values are the RIGHT edge of each right-aligned column.
-  const cols = showAmounts
-    ? {
-        pos: MARGIN,
-        desc: MARGIN + 26,
-        qty: MARGIN + 292,
-        unit: MARGIN + 374,
-        tax: MARGIN + 414,
-        total: width - MARGIN - 2,
-      }
-    : { pos: MARGIN, desc: MARGIN + 26, qty: width - MARGIN - 2, unit: 0, tax: 0, total: 0 };
-
-  const drawTableHeader = (p: PDFPage, yy: number) => {
-    p.drawRectangle({
-      x: MARGIN,
-      y: yy - 5,
-      width: contentWidth,
-      height: 18,
-      color: rgb(0.95, 0.96, 0.97),
-    });
-    text(p, "Pos", cols.pos + 4, yy, { size: 8, font: bold, color: grey });
-    text(p, "Beschreibung", cols.desc + 4, yy, { size: 8, font: bold, color: grey });
-    const right = (label: string, x: number) => {
-      const w = bold.widthOfTextAtSize(label, 8);
-      p.drawText(label, { x: x - w, y: yy, size: 8, font: bold, color: grey });
-    };
-    if (showAmounts) {
-      right("Menge", cols.qty);
-      right("Einzel netto", cols.unit);
-      right("USt", cols.tax);
-      right("Gesamt netto", cols.total);
-    } else {
-      right("Menge", cols.qty);
-    }
-    return yy - 22;
-  };
-
-  y = drawTableHeader(page, y);
-
-  for (const line of doc.lines) {
-    const descWidth = cols.qty - 44 - cols.desc - 6;
-    const nameParts = [line.productName, line.variantName].filter(Boolean).join(" · ");
-    const subParts = [
-      doc.branding.show_product_sku !== false && line.sku ? `SKU ${line.sku}` : "",
-      line.description ?? "",
-    ]
-      .filter(Boolean)
-      .join(" · ");
-    const subLines = subParts ? wrap(safe(subParts), regular, 7.5, descWidth) : [];
-    const rowHeight = 14 + subLines.length * 9.5;
-
-    if (y - rowHeight < BOTTOM) {
-      page = newPage(ctx);
-      y = A4[1] - MARGIN;
-      y = drawTableHeader(page, y);
-    }
-
-    text(page, String(line.position), cols.pos + 4, y, { size: 9 });
-    text(page, truncate(safe(nameParts), regular, 9.5, descWidth), cols.desc + 4, y, { size: 9.5 });
-    let subY = y - 10;
-    for (const sub of subLines) {
-      text(page, sub, cols.desc + 4, subY, { size: 7.5, color: grey });
-      subY -= 9.5;
-    }
-
-    const qty = Number.isInteger(line.quantity)
-      ? String(line.quantity)
-      : String(line.quantity).replace(".", ",");
-    const right = (value: string, x: number, size = 9) => {
-      const w = regular.widthOfTextAtSize(safe(value), size);
-      page.drawText(safe(value), { x: x - w, y, size, font: regular, color: black });
-    };
-    if (showAmounts) {
-      right(qty, cols.qty);
-      right(money(line.unitNetMinor, doc.currencyCode), cols.unit);
-      right(rate(line.taxRateBasisPoints), cols.tax);
-      right(money(line.lineNetMinor, doc.currencyCode), cols.total);
-    } else {
-      right(qty, cols.qty);
-    }
-
-    y -= rowHeight;
-    page.drawLine({
-      start: { x: MARGIN, y: y + 6 },
-      end: { x: width - MARGIN, y: y + 6 },
-      thickness: 0.4,
-      color: rgb(0.9, 0.91, 0.93),
-    });
-  }
-
-  y -= 12;
-
-  // ── Totals ────────────────────────────────────────────────────────────
-  if (showAmounts) {
-    const needed = 70 + doc.taxRows.length * 13;
-    if (y - needed < BOTTOM) {
-      page = newPage(ctx);
-      y = A4[1] - MARGIN;
-    }
-    const labelX = width - MARGIN - 200;
-    const valueX = width - MARGIN;
-    const row = (label: string, value: string, strong = false) => {
-      const font = strong ? bold : regular;
-      const size = strong ? 11 : 9.5;
-      text(page, label, labelX, y, { size, font, color: strong ? black : grey });
-      const w = font.widthOfTextAtSize(safe(value), size);
-      page.drawText(safe(value), { x: valueX - w, y, size, font, color: black });
-      y -= size + 5;
-    };
-
-    row(
-      "Zwischensumme netto",
-      money(doc.totals.netMinor - doc.totals.shippingNetMinor, doc.currencyCode),
-    );
-    if (doc.totals.shippingNetMinor > 0)
-      row("Versand netto", money(doc.totals.shippingNetMinor, doc.currencyCode));
-    if (doc.branding.show_tax_breakdown !== false) {
-      for (const t of doc.taxRows) {
-        row(
-          `USt ${rate(t.rateBasisPoints)} auf ${money(t.netMinor, doc.currencyCode)}`,
-          money(t.taxMinor, doc.currencyCode),
-        );
-      }
-    }
-    row("Umsatzsteuer gesamt", money(doc.totals.taxMinor, doc.currencyCode));
-    page.drawLine({
-      start: { x: labelX, y: y + 8 },
-      end: { x: valueX, y: y + 8 },
-      thickness: 0.8,
-      color: ctx.accent,
-    });
-    y -= 4;
-    row(
-      doc.kind === "credit_note" ? "Gutschriftbetrag" : "Gesamtbetrag",
-      money(doc.totals.grossMinor, doc.currencyCode),
-      true,
-    );
-    y -= 10;
-  }
-
-  // ── Notes ─────────────────────────────────────────────────────────────
-  const paragraphs = [
-    ...doc.taxNotes,
-    doc.paymentTerms ?? "",
-    doc.notes ?? "",
-    doc.branding.payment_details ?? "",
-  ].filter((p) => p.trim().length > 0);
-
-  for (const paragraph of paragraphs) {
-    const lines = wrap(safe(paragraph), regular, 8.5, contentWidth);
-    if (y - lines.length * 11 < BOTTOM) {
-      page = newPage(ctx);
-      y = A4[1] - MARGIN;
-    }
-    for (const line of lines) {
-      text(page, line, MARGIN, y, { size: 8.5, color: grey });
-      y -= 11;
-    }
-    y -= 6;
-  }
-
-  // ── Footer on every page ──────────────────────────────────────────────
-  const footerCols = [
+  const footerColumns = [
     [
-      seller.company_name ?? "",
-      [seller.address_line1, `${seller.postal_code ?? ""} ${seller.city ?? ""}`.trim()]
-        .filter(Boolean)
-        .join(", "),
+      seller.company_name,
+      [seller.address_line1, seller.address_line2].filter(Boolean).join(", "),
+      `${seller.postal_code ?? ""} ${seller.city ?? ""}`.trim(),
       seller.managing_director ? `Geschäftsführung: ${seller.managing_director}` : "",
     ],
     [
@@ -385,47 +112,349 @@ export async function renderDocumentPdf(doc: RenderableDocument): Promise<Uint8A
       [seller.register_court, seller.register_number].filter(Boolean).join(" "),
     ],
     [
-      seller.bank_name ? `Bank: ${seller.bank_name}` : "",
+      seller.bank_name,
+      seller.bank_account_holder ? `Kontoinhaber: ${seller.bank_account_holder}` : "",
       seller.bank_iban ? `IBAN: ${seller.bank_iban}` : "",
       seller.bank_bic ? `BIC: ${seller.bank_bic}` : "",
     ],
-  ];
+  ].map((col) =>
+    col
+      .filter((v): v is string => Boolean(v))
+      .flatMap((v) => wrapDocumentText(v, regular, 7, WIDTH / 3 - 14)),
+  );
+  // Exceptionally long legal company details continue in the document body, never disappear.
+  const footerLines = footerColumns.map((col) => col.slice(0, 7));
+  const extraFooter = footerColumns.flatMap((col) => col.slice(7));
+  const footerHeight = Math.max(3, ...footerLines.map((col) => col.length)) * 9 + 34;
+  const bottom = 30 + footerHeight;
+  let page: PDFPage;
+  let y = A4[1] - MARGIN;
 
-  const total = ctx.pages.length;
-  ctx.pages.forEach((p, index) => {
-    p.drawLine({
-      start: { x: MARGIN, y: BOTTOM - 14 },
-      end: { x: width - MARGIN, y: BOTTOM - 14 },
-      thickness: 0.5,
-      color: rgb(0.88, 0.89, 0.91),
+  const draw = (
+    value: string,
+    x: number,
+    baseline: number,
+    width: number,
+    opts: { font?: PDFFont; size?: number; right?: boolean; muted?: boolean; region?: string } = {},
+  ) => {
+    const font = opts.font ?? regular;
+    const valueSafe = safe(value);
+    let size = opts.size ?? 9;
+    // Numbers stay on one line, contained inside their own column.
+    while (font.widthOfTextAtSize(valueSafe, size) > width && size > 5) size -= 0.2;
+    const measured = font.widthOfTextAtSize(valueSafe, size);
+    const dx = opts.right ? x + width - measured : x;
+    page.drawText(valueSafe, { x: dx, y: baseline, size, font, color: opts.muted ? MUTED : INK });
+    options?.onText?.({
+      page: pages.indexOf(page) + 1,
+      text: valueSafe,
+      x: dx,
+      y: baseline,
+      width: measured,
+      size,
+      region: opts.region ?? "body",
     });
-    footerCols.forEach((col, ci) => {
-      let fy = BOTTOM - 26;
-      for (const line of col.filter((l) => l.trim().length > 0)) {
-        p.drawText(safe(truncate(line, regular, 7, contentWidth / 3 - 10)), {
-          x: MARGIN + ci * (contentWidth / 3),
-          y: fy,
-          size: 7,
-          font: regular,
-          color: grey,
-        });
-        fy -= 9;
-      }
+  };
+  const line = (baseline: number, from = MARGIN, to = RIGHT, strong = false) =>
+    page.drawLine({
+      start: { x: from, y: baseline },
+      end: { x: to, y: baseline },
+      thickness: strong ? 1 : 0.5,
+      color: strong ? color : RULE,
     });
-    const legal = doc.branding.legal_footer ?? doc.branding.footer_text ?? "";
-    if (legal) {
-      p.drawText(safe(truncate(legal, regular, 7, contentWidth - 80)), {
-        x: MARGIN,
-        y: 26,
-        size: 7,
-        font: regular,
-        color: grey,
-      });
+  const startPage = (continuation = true) => {
+    page = pdf.addPage(A4);
+    pages.push(page);
+    y = A4[1] - MARGIN;
+    if (continuation) {
+      draw(`${doc.title} ${doc.number}`, MARGIN, y, WIDTH - 100, { font: bold, size: 10 });
+      draw("Fortsetzung", RIGHT - 90, y, 90, { right: true, muted: true, size: 8 });
+      line(y - 12);
+      y -= 38;
     }
-    const label = `Seite ${index + 1} von ${total}`;
-    const w = regular.widthOfTextAtSize(label, 7.5);
-    p.drawText(label, { x: width - MARGIN - w, y: 26, size: 7.5, font: regular, color: grey });
+  };
+  const ensure = (height: number) => {
+    if (y - height < bottom) startPage();
+  };
+  const paragraph = (value: string, size = 9, muted = false) => {
+    for (const valueLine of wrapDocumentText(value, regular, size, WIDTH)) {
+      ensure(size + 7);
+      draw(valueLine, MARGIN, y, WIDTH, { size, muted });
+      y -= size + 4;
+    }
+    y -= 8;
+  };
+  startPage(false);
+  page!.drawRectangle({ x: MARGIN, y: A4[1] - 29, width: 34, height: 3, color });
+  const leftWidth = 230;
+  for (const name of wrapDocumentText(seller.company_name ?? "", bold, 17, leftWidth)) {
+    draw(name, MARGIN, y, leftWidth, { font: bold, size: 17 });
+    y -= 21;
+  }
+  y -= 4;
+  const sellerContact = [
+    [seller.address_line1, seller.address_line2].filter(Boolean).join(", "),
+    `${seller.postal_code ?? ""} ${seller.city ?? ""}`.trim(),
+    seller.country_code,
+    seller.contact_email,
+    seller.website,
+  ].filter((v): v is string => Boolean(v));
+  for (const value of sellerContact.flatMap((v) => wrapDocumentText(v, regular, 8.5, leftWidth))) {
+    draw(value, MARGIN, y, leftWidth, { size: 8.5, muted: true });
+    y -= 12;
+  }
+  let ry = A4[1] - MARGIN;
+  const rx = MARGIN + 260,
+    rw = WIDTH - 260;
+  const rightBlock = (value: string, size = 9, strong = false) => {
+    for (const text of wrapDocumentText(value, strong ? bold : regular, size, rw)) {
+      draw(text, rx, ry, rw, { size, font: strong ? bold : regular, right: true, muted: !strong });
+      ry -= size + 5;
+    }
+  };
+  rightBlock(doc.title, 21, true);
+  ry -= 3;
+  rightBlock(doc.number, 11, true);
+  ry -= 8;
+  if (doc.issueDate) rightBlock(`Rechnungsdatum: ${date(doc.issueDate)}`);
+  if (doc.serviceDate) rightBlock(`Leistungsdatum: ${date(doc.serviceDate)}`);
+  if (doc.dueDate) rightBlock(`Fällig am: ${date(doc.dueDate)}`);
+  for (const ref of doc.reference) rightBlock(`${ref.label}: ${ref.value}`);
+  y = Math.min(y, ry) - 26;
+  if (doc.branding.sender_block) paragraph(doc.branding.sender_block, 7.5, true);
+  draw(doc.kind === "delivery_note" ? "LIEFERANSCHRIFT" : "RECHNUNGSANSCHRIFT", MARGIN, y, WIDTH, {
+    font: bold,
+    size: 7.5,
+    muted: true,
   });
+  y -= 17;
+  for (const value of formatAddressLines(doc.recipient).flatMap((v) =>
+    wrapDocumentText(v, regular, 10, WIDTH),
+  )) {
+    ensure(16);
+    draw(value, MARGIN, y, WIDTH, { size: 10 });
+    y -= 14;
+  }
+  if (doc.recipientVatId) {
+    draw(`USt-IdNr.: ${doc.recipientVatId}`, MARGIN, y - 2, WIDTH, { size: 8, muted: true });
+    y -= 16;
+  }
+  y -= 24;
+  if (doc.isDraft) {
+    ensure(38);
+    page!.drawRectangle({
+      x: MARGIN,
+      y: y - 8,
+      width: WIDTH,
+      height: 28,
+      color: rgb(1, 0.96, 0.88),
+    });
+    draw("ENTWURF - noch nicht ausgestellt", MARGIN + 10, y + 2, WIDTH - 20, {
+      font: bold,
+      size: 9,
+    });
+    y -= 42;
+  }
 
-  return await pdf.save();
+  const cols = doc.showAmounts
+    ? [
+        { x: 48, w: 22, label: "Pos." },
+        { x: 78, w: 201, label: "Artikel / Beschreibung" },
+        { x: 287, w: 34, label: "Menge" },
+        { x: 333, w: 70, label: "Einzel netto" },
+        { x: 415, w: 32, label: "USt." },
+        { x: 459, w: RIGHT - 459, label: "Gesamt netto" },
+      ]
+    : [
+        { x: 48, w: 22, label: "Pos." },
+        { x: 78, w: 380, label: "Artikel / Beschreibung" },
+        { x: 480, w: RIGHT - 480, label: "Menge" },
+      ];
+  const tableHeader = () => {
+    ensure(60);
+    if (doc.showAmounts) {
+      draw(`Alle Beträge in ${doc.currencyCode}`, MARGIN, y, WIDTH, {
+        size: 7.5,
+        muted: true,
+        right: true,
+      });
+      y -= 18;
+    }
+    page!.drawRectangle({
+      x: MARGIN - 5,
+      y: y - 8,
+      width: WIDTH + 10,
+      height: 25,
+      color: rgb(0.95, 0.96, 0.97),
+    });
+    cols.forEach((c, i) =>
+      draw(c.label, c.x, y, c.w, { size: 7.5, font: bold, right: i > 1, region: "table-heading" }),
+    );
+    y -= 29;
+  };
+  tableHeader();
+  for (const item of doc.lines) {
+    const desc = cols[1]!;
+    const title = [item.productName, item.variantName].filter(Boolean).join(" / ");
+    const details = [
+      doc.branding.show_product_sku !== false && item.sku ? `SKU: ${item.sku}` : "",
+      item.description ?? "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    const rows = [
+      ...wrapDocumentText(title, bold, 9, desc.w).map((value) => ({
+        value,
+        size: 9,
+        strong: true,
+      })),
+      ...(details
+        ? wrapDocumentText(details, regular, 8, desc.w).map((value) => ({
+            value,
+            size: 8,
+            strong: false,
+          }))
+        : []),
+    ];
+    if (y - Math.min(rows.length * 12 + 16, 100) < bottom) {
+      startPage();
+      tableHeader();
+    }
+    const values = [
+      String(item.position),
+      "",
+      new Intl.NumberFormat("de-DE", { maximumFractionDigits: 6 }).format(item.quantity),
+      ...(doc.showAmounts
+        ? [
+            money(item.unitNetMinor, doc.currencyCode),
+            rate(item.taxRateBasisPoints),
+            money(item.lineNetMinor, doc.currencyCode),
+          ]
+        : []),
+    ];
+    cols.forEach((c, i) => {
+      if (i !== 1)
+        draw(values[i] ?? "", c.x, y, c.w, {
+          size: 8.5,
+          right: i > 1,
+          region: `row-${item.position}-col-${i}`,
+        });
+    });
+    for (const row of rows) {
+      if (y - 13 < bottom) {
+        startPage();
+        tableHeader();
+        draw(`${item.position} ...`, cols[0]!.x, y, cols[0]!.w, { size: 7, muted: true });
+      }
+      draw(row.value, desc.x, y, desc.w, {
+        font: row.strong ? bold : regular,
+        size: row.size,
+        muted: !row.strong,
+        region: `row-${item.position}-description`,
+      });
+      y -= 12;
+    }
+    y -= 7;
+    line(y);
+    y -= 15;
+  }
+  y -= 6;
+  if (doc.showAmounts) {
+    const totals: { label: string; value: string; strong?: boolean }[] = [
+      {
+        label: "Zwischensumme netto",
+        value: money(doc.totals.netMinor - doc.totals.shippingNetMinor, doc.currencyCode),
+      },
+      ...(doc.totals.shippingNetMinor
+        ? [{ label: "Versand netto", value: money(doc.totals.shippingNetMinor, doc.currencyCode) }]
+        : []),
+      ...(doc.branding.show_tax_breakdown !== false
+        ? doc.taxRows.map((t) => ({
+            label: `USt. ${rate(t.rateBasisPoints)} auf ${money(t.netMinor, doc.currencyCode)}`,
+            value: money(t.taxMinor, doc.currencyCode),
+          }))
+        : []),
+      { label: "Umsatzsteuer gesamt", value: money(doc.totals.taxMinor, doc.currencyCode) },
+      {
+        label: doc.kind === "credit_note" ? "Gutschriftbetrag" : "Gesamtbetrag",
+        value: money(doc.totals.grossMinor, doc.currencyCode, true),
+        strong: true,
+      },
+    ];
+    const tx = 260,
+      labelWidth = 170,
+      valueX = 442,
+      valueWidth = RIGHT - valueX;
+    const totalHeight = totals.reduce(
+      (h, row) =>
+        h + wrapDocumentText(row.label, regular, 9, labelWidth).length * 13 + (row.strong ? 22 : 7),
+      0,
+    );
+    ensure(totalHeight);
+    for (const row of totals) {
+      if (row.strong) {
+        line(y + 5, tx, RIGHT, true);
+        y -= 16;
+      }
+      const labels = wrapDocumentText(
+        row.label,
+        row.strong ? bold : regular,
+        row.strong ? 10 : 9,
+        labelWidth,
+      );
+      const baseline = y;
+      for (const label of labels) {
+        draw(label, tx, y, labelWidth, {
+          size: row.strong ? 10 : 9,
+          font: row.strong ? bold : regular,
+          muted: !row.strong,
+          region: "totals-label",
+        });
+        y -= 13;
+      }
+      draw(row.value, valueX, baseline, valueWidth, {
+        font: row.strong ? bold : regular,
+        size: row.strong ? 11 : 9,
+        right: true,
+        region: "totals-value",
+      });
+      y -= 7;
+    }
+    y -= 17;
+  }
+  const legal = doc.branding.legal_footer ?? doc.branding.footer_text ?? "";
+  for (const value of [
+    ...doc.taxNotes,
+    doc.paymentTerms,
+    doc.notes,
+    doc.branding.payment_details,
+    legal,
+    ...extraFooter,
+  ].filter((v): v is string => Boolean(v?.trim())))
+    paragraph(value, 8.5, true);
+  pages.forEach((p, index) => {
+    page = p;
+    line(bottom - 14);
+    footerLines.forEach((col, ci) =>
+      col.forEach((value, ri) =>
+        draw(value, MARGIN + (ci * WIDTH) / 3, bottom - 29 - ri * 9, WIDTH / 3 - 14, {
+          size: 7,
+          muted: true,
+          region: "footer",
+        }),
+      ),
+    );
+    draw(`${doc.title} ${doc.number}`, MARGIN, 25, WIDTH - 100, {
+      size: 7,
+      muted: true,
+      region: "footer",
+    });
+    draw(`Seite ${index + 1} von ${pages.length}`, RIGHT - 90, 25, 90, {
+      size: 7,
+      right: true,
+      muted: true,
+      region: "footer",
+    });
+  });
+  return pdf.save();
 }

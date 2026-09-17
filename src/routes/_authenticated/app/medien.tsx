@@ -135,7 +135,11 @@ function MediaPage() {
                 className="hidden"
                 onChange={(e) => handleFiles(e.target.files)}
               />
-              <Button className="h-11" disabled={uploading} onClick={() => inputRef.current?.click()}>
+              <Button
+                className="h-11"
+                disabled={uploading}
+                onClick={() => inputRef.current?.click()}
+              >
                 {uploading ? "Lädt hoch…" : "Dateien hochladen"}
               </Button>
             </>
@@ -161,7 +165,10 @@ function MediaPage() {
       ) : (
         <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {(mediaQuery.data ?? []).map((asset) => (
-            <div key={asset.id} className="min-w-0 rounded-xl border border-border bg-card p-3 shadow-raised">
+            <div
+              key={asset.id}
+              className="min-w-0 rounded-xl border border-border bg-card p-3 shadow-raised"
+            >
               {asset.url ? (
                 <img
                   src={asset.url}
@@ -181,6 +188,7 @@ function MediaPage() {
               <div className="mt-3">
                 <Label className="text-xs">Alternativtext</Label>
                 <Input
+                  aria-label="Alternativtext"
                   className="mt-1 h-11"
                   defaultValue={asset.alt_text ?? ""}
                   disabled={!canUpload}

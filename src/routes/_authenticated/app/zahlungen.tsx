@@ -97,7 +97,7 @@ function PaymentSettingsPage() {
               if (v === "mock") setEnvironment("test");
             }}
           >
-            <SelectTrigger className="h-11">
+            <SelectTrigger aria-label="Anbieter" className="h-11">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -108,12 +108,17 @@ function PaymentSettingsPage() {
         </div>
         <div className="grid gap-1.5">
           <Label className="text-xs">Anzeigename</Label>
-          <Input className="h-11" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+          <Input
+            aria-label="Anzeigename"
+            className="h-11"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
         </div>
         <div className="grid gap-1.5">
           <Label className="text-xs">Umgebung</Label>
           <Select value={environment} onValueChange={(v) => setEnvironment(v as "test" | "live")}>
-            <SelectTrigger className="h-11">
+            <SelectTrigger aria-label="Umgebung" className="h-11">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -126,7 +131,12 @@ function PaymentSettingsPage() {
         </div>
         <div className="grid gap-1.5">
           <Label className="text-xs">Priorität</Label>
-          <Input className="h-11" value={priority} onChange={(e) => setPriority(e.target.value)} />
+          <Input
+            aria-label="Priorität"
+            className="h-11"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          />
         </div>
         <div className="flex items-end">
           <Button

@@ -32,6 +32,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/eyis/shell/PageHeader";
 import { ScrollTabs, Panel } from "@/eyis/shell/DetailLayout";
 import { SaveBar } from "@/eyis/shell/SaveBar";
+import { RecordCard, RecordCardList } from "@/eyis/data/RecordCard";
+import { TableScroll } from "@/eyis/data/TableScroll";
 import { StatusBadge, type StatusTone } from "@/eyis/data/StatusBadge";
 import { ArrowLeft, ImageOff, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -279,7 +281,6 @@ function ProductEditor() {
 
       <div className="sm:hidden">{statusSelect}</div>
 
-
       <Tabs defaultValue="details">
         <ScrollTabs>
           <TabsList className="h-auto flex-nowrap">
@@ -307,8 +308,10 @@ function ProductEditor() {
           </TabsList>
         </ScrollTabs>
 
-
-        <TabsContent value="details" className="space-y-4 pt-4">
+        <TabsContent
+          value="details"
+          className="grid min-w-0 items-start gap-5 pt-4 xl:grid-cols-[minmax(0,1fr)_21rem]"
+        >
           <Panel
             title="Produktangaben"
             description="Name, Adresse im Shop und Beschreibung."
@@ -366,7 +369,7 @@ function ProductEditor() {
           <Panel
             title="Einordnung"
             description="Steuer und Marke wirken auf Preisausweis und Filter."
-            bodyClassName="grid gap-5 p-4 sm:grid-cols-2 sm:p-6"
+            bodyClassName="grid gap-5 p-4 sm:p-6"
           >
             <div>
               <Label>Steuerklasse</Label>
@@ -375,7 +378,7 @@ function ProductEditor() {
                 disabled={!canEdit}
                 onValueChange={(v) => setForm({ ...form, taxClassId: v === "default" ? "" : v })}
               >
-                <SelectTrigger className="mt-2">
+                <SelectTrigger aria-label="Steuerklasse" className="mt-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -401,7 +404,7 @@ function ProductEditor() {
           </Panel>
 
           {blueprintQuery.data && (
-            <Panel title="Vorlagenfelder" bodyClassName="p-4 sm:p-6">
+            <Panel title="Vorlagenfelder" className="xl:col-span-2" bodyClassName="p-4 sm:p-6">
               <BlueprintForm
                 schema={blueprintQuery.data.schema}
                 value={blueprintData}
@@ -410,7 +413,6 @@ function ProductEditor() {
             </Panel>
           )}
         </TabsContent>
-
 
         <TabsContent value="varianten" className="pt-4">
           <VariantsTab
@@ -606,7 +608,6 @@ function ProductEditor() {
           if (baseline) applySnapshot(baseline);
         }}
       />
-
     </div>
   );
 }
@@ -707,15 +708,18 @@ function VariantsTab({
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-        <p className="font-medium">Optionen</p>
+        <p className="font-medium">{axisKeys.length ? "Optionen" : "Standardvariante"}</p>
         <p className="text-sm text-muted-foreground">
-          Werte mit Komma trennen. Bestehende Varianten bleiben erhalten, fehlende werden ergänzt.
+          {axisKeys.length
+            ? "Werte mit Komma trennen. Bestehende Varianten bleiben erhalten, fehlende werden ergänzt."
+            : "Ein Produkt ohne Auswahloptionen benötigt eine Standardvariante für Preis und Bestand."}
         </p>
         <div className="mt-4 space-y-3">
           {axisKeys.map((key) => (
             <div key={key}>
               <Label>{axes.find((a) => a.key === key)?.name ?? key}</Label>
               <Input
+                aria-label={axes.find((a) => a.key === key)?.name ?? key}
                 className="mt-2"
                 disabled={!canEdit}
                 value={draft[key] ?? ""}
@@ -727,10 +731,18 @@ function VariantsTab({
         </div>
         <Button
           className="mt-4"
-          disabled={!canEdit || optionsMutation.isPending}
+          disabled={
+            !canEdit || optionsMutation.isPending || (!axisKeys.length && variants.length > 0)
+          }
           onClick={() => optionsMutation.mutate()}
         >
-          {optionsMutation.isPending ? "Erzeuge…" : "Varianten erzeugen"}
+          {optionsMutation.isPending
+            ? "Erzeuge…"
+            : axisKeys.length
+              ? "Varianten erzeugen"
+              : variants.length
+                ? "Standardvariante vorhanden"
+                : "Standardvariante anlegen"}
         </Button>
       </div>
 
@@ -738,75 +750,161 @@ function VariantsTab({
         {variants.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">Noch keine Varianten.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Variante</TableHead>
-                <TableHead>Artikelnummer</TableHead>
-                <TableHead>Barcode</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <>
+            <RecordCardList>
               {variants.map((variant) => (
-                <TableRow key={variant.id}>
-                  <TableCell className="font-medium">{variant.title}</TableCell>
-                  <TableCell>
-                    <Input
-                      defaultValue={variant.sku ?? ""}
-                      disabled={!canEdit}
-                      onBlur={(e) =>
-                        e.target.value !== (variant.sku ?? "") &&
-                        variantMutation.mutate({ variantId: variant.id, sku: e.target.value })
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      defaultValue={variant.barcode ?? ""}
-                      disabled={!canEdit}
-                      onBlur={(e) =>
-                        e.target.value !== (variant.barcode ?? "") &&
-                        variantMutation.mutate({ variantId: variant.id, barcode: e.target.value })
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={variant.status}
-                      disabled={!canEdit}
-                      onValueChange={(v) =>
-                        variantMutation.mutate({
-                          variantId: variant.id,
-                          status: v as VariantRow["status"],
-                        })
-                      }
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Aktiv</SelectItem>
-                        <SelectItem value="inactive">Inaktiv</SelectItem>
-                        <SelectItem value="archived">Archiviert</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="text-right">
+                <RecordCard
+                  key={variant.id}
+                  title={variant.title}
+                  fields={[
+                    {
+                      label: "Artikelnummer",
+                      value: (
+                        <Input
+                          aria-label={`Artikelnummer ${variant.title}`}
+                          defaultValue={variant.sku ?? ""}
+                          disabled={!canEdit}
+                          onBlur={(e) => {
+                            if (e.target.value !== (variant.sku ?? ""))
+                              variantMutation.mutate({
+                                variantId: variant.id,
+                                sku: e.target.value,
+                              });
+                          }}
+                        />
+                      ),
+                    },
+                    {
+                      label: "Barcode",
+                      value: (
+                        <Input
+                          aria-label={`Barcode ${variant.title}`}
+                          defaultValue={variant.barcode ?? ""}
+                          disabled={!canEdit}
+                          onBlur={(e) => {
+                            if (e.target.value !== (variant.barcode ?? ""))
+                              variantMutation.mutate({
+                                variantId: variant.id,
+                                barcode: e.target.value,
+                              });
+                          }}
+                        />
+                      ),
+                    },
+                    {
+                      label: "Status",
+                      value: (
+                        <Select
+                          value={variant.status}
+                          disabled={!canEdit}
+                          onValueChange={(v) =>
+                            variantMutation.mutate({
+                              variantId: variant.id,
+                              status: v as VariantRow["status"],
+                            })
+                          }
+                        >
+                          <SelectTrigger aria-label={`Status ${variant.title}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Aktiv</SelectItem>
+                            <SelectItem value="inactive">Inaktiv</SelectItem>
+                            <SelectItem value="archived">Archiviert</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ),
+                    },
+                  ]}
+                  actions={
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!canEdit}
+                      variant="outline"
+                      disabled={!canEdit || removeMutation.isPending}
                       onClick={() => removeMutation.mutate(variant.id)}
                     >
                       Entfernen
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  }
+                />
               ))}
-            </TableBody>
-          </Table>
+            </RecordCardList>
+            <TableScroll desktopOnly>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Variante</TableHead>
+                    <TableHead>Artikelnummer</TableHead>
+                    <TableHead>Barcode</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {variants.map((variant) => (
+                    <TableRow key={variant.id}>
+                      <TableCell className="font-medium">{variant.title}</TableCell>
+                      <TableCell>
+                        <Input
+                          aria-label={`Artikelnummer ${variant.title}`}
+                          defaultValue={variant.sku ?? ""}
+                          disabled={!canEdit}
+                          onBlur={(e) =>
+                            e.target.value !== (variant.sku ?? "") &&
+                            variantMutation.mutate({ variantId: variant.id, sku: e.target.value })
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          aria-label={`Barcode ${variant.title}`}
+                          defaultValue={variant.barcode ?? ""}
+                          disabled={!canEdit}
+                          onBlur={(e) =>
+                            e.target.value !== (variant.barcode ?? "") &&
+                            variantMutation.mutate({
+                              variantId: variant.id,
+                              barcode: e.target.value,
+                            })
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={variant.status}
+                          disabled={!canEdit}
+                          onValueChange={(v) =>
+                            variantMutation.mutate({
+                              variantId: variant.id,
+                              status: v as VariantRow["status"],
+                            })
+                          }
+                        >
+                          <SelectTrigger aria-label={`Status ${variant.title}`} className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Aktiv</SelectItem>
+                            <SelectItem value="inactive">Inaktiv</SelectItem>
+                            <SelectItem value="archived">Archiviert</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={!canEdit}
+                          onClick={() => removeMutation.mutate(variant.id)}
+                        >
+                          Entfernen
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableScroll>
+          </>
         )}
       </div>
     </div>
@@ -991,13 +1089,10 @@ function MediaTab({
             </button>
           ))}
           {(libraryQuery.data ?? []).length === 0 && (
-            <p className="col-span-full text-sm text-muted-foreground">
-              Die Bibliothek ist leer.
-            </p>
+            <p className="col-span-full text-sm text-muted-foreground">Die Bibliothek ist leer.</p>
           )}
         </div>
       </Panel>
     </div>
   );
-
 }

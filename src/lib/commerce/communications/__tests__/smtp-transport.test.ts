@@ -138,7 +138,10 @@ describe("SMTP TLS-Modi", () => {
 
   it("TLS auf Port 465 verbindet direkt verschlüsselt und ruft kein startTls auf", async () => {
     const { connect, rec } = fakeConnect();
-    const info = await verifySmtpConnection({ ...baseConfig, port: 465, encryption: "tls" }, connect);
+    const info = await verifySmtpConnection(
+      { ...baseConfig, port: 465, encryption: "tls" },
+      connect,
+    );
     expect(rec.calls[0]?.secureTransport).toBe("on");
     expect(rec.upgraded).toBe(0);
     expect(rec.written.some((w) => /^STARTTLS/i.test(w))).toBe(false);
@@ -180,13 +183,19 @@ describe("SMTP TLS-Modi", () => {
   it("läuft bei stummem Server in eine Zeitüberschreitung", async () => {
     const { connect } = fakeConnect({ stall: true });
     await expect(
-      verifySmtpConnection({ ...baseConfig, port: 587, encryption: "starttls", timeoutMs: 50 }, connect),
+      verifySmtpConnection(
+        { ...baseConfig, port: 587, encryption: "starttls", timeoutMs: 50 },
+        connect,
+      ),
     ).rejects.toMatchObject({ code: "provider_unavailable" });
   });
 
   it("versendet eine Nachricht über den regulären Provider-Weg", async () => {
     const { connect, rec } = fakeConnect();
-    const provider = createSmtpProvider({ ...baseConfig, port: 587, encryption: "starttls" }, connect);
+    const provider = createSmtpProvider(
+      { ...baseConfig, port: 587, encryption: "starttls" },
+      connect,
+    );
     const result = await provider.send({
       to: "kundin@example.com",
       senderName: "Mein Shop",

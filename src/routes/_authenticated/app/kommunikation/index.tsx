@@ -100,7 +100,9 @@ function CommunicationOverview() {
       <div className="grid min-w-0 gap-3 sm:grid-cols-3">
         <div className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-raised">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Vorlagen</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums">{templates.data?.length ?? "–"}</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums">
+            {templates.data?.length ?? "–"}
+          </p>
         </div>
         <div className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-raised">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Zuletzt erzeugt</p>
@@ -135,7 +137,10 @@ function CommunicationOverview() {
         ) : (
           <ul className="min-w-0 divide-y divide-border">
             {logs.data.map((l) => (
-              <li key={l.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+              <li
+                key={l.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
+              >
                 <div className="min-w-0">
                   <Link
                     to="/app/kommunikation/verlauf/$communicationId"
@@ -148,7 +153,10 @@ function CommunicationOverview() {
                     {l.recipient} · {new Date(l.createdAt).toLocaleString("de-DE")}
                   </p>
                 </div>
-                <Badge variant={l.status === "failed" ? "destructive" : "secondary"} className="shrink-0">
+                <Badge
+                  variant={l.status === "failed" ? "destructive" : "secondary"}
+                  className="shrink-0"
+                >
                   {STATUS_LABELS[l.status] ?? l.status}
                 </Badge>
               </li>

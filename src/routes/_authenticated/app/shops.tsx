@@ -87,7 +87,10 @@ function ShopsPage() {
       />
 
       {shops.length === 0 ? (
-        <EmptyState title="Keine Shops" description="Für diese Organisation ist noch kein Shop angelegt." />
+        <EmptyState
+          title="Keine Shops"
+          description="Für diese Organisation ist noch kein Shop angelegt."
+        />
       ) : (
         shops.map((shop) => {
           const merged = { ...shop, ...draft[shop.id] } as typeof shop;
@@ -100,6 +103,7 @@ function ShopsPage() {
                   <div className="min-w-0 space-y-2">
                     <Label>Name</Label>
                     <Input
+                      aria-label="Name"
                       className="h-11"
                       value={merged.name}
                       disabled={!canManage}
@@ -109,6 +113,7 @@ function ShopsPage() {
                   <div className="min-w-0 space-y-2">
                     <Label>Slug</Label>
                     <Input
+                      aria-label="Slug"
                       className="h-11"
                       value={merged.slug}
                       disabled={!canManage}
@@ -118,6 +123,7 @@ function ShopsPage() {
                   <div className="min-w-0 space-y-2">
                     <Label>Währung</Label>
                     <Input
+                      aria-label="Währung"
                       className="h-11"
                       value={merged.currency}
                       disabled={!canManage}
@@ -127,6 +133,7 @@ function ShopsPage() {
                   <div className="min-w-0 space-y-2">
                     <Label>Sprache</Label>
                     <Input
+                      aria-label="Sprache"
                       className="h-11"
                       value={merged.locale}
                       disabled={!canManage}
@@ -140,7 +147,7 @@ function ShopsPage() {
                       disabled={!canManage}
                       onValueChange={(v) => patch({ status: v })}
                     >
-                      <SelectTrigger className="h-11">
+                      <SelectTrigger aria-label="Status" className="h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -226,12 +233,20 @@ function Domains({
       <p className="text-sm font-medium">Domains</p>
       <div className="mt-3 min-w-0 space-y-2">
         {(domains.data ?? []).map((d) => (
-          <div key={d.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm">
+          <div
+            key={d.id}
+            className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm"
+          >
             <span className="min-w-0 break-words">
               {d.domain} {d.is_primary && <span className="text-muted-foreground">· primär</span>}
             </span>
             {canManage && (
-              <Button size="sm" variant="ghost" className="min-h-11 shrink-0" onClick={() => removeMutation.mutate(d.id)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="min-h-11 shrink-0"
+                onClick={() => removeMutation.mutate(d.id)}
+              >
                 Entfernen
               </Button>
             )}
@@ -246,6 +261,7 @@ function Domains({
           <Input
             className="h-11 min-w-0 flex-1"
             value={domain}
+            aria-label="Shop-Domain"
             placeholder="shop.beispiel.de"
             onChange={(e) => setDomain(e.target.value)}
           />

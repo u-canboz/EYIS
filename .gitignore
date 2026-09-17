@@ -33,3 +33,7 @@ dist-ssr
 
 # Release-Artefakte (werden im Release-Workflow erzeugt)
 installer/artifact/
+
+# Isolated local installation (credentials, databases, QA files and runtimes)
+.local-state/
+.local-runtime/

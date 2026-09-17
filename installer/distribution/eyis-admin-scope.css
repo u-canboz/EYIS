@@ -15,10 +15,10 @@
  * und EYIS-Tokens greifen umgekehrt niemals in die Kundenseite.
  */
 .eyis-admin {
-  --radius: 0.75rem;
+  --radius: 0.625rem;
   --content-max: 84rem;
   --tap: 2.75rem;
-  --elevation-1: 0 1px 1px oklch(0.2 0.005 60 / 4%), 0 4px 12px -8px oklch(0.2 0.005 60 / 16%);
+  --elevation-1: 0 1px 2px oklch(0.2 0.005 60 / 3%);
   --elevation-2: 0 16px 40px -20px oklch(0.2 0.005 60 / 28%);
 
 
@@ -29,7 +29,7 @@
   --font-display: "Space Grotesk Variable", "DM Sans Variable", ui-sans-serif, system-ui,
     -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --background: oklch(0.964 0.003 85);
+  --background: oklch(0.974 0.002 85);
   --foreground: oklch(0.19 0 0);
 
   --surface: oklch(0.99 0.002 85);
@@ -41,7 +41,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.205 0 0);
 
-  --primary: #ED4800;
+  --primary: #C83C00;
   --primary-foreground: oklch(0.995 0.002 85);
   --secondary: oklch(0.955 0.004 85);
   --secondary-foreground: oklch(0.3 0.005 70);
@@ -64,7 +64,7 @@
   --border: oklch(0.917 0.004 75);
   --border-strong: oklch(0.868 0.006 75);
   --input: oklch(0.9 0.005 75);
-  --ring: #ED4800;
+  --ring: #C83C00;
 
   --chart-1: #ED4800;
   --chart-2: oklch(0.54 0.104 155);
@@ -72,13 +72,13 @@
   --chart-4: oklch(0.7 0.13 72);
   --chart-5: oklch(0.646 0.006 70);
 
-  --sidebar: oklch(0.955 0.004 85);
-  --sidebar-foreground: oklch(0.32 0.004 70);
+  --sidebar: oklch(0.987 0.002 85);
+  --sidebar-foreground: oklch(0.28 0.004 70);
   --sidebar-primary: oklch(1 0 0);
   --sidebar-primary-foreground: oklch(0.205 0 0);
-  --sidebar-accent: oklch(0.925 0.005 80);
+  --sidebar-accent: oklch(0.953 0.004 80);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.905 0.005 80);
+  --sidebar-border: oklch(0.925 0.004 80);
   --sidebar-ring: #ED4800;
 
   /* Der Scope bringt seine eigene Grundlage mit, statt sie von <body> zu erben.
@@ -104,7 +104,7 @@
 /* Einheitliche Formfelder im Backoffice: gleiche Höhe, gleiche Kante,
    gleicher Fokus — unabhängig davon, welche Seite sie rendert. */
 .eyis-admin label {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: color-mix(in oklab, var(--foreground) 78%, transparent);
 }
@@ -120,7 +120,7 @@
 .eyis-admin input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .eyis-admin [data-slot="select-trigger"],
 .eyis-admin button[role="combobox"] {
-  min-height: 2.5rem;
+  min-height: 2.75rem;
 }
 
 .eyis-admin input:focus-visible,
@@ -131,9 +131,34 @@
 
 /* Tabellenköpfe als ruhige Mikro-Labels statt fetter Zeilen. */
 .eyis-admin thead th {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--muted-foreground);
+}
+
+/* Merchant workspace: shared across every EYIS route and portalled dialog. */
+.eyis-admin :is(button, a, input, textarea, select, [role="tab"]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.eyis-admin :is(button:not([role="checkbox"]):not([role="switch"]), [role="tab"]) {
+  min-height: 2.75rem;
+}
+.eyis-admin :is(button, a)[aria-disabled="true"] { cursor: not-allowed; }
+.eyis-admin thead { background: var(--muted); }
+.eyis-admin tbody tr { transition: background-color 120ms ease; }
+.eyis-admin tbody tr:hover { background: color-mix(in srgb, var(--muted) 60%, transparent); }
+.eyis-admin :is(td, th) { padding-block: 0.875rem; }
+.eyis-admin [role="tablist"] { max-width: 100%; overflow-x: auto; height: auto; }
+.eyis-admin [role="tab"] { white-space: nowrap; flex-shrink: 0; }
+.eyis-admin [role="dialog"] { max-height: calc(100dvh - 2rem); overflow-y: auto; }
+.eyis-admin main { scroll-margin-top: 5rem; }
+@media (prefers-reduced-motion: reduce) {
+  .eyis-admin *, .eyis-admin *::before, .eyis-admin *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
