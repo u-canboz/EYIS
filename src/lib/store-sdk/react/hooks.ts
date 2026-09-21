@@ -44,9 +44,15 @@ export function useProducts(
     category?: string | null;
     collection?: string | null;
     sort?: string | null;
+    minPrice?: number | null;
+    maxPrice?: number | null;
+    availability?: "in_stock" | null;
+    vendor?: string | null;
+    productType?: string | null;
   },
   extra?: QueryExtra<StoreList<StoreProductSummary>>,
 ) {
+
   const client = useCommerce();
   return useQuery({
     queryKey: commerceKeys.products(params ?? {}),
