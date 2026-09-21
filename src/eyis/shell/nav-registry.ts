@@ -95,11 +95,24 @@ export const NAV_GROUPS: NavGroup[] = [
         keywords: "rabatte",
       },
       {
+        to: "/app/marketing/inhalte",
+        label: "Storefront-Inhalte",
+        icon: ScrollText,
+        keywords: "inhalte blöcke rechtstexte impressum agb suchbegriffe synonyme",
+      },
+      {
+        to: "/app/marketing/branding",
+        label: "Storefront-Branding",
+        icon: Palette,
+        keywords: "logo farben schriften vorlage theme",
+      },
+      {
         to: "/app/marketing/google-shopping",
         label: "Google Merchant Center",
         icon: ShoppingBag,
         keywords: "google shopping merchant feed",
       },
+
     ],
   },
   {
