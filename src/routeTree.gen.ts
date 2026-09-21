@@ -61,6 +61,7 @@ import { Route as AuthenticatedAppLagerReservierungenRouteImport } from './route
 import { Route as AuthenticatedAppLagerTransfersRouteImport } from './routes/_authenticated/app/lager/transfers'
 import { Route as AuthenticatedAppLagerWareneingangRouteImport } from './routes/_authenticated/app/lager/wareneingang'
 import { Route as AuthenticatedAppMarketingGoogleShoppingRouteImport } from './routes/_authenticated/app/marketing/google-shopping'
+import { Route as AuthenticatedAppMarketingInhalteRouteImport } from './routes/_authenticated/app/marketing/inhalte'
 import { Route as AuthenticatedAppMarketingPromotionsRouteImport } from './routes/_authenticated/app/marketing/promotions'
 import { Route as AuthenticatedAppPreiseIndexRouteImport } from './routes/_authenticated/app/preise/index'
 import { Route as AuthenticatedAppPreiseTestenRouteImport } from './routes/_authenticated/app/preise/testen'
@@ -402,6 +403,12 @@ const AuthenticatedAppMarketingGoogleShoppingRoute =
     path: '/app/marketing/google-shopping',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppMarketingInhalteRoute =
+  AuthenticatedAppMarketingInhalteRouteImport.update({
+    id: '/app/marketing/inhalte',
+    path: '/app/marketing/inhalte',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppMarketingPromotionsRoute =
   AuthenticatedAppMarketingPromotionsRouteImport.update({
     id: '/app/marketing/promotions',
@@ -739,6 +746,7 @@ export interface FileRoutesByFullPath {
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -841,6 +849,7 @@ export interface FileRoutesByTo {
   '/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  '/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -946,6 +955,7 @@ export interface FileRoutesById {
   '/_authenticated/app/lager/transfers': typeof AuthenticatedAppLagerTransfersRoute
   '/_authenticated/app/lager/wareneingang': typeof AuthenticatedAppLagerWareneingangRoute
   '/_authenticated/app/marketing/google-shopping': typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  '/_authenticated/app/marketing/inhalte': typeof AuthenticatedAppMarketingInhalteRoute
   '/_authenticated/app/marketing/promotions': typeof AuthenticatedAppMarketingPromotionsRoute
   '/_authenticated/app/preise/testen': typeof AuthenticatedAppPreiseTestenRoute
   '/_authenticated/app/produkte/$productId': typeof AuthenticatedAppProdukteProductIdRoute
@@ -1051,6 +1061,7 @@ export interface FileRouteTypes {
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
     | '/app/marketing/google-shopping'
+    | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
@@ -1153,6 +1164,7 @@ export interface FileRouteTypes {
     | '/app/lager/transfers'
     | '/app/lager/wareneingang'
     | '/app/marketing/google-shopping'
+    | '/app/marketing/inhalte'
     | '/app/marketing/promotions'
     | '/app/preise/testen'
     | '/app/produkte/$productId'
@@ -1257,6 +1269,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/lager/transfers'
     | '/_authenticated/app/lager/wareneingang'
     | '/_authenticated/app/marketing/google-shopping'
+    | '/_authenticated/app/marketing/inhalte'
     | '/_authenticated/app/marketing/promotions'
     | '/_authenticated/app/preise/testen'
     | '/_authenticated/app/produkte/$productId'
@@ -1715,6 +1728,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppMarketingGoogleShoppingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/marketing/inhalte': {
+      id: '/_authenticated/app/marketing/inhalte'
+      path: '/app/marketing/inhalte'
+      fullPath: '/app/marketing/inhalte'
+      preLoaderRoute: typeof AuthenticatedAppMarketingInhalteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/marketing/promotions': {
       id: '/_authenticated/app/marketing/promotions'
       path: '/app/marketing/promotions'
@@ -2098,6 +2118,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppLagerTransfersRoute: typeof AuthenticatedAppLagerTransfersRoute
   AuthenticatedAppLagerWareneingangRoute: typeof AuthenticatedAppLagerWareneingangRoute
   AuthenticatedAppMarketingGoogleShoppingRoute: typeof AuthenticatedAppMarketingGoogleShoppingRoute
+  AuthenticatedAppMarketingInhalteRoute: typeof AuthenticatedAppMarketingInhalteRoute
   AuthenticatedAppMarketingPromotionsRoute: typeof AuthenticatedAppMarketingPromotionsRoute
   AuthenticatedAppPreiseTestenRoute: typeof AuthenticatedAppPreiseTestenRoute
   AuthenticatedAppProdukteProductIdRoute: typeof AuthenticatedAppProdukteProductIdRoute
@@ -2181,6 +2202,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAppLagerWareneingangRoute,
   AuthenticatedAppMarketingGoogleShoppingRoute:
     AuthenticatedAppMarketingGoogleShoppingRoute,
+  AuthenticatedAppMarketingInhalteRoute: AuthenticatedAppMarketingInhalteRoute,
   AuthenticatedAppMarketingPromotionsRoute:
     AuthenticatedAppMarketingPromotionsRoute,
   AuthenticatedAppPreiseTestenRoute: AuthenticatedAppPreiseTestenRoute,
