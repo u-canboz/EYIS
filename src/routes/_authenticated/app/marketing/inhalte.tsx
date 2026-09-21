@@ -223,7 +223,10 @@ function StorefrontContentPage() {
     return (
       <div className="space-y-6">
         <PageHeader title="Storefront-Inhalte" />
-        <ErrorState error={contentQuery.error as Error} onRetry={() => contentQuery.refetch()} />
+        <ErrorState
+          description={(contentQuery.error as Error).message}
+          action={<Button onClick={() => contentQuery.refetch()}>Erneut laden</Button>}
+        />
       </div>
     );
   }
@@ -236,7 +239,7 @@ function StorefrontContentPage() {
       />
 
       {!canManage ? (
-        <PermissionState description="Zum Ändern dieser Inhalte fehlt dir die Berechtigung. Du siehst den aktuellen Stand nur lesend." />
+        <PermissionState what="das Ändern der Storefront-Inhalte" />
       ) : null}
 
       {contentQuery.isPending ? (
@@ -252,16 +255,16 @@ function StorefrontContentPage() {
                 {contentQuery.data!.blocks.length === 0 ? (
                   <EmptyState
                     title="Noch keine Blöcke"
-                    hint="Lege rechts den ersten Inhaltsblock an."
+                    description="Lege rechts den ersten Inhaltsblock an."
                   />
                 ) : (
-                  <RecordCardList>
+                  <RecordCardList desktopHidden={false}>
                     {contentQuery.data!.blocks.map((row) => (
                       <RecordCard
                         key={row.id}
                         title={row.title || row.section}
                         subtitle={`${row.section} · Position ${row.position}`}
-                        badge={
+                        badges={
                           <Badge variant={row.published ? "default" : "secondary"}>
                             {row.published ? "Veröffentlicht" : "Entwurf"}
                           </Badge>
@@ -282,11 +285,8 @@ function StorefrontContentPage() {
                             </div>
                           ) : null
                         }
-                      >
-                        {row.body ? (
-                          <p className="text-sm text-muted-foreground">{row.body}</p>
-                        ) : null}
-                      </RecordCard>
+                        fields={row.body ? [{ label: "Text", value: row.body }] : undefined}
+                      />
                     ))}
                   </RecordCardList>
                 )}
@@ -412,16 +412,16 @@ function StorefrontContentPage() {
                 {contentQuery.data!.pages.length === 0 ? (
                   <EmptyState
                     title="Noch keine Seiten"
-                    hint="Lege rechts die erste Inhaltsseite an."
+                    description="Lege rechts die erste Inhaltsseite an."
                   />
                 ) : (
-                  <RecordCardList>
+                  <RecordCardList desktopHidden={false}>
                     {contentQuery.data!.pages.map((row) => (
                       <RecordCard
                         key={row.id}
                         title={row.title}
                         subtitle={`/${row.handle}`}
-                        badge={
+                        badges={
                           <Badge variant={row.published ? "default" : "secondary"}>
                             {row.published ? "Veröffentlicht" : "Entwurf"}
                           </Badge>
@@ -442,11 +442,8 @@ function StorefrontContentPage() {
                             </div>
                           ) : null
                         }
-                      >
-                        {row.excerpt ? (
-                          <p className="text-sm text-muted-foreground">{row.excerpt}</p>
-                        ) : null}
-                      </RecordCard>
+                        fields={row.excerpt ? [{ label: "Kurztext", value: row.excerpt }] : undefined}
+                      />
                     ))}
                   </RecordCardList>
                 )}
@@ -530,10 +527,10 @@ function StorefrontContentPage() {
                 {contentQuery.data!.synonyms.length === 0 ? (
                   <EmptyState
                     title="Noch keine Suchbegriffe"
-                    hint="Lege rechts die erste Entsprechung an."
+                    description="Lege rechts die erste Entsprechung an."
                   />
                 ) : (
-                  <RecordCardList>
+                  <RecordCardList desktopHidden={false}>
                     {contentQuery.data!.synonyms.map((row) => (
                       <RecordCard
                         key={row.id}
