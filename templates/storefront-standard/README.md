@@ -32,7 +32,7 @@ Konto- und Rechtstextseiten sowie die E-Mail-Vorlagen.
 | --- | --- |
 | Shopname, Kontakt, Navigation, alle Texte | `src/content/shop.ts` |
 | Vertrauenspunkte, FAQ, Bewertungen, Hinweisleiste | `src/content/conversion.ts` |
-| Suchbegriff-Entsprechungen | `src/content/search-synonyme.ts` |
+| Suchbegriff-Entsprechungen | Backoffice: Marketing → Storefront-Inhalte |
 | Bilder | Dateien in `public/storefront/` ersetzen oder Pfade in `src/assets/assets.ts` ändern |
 | Farben, Radien, Schriften | Tokens im Block `.storefront` in `src/styles.storefront.css` |
 | Schriftarten laden | `<link>` im Root-Layout des Kundenprojekts, nie per `@import` |

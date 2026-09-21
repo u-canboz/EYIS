@@ -19,28 +19,11 @@ export const PRODUCT_SORTS = [
 const SORT_VALUES = PRODUCT_SORTS.map((s) => s.value as string);
 
 /**
- * Von der Store API v1 unterstützte Sortierwerte (Engine-Original).
- * Alles andere ist eine Theme-Ergänzung und wird im Frontend auf den
- * gelieferten Werten sortiert — es wird nichts nachgerechnet.
+ * Alle Sortierwerte beherrscht die Store API v1 serverseitig, inklusive Preis.
+ * Das Theme sortiert und rechnet nichts nach.
  */
-const ENGINE_SORTS = new Set(["title_asc", "newest"]);
-
-/** Sortierwert, der an die Store API gehen darf (sonst null). */
 export function engineSort(sort: string): string | null {
-  return ENGINE_SORTS.has(sort) ? sort : null;
-}
-
-/** Theme-seitige Sortierung für Werte, die die Engine (noch) nicht kennt. */
-export function sortProducts(
-  products: StoreProductSummary[],
-  sort: string,
-): StoreProductSummary[] {
-  if (sort !== "price_asc" && sort !== "price_desc") return products;
-  const amount = (p: StoreProductSummary) =>
-    p.price ? p.price.unitAmountMinor : sort === "price_asc" ? Number.MAX_SAFE_INTEGER : -1;
-  return [...products].sort((a, b) =>
-    sort === "price_asc" ? amount(a) - amount(b) : amount(b) - amount(a),
-  );
+  return sort ? sort : null;
 }
 
 function num(value: unknown, fallback: number) {
@@ -92,20 +75,6 @@ export const emptyProductFilters: ProductFilterState = {
   preis_max: 0,
   seite: 1,
 };
-
-/** Verfügbarkeit und Preisspanne auf die vom Server gelieferten Werte anwenden. */
-export function applyLocalFilters(
-  products: StoreProductSummary[],
-  filters: ProductFilterState,
-): StoreProductSummary[] {
-  return products.filter((product) => {
-    if (filters.verfuegbar && product.availability === "out_of_stock") return false;
-    const amount = product.price ? product.price.unitAmountMinor / 100 : null;
-    if (filters.preis_min > 0 && (amount === null || amount < filters.preis_min)) return false;
-    if (filters.preis_max > 0 && (amount === null || amount > filters.preis_max)) return false;
-    return true;
-  });
-}
 
 export function activeFilterCount(filters: ProductFilterState) {
   let count = 0;

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { keepPreviousData } from "@tanstack/react-query";
-import { useProducts, useSearch } from "@/lib/store-sdk/react/hooks";
-import { filterStoreProducts } from "./search";
+import { useSearch } from "@/lib/store-sdk/react/hooks";
 import type { StoreProductSummary } from "@/lib/store-sdk";
 
 export type ProductSearchStatus = "idle" | "searching" | "results" | "empty" | "error";
@@ -35,19 +34,11 @@ export function useProductSearch(input: string, debounceMs = 250): ProductSearch
     staleTime: 30_000,
     placeholderData: keepPreviousData,
   });
-  const fallbackQuery = useProducts(
-    { pageSize: 100 },
-    { enabled: active, staleTime: 5 * 60_000 },
-  );
+  // Suche, Entsprechungen und Kategoriebezug liefert die Store API serverseitig.
+  const results = active ? (query.data?.data ?? []) : [];
 
-  const direct = query.data?.data ?? [];
-  const local = filterStoreProducts(fallbackQuery.data?.data ?? [], debounced);
-  const results = active ? (direct.length > 0 ? direct : local) : [];
-
-  const waiting =
-    raw !== debounced ||
-    (active && (query.isPending || query.isPlaceholderData || fallbackQuery.isPending));
-  const failed = query.isError && fallbackQuery.isError;
+  const waiting = raw !== debounced || (active && (query.isPending || query.isPlaceholderData));
+  const failed = query.isError;
 
   const status: ProductSearchStatus = !active && raw.length < 2
     ? "idle"
@@ -66,7 +57,6 @@ export function useProductSearch(input: string, debounceMs = 250): ProductSearch
     isStale: waiting && results.length > 0,
     retry: () => {
       void query.refetch();
-      void fallbackQuery.refetch();
     },
   };
 }

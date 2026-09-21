@@ -6,13 +6,11 @@ import { ProductFilters } from "./ProductFilters";
 import { EmptyState, ErrorState, ProductGridSkeleton } from "./StateBlocks";
 import { Button } from "@/components/ui/button";
 import {
-  applyLocalFilters,
   emptyProductFilters,
   engineSort,
   parseProductFilters,
   PRODUCT_SORTS,
   serializeProductFilters,
-  sortProducts,
   type ProductFilterState,
 } from "@/lib/storefront/product-filters";
 
@@ -36,25 +34,20 @@ export function ProductBrowser({
 
   const categories = useCategories({ staleTime: 10 * 60_000 });
   const collections = useCollections({ staleTime: 10 * 60_000 });
-  // Preis-Sortierung kennt die Engine nicht: dafür holt das Theme eine große
-  // Seite und sortiert/blättert lokal auf den gelieferten Werten.
-  const localSort = filters.sort === "price_asc" || filters.sort === "price_desc";
+  // Filter, Sortierung und Blättern erledigt die Store API serverseitig.
   const query = useProducts({
-    page: localSort ? 1 : filters.seite,
-    pageSize: localSort ? 200 : PAGE_SIZE,
+    page: filters.seite,
+    pageSize: PAGE_SIZE,
     category: category ?? null,
     collection: collection ?? null,
     sort: engineSort(filters.sort),
+    minPrice: filters.preis_min > 0 ? filters.preis_min * 100 : null,
+    maxPrice: filters.preis_max > 0 ? filters.preis_max * 100 : null,
+    availability: filters.verfuegbar ? "in_stock" : null,
   });
 
-  const filtered = applyLocalFilters(query.data?.data ?? [], filters);
-  const sorted = sortProducts(filtered, filters.sort);
-  const products = localSort
-    ? sorted.slice((filters.seite - 1) * PAGE_SIZE, filters.seite * PAGE_SIZE)
-    : sorted;
-  const hasMore = localSort
-    ? sorted.length > filters.seite * PAGE_SIZE
-    : (query.data?.pagination.hasMore ?? false);
+  const products = query.data?.data ?? [];
+  const hasMore = query.data?.pagination.hasMore ?? false;
   const sortLabel = PRODUCT_SORTS.find((s) => s.value === filters.sort)?.label;
 
   const chips: { key: string; label: string; clear: () => void }[] = [];
@@ -102,7 +95,7 @@ export function ProductBrowser({
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
           <p className="text-sm text-muted-foreground">
             {query.data
-              ? `${products.length} von ${localSort ? sorted.length : query.data.pagination.total} Produkten`
+              ? `${products.length} von ${query.data.pagination.total} Produkten`
               : "Produkte"}
           </p>
           {chips.length > 0 ? (
